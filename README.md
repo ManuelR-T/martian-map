@@ -326,3 +326,25 @@ are not promised after offline reload: their bounded persistence belongs to #24.
 NASA connectivity is optional for the prepared-sector workflow. Validate browser
 rendering, disconnected reload, and physical tablet/glove interaction before
 operational use; these have not been exercised for this implementation.
+
+### Perseverance historical context (#20)
+
+The Jezero sector panel includes an optional Perseverance history toggle. It
+shows NASA-published positions and separate drive segments, not a validated
+human route or current telemetry. Select a feature on the map or use the
+keyboard-accessible list to inspect its sol/RMC. Overlapping rover hits narrow
+the list; science sites keep selection priority. Mission steps are unaffected.
+
+The prepared extract includes complete segments intersecting the mission sector
+and their available endpoint waypoints. Outside it, missing history means no
+prepared data, not evidence that the rover never visited. Original source
+coordinates are preserved; five endpoint discrepancies are listed in the
+snapshot quality details. No snapping, gap filling, site substitution or vertical
+alignment is performed. CRS84 in the upstream metadata is interpreted explicitly
+as Mars planetocentric east-positive longitude/latitude, not Earth coordinates.
+
+History files ship with the production PWA and are included in its versioned
+precache. After a successful online/local installation and offline-ready status,
+the layer needs no NASA connection. Failed history loads offer retry without
+blocking imagery or the mission. Production offline/tablet interaction still
+requires acceptance testing; the automatic checks do not establish it.

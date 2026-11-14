@@ -53,7 +53,8 @@ describe('committed manifest', () => {
     for (const id of ['imagery-hirise', 'terrain-dem', 'terrain-slope', 'terrain-hillshade', 'science-sites']) {
       expect(capabilityStatus(committed, 'jezero', id)).not.toBe('unavailable');
     }
-    for (const id of ['rover-traverse', 'thermal-themis', 'weather-meda', 'geology']) {
+    expect(capabilityStatus(committed, 'jezero', 'rover-traverse')).toBe('partial');
+    for (const id of ['thermal-themis', 'weather-meda', 'geology']) {
       expect(capabilityStatus(committed, 'jezero', id)).toBe('unavailable');
     }
   });

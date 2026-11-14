@@ -10,9 +10,16 @@ it('versions final HTML and public data, and excludes the previous worker', asyn
     await mkdir(join(directory, 'data'));
     await writeFile(join(directory, 'index.html'), '<html>first</html>');
     await writeFile(join(directory, 'data', 'map.jpg'), 'first image');
+    await mkdir(join(directory, 'data/jezero/rover'), { recursive: true });
+    for (const name of ['waypoints.geojson', 'traverse.geojson', 'quality.json']) await writeFile(join(directory, 'data/jezero/rover', name), '{}');
     await writeOfflineWorker(directory);
     const first = await readFile(join(directory, 'sw.js'), 'utf8');
     expect(first).toContain('data/map.jpg');
+    for (const name of ['waypoints.geojson', 'traverse.geojson', 'quality.json']) expect(first).toContain(`data/jezero/rover/${name}`);
+    await writeFile(join(directory, 'data/jezero/rover/traverse.geojson'), '{"updated":true}');
+    await writeOfflineWorker(directory);
+    expect(await readFile(join(directory, 'sw.js'), 'utf8')).not.toBe(first);
+    await writeFile(join(directory, 'data/jezero/rover/traverse.geojson'), '{}');
     await writeOfflineWorker(directory);
     expect(await readFile(join(directory, 'sw.js'), 'utf8')).toBe(first);
     await writeFile(join(directory, 'data', 'map.jpg'), 'updated image');
