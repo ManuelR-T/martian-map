@@ -21,3 +21,15 @@ Pour changer le secteur, les zooms ou une source, modifier `spec.py`, relancer
 `pnpm data:prepare`, puis commiter les données et le manifeste régénérés. Pour
 ajouter une dépendance Python : `uv add --directory tools/data <paquet>==<version>`,
 et commiter `uv.lock`. Voir le README racine, section « Données ».
+
+## Perseverance history
+
+`marps_data/rover.py` selects original points and full segments intersecting
+`spec.SECTOR`, including endpoint waypoints when available. It writes two local
+GeoJSON files and `quality.json` under `jezero/rover/`. Source hashes are pinned
+in `spec.ROVER_HASHES`; raw downloads are cached as `.cache/M20_waypoints.json`
+and `.cache/M20_traverse.json`. Ordinary builds/checks/tests never download them.
+To refresh, explicitly download and review the changed source, update the hash,
+replace its cached input, and run `pnpm data:prepare` then `pnpm data:check`.
+Never accept changed geometry or metadata solely to bypass a hash failure.
+Schema 3 adds the rover dataset kinds; ship manifest and consumer together.

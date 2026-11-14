@@ -36,3 +36,4 @@ export * from './contracts';
 export * from './coverage';
 export * from './siteSheets';
 export * from './terrain';
+export * from './rover';

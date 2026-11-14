@@ -19,10 +19,16 @@ import { marsProjection, createRegionSource } from './marsWmts';
 import { containsPosition, marsHorizontalResolution, resolveJezeroTile } from './jezero';
 import './global-mars-map.css';
 import { SiteChoicePopover, type SiteChoice } from './SiteChoicePopover';
+import { loadRoverHistory, type RoverHistory } from '@marps/data';
+import { createRoverLayers } from './roverLayer';
+import { RoverHistoryControl, roverMessages } from './RoverHistoryControl';
 import { jezeroMessages } from './jezeroMessages';
 const messages = jezeroMessages.fr;
 
 interface Props {
+  datasets: readonly DatasetDescriptor[];
+  roverEnabled: boolean;
+  onRoverToggle: () => void;
   dataset: DatasetDescriptor;
   sector: Extent;
   radius: number;
@@ -31,7 +37,21 @@ interface Props {
   onSelect: (id: string) => void;
 }
 const bounds = (extent: Extent) => [extent.west, extent.south, extent.east, extent.north];
-export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect }: Props) {
+export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, datasets, roverEnabled, onRoverToggle }: Props) {
+  const [history, setHistory] = useState<RoverHistory | null>(null);
+  const [historyFailed, setHistoryFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [roverCandidates, setRoverCandidates] = useState<readonly number[] | null>(null);
+  const [roverSelected, setRoverSelected] = useState<number | null>(null);
+  const historyRef = useRef<RoverHistory | null>(null);
+  const roverEnabledRef = useRef(roverEnabled);
+  useEffect(() => { roverEnabledRef.current = roverEnabled; }, [roverEnabled]);
+  useEffect(() => {
+    if (!roverEnabled || history) return;
+    const controller = new AbortController();
+    loadRoverHistory(datasets, controller.signal).then(value => { if (!controller.signal.aborted) setHistory(value); }).catch(() => { if (!controller.signal.aborted) setHistoryFailed(true); });
+    return () => controller.abort();
+  }, [datasets, roverEnabled, history, attempt]);
   const target = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
   const [failed, setFailed] = useState(false);
@@ -89,7 +109,7 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect }
         if (feature.get('level') !== Math.round(view.getZoom() ?? 12)) return;
         return new Style({ stroke: new Stroke({ color: '#fff', width: 2, lineDash: [2, 6] }) });
       } }),
-      new VectorLayer({ source: new VectorSource({ features, wrapX: false }) }),
+      new VectorLayer({ zIndex: 3, source: new VectorSource({ features, wrapX: false }) }),
     ], view });
     mapRef.current = map;
     view.fit(bounds(sector), { size: map.getSize(), padding: [90, 40, 160, 40] });
@@ -103,6 +123,11 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect }
     map.on('movestart', () => setChoice(null));
     map.on('singleclick', event => {
       const hits = map.getFeaturesAtPixel(event.pixel, { hitTolerance: 15 }).map(feature => sites.find(site => site.id === feature.getId())).filter((site): site is SiteDescriptor => Boolean(site));
+      if (hits.length === 0 && roverEnabledRef.current && historyRef.current) {
+        const roverHits = map.getFeaturesAtPixel(event.pixel, { hitTolerance: 15 }).map(feature => feature.get('roverIndex')).filter((index): index is number => typeof index === 'number');
+        setRoverCandidates(roverHits.length > 1 ? [...new Set(roverHits)] : null);
+        setRoverSelected(roverHits.length === 1 ? roverHits[0]! : null);
+      }
       if (hits.length === 1) onSelect(hits[0]!.id);
       if (hits.length > 1) {
         const rectangle = target.current!.getBoundingClientRect();
@@ -120,13 +145,24 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect }
     const observer = new ResizeObserver(() => map.updateSize()); observer.observe(target.current!);
     return () => { pending.forEach(cancel => cancel()); observer.disconnect(); window.removeEventListener('online', connectivity); window.removeEventListener('offline', connectivity); map.dispose(); mapRef.current = null; };
   }, [dataset, sector, radius, sites, onSelect]);
+  useEffect(() => {
+    historyRef.current = history;
+    const map = mapRef.current;
+    if (!map || !history) return;
+    const layer = createRoverLayers(history, roverSelected);
+    layer.setVisible(roverEnabled);
+    map.addLayer(layer);
+    return () => { map.removeLayer(layer); };
+  }, [history, roverSelected, roverEnabled, dataset, sector, radius, sites, onSelect]);
   return <div className="mars-map-container jezero-map">
+    {roverEnabled && <p className="rover-warning border bg-card p-2 text-xs font-semibold">{roverMessages.fr.warning}</p>}
     <div ref={target} className="mars-map" tabIndex={0} aria-label={messages.label} />
     <Panel title={messages.panelTitle} collapsible className="jezero-status text-sm" contentClassName="overflow-y-auto">
       <p role="status">{outside ? messages.outside : messages.sector} {offline ? messages.offline : messages.online} {failed && messages.failure}</p>
 
       <Button size="sm" onClick={() => mapRef.current?.getView().fit(bounds(sector), { size: mapRef.current.getSize(), padding: [90, 40, 160, 40] })}>{messages.return}</Button>
       {failed && <Button size="sm" variant="outline" onClick={() => { setFailed(false); mapRef.current?.getLayers().forEach(layer => { if (layer instanceof TileLayer) layer.getSource()?.refresh(); }); }}>{messages.retry}</Button>}
+      <RoverHistoryControl enabled={roverEnabled} onToggle={onRoverToggle} history={history} candidates={roverCandidates} failed={historyFailed} retry={() => { setHistoryFailed(false); setAttempt(value => value + 1); }} selected={roverSelected} onSelect={index => { setRoverSelected(index); if (index === null) setRoverCandidates(null); }} />
       <div className="jezero-legend mt-2 border-t pt-2 text-xs" role="group" aria-label={messages.legendTitle}>
         <p className="font-semibold">{messages.legendTitle}</p>
         <ul className="mt-1 grid gap-1">

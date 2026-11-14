@@ -48,3 +48,5 @@
   overflow-y: auto;
 }
 .site-choice-popover button { min-height: 44px; }
+
+.rover-warning { position: absolute; top: .5rem; right: .5rem; z-index: 1; max-width: calc(100% - 5rem); pointer-events: none; }
