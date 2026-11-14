@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Map from 'ol/Map';
+import { defaults as defaultControls } from 'ol/control';
+import { MapInformation } from './MapInformation';
 import type ImageTile from 'ol/ImageTile';
 import View from 'ol/View';
 import Feature from 'ol/Feature';
@@ -80,7 +82,7 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect }
       feature.set('level', range.z);
       return feature;
     });
-    const map = new Map({ target: target.current!, maxTilesLoading: 8, layers: [
+    const map = new Map({ controls: defaultControls({ attribution: false }), target: target.current!, maxTilesLoading: 8, layers: [
       new TileLayer({ source: createRegionSource(dataset) }), new TileLayer({ source }),
       new VectorLayer({ source: new VectorSource({ features: [boundary(product.extent, '#ffcc66', []), boundary(sector, '#50c8ff', [10, 5])], wrapX: false }) }),
       new VectorLayer({ source: new VectorSource({ features: prepared, wrapX: false }), style: feature => {
@@ -122,7 +124,7 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect }
     <div ref={target} className="mars-map" tabIndex={0} aria-label={messages.label} />
     <Panel title={messages.panelTitle} collapsible className="jezero-status text-sm" contentClassName="overflow-y-auto">
       <p role="status">{outside ? messages.outside : messages.sector} {offline ? messages.offline : messages.online} {failed && messages.failure}</p>
-      <div aria-hidden="true" style={{ width: 100, borderBottom: '3px solid currentColor' }} /><p className="text-xs">{scale} · {messages.scale}</p>
+
       <Button size="sm" onClick={() => mapRef.current?.getView().fit(bounds(sector), { size: mapRef.current.getSize(), padding: [90, 40, 160, 40] })}>{messages.return}</Button>
       {failed && <Button size="sm" variant="outline" onClick={() => { setFailed(false); mapRef.current?.getLayers().forEach(layer => { if (layer instanceof TileLayer) layer.getSource()?.refresh(); }); }}>{messages.retry}</Button>}
       <div className="jezero-legend mt-2 border-t pt-2 text-xs" role="group" aria-label={messages.legendTitle}>
@@ -139,11 +141,15 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect }
 
     </Panel>
     {choice && <SiteChoicePopover choice={choice} onSelect={onSelect} onClose={() => { setChoice(null); target.current?.focus({ preventScroll: true }); }} />}
-    <details className="map-information border bg-card p-2 text-xs"><summary className="map-info-toggle">{messages.sources}</summary>
+    <div className="mars-scale border bg-card p-4 text-xs" aria-label={messages.scale}>
+      <div aria-hidden="true" className="mars-scale-bar" />
+      <p>{scale} · {messages.scale}</p>
+    </div>
+    <MapInformation>
       <p>{messages.legend}</p>
       <p>{messages.coordinates} R = {radius} m.</p>
       <p>{messages.cache}</p>
       <a href={dataset.source.url} className="underline">{dataset.source.credit}</a>
-    </details>
+    </MapInformation>
   </div>;
 }
