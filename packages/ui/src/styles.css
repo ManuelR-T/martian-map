@@ -1,6 +1,253 @@
-:root { font-family: system-ui, sans-serif; color: #e6edf3; background: #161b22; color-scheme: dark; }
-body { margin: 0; }
-main { max-width: 64rem; margin: 4rem auto; padding: 0 1.5rem; }
-h1 { font-size: clamp(2rem, 6vw, 3.5rem); }
-p { line-height: 1.6; }
-.panel { padding: 1.5rem; border: 1px solid #59636e; border-radius: .75rem; }
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@fontsource-variable/public-sans/wght.css";
+@import "@fontsource-variable/archivo/wdth.css";
+
+/* Les classes utilisées par les composants partagés sont lues depuis ce dossier. */
+@source ".";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Jetons de couleur. Deux familles : le bleu et le marine de la NASA pour
+ * l'interface et les actions, les teintes de Mars (rouille, poussière, basalte)
+ * pour le terrain et les repères. Toutes sont désaturées pour rester calmes ;
+ * chaque paire texte/fond est contrôlée par tokens.test.ts.
+ */
+:root {
+  color-scheme: light;
+  --radius: 0.125rem;
+
+  --background: #f5f1ec;
+  --foreground: #1a2030;
+  --card: #ffffff;
+  --card-foreground: #1a2030;
+  --popover: #ffffff;
+  --popover-foreground: #1a2030;
+  --primary: #27457a;
+  --primary-foreground: #ffffff;
+  --secondary: #ebe5dd;
+  --secondary-foreground: #2b2a33;
+  --muted: #eee8e0;
+  --muted-foreground: #5a5650;
+  --accent: #e2e7f0;
+  --accent-foreground: #1b2c4a;
+  --destructive: #a23b2c;
+  --destructive-foreground: #ffffff;
+  --border: #ddd4c8;
+  --input: #857b6f;
+  --ring: #27457a;
+
+  --header: #131f38;
+  --header-foreground: #ffffff;
+  --mars: #a8512f;
+  --mars-foreground: #ffffff;
+  --mars-surface: #f2e4d8;
+
+  --danger: #8a2c1e;
+  --danger-surface: #faf0ee;
+  --danger-border: #bd5645;
+  --warning: #684a14;
+  --warning-surface: #faf3e2;
+  --warning-border: #a67a35;
+  --success: #215a41;
+  --success-surface: #eef6f1;
+  --success-border: #4b8c6b;
+  --info: #27457a;
+  --info-surface: #eef2f9;
+  --info-border: #5a76ab;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: #14110f;
+  --foreground: #ece7e1;
+  --card: #1c1815;
+  --card-foreground: #ece7e1;
+  --popover: #1c1815;
+  --popover-foreground: #ece7e1;
+  --primary: #a3b9e2;
+  --primary-foreground: #0f1a2e;
+  --secondary: #2a2420;
+  --secondary-foreground: #e3dcd3;
+  --muted: #241f1b;
+  --muted-foreground: #b3a99e;
+  --accent: #2a3246;
+  --accent-foreground: #e4eaf5;
+  --destructive: #e5937f;
+  --destructive-foreground: #2a0d07;
+  --border: #372f28;
+  --input: #8b7f72;
+  --ring: #b5c7ea;
+
+  --header: #131f38;
+  --header-foreground: #ffffff;
+  --mars: #d27b55;
+  --mars-foreground: #1f0d05;
+  --mars-surface: #2c1c14;
+
+  --danger: #f0b4a6;
+  --danger-surface: #2e1814;
+  --danger-border: #c9705d;
+  --warning: #e8cf9a;
+  --warning-surface: #2b2212;
+  --warning-border: #b8914a;
+  --success: #a9d8bf;
+  --success-surface: #15241d;
+  --success-border: #5fa082;
+  --info: #bfd0ee;
+  --info-surface: #1a2336;
+  --info-border: #7f9bcf;
+}
+
+@theme inline {
+  --font-sans: "Public Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Archivo Variable", "Public Sans Variable", ui-sans-serif, system-ui, sans-serif;
+
+  /* Aucun texte d'interface sous 13 px. */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.4;
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 6px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-header: var(--header);
+  --color-header-foreground: var(--header-foreground);
+  --color-mars: var(--mars);
+  --color-mars-foreground: var(--mars-foreground);
+  --color-mars-surface: var(--mars-surface);
+  --color-danger: var(--danger);
+  --color-danger-surface: var(--danger-surface);
+  --color-danger-border: var(--danger-border);
+  --color-warning: var(--warning);
+  --color-warning-surface: var(--warning-surface);
+  --color-warning-border: var(--warning-border);
+  --color-success: var(--success);
+  --color-success-surface: var(--success-surface);
+  --color-success-border: var(--success-border);
+  --color-info: var(--info);
+  --color-info-surface: var(--info-surface);
+  --color-info-border: var(--info-border);
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border);
+    /* Couleur posée d'avance : l'anneau de focus apparaît net, sans fondu depuis la couleur du texte. */
+    outline-color: var(--ring);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Un seul style de focus, plein et décalé : visible sur fond clair, sombre ou bleu. */
+  :focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Titres : Archivo élargi, dans l'esprit des manuels graphiques de la NASA. */
+@utility heading-display {
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+/*
+ * Libellés de console : titres de panneau, boutons, voyants d'état. Capitales
+ * élargies et espacées, réservées aux textes courts ; jamais sous 13 px.
+ */
+@utility label-caps {
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-stretch: 112%;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+/* Quadrillage de l'emplacement carte : méridiens et parallèles couleur rouille, estompés vers les bords. */
+@utility graticule {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--mars) 22%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--mars) 22%, transparent) 1px, transparent 1px);
+  background-size: 3.5rem 3.5rem;
+  background-position: center;
+  mask-image: radial-gradient(ellipse at center, #000 35%, transparent 95%);
+}
+
+/* Motifs des segments de budget : chaque part se distingue sans la couleur. */
+@utility pattern-solid {
+  background-color: currentColor;
+}
+
+@utility pattern-hatched {
+  background-image: repeating-linear-gradient(135deg, currentColor 0 3px, transparent 3px 7px);
+}
+
+@utility pattern-dotted {
+  background-image: radial-gradient(currentColor 1.5px, transparent 1.6px);
+  background-size: 6px 6px;
+}
+
+@utility pattern-crossed {
+  background-image:
+    repeating-linear-gradient(0deg, currentColor 0 1.5px, transparent 1.5px 6px),
+    repeating-linear-gradient(90deg, currentColor 0 1.5px, transparent 1.5px 6px);
+}
+
+@utility pattern-striped {
+  background-image: repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 6px);
+}
