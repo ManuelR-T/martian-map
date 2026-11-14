@@ -151,19 +151,20 @@ global, et exporter le composant depuis `src/index.ts`.
 ## Données
 
 Les données du MVP sont **figées dans le dépôt** sous `apps/web/public/data`
-(environ 5 Mo) et servies en statique à l'adresse `/data/`. `pnpm build`,
+(environ 5,4 Mo) et servies en statique à l'adresse `/data/`. `pnpm build`,
 `pnpm test` et l'application ne contactent jamais NASA ni USGS.
 
 | Jeu de données | Livraison | Contenu |
 | --- | --- | --- |
 | `mola-colorized-relief` | distante (Trek) | Fond mondial d'orientation, non figé |
 | `jezero-hirise-mosaic` | figée | Tuiles HiRISE WMTS, zooms 12 à 16, sur le secteur |
-| `jezero-ctx-dem` | figée | Altitudes CTX 20 m du secteur, float32 (`NaN` = pas de donnée) |
+| `jezero-hirise-dem`, `-slope`, `-hillshade` | figée | Altitudes, pentes et relief ombré HiRISE, agrégés à 4 m |
+| `jezero-ctx-dem`, `-slope`, `-hillshade` | figée | Les mêmes grilles à 20 m (CTX), en repli |
 | `jezero-sampling-sites` | figée | Skinner Ridge, Wildcat Ridge et Amalik (GeoJSON NASA) |
 
 Le manifeste sépare l'**orientation globale** (région `global`) du **détail de
 Jezero** (région `jezero`). Chaque capacité (`imagery-hirise`, `terrain-dem`,
-`science-sites`, `thermal-themis`…) porte son statut ; une capacité non préparée
+`terrain-slope`, `science-sites`, `thermal-themis`…) porte son statut ; une capacité non préparée
 est `unavailable` avec sa raison. Un fond ne peut jamais activer une donnée
 absente : `capabilityStatus` de `@marps/data` ne retient que les jeux déclarés
 pour la région demandée et prend le statut le plus faible.
@@ -173,7 +174,13 @@ CRS, emprise (degrés planétocentriques, longitude positive vers l'est),
 résolution, statut, version de la source, crédit, conditions d'usage, empreinte
 SHA-256 de la source amont et de chaque fichier figé. Une valeur inconnue reste
 `null` (date, sol, datum vertical) ; une absence de donnée n'est jamais convertie
-en zéro : pixels transparents pour l'imagerie, `NaN` pour l'altitude.
+en zéro : pixels transparents pour les images, `NaN` pour l'altitude et la pente.
+
+Altitudes et pentes sont des grilles float32 (`NaN` = pas de donnée) dont le
+manifeste donne l'origine, le pas, la projection et le datum vertical.
+`terrainDataset`, `loadGrid` et `sampleGrid` de `@marps/data` les lisent ; HiRISE
+est préféré, CTX prend le relais s'il manque. La taille de maille n'est pas une
+précision de navigation. Détails et limites : [`docs/relief-jezero.md`](docs/relief-jezero.md).
 
 ### Préparer et vérifier
 
@@ -189,14 +196,17 @@ pnpm data:test      # tests des scripts
 
 `data:prepare` écrit dans un dossier temporaire, valide, puis remplace
 `apps/web/public/data` ; un échec réseau ou de validation laisse les données
-actuelles intactes. Le DEM CTX est mis en cache dans `tools/data/.cache` (ignoré
-par Git) et son empreinte est vérifiée : si la source amont change, la préparation
+actuelles intactes. Le DEM CTX et le bloc de lignes lu dans le DEM HiRISE (103 Mo
+sur 1,8 Go, par requête `Range`) sont mis en cache dans `tools/data/.cache` (ignoré
+par Git) et leur empreinte est vérifiée : si une source amont change, la préparation
 s'arrête pour revue. Le secteur, les URL et les crédits sont dans
 `tools/data/marps_data/spec.py`.
 
 `data:check` contrôle : champs requis, emprises et coordonnées valides, sites dans
 le secteur, tailles et empreintes des fichiers, unités, `NaN` des altitudes
-(aucune valeur sentinelle), pixels transparents, et cohérence statut/capacités.
+(aucune valeur sentinelle), pixels transparents, transformation des grilles,
+présence de chaque site sur une maille valide, pentes entre 0° et 90° sur la même
+grille que leurs altitudes, et cohérence statut/capacités.
 Les notes de recherche sont dans [`docs/`](docs/) et les échantillons de contrôle
 dans [`data/research/`](data/research/).
 
@@ -234,3 +244,75 @@ temporairement le facteur `60` de `minutesToSeconds` par `59` doit faire échoue
 
 Références : [workspaces pnpm](https://pnpm.io/workspaces),
 [guide Vite](https://vite.dev/guide/).
+
+## Global Mars map and offline use (#7)
+
+The map is mounted in #5's `MapStage`, uses `PlannerProvider` view state, and
+consumes #6's dataset descriptors. The existing planner, design system, French
+interface, theme and panels are preserved. The app opens on the interactive global Mars
+view; drag to pan and use the wheel or lower-right zoom controls to explore.
+“Mars entière” restores the full-planet extent; the Jezero marker or “Ouvrir Jezero” returns to
+the detailed sector. Detailed planning remains unavailable outside Jezero.
+
+MOLA uses the manifest's NASA Trek URL and attribution, with a planetocentric
+geographic grid registered as `MARS:104905` (NASA identifier
+`urn:ogc:def:crs:EPSG::104905`). Origin: −180°, 90°; 256-pixel tiles;
+2 × 1 tiles at level 0; source levels 0–7. No Earth Web Mercator or Earth distance
+calculation is used. Two bundled NASA level-0 JPEGs under `public/data/mola`
+provide a coarse global overview without NASA connectivity. The nominal
+463 m/pixel source sampling does not describe that overview's resolution.
+
+Jezero entry displays the prepared local HiRISE tiles using the manifest's
+extent, zoom ranges, URLs, and credit. It never requests a local tile outside
+the frozen ranges. Further detailed-map tools and site overlays belong to #8/#9.
+The approximate global Jezero marker is not used as a scientific site coordinate.
+
+Production builds precache all final assets, fonts, lazy-loaded design-system
+code, the manifest, and prepared local datasets. After the French offline-ready
+message appears, reload works with internet disconnected. First installation
+requires a connection or distribution of the static build over a local server;
+HTTPS or localhost is required for service workers. Development mode does not
+install a worker. Browser storage clearing/eviction requires preparing again.
+Successfully fetched additional global MOLA tiles are cached with a 180-tile
+limit; unvisited detail falls back to the bundled overview. This is not a complete
+high-resolution planetary download or a guarantee of mission suitability.
+
+Installation failure shows an error and retry action; a stalled installation
+times out after 30 seconds. Waiting updates ask users to close all app tabs and
+reopen. Cache versions hash worker logic and every final file, including HTML and
+public data. Regular CI tests cover failure/timeout/update states, public-data
+and HTML invalidation, and cached navigation/assets without network access.
+
+Source of the bundled overview, verified 2026-11-14: NASA / JPL-Caltech / GSFC,
+MGS MOLA, distributed by NASA Trek:
+https://trek.nasa.gov/tiles/Mars/EQ/Mars_MGS_MOLA_ClrShade_merge_global_463m/1.0.0/WMTSCapabilities.xml
+
+Local validation: lint, typecheck, 148 JavaScript tests, production build, the
+frozen-data integrity check, and 19 Python tests pass. Headless Chromium verified
+the planner shell, global/Jezero navigation, rendered local imagery, all 108
+precached resources, reload without internet, mobile width, and no page errors
+or local 404s with NASA blocked. Live NASA JPEGs returned HTTP 200; retry
+recovered after restoring the blocked service, and keyboard navigation emitted
+only in-range global tile URLs. A deployed check of this feature branch remains
+pending publication; earlier `dev` deployments do not contain this implementation.
+
+## Tablet and wrist layouts
+
+Below 1280 CSS pixels, or on screens at most 600 pixels high, use the Carte /
+Mission navigation. Carte keeps the map within the viewport; Mission exposes the
+existing panels in a separate scrollable area. On very small wrist displays,
+settings and theme controls remain accessible in Mission. Map options and source
+information open from “Carte et sources”; zoom stays above attribution.
+
+Map controls and compact navigation/view selectors have targets at least 44 × 44
+CSS pixels. Coarse-pointer devices also receive larger shared controls. The map
+viewport owns pan/pinch gestures; mission panels and options scroll independently.
+No viewport setting disables browser zoom.
+
+Browser viewport checks covered 240×240, 320×320, 390×844, 768×1024, 1024×768,
+844×390, and 1280×800. Compact map controls remain visible without horizontal
+scroll or control overlap. Mission panels and map options remain accessible;
+map dragging and zoom were exercised. The production worker cached the 108 built
+resources, including responsive styles and the prepared datasets. These checks
+use browser simulation; physical tablet/wrist hardware and glove input remain
+unverified.

@@ -1,6 +1,6 @@
 import type { MarsCoordinate } from '@marps/mission-core';
 import { loadManifest } from './coverage';
-import type { DatasetDescriptor } from './contracts';
+import type { DatasetDescriptor, SiteDescriptor, DataManifest } from './contracts';
 
 export interface RegionDefinition {
   readonly id: string;
@@ -16,6 +16,10 @@ export const regions = [
 export interface Catalog {
   readonly regions: readonly RegionDefinition[];
   readonly datasets: readonly DatasetDescriptor[];
+  /** Science sites of the manifest; their sheets are in `siteSheets`. */
+  readonly sites: readonly SiteDescriptor[];
+  /** Manifeste complet conservé pour la provenance et une future sauvegarde. */
+  readonly manifest: DataManifest;
 }
 
 /**
@@ -25,8 +29,10 @@ export interface Catalog {
  */
 export async function loadCatalog(): Promise<Catalog> {
   const manifest = await loadManifest();
-  return { regions, datasets: manifest.datasets };
+  return { regions, datasets: manifest.datasets, sites: manifest.sites, manifest };
 }
 
 export * from './contracts';
 export * from './coverage';
+export * from './siteSheets';
+export * from './terrain';

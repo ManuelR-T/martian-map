@@ -1,0 +1,34 @@
+.mars-map-container, .mars-map { width: 100%; height: 100%; }
+.mars-map-container { position: relative; }
+.mars-map { background: var(--mars-surface); cursor: grab; }
+.mars-map .ol-viewport { touch-action: none; }
+.mars-map:active { cursor: grabbing; }
+.mars-map:focus-visible { outline: 3px solid var(--ring); outline-offset: -3px; }
+.map-information { position: absolute; bottom: .5rem; left: .5rem; width: calc(100% - 4.5rem); max-height: 60%; overflow-y: auto; pointer-events: auto; }
+.map-information:not([open]) { width: auto; max-width: calc(100% - 4.5rem); }
+.map-info-toggle { min-height: 44px; align-content: center; position: sticky; top: -.5rem; background: var(--card); }
+.map-information button { min-height: 44px; }
+.map-information > p, .map-metadata { margin-top: .4rem; }
+.map-metadata { overflow-wrap: anywhere; }
+.mars-map .ol-zoom { top: auto; left: auto; bottom: 3.75rem; right: .5rem; }
+.mars-map .ol-attribution { bottom: .5rem; right: .5rem; max-width: min(22rem, calc(100% - 1rem)); }
+.mars-map .ol-control button { width: 44px; height: 44px; cursor: pointer; }
+@media (min-width: 80rem) and (min-height: 601px) {
+  .map-information { left: calc(50% - 1rem); transform: translateX(-50%); width: min(32rem, calc(100% - 43rem)); }
+}
+.mars-map .ol-attribution { width: 46px; height: 46px; }
+.mars-map .ol-attribution ul {
+  position: absolute;
+  bottom: 0;
+  right: calc(100% + .5rem);
+  width: min(22rem, calc(100vw - 5rem));
+  max-height: min(12rem, 40dvh);
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  padding: .5rem;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  text-shadow: none;
+}
+.mars-map-container:has(.ol-attribution:not(.ol-collapsed)) .map-information { visibility: hidden; }
