@@ -55,3 +55,14 @@
 @media (max-width: 1279px) and (min-height: 601px) {
   .jezero-status { max-height: calc(100% - 10rem); overflow-y: auto; }
 }
+
+.site-choice-popover {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: max-content;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100dvh - 16px);
+  overflow-y: auto;
+}
+.site-choice-popover button { min-height: 44px; }

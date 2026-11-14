@@ -16,6 +16,7 @@ import { Button, Panel } from '@marps/ui';
 import { marsProjection, createRegionSource } from './marsWmts';
 import { containsPosition, marsHorizontalResolution, resolveJezeroTile } from './jezero';
 import './global-mars-map.css';
+import { SiteChoicePopover, type SiteChoice } from './SiteChoicePopover';
 import { jezeroMessages } from './jezeroMessages';
 const messages = jezeroMessages.fr;
 
@@ -35,7 +36,7 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect }
   const [outside, setOutside] = useState(false);
   const [offline, setOffline] = useState(!navigator.onLine);
   const [scale, setScale] = useState('');
-  const [choices, setChoices] = useState<readonly SiteDescriptor[]>([]);
+  const [choice, setChoice] = useState<SiteChoice | null>(null);
   const selectedRef = useRef(selected);
   useEffect(() => { selectedRef.current = selected; mapRef.current?.getLayers().forEach(layer => { if (layer instanceof VectorLayer) layer.changed(); }); }, [selected]);
   useEffect(() => {
@@ -97,10 +98,19 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect }
       setScale(`${metres >= 1000 ? `${(metres / 1000).toFixed(2)} km` : `${metres.toFixed(1)} m`} / 100 px`);
     };
     map.on('moveend', update); update();
+    map.on('movestart', () => setChoice(null));
     map.on('singleclick', event => {
       const hits = map.getFeaturesAtPixel(event.pixel, { hitTolerance: 15 }).map(feature => sites.find(site => site.id === feature.getId())).filter((site): site is SiteDescriptor => Boolean(site));
       if (hits.length === 1) onSelect(hits[0]!.id);
-      setChoices(hits.length > 1 ? hits : []);
+      if (hits.length > 1) {
+        const rectangle = target.current!.getBoundingClientRect();
+        const pixels = hits.map(site => map.getPixelFromCoordinate([site.coordinate.longitude, site.coordinate.latitude]));
+        setChoice({ sites: hits,
+          left: rectangle.left + Math.min(...pixels.map(pixel => pixel[0]!)) - 12,
+          right: rectangle.left + Math.max(...pixels.map(pixel => pixel[0]!)) + 12,
+          top: rectangle.top + Math.min(...pixels.map(pixel => pixel[1]!)) - 32,
+          bottom: rectangle.top + Math.max(...pixels.map(pixel => pixel[1]!)) + 12 });
+      } else setChoice(null);
     });
     source.on('tileloaderror', () => setFailed(true));
     const connectivity = () => { setOffline(!navigator.onLine); };
@@ -126,8 +136,9 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect }
           <li><span className="jezero-missing-swatch" aria-hidden="true" /><span>{messages.missingImagery}</span></li>
         </ul>
       </div>
-      {choices.map(site => <Button key={site.id} size="sm" onClick={() => { onSelect(site.id); setChoices([]); }}>{site.name}</Button>)}
+
     </Panel>
+    {choice && <SiteChoicePopover choice={choice} onSelect={onSelect} onClose={() => { setChoice(null); target.current?.focus({ preventScroll: true }); }} />}
     <details className="map-information border bg-card p-2 text-xs"><summary className="map-info-toggle">{messages.sources}</summary>
       <p>{messages.legend}</p>
       <p>{messages.coordinates} R = {radius} m.</p>
