@@ -109,3 +109,27 @@ def window_extent(
         "north": to_deg(y0 - row0 * pixel_m),
         "south": to_deg(y0 - row1 * pixel_m),
     }
+
+
+def project(longitude: float, latitude: float, radius_m: float) -> tuple[float, float]:
+    """Equirectangular metres with standard parallel 0 and central meridian 0."""
+    return radius_m * math.radians(longitude), radius_m * math.radians(latitude)
+
+
+def cell_at(
+    origin_xy: tuple[float, float],
+    pixel_m: float,
+    shape: tuple[int, int],
+    longitude: float,
+    latitude: float,
+    radius_m: float,
+) -> tuple[int, int] | None:
+    """(row, col) of the cell containing the point, or None outside the grid.
+
+    origin_xy is the north-west corner of the grid; rows grow southwards.
+    """
+    x, y = project(longitude, latitude, radius_m)
+    col = math.floor((x - origin_xy[0]) / pixel_m)
+    row = math.floor((origin_xy[1] - y) / pixel_m)
+    rows, cols = shape
+    return (row, col) if 0 <= row < rows and 0 <= col < cols else None

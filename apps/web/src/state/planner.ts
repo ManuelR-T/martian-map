@@ -1,5 +1,6 @@
 import type { Catalog, RegionDefinition } from '@marps/data';
 import { createEmptyMission, type Mission } from '@marps/mission-core';
+import { siteWorkReducer, type SiteWorkAction, type SiteWorkState } from '../sites/siteWork';
 
 /** Région détaillée du MVP ; la carte globale ne sert qu'à s'orienter. */
 export const DETAILED_REGION_ID = 'jezero';
@@ -19,6 +20,8 @@ export interface PlannerState {
   readonly catalogRequest: number;
   readonly mission: Mission;
   readonly selectedSiteId: string | null;
+  /** Avancement des arrêts (tâches cochées, temps alloué) ; rejoindra la mission avec #11. */
+  readonly siteWork: SiteWorkState;
 }
 
 export type PlannerAction =
@@ -26,14 +29,16 @@ export type PlannerAction =
   | { readonly type: 'catalogRequested' }
   | { readonly type: 'catalogLoaded'; readonly request: number; readonly catalog: Catalog }
   | { readonly type: 'catalogFailed'; readonly request: number; readonly message: string }
-  | { readonly type: 'siteSelected'; readonly siteId: string | null };
+  | { readonly type: 'siteSelected'; readonly siteId: string | null }
+  | SiteWorkAction;
 
 export const initialPlannerState: PlannerState = {
-  view: 'region',
+  view: 'global',
   catalog: { status: 'loading' },
   catalogRequest: 0,
   mission: createEmptyMission(DETAILED_REGION_ID),
   selectedSiteId: null,
+  siteWork: {},
 };
 
 export function plannerReducer(state: PlannerState, action: PlannerAction): PlannerState {
@@ -51,6 +56,9 @@ export function plannerReducer(state: PlannerState, action: PlannerAction): Plan
       return { ...state, catalog: { status: 'error', message: action.message } };
     case 'siteSelected':
       return state.selectedSiteId === action.siteId ? state : { ...state, selectedSiteId: action.siteId };
+    case 'siteTaskToggled':
+    case 'siteAllottedChanged':
+      return { ...state, siteWork: siteWorkReducer(state.siteWork, action) };
   }
 }
 

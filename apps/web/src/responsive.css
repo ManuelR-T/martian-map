@@ -1,0 +1,43 @@
+.compact-navigation, .compact-settings, .offline-short { display: none; }
+@media (max-width: 1279px), (max-height: 600px) {
+  .planner-app { height: 100dvh; min-height: 0; overflow: hidden; }
+  .planner-main { display: flex; min-height: 0; padding: 0; gap: 0; overflow-y: auto; }
+  .planner-app > header { flex-shrink: 0; }
+  .compact-navigation { display: flex; flex-shrink: 0; gap: .5rem; padding: .25rem .5rem; border-bottom: 1px solid var(--border); background: var(--card); }
+  .compact-navigation button { flex: 1; min-height: 44px; min-width: 44px; padding: .25rem .5rem; border: 1px solid var(--border); }
+  .compact-navigation [aria-pressed=true] { background: var(--primary); color: var(--primary-foreground); }
+  .planner-map-stage { position: relative; display: flex; flex: 1; width: 100%; height: auto; min-height: 0; padding: .5rem; pointer-events: auto; }
+  [data-mobile-page=map] .mission-panels { display: none; }
+  [data-mobile-page=mission] .planner-map-stage { display: none; }
+  .mission-panels { flex-shrink: 0; max-height: none; overflow: visible; padding: .5rem; pointer-events: auto; }
+  .mission-panels [data-slot=panel] > header button { min-height: 44px; }
+  .mission-panels button, .compact-settings a { min-height: 44px; }
+  .compact-settings { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+  .compact-settings a { display: inline-flex; align-items: center; padding-inline: .5rem; text-decoration: underline; }
+  .planner-app button, .planner-app a, .planner-app summary { touch-action: manipulation; }
+  .map-view-switch { padding: .25rem; }
+  .map-view-switch [role=radio] { min-height: 44px; min-width: 44px; padding-inline: .5rem; }
+  .map-view-description { display: none; }
+}
+@media (max-width: 480px), (max-height: 480px) {
+  .planner-app > header { min-height: 44px; gap: .25rem; padding: 0 .5rem; }
+  .planner-app > header > svg, .planner-app > header p { display: none; }
+  .planner-app > header h1 { font-size: 1rem; line-height: 1.25; }
+  .planner-app > header nav { display: none; }
+  .planner-app > header button { min-height: 44px; min-width: 44px; }
+  .offline-full { display: none; }
+  .offline-short { display: inline; }
+  .offline-status { flex-shrink: 0; padding: .125rem .5rem; }
+  .map-view-switch [role=radio] svg { display: none; }
+}
+@media (max-width: 360px) and (max-height: 400px) {
+  .planner-app > header { display: none; }
+  .compact-navigation { padding-block: 0; }
+  .offline-status { font-size: .65rem; line-height: 1rem; }
+}
+@media (pointer: coarse) {
+  .planner-app button, .planner-app summary { min-height: 44px; min-width: 44px; }
+}
+@media (max-width: 480px) {
+  .map-view-switch { align-self: flex-start; max-width: calc(100% - 3.5rem); }
+}

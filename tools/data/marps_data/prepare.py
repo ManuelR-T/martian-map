@@ -8,7 +8,9 @@ import hashlib
 import json
 import shutil
 import urllib.request
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from io import BytesIO
 from pathlib import Path
@@ -17,7 +19,10 @@ import numpy as np
 import tifffile
 from PIL import Image
 
-from . import check, geo, spec
+from . import check, geo, spec, terrain
+
+# Covers the TIFF tags and the row offsets of the largest source (HiRISE: 172 609 bytes).
+HEADER_BYTES = 262_144
 
 
 def now_utc() -> str:
@@ -47,15 +52,27 @@ def write_file(root: Path, relative: str, data: bytes, media_type: str) -> dict:
     return {"path": relative, "bytes": len(data), "sha256": sha256(data), "mediaType": media_type}
 
 
-def cached_dem() -> bytes:
-    """The DEM is static and large: reuse a verified local copy instead of downloading again."""
-    cache = spec.CACHE_DIR / Path(spec.DEM_URL).name
-    if cache.exists() and sha256(cache.read_bytes()) == spec.DEM_SHA256:
+def fetch_range(url: str, start: int, end: int) -> bytes:
+    """Bytes start to end (exclusive), for sources too large to download whole."""
+    headers = {"User-Agent": spec.USER_AGENT, "Range": f"bytes={start}-{end - 1}"}
+    request = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(request, timeout=600) as response:  # noqa: S310 (fixed https URLs)
+        data = response.read()
+        if response.status != 206 or len(data) != end - start:
+            raise RuntimeError(f"{url}: range {start}-{end} not served (HTTP {response.status}, {len(data)} bytes)")
+        return data
+
+
+def cached(name: str, expected_sha256: str, download: Callable[[], bytes]) -> bytes:
+    """Elevation sources are static and large: reuse a verified local copy instead of downloading again."""
+    cache = spec.CACHE_DIR / name
+    if cache.exists() and sha256(cache.read_bytes()) == expected_sha256:
         return cache.read_bytes()
-    data = fetch(spec.DEM_URL)
-    if sha256(data) != spec.DEM_SHA256:
+    data = download()
+    if sha256(data) != expected_sha256:
         raise RuntimeError(
-            "CTX DEM changed upstream (sha256 mismatch). Review the new file, then update DEM_SHA256."
+            f"{name}: sha256 {sha256(data)} differs from the pin. The source changed upstream "
+            "or the sector moved. Review the data, then update the pin in spec.py."
         )
     cache.parent.mkdir(parents=True, exist_ok=True)
     cache.write_bytes(data)
@@ -183,67 +200,183 @@ def clip_elevation(array: np.ndarray, nodata: float) -> np.ndarray:
     return clipped
 
 
-def prepare_dem(staging: Path, retrieved_at: str) -> dict:
-    raw = cached_dem()
-    with tifffile.TiffFile(BytesIO(raw)) as tif:
+@dataclass(frozen=True)
+class SourceGrid:
+    """Layout of an upstream elevation GeoTIFF, read from its header alone."""
+
+    shape: tuple[int, int]
+    origin: tuple[float, float]  # projected metres of the north-west corner
+    nodata: float
+    data_offset: int  # byte of the first row; rows follow one another without gaps
+
+
+def read_grid_header(head: bytes, product: spec.ElevationProduct) -> SourceGrid:
+    """Refuses any layout the byte arithmetic and the lon/lat conversion do not handle."""
+    with tifffile.TiffFile(BytesIO(head)) as tif:
         page = tif.pages[0]
-        full = page.asarray()
+        keys = page.geotiff_tags
         scale = page.tags["ModelPixelScaleTag"].value
         tiepoint = page.tags["ModelTiepointTag"].value
         nodata = float(page.tags["GDAL_NODATA"].value)
-        pixel_is_area = page.geotiff_tags.get("GTRasterTypeGeoKey") == 1
-    if scale[0] != spec.DEM_PIXEL_M or scale[1] != spec.DEM_PIXEL_M or tiepoint[:2] != (0.0, 0.0):
-        raise RuntimeError("Unexpected DEM geotransform: review the window computation.")
-    if not pixel_is_area:
-        raise RuntimeError("DEM is not PixelIsArea: tie point would be a pixel centre.")
+        offsets = np.asarray(page.dataoffsets)
+        shape = (int(page.shape[0]), int(page.shape[1]))
+        raw_float32 = page.compression == 1 and page.dtype == np.float32 and tif.byteorder == "<"
+        strip_bytes = page.rowsperstrip * shape[1] * 4
+    if not raw_float32 or not (np.diff(offsets) == strip_bytes).all():
+        raise RuntimeError(f"{product.slug}: expected uncompressed little-endian float32 rows stored in order.")
+    if scale[:2] != (product.source_pixel_m, product.source_pixel_m) or tiepoint[:2] != (0.0, 0.0):
+        raise RuntimeError(f"{product.slug}: unexpected geotransform, review the window computation.")
+    if keys.get("GTRasterTypeGeoKey") != 1:
+        raise RuntimeError(f"{product.slug}: not PixelIsArea, the tie point would be a pixel centre.")
+    if (
+        keys.get("ProjCoordTransGeoKey") != 17  # CT_Equirectangular
+        or keys.get("ProjStdParallel1GeoKey") != 0.0
+        or keys.get("ProjCenterLongGeoKey") != 0.0
+        or keys.get("GeogSemiMajorAxisGeoKey") != spec.MARS_RADIUS_M
+    ):
+        raise RuntimeError(f"{product.slug}: projection is not the expected equirectangular Mars sphere.")
+    return SourceGrid(shape, (tiepoint[3], tiepoint[4]), nodata, int(offsets[0]))
 
-    origin = (tiepoint[3], tiepoint[4])
-    window = geo.dem_window(origin, spec.DEM_PIXEL_M, full.shape, spec.SECTOR, spec.MARS_RADIUS_M)
-    row0, row1, col0, col1 = window
-    clipped = clip_elevation(full[row0:row1, col0:col1], nodata)
-    nodata_cells = int(np.isnan(clipped).sum())
-    entry = write_file(staging, "jezero/dem/ctx-20m.f32", clipped.tobytes(), "application/octet-stream")
-    return {
-        "id": "jezero-ctx-dem",
-        "regionId": "jezero",
-        "title": "Altitudes CTX 20 m de Jezero (secteur du front du delta)",
-        "kind": "elevation",
-        "instrument": "Mars Reconnaissance Orbiter, caméra CTX (modèle numérique stéréo)",
-        "delivery": "local",
-        "source": {
-            "url": spec.DEM_URL,
-            "retrievedAt": retrieved_at,
-            "credit": "USGS Astrogeology Science Center ; NASA/JPL, Mars 2020 Terrain Relative Navigation CTX DTM",
-            "terms": spec.UNVERIFIED_TERMS,
-            "fingerprint": fingerprint("GeoTIFF", raw),
+
+def padded_block(rows: np.ndarray, first_row: int, wanted: tuple[int, int, int, int], nodata: float) -> np.ndarray:
+    """Source pixels of the wanted window (row0, row1, col0, col1), NaN where it leaves the raster.
+
+    rows holds full-width source rows starting at first_row.
+    """
+    row0, row1, col0, col1 = wanted
+    block = np.full((row1 - row0, col1 - col0), np.nan, dtype="<f4")
+    top, left = max(row0, first_row), max(col0, 0)
+    inside = clip_elevation(rows[top - first_row : row1 - first_row, left:col1], nodata)
+    block[top - row0 : top - row0 + inside.shape[0], left - col0 : left - col0 + inside.shape[1]] = inside
+    return block
+
+
+def shade_png(shade: np.ndarray) -> bytes:
+    """Greyscale PNG with a transparent pixel wherever the relief is unknown."""
+    known = ~np.isnan(shade)
+    grey = np.where(known, np.rint(np.nan_to_num(shade) * 255), 0).astype(np.uint8)
+    buffer = BytesIO()
+    Image.fromarray(np.dstack([grey, known.astype(np.uint8) * 255]), "LA").save(buffer, "PNG")
+    return buffer.getvalue()
+
+
+def prepare_terrain(staging: Path, retrieved_at: str, product: spec.ElevationProduct) -> list[dict]:
+    """Elevation, slope and shaded relief of the sector, all on the same grid."""
+    name = Path(product.url).name
+    if product.whole_file:
+        whole = cached(name, product.sha256, lambda: fetch(product.url))
+        grid = read_grid_header(whole, product)
+    else:
+        grid = read_grid_header(fetch_range(product.url, 0, HEADER_BYTES), product)
+
+    factor, cell = product.aggregation, product.cell_m
+    cells = (grid.shape[0] // factor, grid.shape[1] // factor)
+    row0, row1, col0, col1 = geo.dem_window(grid.origin, cell, cells, spec.SECTOR, spec.MARS_RADIUS_M)
+    # One extra cell on each side feeds the 3x3 slope kernel, so the stored edges have real neighbours.
+    wanted = ((row0 - 1) * factor, (row1 + 1) * factor, (col0 - 1) * factor, (col1 + 1) * factor)
+    first, last = max(wanted[0], 0), min(wanted[1], grid.shape[0])
+    row_bytes = grid.shape[1] * 4
+    start, end = grid.data_offset + first * row_bytes, grid.data_offset + last * row_bytes
+    if product.whole_file:
+        block, source_print = whole[start:end], fingerprint("GeoTIFF", whole)
+    else:
+        block = cached(f"{name}.rows-{first}-{last}", product.sha256, lambda: fetch_range(product.url, start, end))
+        source_print = fingerprint(f"GeoTIFF, lignes {first} à {last - 1} (octets {start} à {end - 1})", block)
+    rows = np.frombuffer(block, dtype="<f4").reshape(last - first, grid.shape[1])
+
+    padded = terrain.block_mean(padded_block(rows, first, wanted, grid.nodata), factor)
+    elevation = padded[1:-1, 1:-1].astype("<f4")
+    origin = (grid.origin[0] + col0 * cell, grid.origin[1] - row0 * cell)
+    east_m, north_m = terrain.ground_cell_size(origin[1], cell, elevation.shape[0], spec.MARS_RADIUS_M)
+    to_east, to_north = terrain.gradients(padded, east_m, north_m)
+    slope = terrain.slope_degrees(to_east, to_north).astype("<f4")
+    shade = terrain.hillshade(to_east, to_north)
+
+    raster = {
+        "width": int(elevation.shape[1]),
+        "height": int(elevation.shape[0]),
+        "dtype": "float32",
+        "byteOrder": "little-endian",
+        "rowOrder": "north-to-south",
+        "pixelSizeMetres": cell,
+        "origin": {"x": origin[0], "y": origin[1]},
+        "projection": {
+            "name": "equirectangular",
+            "centralMeridian": 0.0,
+            "standardParallel": 0.0,
+            "radiusMetres": spec.MARS_RADIUS_M,
         },
-        "acquisition": {
-            "date": None,
-            "sol": None,
-            "note": "Mosaïque de modèles stéréo CTX ; dates non relevées.",
-        },
-        "units": {"elevation": "metre"},
-        "crs": "Equirectangular Mars 2000 Sphere IAU (central meridian 0, standard parallel 0), metres",
-        "extent": geo.window_extent(origin, spec.DEM_PIXEL_M, window, spec.MARS_RADIUS_M),
-        "resolution": {"value": spec.DEM_PIXEL_M, "unit": "m/pixel"},
-        "noData": {"kind": "nan", "sourceValue": nodata, "cellCount": nodata_cells},
-        "status": "available" if nodata_cells == 0 else "partial",
-        "version": "soc_008",
-        "limitations": [
-            "Une maille de 20 m ne résout pas les blocs isolés et ne certifie aucune praticabilité à pied.",
-            "Datum vertical non documenté dans ce contrôle : ne pas le mélanger aux altitudes des prélèvements.",
-            "Recalage horizontal et vertical non validé indépendamment.",
-        ],
-        "raster": {
-            "width": int(clipped.shape[1]),
-            "height": int(clipped.shape[0]),
-            "dtype": "float32",
-            "byteOrder": "little-endian",
-            "rowOrder": "north-to-south",
-            "pixelSizeMetres": spec.DEM_PIXEL_M,
-        },
-        "files": [entry],
+        "aggregation": None
+        if factor == 1
+        else {"method": "block-mean", "factor": factor, "sourcePixelSizeMetres": product.source_pixel_m},
+        "navigationGrade": False,
     }
+    def dataset(suffix: str, kind: str, title: str, units: dict, no_data: dict, missing: int, limitations: tuple) -> dict:
+        return {
+            "id": f"jezero-{product.slug}-{suffix}",
+            "regionId": "jezero",
+            "title": f"{title} {product.title}",
+            "kind": kind,
+            "instrument": product.instrument,
+            "delivery": "local",
+            "source": {
+                "url": product.url,
+                "retrievedAt": retrieved_at,
+                "credit": product.credit,
+                "terms": {"summary": spec.USGS_TERMS_SUMMARY, "url": product.record_url, "verified": True},
+                "fingerprint": source_print,
+            },
+            "acquisition": {"date": None, "sol": None, "note": product.acquisition_note},
+            "units": units,
+            "crs": "Equirectangular Mars 2000 Sphere IAU (central meridian 0, standard parallel 0), metres",
+            "extent": geo.window_extent(grid.origin, cell, (row0, row1, col0, col1), spec.MARS_RADIUS_M),
+            "resolution": {"value": cell, "unit": "m/pixel"},
+            "noData": no_data,
+            "status": "available" if missing == 0 else "partial",
+            "version": product.version,
+            "limitations": [*limitations, *spec.TERRAIN_LIMITATIONS],
+        }
+
+    def grid_dataset(suffix: str, kind: str, title: str, units: dict, values: np.ndarray, limitations: tuple) -> dict:
+        missing = int(np.isnan(values).sum())
+        no_data = {"kind": "nan", "sourceValue": grid.nodata, "cellCount": missing}
+        file_suffix = "" if kind == "elevation" else f"-{suffix}"
+        entry = write_file(staging, f"{product.file_stem}{file_suffix}.f32", values.tobytes(), "application/octet-stream")
+        return {**dataset(suffix, kind, title, units, no_data, missing, limitations), "raster": raster, "files": [entry]}
+
+    dem = grid_dataset("dem", "elevation", "Altitudes", {"elevation": "metre"}, elevation, product.limitations)
+    slopes = grid_dataset(
+        "slope",
+        "slope",
+        "Pentes",
+        {"slope": "degree"},
+        slope,
+        (
+            f"Pente moyenne sur 3 × 3 mailles (méthode de Horn), soit une base de {2 * cell:g} m : "
+            "pas la pente locale sous le pied.",
+            "Largeur est-ouest des mailles réduite de cos(latitude) : la projection l'étire d'environ 5 % à Jezero.",
+        ),
+    )
+    unlit = int(np.isnan(shade).sum())
+    shaded = dataset(
+        "hillshade",
+        "hillshade",
+        "Relief ombré",
+        {},
+        {"kind": "alpha-channel", "transparentPixelCount": unlit},
+        unlit,
+        (
+            f"Éclairage fictif (azimut {terrain.LIGHT_AZIMUTH_DEG:g}°, hauteur {terrain.LIGHT_ALTITUDE_DEG:g}°) "
+            "sans exagération verticale : aide visuelle, pas une mesure.",
+            "Image à la maille de la grille : l'étirer sur son emprise, sans la comparer au détail de l'imagerie.",
+        ),
+    )
+    shade_entry = write_file(staging, f"{product.file_stem}-hillshade.png", shade_png(shade), "image/png")
+    return [
+        {**dem, "verticalDatum": spec.VERTICAL_DATUM},
+        {**slopes, "derivedFrom": dem["id"]},
+        {**shaded, "derivedFrom": dem["id"], "files": [shade_entry]},
+    ]
 
 
 def slug(name: str) -> str:
@@ -335,13 +468,17 @@ def not_integrated(capability_id: str, label: str) -> dict:
 def build_manifest(datasets: list[dict], sites: list[dict], generated_at: str) -> dict:
     by_id = {d["id"]: d for d in datasets}
 
-    def available(capability_id: str, label: str, dataset_id: str) -> dict:
+    def available(capability_id: str, label: str, *dataset_ids: str) -> dict:
+        statuses = {by_id[dataset_id]["status"] for dataset_id in dataset_ids}
         return {
             "id": capability_id,
             "label": label,
-            "status": by_id[dataset_id]["status"],
-            "datasetIds": [dataset_id],
+            "status": "available" if statuses == {"available"} else "partial",
+            "datasetIds": list(dataset_ids),
         }
+
+    def terrain_ids(suffix: str) -> list[str]:
+        return [f"jezero-{product.slug}-{suffix}" for product in spec.ELEVATION_PRODUCTS]
 
     return {
         "schemaVersion": spec.SCHEMA_VERSION,
@@ -367,7 +504,9 @@ def build_manifest(datasets: list[dict], sites: list[dict], generated_at: str) -
                 "extent": spec.SECTOR,
                 "capabilities": [
                     available("imagery-hirise", "Imagerie HiRISE", "jezero-hirise-mosaic"),
-                    available("terrain-dem", "Relief CTX 20 m", "jezero-ctx-dem"),
+                    available("terrain-dem", "Altitudes (HiRISE 4 m, repli CTX 20 m)", *terrain_ids("dem")),
+                    available("terrain-slope", "Pentes (HiRISE 4 m, repli CTX 20 m)", *terrain_ids("slope")),
+                    available("terrain-hillshade", "Relief ombré", *terrain_ids("hillshade")),
                     available("science-sites", "Sites scientifiques", "jezero-sampling-sites"),
                     not_integrated("rover-traverse", "Trace historique de Perseverance"),
                     not_integrated("thermal-themis", "Infrarouge nocturne THEMIS"),
@@ -391,7 +530,7 @@ def main() -> None:
     datasets = [
         prepare_mola(retrieved_at),
         prepare_hirise(staging, retrieved_at),
-        prepare_dem(staging, retrieved_at),
+        *(d for product in spec.ELEVATION_PRODUCTS for d in prepare_terrain(staging, retrieved_at, product)),
         sites_dataset,
     ]
     manifest = build_manifest(datasets, sites, retrieved_at)
