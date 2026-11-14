@@ -7,6 +7,7 @@ import { PlannerMap } from './features/map/PlannerMap';
 import { OfflineStatus } from './offline/OfflineStatus';
 import './responsive.css';
 import { StepsPanel } from './panels/StepsPanel';
+import { ProfilePanel } from './terrain/ProfilePanel';
 
 const DesignSystemPage = lazy(() => import('./design-system/DesignSystemPage'));
 
@@ -112,6 +113,8 @@ export function App() {
             #7 et #8 passeront ici la carte OpenLayers de la vue active.
           */}
           <MapStage map={<PlannerMap />} className="planner-map-stage relative flex h-[62dvh] min-h-[24rem] flex-col items-center justify-between gap-3 p-3 xl:pointer-events-none xl:static xl:col-start-2 xl:row-start-1 xl:h-auto xl:min-h-0 xl:p-0" />
+          {/* Profil posé en bas de la carte : l'équipage voit le parcours et son relief ensemble. */}
+          <ProfilePanel className={`planner-profile ${floatingSurface} relative z-10 shrink-0 max-xl:mx-2 max-xl:mb-2 xl:col-start-2 xl:row-start-1 xl:mb-14 xl:self-end`} />
           <div className="mission-panels relative z-10 flex min-h-0 flex-col gap-3 max-xl:px-3 xl:pointer-events-none xl:col-start-1 xl:row-start-1">
             <StepsPanel className={`${floatingSurface} mission-steps`} />
             <div className="compact-settings">

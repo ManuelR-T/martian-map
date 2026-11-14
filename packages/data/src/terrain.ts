@@ -22,7 +22,7 @@ const usable: Record<DataStatus, number> = { unavailable: 0, partial: 1, availab
  * Null when the region has no usable grid of that kind: a global basemap never qualifies.
  */
 export function terrainDataset(
-  manifest: DataManifest,
+  manifest: Pick<DataManifest, 'datasets'>,
   regionId: string,
   kind: 'elevation' | 'slope',
 ): DatasetDescriptor | null {

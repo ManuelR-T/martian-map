@@ -25,3 +25,20 @@ Chaque choix répond à un usage concret d'un astronaute en sortie sur Mars et s
 - La fiche tient sans défilement sur une tablette en paysage, avec des lignes de 44 px de haut : le coéquipier suit la sortie en direct, il ne doit pas chercher l'information. La photo s'agrandit d'un toucher.
 
 **Écarté volontairement :** le détail scientifique et les sources sur la fiche. Ils n'aident pas sur place ; les sources sont regroupées dans le panneau de provenance (#16). Les molécules organiques ne sont jamais présentées comme une preuve de vie : JPL précise qu'elles peuvent se former sans vie.
+
+## Profil et pentes du parcours (#15)
+
+| Élément | Usage pour l'astronaute | Source |
+| --- | --- | --- |
+| Profil d'altitude du parcours | Voir avant de partir où le parcours monte et descend, pour répartir l'effort et le temps. Le relief HiRISE à 4 m par case est utilisé ; le CTX à 20 m le remplace si le manifeste déclare HiRISE incomplet ou indisponible (#10). | Relief HiRISE et CTX de l'USGS, voir `docs/relief-jezero.md` |
+| Passages raides surlignés | Prévoir plus de temps, ralentir ou changer de chemin. Sur Apollo, une pente d'environ 15° dans un sol meuble était « comme monter une dune », et les plans prévoyaient 1 min de repos toutes les 5 min de montée. | [LPSC 2025, Apollo](https://www.hou.usra.edu/meetings/lpsc2025/pdf/2023.pdf) |
+| Trous dans le profil | Une zone sans mesure reste visible comme telle : l'équipage ne se fie pas à une altitude inventée. Gris clair pour un trou dans les mesures, gris foncé pour une portion hors de la zone couverte. | Choix de l'équipe |
+
+**Choix de l'équipe, sans source NASA :**
+- **Seuil de 10° par défaut, réglable de 5 à 25° :** au-delà, la montée est pénible et il faut prévoir du temps et des pauses. La future combinaison NASA doit permettre de marcher sur des pentes jusqu'à 20° ([xEVA ConOps](https://www.nasa.gov/wp-content/uploads/2017/02/eva-exp-0042_xeva_system_con_ops_rev_b_final_dtd_10192020_ref_doc.pdf)). Sur Apollo 14, une montée d’environ 10° a fait monter le rythme cardiaque à 150 battements par minute ([NASA SP-350](https://www.nasa.gov/wp-content/uploads/static/history/SP-350/ch-12-5.html)). 10° signale l'effort bien avant cette limite. Aucune limite propre à Mars n'existe.
+- **Un point par case du relief** (4 m en HiRISE, 20 m en CTX) : des points plus serrés inventeraient des détails que la donnée n'a pas. Entre deux cases mesurées, l'altitude est interpolée ; à côté d'une case vide, le profil laisse un trou.
+- **Méthode de calcul.** Pente en degrés = arctangente(dénivelé ÷ distance au sol) entre deux points consécutifs. La distance au sol se calcule sur la sphère de Mars (rayon 3 396 190 m), ce qui tient compte du rétrécissement des cases vers l'est à la latitude de Jezero. L'interpolation entre les 4 cases voisines lisse légèrement le relief ; aucun autre lissage n'est appliqué.
+- **La pente dépend de la finesse du relief et de la méthode.** À Skinner Ridge, la pente maximale du terrain, toutes directions confondues (méthode de Horn sur 3 × 3 cases, #10), vaut environ 20° en HiRISE 4 m et 8° en CTX 20 m. Le profil ne mesure que la pente dans le sens de la marche, entre deux points distants de 4 m : elle est plus faible. Le long du parcours de démonstration, la plus forte pente vaut 14° : le seuil de 10° signale 10 passages, 15° n'en signalerait aucun.
+- **Pente dans le sens de la marche seulement.** La pente en travers, quand on longe un versant, relève du ticket #44.
+
+**Limites :** même à 4 m par case, le relief ne montre ni les rochers ni les petites marches, et il ne garantit pas qu'un passage est praticable. Le parcours de démonstration relie les sites en ligne droite en attendant le tracé (#12) ; ce n'est pas un chemin calculé.
