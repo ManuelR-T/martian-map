@@ -10,7 +10,7 @@ Ajouter un panneau de conditions historiques MEDA, une alerte de pente calculée
 | --- | --- | --- |
 | Température et pression au cours d'un sol choisi | MEDA, Perseverance | Produits du sol 500 accessibles, extraits CSV et labels XML téléchargés et décodés. Mesures au rover, pas une carte météo sur chaque point du parcours. |
 | Vent et direction | Archives MEDA | Produits documentés et index accessible ; aucun produit WS trouvé dans les répertoires calibrés et dérivés du sol 500 inspectés. Afficher indisponible pour ce sol ; ne pas remplir avec une autre date sans le signaler. |
-| Pente dépassant une limite choisie | DEM CTX 20 m déjà conservé | Calcul de pente à réaliser ; seuil du scénario, pas limite validée d'une combinaison spatiale. Les petits obstacles restent non résolus. |
+| Pente dépassant une limite choisie | Grilles de pente HiRISE 4 m et CTX 20 m ([relief-jezero.md](relief-jezero.md)) | Pente moyenne sur 3 × 3 mailles ; seuil du scénario, pas limite validée d'une combinaison spatiale. Les petits obstacles restent non résolus. |
 | Zones à examiner : dunes, blocs, escarpements | Imagerie HiRISE déjà accessible | Annotation manuelle sourcée possible. Une image ne mesure pas la portance du sol et ne suffit pas à certifier un danger. |
 | Retard et réserve de retour insuffisante | Calculateur de mission | Recalcul des temps à partir des paramètres ; aucune donnée supplémentaire. |
 | Poussière, visibilité réduite | MEDA RDS/SkyCam documentés, ou scénario explicite | Aucune série de visibilité ni règle de conversion en mètres n'a été validée. Pour la démo, événement simulé avec impact paramétré sur la durée. |

@@ -57,3 +57,12 @@ def test_dem_window_rejects_an_extent_outside_the_raster():
 )
 def test_extent_error_rejects_invalid_boxes(extent):
     assert geo.extent_error(extent) is not None
+
+
+def test_cell_at_agrees_with_the_window_of_the_same_point():
+    row0, _, col0, _ = geo.dem_window(DEM_ORIGIN, 20.0, DEM_SHAPE, point(SKINNER), RADIUS)
+    assert geo.cell_at(DEM_ORIGIN, 20.0, DEM_SHAPE, *SKINNER, RADIUS) == (row0, col0)
+
+
+def test_cell_at_is_none_outside_the_grid():
+    assert geo.cell_at(DEM_ORIGIN, 20.0, DEM_SHAPE, 10.0, 0.0, RADIUS) is None

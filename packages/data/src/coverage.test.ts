@@ -8,7 +8,7 @@ const committed = JSON.parse(
 
 function manifestWith(datasetStatus: DataStatus, datasetRegion = 'jezero'): DataManifest {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     regions: [
       { id: 'jezero', capabilities: [
         { id: 'imagery', status: 'available', datasetIds: ['hirise'] },
@@ -50,7 +50,7 @@ describe('committed manifest', () => {
   });
 
   it('enables Jezero detail only where data was frozen', () => {
-    for (const id of ['imagery-hirise', 'terrain-dem', 'science-sites']) {
+    for (const id of ['imagery-hirise', 'terrain-dem', 'terrain-slope', 'terrain-hillshade', 'science-sites']) {
       expect(capabilityStatus(committed, 'jezero', id)).not.toBe('unavailable');
     }
     for (const id of ['rover-traverse', 'thermal-themis', 'weather-meda', 'geology']) {

@@ -15,11 +15,12 @@ from PIL import Image
 from . import geo, spec
 
 STATUSES = {"available", "partial", "unavailable"}
-KINDS = {"basemap", "imagery", "elevation", "sites"}
+KINDS = {"basemap", "imagery", "elevation", "slope", "hillshade", "sites"}
 DELIVERIES = {"local", "remote"}
 NODATA_KINDS = {"not-applicable", "alpha-channel", "nan"}
 # Mars spans about -8.2 km (Hellas) to +21.2 km (Olympus Mons) around the MOLA datum.
 ELEVATION_RANGE_M = (-9000.0, 22000.0)
+SLOPE_RANGE_DEG = (0.0, 90.0)
 TEXT_FIELDS = ("id", "regionId", "title", "kind", "instrument", "delivery", "crs", "version", "status")
 
 
@@ -84,28 +85,138 @@ def check_files(root: Path, d: dict) -> list[str]:
     return errors
 
 
-def check_elevation(root: Path, d: dict) -> list[str]:
+def grid_geometry(d: dict) -> tuple[tuple[float, float], float, tuple[int, int]]:
+    """Origin, cell size and (rows, cols) declared by a gridded dataset."""
+    raster = d["raster"]
+    return (raster["origin"]["x"], raster["origin"]["y"]), raster["pixelSizeMetres"], (raster["height"], raster["width"])
+
+
+def check_raster(d: dict) -> list[str]:
+    """The declared transform must be complete and must reproduce the declared extent."""
     label = f"dataset {d.get('id')}"
-    errors = []
-    if (d.get("units") or {}).get("elevation") != "metre":
-        errors.append(f"{label}: units.elevation must be 'metre'")
-    if d["noData"].get("kind") != "nan":
-        errors.append(f"{label}: elevation NoData must be encoded as NaN, never 0")
     raster = d.get("raster") or {}
-    path = root / d["files"][0]["path"]
-    if not path.is_file():
-        return errors
-    values = np.frombuffer(path.read_bytes(), dtype="<f4")
-    if values.size != raster.get("width", 0) * raster.get("height", 0):
-        return errors + [f"{label}: file size does not match raster width x height"]
+    projection = raster.get("projection") or {}
+    origin = raster.get("origin") or {}
+    numbers = (raster.get("width"), raster.get("height"), raster.get("pixelSizeMetres"), origin.get("x"), origin.get("y"))
+    if not all(isinstance(v, (int, float)) and math.isfinite(v) and v > 0 for v in numbers):
+        return [f"{label}: raster needs width, height, pixelSizeMetres and origin as positive numbers"]
+    errors = []
+    if (raster.get("dtype"), raster.get("byteOrder"), raster.get("rowOrder")) != ("float32", "little-endian", "north-to-south"):
+        errors.append(f"{label}: raster must be little-endian float32, north to south")
+    if projection != {
+        "name": "equirectangular",
+        "centralMeridian": 0.0,
+        "standardParallel": 0.0,
+        "radiusMetres": spec.MARS_RADIUS_M,
+    }:
+        errors.append(f"{label}: raster.projection must be the equirectangular Mars sphere of the sources")
+    if raster.get("navigationGrade") is not False:
+        errors.append(f"{label}: raster.navigationGrade must be false, a cell size is not a positioning accuracy")
+    if d.get("resolution") != {"value": raster["pixelSizeMetres"], "unit": "m/pixel"}:
+        errors.append(f"{label}: resolution differs from raster.pixelSizeMetres")
+    aggregation = raster.get("aggregation")
+    if "aggregation" not in raster or (
+        aggregation is not None
+        and aggregation.get("factor", 0) * aggregation.get("sourcePixelSizeMetres", 0) != raster["pixelSizeMetres"]
+    ):
+        errors.append(f"{label}: raster.aggregation must be null or explain the stored cell size")
+    origin_xy, pixel_m, (rows, cols) = grid_geometry(d)
+    expected = geo.window_extent(origin_xy, pixel_m, (0, rows, 0, cols), spec.MARS_RADIUS_M)
+    if any(not math.isclose(expected[k], d["extent"].get(k, math.nan), abs_tol=1e-9) for k in expected):
+        errors.append(f"{label}: extent does not match the raster origin, size and cell size")
+    return errors
+
+
+def read_grid(root: Path, d: dict) -> np.ndarray | None:
+    """Values as (rows, cols), or None when the file does not hold exactly that grid."""
+    raster = d["raster"]
+    values = np.frombuffer((root / d["files"][0]["path"]).read_bytes(), dtype="<f4")
+    if values.size != raster["width"] * raster["height"]:
+        return None
+    return values.reshape(raster["height"], raster["width"])
+
+
+def check_grid(root: Path, d: dict, unit_key: str, unit: str, valid_range: tuple[float, float]) -> tuple[list[str], np.ndarray | None]:
+    label = f"dataset {d.get('id')}"
+    errors = check_raster(d)
+    if errors:
+        return errors, None
+    if (d.get("units") or {}).get(unit_key) != unit:
+        errors.append(f"{label}: units.{unit_key} must be '{unit}'")
+    if d["noData"].get("kind") != "nan":
+        errors.append(f"{label}: NoData must be encoded as NaN, never 0")
+    values = read_grid(root, d)
+    if values is None:
+        return errors + [f"{label}: file size does not match raster width x height"], None
     nan_count = int(np.isnan(values).sum())
     if nan_count != d["noData"].get("cellCount"):
         errors.append(f"{label}: NaN count {nan_count} differs from noData.cellCount")
     if (nan_count > 0) != (d["status"] != "available"):
         errors.append(f"{label}: status must be 'partial' exactly when NoData cells exist")
     valid = values[~np.isnan(values)]
-    if valid.size and (valid.min() < ELEVATION_RANGE_M[0] or valid.max() > ELEVATION_RANGE_M[1]):
-        errors.append(f"{label}: elevation outside the plausible Martian range (NoData sentinel leaked?)")
+    if valid.size and (valid.min() < valid_range[0] or valid.max() > valid_range[1]):
+        errors.append(f"{label}: {unit_key} outside the plausible range (NoData sentinel leaked?)")
+    return errors, values
+
+
+def check_elevation(root: Path, manifest: dict, d: dict) -> list[str]:
+    label = f"dataset {d.get('id')}"
+    errors, values = check_grid(root, d, "elevation", "metre", ELEVATION_RANGE_M)
+    if not d.get("verticalDatum"):
+        errors.append(f"{label}: verticalDatum must name the reference of the elevations")
+    if values is None:
+        return errors
+    origin_xy, pixel_m, shape = grid_geometry(d)
+    for site in manifest["sites"]:
+        if site.get("regionId") != d["regionId"]:
+            continue
+        coordinate = site["coordinate"]
+        cell = geo.cell_at(origin_xy, pixel_m, shape, coordinate["longitude"], coordinate["latitude"], spec.MARS_RADIUS_M)
+        if cell is None or math.isnan(values[cell]):
+            errors.append(f"{label}: site {site.get('id')} does not fall on a valid cell")
+    return errors
+
+
+def parent_grid(datasets: dict[str, dict], d: dict) -> tuple[dict | None, list[str]]:
+    """The elevation dataset a derived product was computed from, on the very same grid."""
+    label = f"dataset {d.get('id')}"
+    parent = datasets.get(d.get("derivedFrom"))
+    if parent is None or parent.get("kind") != "elevation" or not parent.get("raster"):
+        return None, [f"{label}: derivedFrom must name an elevation dataset"]
+    if parent["extent"] != d["extent"] or parent["regionId"] != d["regionId"]:
+        return None, [f"{label}: extent differs from {parent['id']}, the grid it derives from"]
+    return parent, []
+
+
+def check_slope(root: Path, datasets: dict[str, dict], d: dict) -> list[str]:
+    label = f"dataset {d.get('id')}"
+    parent, errors = parent_grid(datasets, d)
+    grid_errors, values = check_grid(root, d, "slope", "degree", SLOPE_RANGE_DEG)
+    errors += grid_errors
+    if parent is None or values is None:
+        return errors
+    if d["raster"] != parent["raster"]:
+        return errors + [f"{label}: raster differs from {parent['id']}"]
+    elevation = read_grid(root, parent)
+    if elevation is not None and (np.isnan(elevation) & ~np.isnan(values)).any():
+        errors.append(f"{label}: a slope exists where {parent['id']} has no elevation")
+    return errors
+
+
+def check_hillshade(root: Path, datasets: dict[str, dict], d: dict) -> list[str]:
+    label = f"dataset {d.get('id')}"
+    parent, errors = parent_grid(datasets, d)
+    if parent is None:
+        return errors
+    with Image.open(root / d["files"][0]["path"]) as image:
+        image.load()
+        if image.size != (parent["raster"]["width"], parent["raster"]["height"]):
+            errors.append(f"{label}: image size differs from the grid of {parent['id']}")
+        transparent = transparent_pixels(image)
+    if d["noData"].get("kind") != "alpha-channel" or transparent != d["noData"].get("transparentPixelCount"):
+        errors.append(f"{label}: unknown relief must be transparent and counted in noData")
+    if (transparent > 0) != (d["status"] != "available"):
+        errors.append(f"{label}: status must be 'partial' exactly when transparent pixels exist")
     return errors
 
 
@@ -210,7 +321,11 @@ def validate(root: Path) -> list[str]:
         if file_errors:
             continue  # content checks are meaningless on missing or altered files
         if d.get("kind") == "elevation":
-            errors += check_elevation(root, d)
+            errors += check_elevation(root, manifest, d)
+        elif d.get("kind") == "slope":
+            errors += check_slope(root, datasets, d)
+        elif d.get("kind") == "hillshade":
+            errors += check_hillshade(root, datasets, d)
         elif d.get("kind") == "imagery":
             errors += check_imagery(root, d)
         elif d.get("kind") == "sites":

@@ -7,6 +7,7 @@ Ils ne sont pas nécessaires pour installer, démarrer ou construire le frontend
 - `marps_data/prepare.py` : télécharge, découpe et fige les données, puis écrit le manifeste.
 - `marps_data/check.py` : valide hors ligne les données figées.
 - `marps_data/geo.py` : arithmétique de grilles partagée (tuiles WMTS, fenêtre du DEM).
+- `marps_data/terrain.py` : agrégation, pente et relief ombré calculés sur les altitudes.
 
 Depuis la racine du dépôt, avec [uv](https://docs.astral.sh/uv/) installé :
 

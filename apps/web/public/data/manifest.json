@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 1,
-  "generatedAt": "2026-11-14T11:33:21Z",
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-14T12:39:18Z",
   "planet": {
     "name": "Mars",
     "radiusMeters": 3396190.0,
@@ -50,10 +50,29 @@
         },
         {
           "id": "terrain-dem",
-          "label": "Relief CTX 20 m",
+          "label": "Altitudes (HiRISE 4 m, repli CTX 20 m)",
           "status": "available",
           "datasetIds": [
+            "jezero-hirise-dem",
             "jezero-ctx-dem"
+          ]
+        },
+        {
+          "id": "terrain-slope",
+          "label": "Pentes (HiRISE 4 m, repli CTX 20 m)",
+          "status": "available",
+          "datasetIds": [
+            "jezero-hirise-slope",
+            "jezero-ctx-slope"
+          ]
+        },
+        {
+          "id": "terrain-hillshade",
+          "label": "Relief ombré",
+          "status": "available",
+          "datasetIds": [
+            "jezero-hirise-hillshade",
+            "jezero-ctx-hillshade"
           ]
         },
         {
@@ -106,7 +125,7 @@
       "source": {
         "url": "https://trek.nasa.gov/tiles/Mars/EQ/Mars_MGS_MOLA_ClrShade_merge_global_463m/1.0.0/WMTSCapabilities.xml",
         "tileUrlTemplate": "https://trek.nasa.gov/tiles/Mars/EQ/Mars_MGS_MOLA_ClrShade_merge_global_463m/1.0.0/default/default028mm/{z}/{y}/{x}.jpg",
-        "retrievedAt": "2026-11-14T11:33:21Z",
+        "retrievedAt": "2026-11-14T12:39:18Z",
         "credit": "NASA / équipe scientifique MGS MOLA ; distribué par NASA Mars Trek",
         "terms": {
           "summary": "Contenu NASA réutilisable sans autorisation préalable pour un usage factuel sans suggestion de soutien ; NASA doit être citée comme source.",
@@ -158,7 +177,7 @@
       "source": {
         "url": "https://trek.nasa.gov/tiles/Mars/EQ/JEZ_hirise_soc_006_orthoMosaic_25cm_Eqc_latTs0_lon0_first_dd/1.0.0/WMTSCapabilities.xml",
         "tileUrlTemplate": "https://trek.nasa.gov/tiles/Mars/EQ/JEZ_hirise_soc_006_orthoMosaic_25cm_Eqc_latTs0_lon0_first_dd/1.0.0/default/default028mm/{z}/{y}/{x}.png",
-        "retrievedAt": "2026-11-14T11:33:21Z",
+        "retrievedAt": "2026-11-14T12:39:18Z",
         "credit": "NASA/JPL-Caltech/University of Arizona ; distribué par NASA Mars Trek",
         "terms": {
           "summary": "Conditions propres à ce produit non vérifiées ; appliquer au minimum la citation de la source et confirmer avant toute redistribution.",
@@ -798,6 +817,246 @@
       ]
     },
     {
+      "id": "jezero-hirise-dem",
+      "regionId": "jezero",
+      "title": "Altitudes HiRISE 4 m de Jezero (secteur du front du delta)",
+      "kind": "elevation",
+      "instrument": "Mars Reconnaissance Orbiter, caméra HiRISE (mosaïque de modèles numériques stéréo)",
+      "delivery": "local",
+      "source": {
+        "url": "https://planetarymaps.usgs.gov/mosaic/mars2020_trn/HiRISE/JEZ_hirise_soc_006_DTM_MOLAtopography_DeltaGeoid_1m_Eqc_latTs0_lon0_blend40.tif",
+        "retrievedAt": "2026-11-14T12:39:18Z",
+        "credit": "USGS Astrogeology Science Center ; NASA/JPL-Caltech/University of Arizona, Mars 2020 Terrain Relative Navigation HiRISE DTM Mosaic",
+        "terms": {
+          "summary": "Fiche USGS Astropedia : aucune contrainte d'accès ; citer les auteurs (Fergason et al., 2020).",
+          "url": "https://astrogeology.usgs.gov/search/map/mars_2020_terrain_relative_navigation_hirise_dtm_mosaic",
+          "verified": true
+        },
+        "fingerprint": {
+          "target": "GeoTIFF, lignes 12104 à 13303 (octets 1036275009 à 1138995008)",
+          "sha256": "6b0094366c7b819061e70451f9a8f1d8cdd8e5962ae804bcece94c99e22bd0b4",
+          "bytes": 102720000
+        }
+      },
+      "acquisition": {
+        "date": null,
+        "sol": null,
+        "note": "Mosaïque de modèles stéréo HiRISE ; dates des paires non relevées."
+      },
+      "units": {
+        "elevation": "metre"
+      },
+      "crs": "Equirectangular Mars 2000 Sphere IAU (central meridian 0, standard parallel 0), metres",
+      "extent": {
+        "west": 77.39494576410478,
+        "east": 77.41201881622118,
+        "north": 18.465045723255688,
+        "south": 18.444935962264815
+      },
+      "resolution": {
+        "value": 4.0,
+        "unit": "m/pixel"
+      },
+      "noData": {
+        "kind": "nan",
+        "sourceValue": -3.4028226550889045e+38,
+        "cellCount": 0
+      },
+      "status": "available",
+      "version": "soc_006",
+      "limitations": [
+        "Moyenne par blocs de 4 × 4 pixels du produit à 1 m : les reliefs de moins de quelques mètres sont lissés.",
+        "Écart vertical médian publié avec le DEM CTX : environ 0,4 m (Fergason et al., 2020) ; ce n'est pas une précision absolue.",
+        "La taille de maille est un pas d'échantillonnage, pas une précision : ne pas s'en servir pour la navigation.",
+        "Les blocs, marches et crevasses plus petits que la maille ne sont pas résolus ; aucune praticabilité à pied n'est certifiée.",
+        "Recalage horizontal et vertical non validé indépendamment ; ne pas mélanger ces altitudes à celles des prélèvements."
+      ],
+      "raster": {
+        "width": 253,
+        "height": 298,
+        "dtype": "float32",
+        "byteOrder": "little-endian",
+        "rowOrder": "north-to-south",
+        "pixelSizeMetres": 4.0,
+        "origin": {
+          "x": 4587562.0,
+          "y": 1094510.0
+        },
+        "projection": {
+          "name": "equirectangular",
+          "centralMeridian": 0.0,
+          "standardParallel": 0.0,
+          "radiusMetres": 3396190.0
+        },
+        "aggregation": {
+          "method": "block-mean",
+          "factor": 4,
+          "sourcePixelSizeMetres": 1.0
+        },
+        "navigationGrade": false
+      },
+      "files": [
+        {
+          "path": "jezero/dem/hirise-4m.f32",
+          "bytes": 301576,
+          "sha256": "61336629366b5324f03f57ecaf5922bb5ca022f4163f6c72d14936cfc31a8dba",
+          "mediaType": "application/octet-stream"
+        }
+      ],
+      "verticalDatum": "Topographie MOLA, hauteur au-dessus de l'aréoïde (d'après le nom du produit USGS)"
+    },
+    {
+      "id": "jezero-hirise-slope",
+      "regionId": "jezero",
+      "title": "Pentes HiRISE 4 m de Jezero (secteur du front du delta)",
+      "kind": "slope",
+      "instrument": "Mars Reconnaissance Orbiter, caméra HiRISE (mosaïque de modèles numériques stéréo)",
+      "delivery": "local",
+      "source": {
+        "url": "https://planetarymaps.usgs.gov/mosaic/mars2020_trn/HiRISE/JEZ_hirise_soc_006_DTM_MOLAtopography_DeltaGeoid_1m_Eqc_latTs0_lon0_blend40.tif",
+        "retrievedAt": "2026-11-14T12:39:18Z",
+        "credit": "USGS Astrogeology Science Center ; NASA/JPL-Caltech/University of Arizona, Mars 2020 Terrain Relative Navigation HiRISE DTM Mosaic",
+        "terms": {
+          "summary": "Fiche USGS Astropedia : aucune contrainte d'accès ; citer les auteurs (Fergason et al., 2020).",
+          "url": "https://astrogeology.usgs.gov/search/map/mars_2020_terrain_relative_navigation_hirise_dtm_mosaic",
+          "verified": true
+        },
+        "fingerprint": {
+          "target": "GeoTIFF, lignes 12104 à 13303 (octets 1036275009 à 1138995008)",
+          "sha256": "6b0094366c7b819061e70451f9a8f1d8cdd8e5962ae804bcece94c99e22bd0b4",
+          "bytes": 102720000
+        }
+      },
+      "acquisition": {
+        "date": null,
+        "sol": null,
+        "note": "Mosaïque de modèles stéréo HiRISE ; dates des paires non relevées."
+      },
+      "units": {
+        "slope": "degree"
+      },
+      "crs": "Equirectangular Mars 2000 Sphere IAU (central meridian 0, standard parallel 0), metres",
+      "extent": {
+        "west": 77.39494576410478,
+        "east": 77.41201881622118,
+        "north": 18.465045723255688,
+        "south": 18.444935962264815
+      },
+      "resolution": {
+        "value": 4.0,
+        "unit": "m/pixel"
+      },
+      "noData": {
+        "kind": "nan",
+        "sourceValue": -3.4028226550889045e+38,
+        "cellCount": 0
+      },
+      "status": "available",
+      "version": "soc_006",
+      "limitations": [
+        "Pente moyenne sur 3 × 3 mailles (méthode de Horn), soit une base de 8 m : pas la pente locale sous le pied.",
+        "Largeur est-ouest des mailles réduite de cos(latitude) : la projection l'étire d'environ 5 % à Jezero.",
+        "La taille de maille est un pas d'échantillonnage, pas une précision : ne pas s'en servir pour la navigation.",
+        "Les blocs, marches et crevasses plus petits que la maille ne sont pas résolus ; aucune praticabilité à pied n'est certifiée.",
+        "Recalage horizontal et vertical non validé indépendamment ; ne pas mélanger ces altitudes à celles des prélèvements."
+      ],
+      "raster": {
+        "width": 253,
+        "height": 298,
+        "dtype": "float32",
+        "byteOrder": "little-endian",
+        "rowOrder": "north-to-south",
+        "pixelSizeMetres": 4.0,
+        "origin": {
+          "x": 4587562.0,
+          "y": 1094510.0
+        },
+        "projection": {
+          "name": "equirectangular",
+          "centralMeridian": 0.0,
+          "standardParallel": 0.0,
+          "radiusMetres": 3396190.0
+        },
+        "aggregation": {
+          "method": "block-mean",
+          "factor": 4,
+          "sourcePixelSizeMetres": 1.0
+        },
+        "navigationGrade": false
+      },
+      "files": [
+        {
+          "path": "jezero/dem/hirise-4m-slope.f32",
+          "bytes": 301576,
+          "sha256": "5b8d99eccccb8a261af313d01bc0ee769badcb651b36ed995347ac0dcea87e2f",
+          "mediaType": "application/octet-stream"
+        }
+      ],
+      "derivedFrom": "jezero-hirise-dem"
+    },
+    {
+      "id": "jezero-hirise-hillshade",
+      "regionId": "jezero",
+      "title": "Relief ombré HiRISE 4 m de Jezero (secteur du front du delta)",
+      "kind": "hillshade",
+      "instrument": "Mars Reconnaissance Orbiter, caméra HiRISE (mosaïque de modèles numériques stéréo)",
+      "delivery": "local",
+      "source": {
+        "url": "https://planetarymaps.usgs.gov/mosaic/mars2020_trn/HiRISE/JEZ_hirise_soc_006_DTM_MOLAtopography_DeltaGeoid_1m_Eqc_latTs0_lon0_blend40.tif",
+        "retrievedAt": "2026-11-14T12:39:18Z",
+        "credit": "USGS Astrogeology Science Center ; NASA/JPL-Caltech/University of Arizona, Mars 2020 Terrain Relative Navigation HiRISE DTM Mosaic",
+        "terms": {
+          "summary": "Fiche USGS Astropedia : aucune contrainte d'accès ; citer les auteurs (Fergason et al., 2020).",
+          "url": "https://astrogeology.usgs.gov/search/map/mars_2020_terrain_relative_navigation_hirise_dtm_mosaic",
+          "verified": true
+        },
+        "fingerprint": {
+          "target": "GeoTIFF, lignes 12104 à 13303 (octets 1036275009 à 1138995008)",
+          "sha256": "6b0094366c7b819061e70451f9a8f1d8cdd8e5962ae804bcece94c99e22bd0b4",
+          "bytes": 102720000
+        }
+      },
+      "acquisition": {
+        "date": null,
+        "sol": null,
+        "note": "Mosaïque de modèles stéréo HiRISE ; dates des paires non relevées."
+      },
+      "units": {},
+      "crs": "Equirectangular Mars 2000 Sphere IAU (central meridian 0, standard parallel 0), metres",
+      "extent": {
+        "west": 77.39494576410478,
+        "east": 77.41201881622118,
+        "north": 18.465045723255688,
+        "south": 18.444935962264815
+      },
+      "resolution": {
+        "value": 4.0,
+        "unit": "m/pixel"
+      },
+      "noData": {
+        "kind": "alpha-channel",
+        "transparentPixelCount": 0
+      },
+      "status": "available",
+      "version": "soc_006",
+      "limitations": [
+        "Éclairage fictif (azimut 315°, hauteur 45°) sans exagération verticale : aide visuelle, pas une mesure.",
+        "Image à la maille de la grille : l'étirer sur son emprise, sans la comparer au détail de l'imagerie.",
+        "La taille de maille est un pas d'échantillonnage, pas une précision : ne pas s'en servir pour la navigation.",
+        "Les blocs, marches et crevasses plus petits que la maille ne sont pas résolus ; aucune praticabilité à pied n'est certifiée.",
+        "Recalage horizontal et vertical non validé indépendamment ; ne pas mélanger ces altitudes à celles des prélèvements."
+      ],
+      "derivedFrom": "jezero-hirise-dem",
+      "files": [
+        {
+          "path": "jezero/dem/hirise-4m-hillshade.png",
+          "bytes": 43525,
+          "sha256": "fb581567a553b03e7262df953c4e0f8ffcc8143d936da104e98b32eac02644f2",
+          "mediaType": "image/png"
+        }
+      ]
+    },
+    {
       "id": "jezero-ctx-dem",
       "regionId": "jezero",
       "title": "Altitudes CTX 20 m de Jezero (secteur du front du delta)",
@@ -806,12 +1065,12 @@
       "delivery": "local",
       "source": {
         "url": "https://planetarymaps.usgs.gov/mosaic/mars2020_trn/CTX/JEZ_ctx_B_soc_008_DTM_MOLAtopography_DeltaGeoid_20m_Eqc_latTs0_lon0.tif",
-        "retrievedAt": "2026-11-14T11:33:21Z",
+        "retrievedAt": "2026-11-14T12:39:18Z",
         "credit": "USGS Astrogeology Science Center ; NASA/JPL, Mars 2020 Terrain Relative Navigation CTX DTM",
         "terms": {
-          "summary": "Conditions propres à ce produit non vérifiées ; appliquer au minimum la citation de la source et confirmer avant toute redistribution.",
-          "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
-          "verified": false
+          "summary": "Fiche USGS Astropedia : aucune contrainte d'accès ; citer les auteurs (Fergason et al., 2020).",
+          "url": "https://astrogeology.usgs.gov/search/map/mars_2020_terrain_relative_navigation_ctx_dtm_mosaic",
+          "verified": true
         },
         "fingerprint": {
           "target": "GeoTIFF",
@@ -846,9 +1105,11 @@
       "status": "available",
       "version": "soc_008",
       "limitations": [
-        "Une maille de 20 m ne résout pas les blocs isolés et ne certifie aucune praticabilité à pied.",
-        "Datum vertical non documenté dans ce contrôle : ne pas le mélanger aux altitudes des prélèvements.",
-        "Recalage horizontal et vertical non validé indépendamment."
+        "Jeu de repli : préférer la grille HiRISE quand elle est disponible.",
+        "Recalage publié entre modèles CTX : 3,8 m en vertical, 9,6 m de décalage horizontal moyen (Fergason et al., 2020).",
+        "La taille de maille est un pas d'échantillonnage, pas une précision : ne pas s'en servir pour la navigation.",
+        "Les blocs, marches et crevasses plus petits que la maille ne sont pas résolus ; aucune praticabilité à pied n'est certifiée.",
+        "Recalage horizontal et vertical non validé indépendamment ; ne pas mélanger ces altitudes à celles des prélèvements."
       ],
       "raster": {
         "width": 51,
@@ -856,7 +1117,19 @@
         "dtype": "float32",
         "byteOrder": "little-endian",
         "rowOrder": "north-to-south",
-        "pixelSizeMetres": 20.0
+        "pixelSizeMetres": 20.0,
+        "origin": {
+          "x": 4587563.250853,
+          "y": 1094513.140188
+        },
+        "projection": {
+          "name": "equirectangular",
+          "centralMeridian": 0.0,
+          "standardParallel": 0.0,
+          "radiusMetres": 3396190.0
+        },
+        "aggregation": null,
+        "navigationGrade": false
       },
       "files": [
         {
@@ -864,6 +1137,154 @@
           "bytes": 12240,
           "sha256": "c48571b271d3691e384ed3849affca8dfd257fad626ac450429e796097aee8c1",
           "mediaType": "application/octet-stream"
+        }
+      ],
+      "verticalDatum": "Topographie MOLA, hauteur au-dessus de l'aréoïde (d'après le nom du produit USGS)"
+    },
+    {
+      "id": "jezero-ctx-slope",
+      "regionId": "jezero",
+      "title": "Pentes CTX 20 m de Jezero (secteur du front du delta)",
+      "kind": "slope",
+      "instrument": "Mars Reconnaissance Orbiter, caméra CTX (modèle numérique stéréo)",
+      "delivery": "local",
+      "source": {
+        "url": "https://planetarymaps.usgs.gov/mosaic/mars2020_trn/CTX/JEZ_ctx_B_soc_008_DTM_MOLAtopography_DeltaGeoid_20m_Eqc_latTs0_lon0.tif",
+        "retrievedAt": "2026-11-14T12:39:18Z",
+        "credit": "USGS Astrogeology Science Center ; NASA/JPL, Mars 2020 Terrain Relative Navigation CTX DTM",
+        "terms": {
+          "summary": "Fiche USGS Astropedia : aucune contrainte d'accès ; citer les auteurs (Fergason et al., 2020).",
+          "url": "https://astrogeology.usgs.gov/search/map/mars_2020_terrain_relative_navigation_ctx_dtm_mosaic",
+          "verified": true
+        },
+        "fingerprint": {
+          "target": "GeoTIFF",
+          "sha256": "16a1aa66c3f48c1bca252795827db7b417876217aff0f5e1aff18027fab2327b",
+          "bytes": 9662387
+        }
+      },
+      "acquisition": {
+        "date": null,
+        "sol": null,
+        "note": "Mosaïque de modèles stéréo CTX ; dates non relevées."
+      },
+      "units": {
+        "slope": "degree"
+      },
+      "crs": "Equirectangular Mars 2000 Sphere IAU (central meridian 0, standard parallel 0), metres",
+      "extent": {
+        "west": 77.39496686675147,
+        "east": 77.41217488370675,
+        "north": 18.465098700126614,
+        "south": 18.444853974296876
+      },
+      "resolution": {
+        "value": 20.0,
+        "unit": "m/pixel"
+      },
+      "noData": {
+        "kind": "nan",
+        "sourceValue": -3.4028226550889045e+38,
+        "cellCount": 0
+      },
+      "status": "available",
+      "version": "soc_008",
+      "limitations": [
+        "Pente moyenne sur 3 × 3 mailles (méthode de Horn), soit une base de 40 m : pas la pente locale sous le pied.",
+        "Largeur est-ouest des mailles réduite de cos(latitude) : la projection l'étire d'environ 5 % à Jezero.",
+        "La taille de maille est un pas d'échantillonnage, pas une précision : ne pas s'en servir pour la navigation.",
+        "Les blocs, marches et crevasses plus petits que la maille ne sont pas résolus ; aucune praticabilité à pied n'est certifiée.",
+        "Recalage horizontal et vertical non validé indépendamment ; ne pas mélanger ces altitudes à celles des prélèvements."
+      ],
+      "raster": {
+        "width": 51,
+        "height": 60,
+        "dtype": "float32",
+        "byteOrder": "little-endian",
+        "rowOrder": "north-to-south",
+        "pixelSizeMetres": 20.0,
+        "origin": {
+          "x": 4587563.250853,
+          "y": 1094513.140188
+        },
+        "projection": {
+          "name": "equirectangular",
+          "centralMeridian": 0.0,
+          "standardParallel": 0.0,
+          "radiusMetres": 3396190.0
+        },
+        "aggregation": null,
+        "navigationGrade": false
+      },
+      "files": [
+        {
+          "path": "jezero/dem/ctx-20m-slope.f32",
+          "bytes": 12240,
+          "sha256": "8d0e5dd9e705fc427f8ffcff06c271988195e1efd8fa028f42cf72fbb4294aee",
+          "mediaType": "application/octet-stream"
+        }
+      ],
+      "derivedFrom": "jezero-ctx-dem"
+    },
+    {
+      "id": "jezero-ctx-hillshade",
+      "regionId": "jezero",
+      "title": "Relief ombré CTX 20 m de Jezero (secteur du front du delta)",
+      "kind": "hillshade",
+      "instrument": "Mars Reconnaissance Orbiter, caméra CTX (modèle numérique stéréo)",
+      "delivery": "local",
+      "source": {
+        "url": "https://planetarymaps.usgs.gov/mosaic/mars2020_trn/CTX/JEZ_ctx_B_soc_008_DTM_MOLAtopography_DeltaGeoid_20m_Eqc_latTs0_lon0.tif",
+        "retrievedAt": "2026-11-14T12:39:18Z",
+        "credit": "USGS Astrogeology Science Center ; NASA/JPL, Mars 2020 Terrain Relative Navigation CTX DTM",
+        "terms": {
+          "summary": "Fiche USGS Astropedia : aucune contrainte d'accès ; citer les auteurs (Fergason et al., 2020).",
+          "url": "https://astrogeology.usgs.gov/search/map/mars_2020_terrain_relative_navigation_ctx_dtm_mosaic",
+          "verified": true
+        },
+        "fingerprint": {
+          "target": "GeoTIFF",
+          "sha256": "16a1aa66c3f48c1bca252795827db7b417876217aff0f5e1aff18027fab2327b",
+          "bytes": 9662387
+        }
+      },
+      "acquisition": {
+        "date": null,
+        "sol": null,
+        "note": "Mosaïque de modèles stéréo CTX ; dates non relevées."
+      },
+      "units": {},
+      "crs": "Equirectangular Mars 2000 Sphere IAU (central meridian 0, standard parallel 0), metres",
+      "extent": {
+        "west": 77.39496686675147,
+        "east": 77.41217488370675,
+        "north": 18.465098700126614,
+        "south": 18.444853974296876
+      },
+      "resolution": {
+        "value": 20.0,
+        "unit": "m/pixel"
+      },
+      "noData": {
+        "kind": "alpha-channel",
+        "transparentPixelCount": 0
+      },
+      "status": "available",
+      "version": "soc_008",
+      "limitations": [
+        "Éclairage fictif (azimut 315°, hauteur 45°) sans exagération verticale : aide visuelle, pas une mesure.",
+        "Image à la maille de la grille : l'étirer sur son emprise, sans la comparer au détail de l'imagerie.",
+        "La taille de maille est un pas d'échantillonnage, pas une précision : ne pas s'en servir pour la navigation.",
+        "Les blocs, marches et crevasses plus petits que la maille ne sont pas résolus ; aucune praticabilité à pied n'est certifiée.",
+        "Recalage horizontal et vertical non validé indépendamment ; ne pas mélanger ces altitudes à celles des prélèvements."
+      ],
+      "derivedFrom": "jezero-ctx-dem",
+      "files": [
+        {
+          "path": "jezero/dem/ctx-20m-hillshade.png",
+          "bytes": 1723,
+          "sha256": "f64905209731255a49e1b0ef4555932dda262ee092aefc9b362c9d57603b6b58",
+          "mediaType": "image/png"
         }
       ]
     },
@@ -876,7 +1297,7 @@
       "delivery": "local",
       "source": {
         "url": "https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_SAMPLE_v3.json",
-        "retrievedAt": "2026-11-14T11:33:21Z",
+        "retrievedAt": "2026-11-14T12:39:18Z",
         "credit": "NASA/JPL-Caltech, Mars 2020 Perseverance, carte des prélèvements (mars.nasa.gov)",
         "terms": {
           "summary": "Contenu NASA réutilisable sans autorisation préalable pour un usage factuel sans suggestion de soutien ; NASA doit être citée comme source.",

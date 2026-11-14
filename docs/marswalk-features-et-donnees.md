@@ -21,11 +21,11 @@ P0 = socle de démonstration ; P1 = après le socle ; P2 = extension.
 | P0 | Alerter sur un dépassement et recalculer après chaque modification | État calculé ; signifie dépassement du budget choisi, pas prédiction de survie. |
 | P0 | Fiche de chaque arrêt : intérêt, activité proposée, source | Faits sourcés dans NASA/JPL ; activités et durées rédigées par l'équipe. Les photos doivent être associées à leur vrai lieu/date. |
 | P0 | Distinguer observations, calculs et hypothèses | Provenance de chaque donnée, échelle/résolution et date ; conserver le statut inconnu. |
-| P1 | Relief et profil d'altitude du parcours | DEM CTX 20 m/pixel téléchargé entièrement et lu numériquement ; les trois arrêts tombent sur des cellules valides. Prétraitement et raccord des référentiels à terminer. |
+| P1 | Relief et profil d'altitude du parcours | Grilles d'altitude et de pente figées : DEM HiRISE agrégé à 4 m, DEM CTX 20 m en repli ; les trois arrêts tombent sur des mailles valides. Voir [relief-jezero.md](relief-jezero.md). |
 | P1 | Couche infrarouge nocturne et explication | Mosaïque THEMIS Mars Odyssey à 100 m/pixel ; une tuile couvrant le secteur téléchargée et décodée. Contrastes historiques, pas température actuelle en degrés. |
 | P1 | Sauvegarder/recharger et exporter une fiche de mission | JSON local et fiche imprimable à partir de l'état de l'application. |
 | P1 | Démonstration hors ligne sur le secteur choisi | Figer les fichiers nécessaires ; le DEM est conservé, mais seules quelques tuiles ont été téléchargées. Constituer le cache complet aux zooms choisis et le tester. |
-| P2 | Proposer un chemin selon les pentes | DEM disponible, mais il faut construire une grille de coût, fixer des seuils de scénario, tester les obstacles et traiter les lacunes. À 20 m, le DEM ne décrit pas chaque obstacle. |
+| P2 | Proposer un chemin selon les pentes | Grilles de pente disponibles (4 m et 20 m), mais il faut construire une grille de coût, fixer des seuils de scénario, tester les obstacles et traiter les lacunes. Même à 4 m, le DEM ne décrit pas chaque obstacle. |
 
 ## Sources et preuves d'accès
 
