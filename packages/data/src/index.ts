@@ -20,6 +20,7 @@ export interface Catalog {
   readonly datasets: readonly DatasetDescriptor[];
   /** Science sites of the manifest; their sheets are in `siteSheets`. */
   readonly sites: readonly SiteDescriptor[];
+  readonly manifest?: DataManifest;
 }
 
 /**
