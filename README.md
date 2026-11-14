@@ -1,9 +1,10 @@
 # Marps
 
 Application statique de préparation de sorties scientifiques sur Mars. Le MVP
-cible Jezero ; l'écran de planification est en place, mais ni la carte ni les
-données scientifiques ne sont encore intégrées. React, TypeScript, Vite,
-OpenLayers, Tailwind CSS et shadcn/ui sont installés dans un workspace pnpm privé.
+cible Jezero ; l'écran de planification est en place et les données du MVP sont
+figées avec leur manifeste, mais la carte n'est pas encore intégrée. React,
+TypeScript, Vite, OpenLayers, Tailwind CSS et shadcn/ui sont installés dans un
+workspace pnpm privé.
 
 ## Installation
 
@@ -33,7 +34,10 @@ pnpm dev        # Vite, http://localhost:5173 (ou le port libre suivant)
 pnpm build      # Vérifie les packages puis produit apps/web/dist
 pnpm lint       # ESLint, aucun avertissement accepté
 pnpm typecheck  # TypeScript strict pour chaque package
-pnpm test       # Vitest, tests des calculs purs
+pnpm test       # Vitest, tests des calculs purs et du manifeste figé
+pnpm data:prepare  # Télécharge et fige les données (réseau, voir « Données »)
+pnpm data:check    # Valide hors ligne les données figées et le manifeste
+pnpm data:test     # pytest, tests des scripts de préparation
 ```
 
 Pour servir localement le résultat statique après un build :
@@ -46,11 +50,12 @@ Aucun serveur métier, base de données ou traitement Python n'est requis.
 | --- | --- | --- |
 | `apps/web` | Composition React, intégration OpenLayers, interactions navigateur | `mission-core`, `data`, `ui` |
 | `packages/mission-core` | Types métier et calculs purs, sans framework, DOM ni accès réseau | Aucune |
-| `packages/data` | Contrats et catalogue des données préparées, provenance | `mission-core` (types) |
+| `packages/data` | Contrats du manifeste (région, site, source), lecture du manifeste et règle de couverture | `mission-core` (types) |
 | `packages/ui` | Système de design : jetons, composants shadcn/ui et composants de mission | Aucune |
-| `tools/data` | Futurs scripts Python de préparation, hors workspace pnpm | Aucune |
+| `tools/data` | Scripts Python de téléchargement, préparation et validation, hors workspace pnpm | Aucune |
 
-Le catalogue scientifique est vide jusqu'à l'intégration des données (#6).
+Le catalogue scientifique est le manifeste `apps/web/public/data/manifest.json`
+(voir « Données »).
 Les coordonnées de Jezero sont des métadonnées d'orientation approximatives.
 Les coordonnées métier sont en degrés planétocentriques, longitude positive vers
 l'est ; les durées sont en secondes. Les calculs de mission complets relèvent des
@@ -122,6 +127,58 @@ global, et exporter le composant depuis `src/index.ts`.
   OpenLayers sont importés par l'application, qui possède cette dépendance.
   Tailwind est compilé par le plugin Vite de `apps/web` ; les classes utilisées
   dans `packages/ui/src` sont détectées par la directive `@source` de ce fichier.
+
+## Données
+
+Les données du MVP sont **figées dans le dépôt** sous `apps/web/public/data`
+(environ 5 Mo) et servies en statique à l'adresse `/data/`. `pnpm build`,
+`pnpm test` et l'application ne contactent jamais NASA ni USGS.
+
+| Jeu de données | Livraison | Contenu |
+| --- | --- | --- |
+| `mola-colorized-relief` | distante (Trek) | Fond mondial d'orientation, non figé |
+| `jezero-hirise-mosaic` | figée | Tuiles HiRISE WMTS, zooms 12 à 16, sur le secteur |
+| `jezero-ctx-dem` | figée | Altitudes CTX 20 m du secteur, float32 (`NaN` = pas de donnée) |
+| `jezero-sampling-sites` | figée | Skinner Ridge, Wildcat Ridge et Amalik (GeoJSON NASA) |
+
+Le manifeste sépare l'**orientation globale** (région `global`) du **détail de
+Jezero** (région `jezero`). Chaque capacité (`imagery-hirise`, `terrain-dem`,
+`science-sites`, `thermal-themis`…) porte son statut ; une capacité non préparée
+est `unavailable` avec sa raison. Un fond ne peut jamais activer une donnée
+absente : `capabilityStatus` de `@marps/data` ne retient que les jeux déclarés
+pour la région demandée et prend le statut le plus faible.
+
+Chaque jeu de données conserve identifiant, URL, instrument, date/sol, unités,
+CRS, emprise (degrés planétocentriques, longitude positive vers l'est),
+résolution, statut, version de la source, crédit, conditions d'usage, empreinte
+SHA-256 de la source amont et de chaque fichier figé. Une valeur inconnue reste
+`null` (date, sol, datum vertical) ; une absence de donnée n'est jamais convertie
+en zéro : pixels transparents pour l'imagerie, `NaN` pour l'altitude.
+
+### Préparer et vérifier
+
+La préparation est une étape explicite. Elle demande [uv](https://docs.astral.sh/uv/)
+et accède au réseau ; l'environnement Python est reproductible grâce à
+`tools/data/pyproject.toml` (versions exactes) et `tools/data/uv.lock`.
+
+```sh
+pnpm data:prepare   # télécharge, découpe, calcule les empreintes, écrit le manifeste
+pnpm data:check     # relit les fichiers figés, sans réseau
+pnpm data:test      # tests des scripts
+```
+
+`data:prepare` écrit dans un dossier temporaire, valide, puis remplace
+`apps/web/public/data` ; un échec réseau ou de validation laisse les données
+actuelles intactes. Le DEM CTX est mis en cache dans `tools/data/.cache` (ignoré
+par Git) et son empreinte est vérifiée : si la source amont change, la préparation
+s'arrête pour revue. Le secteur, les URL et les crédits sont dans
+`tools/data/marps_data/spec.py`.
+
+`data:check` contrôle : champs requis, emprises et coordonnées valides, sites dans
+le secteur, tailles et empreintes des fichiers, unités, `NaN` des altitudes
+(aucune valeur sentinelle), pixels transparents, et cohérence statut/capacités.
+Les notes de recherche sont dans [`docs/`](docs/) et les échantillons de contrôle
+dans [`data/research/`](data/research/).
 
 ## Variables et déploiement
 

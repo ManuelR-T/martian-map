@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Catalog } from '@marps/data';
+import type { Catalog, DatasetDescriptor } from '@marps/data';
 import {
   initialPlannerState,
   plannerReducer,
@@ -11,19 +11,32 @@ import {
 
 const jezero = { id: 'jezero', name: 'Jezero', center: { longitude: 77.58, latitude: 18.44 } };
 const emptyCatalog: Catalog = { regions: [jezero], datasets: [] };
-const catalogWithDataset: Catalog = {
-  regions: [jezero],
-  datasets: [
-    {
-      id: 'exemple',
-      regionId: 'jezero',
-      title: 'Jeu de test',
-      sourceUrl: 'https://example.org/source',
-      localPath: 'data/exemple.json',
-      attribution: 'Test',
-    },
-  ],
+const exampleDataset: DatasetDescriptor = {
+  id: 'exemple',
+  regionId: 'jezero',
+  title: 'Jeu de test',
+  kind: 'imagery',
+  instrument: 'Test',
+  delivery: 'local',
+  source: {
+    url: 'https://example.org/source',
+    retrievedAt: '2026-01-01T00:00:00Z',
+    credit: 'Test',
+    terms: { summary: 'Test', url: 'https://example.org/terms', verified: false },
+    fingerprint: { target: 'test', sha256: '0'.repeat(64), bytes: 0 },
+  },
+  acquisition: { date: null, sol: null, note: 'Test' },
+  units: {},
+  crs: 'test',
+  extent: { west: 77, south: 18, east: 78, north: 19 },
+  resolution: null,
+  noData: { kind: 'not-applicable' },
+  status: 'available',
+  version: 'test',
+  limitations: [],
+  files: [],
 };
+const catalogWithDataset: Catalog = { regions: [jezero], datasets: [exampleDataset] };
 
 const loaded = (catalog: Catalog, state: PlannerState = initialPlannerState) =>
   plannerReducer(state, { type: 'catalogLoaded', request: state.catalogRequest, catalog });

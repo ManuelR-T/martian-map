@@ -13,7 +13,10 @@
     "build": "pnpm -r build",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "pnpm -r typecheck",
-    "test": "vitest run"
+    "test": "vitest run",
+    "data:prepare": "uv run --locked --directory tools/data python -m marps_data.prepare",
+    "data:check": "uv run --locked --directory tools/data python -m marps_data.check",
+    "data:test": "uv run --locked --directory tools/data pytest"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
