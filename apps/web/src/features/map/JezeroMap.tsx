@@ -110,7 +110,7 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect }
   }, [dataset, sector, radius, sites, onSelect]);
   return <div className="mars-map-container jezero-map">
     <div ref={target} className="mars-map" tabIndex={0} aria-label={messages.label} />
-    <Panel title={messages.panelTitle} collapsible className="jezero-status text-sm" contentClassName="overflow-y-auto p-2">
+    <Panel title={messages.panelTitle} collapsible className="jezero-status text-sm" contentClassName="overflow-y-auto">
       <p role="status">{outside ? messages.outside : messages.sector} {offline ? messages.offline : messages.online} {failed && messages.failure}</p>
       <div aria-hidden="true" style={{ width: 100, borderBottom: '3px solid currentColor' }} /><p className="text-xs">{scale} · {messages.scale}</p>
       <Button size="sm" onClick={() => mapRef.current?.getView().fit(bounds(sector), { size: mapRef.current.getSize(), padding: [90, 40, 160, 40] })}>{messages.return}</Button>
