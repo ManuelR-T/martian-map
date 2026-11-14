@@ -1,0 +1,27 @@
+{
+  "name": "martian-map",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=24.14.0 <25",
+    "pnpm": "9.15.4"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @martian-map/web dev",
+    "build": "pnpm -r build",
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "pnpm -r typecheck",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.15.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "16.5.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.2",
+    "vitest": "4.0.18"
+  }
+}
