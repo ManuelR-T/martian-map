@@ -265,3 +265,24 @@ or local 404s with NASA blocked. Live NASA JPEGs returned HTTP 200; retry
 recovered after restoring the blocked service, and keyboard navigation emitted
 only in-range global tile URLs. A deployed check of this feature branch remains
 pending publication; earlier `dev` deployments do not contain this implementation.
+
+## Tablet and wrist layouts
+
+Below 1280 CSS pixels, or on screens at most 600 pixels high, use the Carte /
+Mission navigation. Carte keeps the map within the viewport; Mission exposes the
+existing panels in a separate scrollable area. On very small wrist displays,
+settings and theme controls remain accessible in Mission. Map options and source
+information open from “Carte et sources”; zoom stays above attribution.
+
+Map controls and compact navigation/view selectors have targets at least 44 × 44
+CSS pixels. Coarse-pointer devices also receive larger shared controls. The map
+viewport owns pan/pinch gestures; mission panels and options scroll independently.
+No viewport setting disables browser zoom.
+
+Browser viewport checks covered 240×240, 320×320, 390×844, 768×1024, 1024×768,
+844×390, and 1280×800. Compact map controls remain visible without horizontal
+scroll or control overlap. Mission panels and map options remain accessible;
+map dragging and zoom were exercised. The production worker cached the 108 built
+resources, including responsive styles and the prepared datasets. These checks
+use browser simulation; physical tablet/wrist hardware and glove input remain
+unverified.

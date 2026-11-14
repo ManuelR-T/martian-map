@@ -64,7 +64,8 @@ export function GlobalMarsMap({ dataset, global, onSelectRegion }: Props) {
   }, [dataset, global, onSelectRegion]);
   return <div className="mars-map-container">
     <div ref={target} className="mars-map" tabIndex={0} aria-label={global ? 'Carte globale de Mars. Flèches pour déplacer, plus et moins pour zoomer.' : 'Carte du secteur Jezero'} />
-    <div className="map-information border bg-card/95 p-2 text-xs text-foreground backdrop-blur-sm">
+    <details className="map-information border bg-card/95 p-2 text-xs text-foreground backdrop-blur-sm">
+      <summary className="map-info-toggle cursor-pointer font-semibold">Carte et sources</summary>
       <div className="flex flex-wrap items-center gap-2">
       {global && <>
         <Button size="sm" className="px-2" onClick={onSelectRegion}>Ouvrir Jezero</Button>
@@ -73,12 +74,12 @@ export function GlobalMarsMap({ dataset, global, onSelectRegion }: Props) {
       </div>
       <p role="status">{failed ? 'Certaines tuiles sont indisponibles.' : offline ? 'Hors ligne : données locales et tuiles déjà téléchargées.' : global ? 'Carte disponible. Les détails globaux se chargent en ligne.' : 'Imagerie locale chargée.'} {global ? 'Glissez pour explorer Mars ; utilisez la molette ou + / − pour zoomer.' : 'Imagerie locale figée ; hors secteur, aucune couverture.'}</p>
       {failed && <Button variant="outline" size="sm" onClick={() => { setFailed(false); sourceRef.current?.refresh(); }}>Réessayer les tuiles</Button>}
-      <details className="map-metadata"><summary className="cursor-pointer font-semibold">Données, couverture et sources</summary>
+      <div className="map-metadata">
       <p className="mt-2">{dataset.title} · Échantillonnage nominal : {dataset.resolution?.value ?? 'inconnu'} m/pixel. {resolution !== null && `Vue : ${resolution.toFixed(6)}°/pixel.`} {global && 'Le fond de secours est moins détaillé. La planification est limitée à Jezero.'}</p>
       <p>Couverture : {dataset.extent.west.toFixed(6)}° à {dataset.extent.east.toFixed(6)}° E ; {dataset.extent.south.toFixed(6)}° à {dataset.extent.north.toFixed(6)}° N.</p>
       {global && <p>Repère Jezero approximatif : 77,58° E, 18,44° N. Le fond global est destiné à l’orientation.</p>}
       <a className="underline" href={dataset.source.url}>Source : {dataset.source.credit}</a>
-      </details>
-    </div>
+      </div>
+    </details>
   </div>;
 }

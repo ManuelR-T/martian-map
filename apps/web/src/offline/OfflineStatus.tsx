@@ -22,8 +22,11 @@ export function OfflineStatus() {
       .catch(() => { if (active) setStatus('failed'); });
     return () => { active = false; };
   }, []);
-  return <div className="relative z-20 flex flex-wrap items-center gap-2 border-b bg-card px-4 py-1 text-xs text-muted-foreground">
-    <p role="status">{import.meta.env.PROD ? messages[status] : 'Mode développement : installation hors ligne disponible dans la version compilée.'}</p>
+  return <div className="offline-status relative z-20 flex flex-wrap items-center gap-2 border-b bg-card px-4 py-1 text-xs text-muted-foreground">
+    <p role="status" title={import.meta.env.PROD ? messages[status] : 'Mode développement : installation hors ligne disponible dans la version compilée.'}>
+      <span className="offline-full">{import.meta.env.PROD ? messages[status] : 'Mode développement : installation hors ligne disponible dans la version compilée.'}</span>
+      <span className="offline-short">{!import.meta.env.PROD ? 'Développement · hors ligne non installé' : status === 'ready' ? 'Prêt hors ligne' : status === 'preparing' ? 'Préparation hors ligne…' : messages[status]}</span>
+    </p>
     {status === 'failed' && <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Réessayer l’installation</Button>}
   </div>;
 }

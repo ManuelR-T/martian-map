@@ -28,7 +28,7 @@ export function MapStage({ className, map }: MapStageProps) {
   const showsMap = status === 'ready' && Boolean(map);
 
   const views: readonly SegmentedOption<MapView>[] = [
-    { value: 'global', label: 'Vue globale', icon: <Globe aria-hidden="true" /> },
+    { value: 'global', label: 'Mars', icon: <Globe aria-hidden="true" /> },
     { value: 'region', label: regionName, icon: <MapPinned aria-hidden="true" /> },
   ];
 
@@ -78,14 +78,14 @@ export function MapStage({ className, map }: MapStageProps) {
         {showsMap ? map : <div aria-hidden="true" className="graticule absolute inset-0" />}
       </div>
 
-      <div className={`${floatingSurface} relative z-10 flex max-w-full flex-wrap items-center gap-x-3 gap-y-1 p-1.5`}>
+      <div className={`${floatingSurface} map-view-switch relative z-10 flex max-w-full flex-wrap items-center gap-x-3 gap-y-1 p-1.5`}>
         <SegmentedControl
           label="Vue de la carte"
           value={state.view}
           options={views}
           onValueChange={(view) => dispatch({ type: 'viewChanged', view })}
         />
-        <p className="pr-2 text-sm text-muted-foreground">
+        <p className="map-view-description pr-2 text-sm text-muted-foreground">
           {global ? "Mars entière, pour s'orienter" : `Secteur de ${regionName}`}
         </p>
       </div>
