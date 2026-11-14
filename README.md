@@ -80,7 +80,9 @@ Aucune variable d'environnement n'est requise. Les futures variables `VITE_*`
 seront publiques et intégrées au bundle : ne jamais y placer de secret.
 Documenter chaque nouvelle variable et fournir un `.env.example` si nécessaire.
 Les fichiers `.env*` locaux sont ignorés. Le déploiement doit servir le contenu de
-`apps/web/dist` ; la configuration Vercel relève de #4.
+`apps/web/dist`. La configuration à la racine est dans `vercel.json` ; voir le
+[guide de déploiement](docs/deploiement-vercel.md) pour les previews, la recette
+et le retour à une version précédente.
 
 ## Intégration continue
 
