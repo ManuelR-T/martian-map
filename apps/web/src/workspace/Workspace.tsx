@@ -111,10 +111,11 @@ export function Workspace({ route }: { route: string }) {
                   : 'Préparez un itinéraire, évaluez votre temps et gardez une trace de vos décisions.'}
               </p>
             </div>
+            <div className="inline-actions"><a href={archived ? '#/missions' : '#/historique'}>{archived ? 'Missions en préparation' : 'Historique'}</a>
             <a className="work-primary" href="#/nouvelle">
               <Plus size={18} />
               Nouvelle mission
-            </a>
+            </a></div>
           </div>
           {!archived && (
             <div className="intro-grid">

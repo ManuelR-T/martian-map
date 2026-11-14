@@ -1,0 +1,8 @@
+.print-mission { display: none; }
+@media print {
+  .app-shell > header, .app-shell > main { display: none !important; }
+  .app-shell { display: block !important; height: auto !important; }
+  .print-mission { display: block; color: black; background: white; padding: 1cm; font-size: 11pt; }
+  .print-mission h1 { font-size: 20pt; margin-bottom: 1em; }
+  .print-mission p, .print-mission li { margin-bottom: 0.6em; overflow-wrap: anywhere; }
+}

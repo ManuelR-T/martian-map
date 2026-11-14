@@ -6,7 +6,7 @@ import { usePlannerDispatch, usePlannerState } from '../state/PlannerProvider';
 import { siteWorkOf } from '../sites/siteWork';
 import { addCatalogVisit } from './visits';
 
-/** Bridge beside dev's panels: their map, site sheets and field checklist stay unchanged. */
+/** Optional controls opened on demand; dev's map, panels and field checklist stay unchanged. */
 export function MapMissionActions({ className }: { className?: string }) {
   const state = usePlannerState();
   const dispatch = usePlannerDispatch();
@@ -89,6 +89,7 @@ export function MapMissionActions({ className }: { className?: string }) {
       <a href="#/missions" className="underline">
         Toutes mes missions
       </a>
+      <a href="#/historique" className="underline">Historique des plans archivés</a>
       {message && <p role="status">{message}</p>}
     </Panel>
   );

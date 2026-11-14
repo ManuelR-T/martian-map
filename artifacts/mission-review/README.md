@@ -1,3 +1,8 @@
+# Présentation antérieure — archivée
+
+Ces captures et propositions précèdent l’alignement sur les composants de dev.
+Pour les emplacements actuels et les parcours, voir `docs/mission-parcours.md`.
+
 # Revue visuelle de la planification
 
 Ouvrir `review.html` pour les captures réelles et les propositions de format.

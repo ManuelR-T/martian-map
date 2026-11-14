@@ -2,7 +2,7 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { expect, it, vi } from 'vitest';
 import { createEmptyMission } from '@marps/mission-core';
-import { BudgetPanel } from './BudgetPanel';
+import { BudgetPanel } from './MissionBudgetPanel';
 const { state } = vi.hoisted(() => ({
   state: {
     mission: null as unknown,

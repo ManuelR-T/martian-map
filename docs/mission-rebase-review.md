@@ -1,5 +1,7 @@
 # Revue de la planification après rebase sur dev
 
+Mise à jour : l’alignement visuel et les parcours actuels sont décrits dans [mission-parcours.md](mission-parcours.md). Les captures de cette première revue sont archivées.
+
 ## Base et règle d’intégration
 
 La branche `feat/kanda09-mission-planner` a été rebasée sur `origin/dev` au commit `0a3121e` (imagerie Jezero et historique de Perseverance inclus). Aucun commit n’est ajouté ni poussé sur `dev`.

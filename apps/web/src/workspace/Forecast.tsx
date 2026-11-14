@@ -3,7 +3,7 @@ import { AlertTriangle, Clock3, FlaskConical, Route } from 'lucide-react';
 import { Button } from '@marps/ui';
 import { calculateBudget, routeSegments } from '@marps/mission-core';
 import { usePlannerState } from '../state/PlannerProvider';
-import { BudgetPanel } from '../panels/BudgetPanel';
+import { BudgetPanel } from '../panels/MissionBudgetPanel';
 import { OxygenEditor } from '../panels/MissionUtilities';
 import { Section, uid, names, duration, type Act } from './shared';
 export function Forecast({ act, readonly }: { act: Act; readonly: boolean }) {

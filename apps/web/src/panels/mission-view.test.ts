@@ -4,7 +4,7 @@ import { expect, it, vi } from 'vitest';
 import { createEmptyMission } from '@marps/mission-core';
 import { createMissionExport } from '../export';
 import { PrintMission } from './MissionUtilities';
-import { BudgetPanel } from './BudgetPanel';
+import { BudgetPanel } from './MissionBudgetPanel';
 const { state } = vi.hoisted(() => ({
   state: { mission: null as unknown, catalog: { status: 'loading' } },
 }));

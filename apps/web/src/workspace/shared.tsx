@@ -1,3 +1,4 @@
+import { Panel } from '@marps/ui';
 import type { ReactNode } from 'react';
 import type { MissionAction } from '@marps/mission-core';
 export const uid = () => crypto.randomUUID();
@@ -26,16 +27,5 @@ export function Section({
   children: ReactNode;
   actions?: ReactNode;
 }) {
-  return (
-    <section className="work-card">
-      <div className="section-heading">
-        <div>
-          {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-          <h2>{title}</h2>
-        </div>
-        {actions}
-      </div>
-      {children}
-    </section>
-  );
+  return <Panel title={title} description={eyebrow} actions={actions} className="work-panel" contentClassName="mission-section-content">{children}</Panel>;
 }
