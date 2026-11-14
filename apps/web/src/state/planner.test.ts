@@ -10,7 +10,7 @@ import {
 } from './planner';
 
 const jezero = { id: 'jezero', name: 'Jezero', center: { longitude: 77.58, latitude: 18.44 } };
-const emptyCatalog: Catalog = { regions: [jezero], datasets: [] };
+const emptyCatalog: Catalog = { regions: [jezero], datasets: [], sites: [] };
 const exampleDataset: DatasetDescriptor = {
   id: 'exemple',
   regionId: 'jezero',
@@ -36,7 +36,7 @@ const exampleDataset: DatasetDescriptor = {
   limitations: [],
   files: [],
 };
-const catalogWithDataset: Catalog = { regions: [jezero], datasets: [exampleDataset] };
+const catalogWithDataset: Catalog = { regions: [jezero], datasets: [exampleDataset], sites: [] };
 
 const loaded = (catalog: Catalog, state: PlannerState = initialPlannerState) =>
   plannerReducer(state, { type: 'catalogLoaded', request: state.catalogRequest, catalog });

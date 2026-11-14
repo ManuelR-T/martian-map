@@ -93,7 +93,6 @@ export function App() {
           <div className="relative z-10 flex min-h-0 flex-col gap-3 max-lg:px-3 max-lg:pb-3 lg:pointer-events-none lg:col-start-3 lg:row-start-1">
             {/* #14 fournira le budget calculé par mission-core. */}
             <BudgetPanel budget={null} className={`${floatingSurface} shrink-0`} />
-            {/* #9 fournira les fiches scientifiques. */}
             <SiteDetailsPanel className={floatingSurface} />
           </div>
         </main>

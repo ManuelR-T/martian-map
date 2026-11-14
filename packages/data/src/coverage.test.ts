@@ -94,6 +94,7 @@ describe('loadCatalog', () => {
     const catalog = await loadCatalog();
     expect(catalog.regions).toEqual(regions);
     expect(catalog.datasets.map((dataset) => dataset.id)).toEqual(committed.datasets.map((dataset) => dataset.id));
+    expect(catalog.sites.map((site) => site.id)).toEqual(['skinner-ridge', 'wildcat-ridge', 'amalik']);
   });
 
   it('rejects when the manifest is unreachable so the interface can show its error state', async () => {
