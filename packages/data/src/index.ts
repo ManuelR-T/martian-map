@@ -21,3 +21,16 @@ export const regions = [
 ] as const satisfies readonly RegionDefinition[];
 
 export const datasets: readonly DatasetDescriptor[] = [];
+
+export interface Catalog {
+  readonly regions: readonly RegionDefinition[];
+  readonly datasets: readonly DatasetDescriptor[];
+}
+
+/**
+ * Point d'entrée asynchrone du catalogue : l'interface gère déjà l'attente et
+ * l'échec, que le manifeste préparé par #6 soit embarqué ou récupéré.
+ */
+export async function loadCatalog(): Promise<Catalog> {
+  return { regions, datasets };
+}

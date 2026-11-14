@@ -11,3 +11,6 @@ export function minutesToSeconds(minutes: number): number {
   }
   return minutes * 60;
 }
+
+export { createEmptyMission } from './mission';
+export type { Mission, MissionStep } from './mission';
