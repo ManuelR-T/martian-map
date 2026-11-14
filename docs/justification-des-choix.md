@@ -23,6 +23,7 @@ Chaque choix répond à un usage concret d'un astronaute en sortie sur Mars et s
 **Choix de l'équipe, sans source NASA :**
 - La durée de chaque tâche (5 ou 15 min) : aucune source NASA ne donne de durée d'arrêt humain sur ces sites.
 - La fiche tient sans défilement sur une tablette en paysage, avec des lignes de 44 px de haut : le coéquipier suit la sortie en direct, il ne doit pas chercher l'information. La photo s'agrandit d'un toucher.
+- Tant que le budget n'est pas calculé, son panneau tient sur une ligne au lieu d'être replié : replié, il cacherait le temps restant une fois le budget disponible, alors que suivre le temps est la tâche centrale du coéquipier dans l'habitat.
 
 **Écarté volontairement :** le détail scientifique et les sources sur la fiche. Ils n'aident pas sur place ; les sources sont regroupées dans le panneau de provenance (#16). Les molécules organiques ne sont jamais présentées comme une preuve de vie : JPL précise qu'elles peuvent se former sans vie.
 
