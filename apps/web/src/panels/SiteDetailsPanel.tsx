@@ -1,41 +1,49 @@
-import type { ReactNode } from 'react';
+import { findSiteSheet } from '@marps/data';
 import { DataState, Panel } from '@marps/ui';
-import { usePlannerState } from '../state/PlannerProvider';
+import { SitePicker, SiteSheetView } from '../sites/SiteSheetView';
+import { siteWorkOf } from '../sites/siteWork';
+import { usePlannerDispatch, usePlannerState } from '../state/PlannerProvider';
 import { PlanningGate } from './PlanningGate';
 
-export interface SiteDetailsPanelProps {
-  className?: string;
-  /** Fiche scientifique du site sélectionné (#9) ; `null` si aucune fiche n'existe pour lui. */
-  renderSite?: (siteId: string) => ReactNode;
-}
-
-export function SiteDetailsPanel({ className, renderSite }: SiteDetailsPanelProps) {
-  const { selectedSiteId } = usePlannerState();
-  const sheet = selectedSiteId && renderSite ? renderSite(selectedSiteId) : null;
+export function SiteDetailsPanel({ className }: { className?: string }) {
+  const { catalog, selectedSiteId, siteWork } = usePlannerState();
+  const dispatch = usePlannerDispatch();
+  const sites = catalog.status === 'ready' ? catalog.data.sites : [];
+  const sheet = selectedSiteId ? findSiteSheet(selectedSiteId) : undefined;
 
   return (
     <Panel
       title="Fiche de site"
-      description="Intérêt scientifique de l'arrêt sélectionné"
       collapsible
       className={className}
-      contentClassName="overflow-y-auto"
+      contentClassName="overflow-y-auto p-3"
     >
       <PlanningGate loadingTitle="Chargement des fiches" coverageTitle="Pas de fiche hors du secteur détaillé">
-        {sheet ??
-          (selectedSiteId ? (
+        <div className="grid gap-1.5">
+          {sites.length > 0 ? (
+            <SitePicker
+              sites={sites}
+              selectedSiteId={selectedSiteId}
+              onSelect={(siteId) => dispatch({ type: 'siteSelected', siteId })}
+            />
+          ) : null}
+          {sheet ? (
+            <SiteSheetView
+              sheet={sheet}
+              work={siteWorkOf(siteWork, sheet)}
+              onTaskToggle={(taskId) => dispatch({ type: 'siteTaskToggled', sheet, taskId })}
+              onAllottedChange={(minutes) => dispatch({ type: 'siteAllottedChanged', sheet, minutes })}
+            />
+          ) : selectedSiteId ? (
             <DataState
               kind="empty"
               title="Fiche indisponible"
-              description="Aucune fiche scientifique n'existe pour le site sélectionné."
+              description="Aucune fiche n'existe pour le site sélectionné."
             />
           ) : (
-            <DataState
-              kind="empty"
-              title="Aucun site sélectionné"
-              description="La fiche d'un site s'affiche ici quand vous le sélectionnez sur la carte ou dans les étapes."
-            />
-          ))}
+            <DataState kind="empty" title="Aucun site sélectionné" description="Choisissez un site pour voir sa fiche." />
+          )}
+        </div>
       </PlanningGate>
     </Panel>
   );
