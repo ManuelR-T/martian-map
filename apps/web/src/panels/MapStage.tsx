@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { Globe, MapPinned } from 'lucide-react';
 import { DataState, SegmentedControl, type SegmentedOption } from '@marps/ui';
-import { formatCoordinate } from '../format';
 import { usePlannerDispatch, usePlannerState } from '../state/PlannerProvider';
 import { selectDetailedRegion, selectMapStatus, type MapView } from '../state/planner';
 import { RetryCatalogButton } from './PlanningGate';
@@ -29,7 +28,7 @@ export function MapStage({ className, map }: MapStageProps) {
   const showsMap = status === 'ready' && Boolean(map);
 
   const views: readonly SegmentedOption<MapView>[] = [
-    { value: 'global', label: 'Vue globale', icon: <Globe aria-hidden="true" /> },
+    { value: 'global', label: 'Mars', icon: <Globe aria-hidden="true" /> },
     { value: 'region', label: regionName, icon: <MapPinned aria-hidden="true" /> },
   ];
 
@@ -79,29 +78,21 @@ export function MapStage({ className, map }: MapStageProps) {
         {showsMap ? map : <div aria-hidden="true" className="graticule absolute inset-0" />}
       </div>
 
-      <div className={`${floatingSurface} relative z-10 flex max-w-full flex-wrap items-center gap-x-3 gap-y-1 p-1.5`}>
+      <div className={`${floatingSurface} map-view-switch relative z-10 flex max-w-full flex-wrap items-center gap-x-3 gap-y-1 p-1.5`}>
         <SegmentedControl
           label="Vue de la carte"
           value={state.view}
           options={views}
           onValueChange={(view) => dispatch({ type: 'viewChanged', view })}
         />
-        <p className="pr-2 text-sm text-muted-foreground">
+        <p className="map-view-description pr-2 text-sm text-muted-foreground">
           {global ? "Mars entière, pour s'orienter" : `Secteur de ${regionName}`}
         </p>
       </div>
 
       {notice ? <div className="pointer-events-auto relative z-10 w-full max-w-sm">{notice}</div> : null}
 
-      {region ? (
-        <p className={`${floatingSurface} relative z-10 flex max-w-full flex-wrap items-baseline gap-x-3 gap-y-0.5 px-3 py-1.5 text-sm`}>
-          <span className="label-caps text-muted-foreground">Repère {region.name}</span>
-          <span className="font-semibold tabular-nums">{formatCoordinate(region.center)}</span>
-          <span className="text-muted-foreground">approximatif</span>
-        </p>
-      ) : (
-        <span aria-hidden="true" />
-      )}
+
     </section>
   );
 }

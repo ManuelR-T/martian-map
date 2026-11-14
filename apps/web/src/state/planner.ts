@@ -33,7 +33,7 @@ export type PlannerAction =
   | SiteWorkAction;
 
 export const initialPlannerState: PlannerState = {
-  view: 'region',
+  view: 'global',
   catalog: { status: 'loading' },
   catalogRequest: 0,
   mission: createEmptyMission(DETAILED_REGION_ID),
