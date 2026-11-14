@@ -21,6 +21,7 @@ export function BudgetPanel({ className, budget }: BudgetPanelProps) {
       title="Budget de temps"
       description="Marche, observations, retour et réserve"
       collapsible
+      floating
       className={className}
       contentClassName="overflow-y-auto"
     >

@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useSyncExternalStore } from 'react';
 import { BrandMark, DataState, ThemeToggle } from '@marps/ui';
 import { BudgetPanel } from './panels/BudgetPanel';
-import { floatingSurface, MapStage } from './panels/MapStage';
+import { MapStage } from './panels/MapStage';
 import { SiteDetailsPanel } from './panels/SiteDetailsPanel';
 import { StepsPanel } from './panels/StepsPanel';
 
@@ -19,8 +19,11 @@ function useHash(): string {
   return useSyncExternalStore(subscribeToHash, () => window.location.hash);
 }
 
-const headerControl = 'text-header-foreground/85 hover:bg-white/10 hover:text-header-foreground';
-const headerLink = `label-caps inline-flex h-9 items-center px-3 transition-colors ${headerControl}`;
+const headerLink =
+  'label-caps inline-flex h-11 items-center px-3 text-header-foreground/85 transition-colors hover:bg-accent hover:text-accent-foreground';
+
+/** Panneau flottant : capte les clics que sa colonne laisse passer vers la carte, et s'allume à son tour au chargement. */
+const floatingPanel = 'power-on pointer-events-auto';
 
 export function App() {
   const showsDesignSystem = useHash() === DESIGN_SYSTEM_HASH;
@@ -31,8 +34,8 @@ export function App() {
 
   return (
     <div className={showsDesignSystem ? 'flex min-h-dvh flex-col' : 'flex min-h-dvh flex-col lg:h-dvh'}>
-      {/* Bandeau marine souligné d'un filet rouille ; le focus y passe au blanc pour rester visible. */}
-      <header className="relative z-20 flex flex-wrap items-center gap-x-3 gap-y-2 border-b-2 border-mars bg-header px-4 py-2 text-header-foreground [--ring:var(--header-foreground)]">
+      {/* Bandeau nuit, identique dans les deux thèmes : il porte la portée `dark` pour que ses contrôles et son focus en héritent. */}
+      <header className="dark relative z-20 flex flex-wrap items-center gap-x-3 gap-y-1 bg-header px-4 py-1.5 text-header-foreground">
         <a
           href={`#${CONTENT_ID}`}
           onClick={(event) => {
@@ -44,10 +47,14 @@ export function App() {
         >
           Aller au contenu
         </a>
-        <BrandMark className="size-7" />
+        <BrandMark className="size-9" />
         <div className="mr-auto min-w-0">
-          <h1 className="heading-display text-xl font-extrabold tracking-[0.04em] uppercase [font-stretch:125%]">Marps</h1>
-          <p className="text-sm text-header-foreground/75 max-sm:sr-only">Préparer une sortie scientifique à Jezero</p>
+          <h1 className="heading-display text-2xl leading-none font-extrabold tracking-[0.06em] uppercase [font-stretch:125%]">
+            Marps
+          </h1>
+          <p className="mt-1 text-sm leading-tight text-header-foreground/75 max-sm:sr-only">
+            Préparer une sortie scientifique à Jezero
+          </p>
         </div>
         <nav aria-label="Pages">
           {showsDesignSystem ? (
@@ -60,7 +67,9 @@ export function App() {
             </a>
           )}
         </nav>
-        <ThemeToggle className={headerControl} />
+        <ThemeToggle className="text-header-foreground/85" />
+        {/* Filet d'horizon : il se trace de la braise au bleu à l'ouverture. */}
+        <span aria-hidden="true" className="horizon-draw absolute inset-x-0 -bottom-0.5 h-0.5 bg-[image:var(--horizon)]" />
       </header>
 
       {showsDesignSystem ? (
@@ -88,13 +97,13 @@ export function App() {
           */}
           <MapStage className="relative flex h-[62dvh] min-h-[24rem] flex-col items-center justify-between gap-3 p-3 lg:pointer-events-none lg:static lg:col-start-2 lg:row-start-1 lg:h-auto lg:min-h-0 lg:p-0" />
           <div className="relative z-10 flex min-h-0 flex-col gap-3 max-lg:px-3 lg:pointer-events-none lg:col-start-1 lg:row-start-1">
-            <StepsPanel className={floatingSurface} />
+            <StepsPanel className={`${floatingPanel} [--power-delay:120ms]`} />
           </div>
           <div className="relative z-10 flex min-h-0 flex-col gap-3 max-lg:px-3 max-lg:pb-3 lg:pointer-events-none lg:col-start-3 lg:row-start-1">
             {/* #14 fournira le budget calculé par mission-core. */}
-            <BudgetPanel budget={null} className={`${floatingSurface} shrink-0`} />
+            <BudgetPanel budget={null} className={`${floatingPanel} shrink-0 [--power-delay:240ms]`} />
             {/* #9 fournira les fiches scientifiques. */}
-            <SiteDetailsPanel className={floatingSurface} />
+            <SiteDetailsPanel className={`${floatingPanel} [--power-delay:360ms]`} />
           </div>
         </main>
       )}
