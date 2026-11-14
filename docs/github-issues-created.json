@@ -1,0 +1,674 @@
+{
+  "repository": "ManuelR-T/martian-map",
+  "roadmap": {
+    "number": 1,
+    "url": "https://github.com/ManuelR-T/martian-map/issues/1",
+    "assignees": [
+      "ManuelR-T"
+    ]
+  },
+  "issues": [
+    {
+      "id": "workspace",
+      "number": 2,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/2",
+      "title": "Initialiser le monorepo pnpm et les packages partagés",
+      "priority": "P0",
+      "labels": [
+        "priority:P0",
+        "area:infra",
+        "type:task",
+        "scope:shared",
+        "delivery:demo-core"
+      ],
+      "dependsOn": [],
+      "assignees": [
+        "ManuelR-T"
+      ]
+    },
+    {
+      "id": "ci",
+      "number": 3,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/3",
+      "title": "Configurer la CI GitHub Actions du workspace",
+      "priority": "P0",
+      "labels": [
+        "priority:P0",
+        "area:infra",
+        "type:task",
+        "scope:shared"
+      ],
+      "dependsOn": [
+        2
+      ],
+      "assignees": [
+        "ManuelR-T"
+      ]
+    },
+    {
+      "id": "deploy",
+      "number": 4,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/4",
+      "title": "Configurer les previews et le déploiement statique Vercel",
+      "priority": "P0",
+      "labels": [
+        "priority:P0",
+        "area:infra",
+        "type:task",
+        "scope:shared"
+      ],
+      "dependsOn": [
+        2,
+        3
+      ],
+      "assignees": [
+        "ManuelR-T"
+      ]
+    },
+    {
+      "id": "shell",
+      "number": 5,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/5",
+      "title": "Construire l'interface de planification et les états de chargement",
+      "priority": "P0",
+      "labels": [
+        "priority:P0",
+        "area:ui",
+        "type:feature",
+        "scope:shared",
+        "delivery:demo-core"
+      ],
+      "dependsOn": [
+        2
+      ],
+      "assignees": [
+        "ManuelR-T"
+      ]
+    },
+    {
+      "id": "data",
+      "number": 6,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/6",
+      "title": "Préparer les données locales et un manifeste de couverture versionné",
+      "priority": "P0",
+      "labels": [
+        "priority:P0",
+        "area:data",
+        "type:task",
+        "scope:shared",
+        "delivery:demo-core"
+      ],
+      "dependsOn": [
+        2
+      ],
+      "assignees": [
+        "RahulCHANDER25"
+      ]
+    },
+    {
+      "id": "global",
+      "number": 7,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/7",
+      "title": "Intégrer la carte globale d'orientation et la sélection de Jezero",
+      "priority": "P0",
+      "labels": [
+        "priority:P0",
+        "area:map",
+        "type:feature",
+        "scope:global",
+        "delivery:demo-core"
+      ],
+      "dependsOn": [
+        5,
+        6
+      ],
+      "assignees": [
+        "Aluxray"
+      ]
+    },
+    {
+      "id": "localmap",
+      "number": 8,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/8",
+      "title": "Afficher l'imagerie HiRISE et la couverture détaillée de Jezero",
+      "priority": "P0",
+      "labels": [
+        "priority:P0",
+        "area:map",
+        "type:feature",
+        "scope:jezero",
+        "delivery:demo-core"
+      ],
+      "dependsOn": [
+        7,
+        6
+      ],
+      "assignees": [
+        "Aluxray"
+      ]
+    },
+    {
+      "id": "sites",
+      "number": 9,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/9",
+      "title": "Intégrer les trois sites NASA et rédiger leurs fiches scientifiques",
+      "priority": "P0",
+      "labels": [
+        "priority:P0",
+        "area:science",
+        "type:feature",
+        "scope:jezero",
+        "delivery:demo-core"
+      ],
+      "dependsOn": [
+        6,
+        8
+      ],
+      "assignees": [
+        "sephorah"
+      ]
+    },
+    {
+      "id": "dem",
+      "number": 10,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/10",
+      "title": "Préparer le relief de Jezero : vérifier HiRISE et assurer le repli CTX 20 m",
+      "priority": "P0",
+      "labels": [
+        "priority:P0",
+        "area:data",
+        "type:task",
+        "scope:jezero",
+        "delivery:demo-core"
+      ],
+      "dependsOn": [
+        6
+      ],
+      "assignees": [
+        "RahulCHANDER25"
+      ]
+    },
+    {
+      "id": "state",
+      "number": 11,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/11",
+      "title": "Modéliser la mission, le camp, les étapes et les activités",
+      "priority": "P0",
+      "labels": [
+        "priority:P0",
+        "area:mission",
+        "type:feature",
+        "scope:shared",
+        "delivery:demo-core"
+      ],
+      "dependsOn": [
+        2,
+        6
+      ],
+      "assignees": [
+        "Kanda09"
+      ]
+    },
+    {
+      "id": "route",
+      "number": 12,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/12",
+      "title": "Éditer le parcours de mission et inclure le retour au camp",
+      "priority": "P0",
+      "labels": [
+        "priority:P0",
+        "area:map",
+        "type:feature",
+        "scope:jezero",
+        "delivery:demo-core"
+      ],
+      "dependsOn": [
+        11,
+        8
+      ],
+      "assignees": [
+        "Aluxray"
+      ]
+    },
+    {
+      "id": "distance",
+      "number": 13,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/13",
+      "title": "Calculer les distances avec la géométrie martienne",
+      "priority": "P0",
+      "labels": [
+        "priority:P0",
+        "area:mission",
+        "type:feature",
+        "scope:shared",
+        "delivery:demo-core"
+      ],
+      "dependsOn": [
+        11
+      ],
+      "assignees": [
+        "Kanda09"
+      ]
+    },
+    {
+      "id": "budget",
+      "number": 14,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/14",
+      "title": "Calculer le temps de mission, la réserve et les alertes de dépassement",
+      "priority": "P0",
+      "labels": [
+        "priority:P0",
+        "area:mission",
+        "type:feature",
+        "scope:shared",
+        "delivery:demo-core"
+      ],
+      "dependsOn": [
+        11,
+        13
+      ],
+      "assignees": [
+        "Kanda09"
+      ]
+    },
+    {
+      "id": "profile",
+      "number": 15,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/15",
+      "title": "Afficher le relief, le profil d'altitude et les alertes de pente",
+      "priority": "P0",
+      "labels": [
+        "priority:P0",
+        "area:map",
+        "type:feature",
+        "scope:jezero"
+      ],
+      "dependsOn": [
+        10,
+        12
+      ],
+      "assignees": [
+        "sephorah"
+      ]
+    },
+    {
+      "id": "provenance",
+      "number": 16,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/16",
+      "title": "Afficher les sources, hypothèses et limites de couverture",
+      "priority": "P0",
+      "labels": [
+        "priority:P0",
+        "area:data",
+        "type:feature",
+        "scope:shared",
+        "delivery:demo-core"
+      ],
+      "dependsOn": [
+        6,
+        5
+      ],
+      "assignees": [
+        "ManuelR-T"
+      ]
+    },
+    {
+      "id": "qa",
+      "number": 17,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/17",
+      "title": "Valider la démo complète et préparer le scénario de présentation",
+      "priority": "P0",
+      "labels": [
+        "priority:P0",
+        "area:ui",
+        "type:validation",
+        "scope:jezero"
+      ],
+      "dependsOn": [
+        4,
+        9,
+        12,
+        14,
+        15,
+        16
+      ],
+      "assignees": [
+        "sephorah"
+      ]
+    },
+    {
+      "id": "save",
+      "number": 18,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/18",
+      "title": "Sauvegarder et restaurer les missions localement",
+      "priority": "P1",
+      "labels": [
+        "priority:P1",
+        "area:mission",
+        "type:feature",
+        "scope:shared"
+      ],
+      "dependsOn": [
+        11
+      ],
+      "assignees": [
+        "Kanda09"
+      ]
+    },
+    {
+      "id": "events",
+      "number": 19,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/19",
+      "title": "Simuler un retard de prélèvement et une visibilité réduite",
+      "priority": "P1",
+      "labels": [
+        "priority:P1",
+        "area:conditions",
+        "type:feature",
+        "scope:shared"
+      ],
+      "dependsOn": [
+        14
+      ],
+      "assignees": [
+        "Kanda09"
+      ]
+    },
+    {
+      "id": "rover",
+      "number": 20,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/20",
+      "title": "Afficher la trace historique de Perseverance comme couche de contexte",
+      "priority": "P1",
+      "labels": [
+        "priority:P1",
+        "area:map",
+        "type:feature",
+        "scope:jezero"
+      ],
+      "dependsOn": [
+        8,
+        6
+      ],
+      "assignees": [
+        "Aluxray"
+      ]
+    },
+    {
+      "id": "annotations",
+      "number": 21,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/21",
+      "title": "Annoter les zones de terrain à examiner à Jezero",
+      "priority": "P1",
+      "labels": [
+        "priority:P1",
+        "area:science",
+        "type:feature",
+        "scope:jezero"
+      ],
+      "dependsOn": [
+        8,
+        16
+      ],
+      "assignees": [
+        "Aluxray"
+      ]
+    },
+    {
+      "id": "thermal",
+      "number": 22,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/22",
+      "title": "Ajouter la couche infrarouge nocturne THEMIS",
+      "priority": "P1",
+      "labels": [
+        "priority:P1",
+        "area:map",
+        "type:feature",
+        "scope:jezero"
+      ],
+      "dependsOn": [
+        8,
+        16
+      ],
+      "assignees": [
+        "sephorah"
+      ]
+    },
+    {
+      "id": "weather",
+      "number": 23,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/23",
+      "title": "Préparer et afficher température et pression MEDA par sol et heure",
+      "priority": "P1",
+      "labels": [
+        "priority:P1",
+        "area:conditions",
+        "type:feature",
+        "scope:jezero"
+      ],
+      "dependsOn": [
+        6,
+        16,
+        5
+      ],
+      "assignees": [
+        "sephorah"
+      ]
+    },
+    {
+      "id": "offline",
+      "number": 24,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/24",
+      "title": "Préparer une démo hors ligne bornée au secteur de Jezero",
+      "priority": "P1",
+      "labels": [
+        "priority:P1",
+        "area:infra",
+        "type:feature",
+        "scope:jezero"
+      ],
+      "dependsOn": [
+        6,
+        8,
+        4
+      ],
+      "assignees": [
+        "ManuelR-T"
+      ]
+    },
+    {
+      "id": "export",
+      "number": 25,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/25",
+      "title": "Exporter une mission en JSON et en fiche imprimable",
+      "priority": "P2",
+      "labels": [
+        "priority:P2",
+        "area:mission",
+        "type:feature",
+        "scope:shared"
+      ],
+      "dependsOn": [
+        11,
+        14,
+        16
+      ],
+      "assignees": [
+        "Kanda09"
+      ]
+    },
+    {
+      "id": "radiation",
+      "number": 26,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/26",
+      "title": "Ajouter un scénario pédagogique d'alerte radiative fictive",
+      "priority": "P2",
+      "labels": [
+        "priority:P2",
+        "area:conditions",
+        "type:feature",
+        "scope:shared"
+      ],
+      "dependsOn": [
+        19,
+        16
+      ],
+      "assignees": [
+        "sephorah"
+      ]
+    },
+    {
+      "id": "wind",
+      "number": 27,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/27",
+      "title": "Vérifier et intégrer les archives de vent MEDA disponibles",
+      "priority": "P2",
+      "labels": [
+        "priority:P2",
+        "area:conditions",
+        "type:task",
+        "scope:jezero"
+      ],
+      "dependsOn": [
+        23
+      ],
+      "assignees": [
+        "sephorah"
+      ]
+    },
+    {
+      "id": "geology",
+      "number": 28,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/28",
+      "title": "Préparer et afficher une couche géologique de Jezero",
+      "priority": "P2",
+      "labels": [
+        "priority:P2",
+        "area:science",
+        "type:task",
+        "scope:jezero"
+      ],
+      "dependsOn": [
+        8,
+        6,
+        16
+      ],
+      "assignees": [
+        "RahulCHANDER25"
+      ]
+    },
+    {
+      "id": "path",
+      "number": 29,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/29",
+      "title": "Proposer un chemin expérimental selon la pente du terrain",
+      "priority": "P2",
+      "labels": [
+        "priority:P2",
+        "area:mission",
+        "type:feature",
+        "scope:jezero"
+      ],
+      "dependsOn": [
+        10,
+        12,
+        13,
+        15
+      ],
+      "assignees": [
+        "RahulCHANDER25"
+      ]
+    },
+    {
+      "id": "hud",
+      "number": 30,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/30",
+      "title": "Créer une vue casque simplifiée pour suivre le scénario",
+      "priority": "P2",
+      "labels": [
+        "priority:P2",
+        "area:ui",
+        "type:feature",
+        "scope:jezero"
+      ],
+      "dependsOn": [
+        14,
+        15,
+        16
+      ],
+      "assignees": [
+        "ManuelR-T"
+      ]
+    },
+    {
+      "id": "regions",
+      "number": 31,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/31",
+      "title": "Définir l'ajout d'autres régions détaillées après vérification des données",
+      "priority": "P2",
+      "labels": [
+        "priority:P2",
+        "area:data",
+        "type:task",
+        "scope:shared"
+      ],
+      "dependsOn": [
+        6,
+        8,
+        9,
+        10,
+        16
+      ],
+      "assignees": [
+        "RahulCHANDER25"
+      ]
+    },
+    {
+      "id": "oxygen",
+      "number": 32,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/32",
+      "title": "Estimer l’oxygène nécessaire selon la pente, la vitesse et la charge",
+      "priority": "P1",
+      "labels": [
+        "priority:P1",
+        "area:mission",
+        "type:feature",
+        "scope:jezero"
+      ],
+      "dependsOn": [
+        14,
+        15,
+        16
+      ],
+      "assignees": [
+        "Kanda09"
+      ]
+    },
+    {
+      "id": "walkback",
+      "number": 33,
+      "url": "https://github.com/ManuelR-T/martian-map/issues/33",
+      "title": "Afficher la limite de retour à pied selon les réserves de mission",
+      "priority": "P1",
+      "labels": [
+        "priority:P1",
+        "area:mission",
+        "type:feature",
+        "scope:jezero"
+      ],
+      "dependsOn": [
+        12,
+        14,
+        32
+      ],
+      "assignees": [
+        "Aluxray"
+      ]
+    }
+  ],
+  "relationships": {
+    "parentIssue": 1,
+    "verifiedAt": "2026-11-14T10:48:22.060032+00:00",
+    "report": "docs/github-relations-verified.json"
+  }
+}
