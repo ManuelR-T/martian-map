@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
-import { capabilityStatus, loadManifest, type DataManifest, type DataStatus } from './index';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { capabilityStatus, loadCatalog, loadManifest, regions, type DataManifest, type DataStatus } from './index';
 
 const committed = JSON.parse(
   readFileSync(new URL('../../../apps/web/public/data/manifest.json', import.meta.url), 'utf8'),
@@ -83,5 +83,21 @@ describe('loadManifest', () => {
 
   it('rejects an unknown schema version', async () => {
     await expect(loadManifest('/data/', respond({ ...committed, schemaVersion: 99 }))).rejects.toThrow('version 99');
+  });
+});
+
+describe('loadCatalog', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('serves the datasets of the frozen manifest with the navigation regions', async () => {
+    vi.stubGlobal('fetch', async () => new Response(JSON.stringify(committed)));
+    const catalog = await loadCatalog();
+    expect(catalog.regions).toEqual(regions);
+    expect(catalog.datasets.map((dataset) => dataset.id)).toEqual(committed.datasets.map((dataset) => dataset.id));
+  });
+
+  it('rejects when the manifest is unreachable so the interface can show its error state', async () => {
+    vi.stubGlobal('fetch', async () => new Response('', { status: 503 }));
+    await expect(loadCatalog()).rejects.toThrow('HTTP 503');
   });
 });
