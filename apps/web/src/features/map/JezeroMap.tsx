@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import Map from 'ol/Map';
+import { usePlannerState } from '../../state/PlannerProvider';
+import { selectCurrentMission } from '../../state/planner';
+import { createMissionLayer } from './missionLayer';
 import { defaults as defaultControls } from 'ol/control';
+import { MapPanelDock } from './MapPanelDock';
 import { MapInformation } from './MapInformation';
 import type ImageTile from 'ol/ImageTile';
 import View from 'ol/View';
@@ -26,6 +30,7 @@ import { jezeroMessages } from './jezeroMessages';
 const messages = jezeroMessages.fr;
 
 interface Props {
+  panelHost: HTMLElement | null;
   datasets: readonly DatasetDescriptor[];
   roverEnabled: boolean;
   onRoverToggle: () => void;
@@ -37,7 +42,8 @@ interface Props {
   onSelect: (id: string) => void;
 }
 const bounds = (extent: Extent) => [extent.west, extent.south, extent.east, extent.north];
-export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, datasets, roverEnabled, onRoverToggle }: Props) {
+export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected, onSelect, datasets, roverEnabled, onRoverToggle }: Props) {
+  const mission = selectCurrentMission(usePlannerState());
   const [history, setHistory] = useState<RoverHistory | null>(null);
   const [historyFailed, setHistoryFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -154,9 +160,17 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, 
     map.addLayer(layer);
     return () => { map.removeLayer(layer); };
   }, [history, roverSelected, roverEnabled, dataset, sector, radius, sites, onSelect]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const layer = createMissionLayer(mission);
+    map.addLayer(layer);
+    return () => { map.removeLayer(layer); };
+  }, [mission, dataset, sector, radius, sites, onSelect]);
   return <div className="mars-map-container jezero-map">
     {roverEnabled && <p className="rover-warning border bg-card p-2 text-xs font-semibold">{roverMessages.fr.warning}</p>}
     <div ref={target} className="mars-map" tabIndex={0} aria-label={messages.label} />
+    <MapPanelDock host={panelHost}>
     <Panel title={messages.panelTitle} collapsible className="jezero-status text-sm" contentClassName="overflow-y-auto">
       <p role="status">{outside ? messages.outside : messages.sector} {offline ? messages.offline : messages.online} {failed && messages.failure}</p>
 
@@ -176,12 +190,14 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, 
       </div>
 
     </Panel>
+    </MapPanelDock>
     {choice && <SiteChoicePopover choice={choice} onSelect={onSelect} onClose={() => { setChoice(null); target.current?.focus({ preventScroll: true }); }} />}
     <div className="mars-scale border bg-card p-4 text-xs" aria-label={messages.scale}>
       <div aria-hidden="true" className="mars-scale-bar" />
       <p>{scale} · {messages.scale}</p>
     </div>
     <MapInformation>
+      <p>Camp et étapes : simulation. Pointillés bleus du parcours : segments directs, sans validation du terrain.</p>
       <p>{messages.legend}</p>
       <p>{messages.coordinates} R = {radius} m.</p>
       <p>{messages.cache}</p>

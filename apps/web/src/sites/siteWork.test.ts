@@ -44,3 +44,9 @@ describe('stop progress', () => {
     expect(siteWorkOf(state, amalik)).toEqual({ allottedMinutes: 45, doneTaskIds: [] });
   });
 });
+
+it('refuse les durées invalides et les tâches absentes de la fiche', () => {
+  const state: SiteWorkState = {};
+  for (const minutes of [-1, Infinity, -Infinity, NaN]) expect(siteWorkReducer(state, { type: 'siteAllottedChanged', sheet: wildcat, minutes })).toBe(state);
+  expect(siteWorkReducer(state, { type: 'siteTaskToggled', sheet: wildcat, taskId: 'inconnue' })).toBe(state);
+});

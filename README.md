@@ -348,3 +348,80 @@ precache. After a successful online/local installation and offline-ready status,
 the layer needs no NASA connection. Failed history loads offer retry without
 blocking imagery or the mission. Production offline/tablet interaction still
 requires acceptance testing; the automatic checks do not establish it.
+
+## Missions, camps et activités (#11)
+
+La navigation À la base / En mission sépare la préparation et le suivi. Le thème,
+la carte et les composants Panel, Button et StepList sont conservés.
+
+### À la base : missions, modèles et camps
+
+**Préparation de mission** propose des panneaux repliables internes pour créer
+une mission, ouvrir une mission enregistrée ou consulter l’historique.
+**Modèles de mission** est un panneau repliable distinct, au même niveau que
+Préparation de mission et Camps. Il regroupe Nouveau modèle et Modèles
+enregistrés. Une nouvelle mission peut toujours partir d’un modèle existant.
+La création suit trois étapes :
+
+1. Objectif et nom : choisir reconnaissance, observation, photographie ou
+   prélèvement. Un nom est proposé automatiquement et reste modifiable. Une
+   nouvelle mission peut reprendre un modèle enregistré sans modifier ce modèle.
+2. Camp et parcours : sélectionner un camp déjà enregistré, ajouter des étapes
+   du catalogue ou par coordonnées, réordonner les visites et définir leurs
+   activités (photo, observation, prélèvement) et durées en minutes. Une mission
+   exige un camp et au moins une étape ; un modèle peut les laisser à compléter.
+3. Vérification : consulter le récapitulatif, régler durée disponible, vitesse et
+   réserve, puis enregistrer. Le démarrage est proposé après enregistrement.
+
+**Camps** possède ses propres panneaux repliables : rechercher parmi les camps
+existants ou enregistrer un nouveau camp. Les résultats donnent accès aux
+modifications et à la suppression. Enregistrer un camp ne sélectionne ni ne
+modifie le camp d’une mission en préparation. La mission ne propose aucun
+formulaire de création de camp. Les missions conservent une copie du camp choisi,
+y compris si le catalogue est modifié par la suite.
+
+Les actions destructrices demandent confirmation. Un message signale les erreurs
+de stockage. Les contrôles de préparation ne sont disponibles qu’à Jezero.
+Le catalogue des camps reste consultable indépendamment de la vue de la carte.
+
+### En mission
+
+Démarrer crée une copie indépendante du plan et remet les coches à zéro.
+Modifier un modèle ou une mission à la base ne modifie pas la sortie en cours.
+Le reducer interdit les modifications de configuration dans le suivi. Le parcours,
+les activités à cocher et les fiches de site restent accessibles ; les paramètres
+et les allocations sont en lecture seule. Les tâches des fiches restent distinctes
+des activités des visites et ne sont pas additionnées automatiquement à celles-ci.
+
+Le suivi est enregistré automatiquement sur cet appareil et restauré au
+rechargement. Chaque sortie dispose d’une entrée d’historique mise à jour avec
+ses coches ; démarrer une autre sortie conserve les précédentes. L’historique
+indique la date de dernière sauvegarde et ne prétend pas qu’une sortie est
+terminée. La géométrie camp–étapes–camp relie des segments directs : elle ne
+constitue pas un chemin praticable validé. Le calcul complet du budget reste #14.
+
+### Stockage et données de simulation
+
+IndexedDB `marps-missions` version 3 sépare `camps`, `missions`, `templates`,
+`tracking` et `history`. Les migrations conservent les anciennes données. Les
+préparations existantes restent dans missions ; elles ne sont pas reclassées
+automatiquement comme modèles. Les missions portent `schemaVersion: 1`, leur
+identité, type (facultatif pour les anciennes sauvegardes), nom, région, camp,
+étapes ordonnées, activités et coches, paramètres, hypothèses et travail des
+fiches. Les durées générales sont en secondes, la vitesse en m/s et les durées
+d’activités en minutes. Les valeurs négatives/non finies, la vitesse nulle et
+une réserve supérieure à la durée disponible sont refusées.
+
+Le repository `apps/web/src/storage/missionDatabase.ts` constitue le point à
+étendre pour un futur catalogue partagé. Il n’existe actuellement ni serveur,
+ni synchronisation multi-équipage, ni télémétrie. Effacer les données du
+navigateur efface cette base.
+
+Les camps d’exemple de `packages/data/src/camps.ts` sont fictifs et initialisés
+une seule fois. Leurs positions dans le secteur préparé ne confirment ni
+habitabilité, ni présence d’équipements, ni sélection NASA. La recherche n’a pas
+identifié de catalogue NASA de camps humains martiens enregistrés. Le rapport
+[NASA sur la science et la protection planétaire avant les missions humaines](https://ntrs.nasa.gov/citations/20250009522)
+étudie un scénario à Jezero sans valider ces camps. Les
+[données Perseverance](https://science.nasa.gov/mission/mars-2020-perseverance/)
+concernent l’exploration robotique réelle et restent séparées des simulations.
