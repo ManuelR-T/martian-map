@@ -80,7 +80,29 @@ Aucune variable d'environnement n'est requise. Les futures variables `VITE_*`
 seront publiques et intégrées au bundle : ne jamais y placer de secret.
 Documenter chaque nouvelle variable et fournir un `.env.example` si nécessaire.
 Les fichiers `.env*` locaux sont ignorés. Le déploiement doit servir le contenu de
-`apps/web/dist` ; la CI et la configuration Vercel relèvent de #3 et #4.
+`apps/web/dist` ; la configuration Vercel relève de #4.
+
+## Intégration continue
+
+Le workflow [CI](.github/workflows/ci.yml) s'exécute sur chaque pull request et
+chaque push sur `main`. Il lit Node dans `.node-version` et pnpm dans
+`package.json`, installe avec `--frozen-lockfile`, puis exécute depuis la racine
+`pnpm lint`, `pnpm typecheck`, `pnpm test` et `pnpm build`.
+Le cache du store pnpm dépend de `pnpm-lock.yaml` ; l'installation reste obligatoire.
+Une erreur arrête le job. Seule la lecture du dépôt est autorisée.
+
+Après succès, l'artefact `web-dist` contient `apps/web/dist` et reste disponible
+sept jours dans la page du run GitHub Actions. Les tests utilisent des entrées
+locales, sans secret ni appel NASA. Le socle teste actuellement les unités de
+durée ; les tests de retour, distances et données absentes accompagneront le
+moteur de mission dans ses issues dédiées.
+
+Pour reproduire les contrôles, partir d'un clone propre, suivre l'installation
+ci-dessus puis lancer les quatre commandes dans cet ordre. Pour vérifier la
+détection des régressions, ajouter temporairement une affectation TypeScript
+incompatible dans `mission-core` : `pnpm typecheck` doit échouer. Remplacer
+temporairement le facteur `60` de `minutesToSeconds` par `59` doit faire échouer
+`pnpm test`. Annuler ces modifications avant de relancer les contrôles.
 
 Références : [workspaces pnpm](https://pnpm.io/workspaces),
 [guide Vite](https://vite.dev/guide/).
