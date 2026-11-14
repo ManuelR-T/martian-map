@@ -11,6 +11,7 @@ export function StepsPanel({ className }: { className?: string }) {
       title="Étapes"
       description="Dans l'ordre de visite"
       collapsible
+      floating
       className={className}
       contentClassName="overflow-y-auto"
     >

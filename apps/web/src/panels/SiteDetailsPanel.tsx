@@ -18,6 +18,7 @@ export function SiteDetailsPanel({ className, renderSite }: SiteDetailsPanelProp
       title="Fiche de site"
       description="Intérêt scientifique de l'arrêt sélectionné"
       collapsible
+      floating
       className={className}
       contentClassName="overflow-y-auto"
     >
