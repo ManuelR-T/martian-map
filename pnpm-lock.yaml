@@ -32,13 +32,13 @@ importers:
 
   apps/web:
     dependencies:
-      '@martian-map/data':
+      '@marps/data':
         specifier: workspace:*
         version: link:../../packages/data
-      '@martian-map/mission-core':
+      '@marps/mission-core':
         specifier: workspace:*
         version: link:../../packages/mission-core
-      '@martian-map/ui':
+      '@marps/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       ol:
@@ -69,7 +69,7 @@ importers:
 
   packages/data:
     dependencies:
-      '@martian-map/mission-core':
+      '@marps/mission-core':
         specifier: workspace:*
         version: link:../mission-core
 

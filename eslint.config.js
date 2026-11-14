@@ -17,7 +17,7 @@ export default tseslint.config(
   {
     files: ['packages/mission-core/src/**/*.{ts,tsx}'],
     rules: { 'no-restricted-imports': ['error', {
-      patterns: ['react', 'react/*', 'react-dom', 'react-dom/*', 'ol', 'ol/*', '@martian-map/*'],
+      patterns: ['react', 'react/*', 'react-dom', 'react-dom/*', 'ol', 'ol/*', '@marps/*'],
     }] },
   },
 );

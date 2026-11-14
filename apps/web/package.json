@@ -1,5 +1,5 @@
 {
-  "name": "@martian-map/web",
+  "name": "@marps/web",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,9 +10,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@martian-map/mission-core": "workspace:*",
-    "@martian-map/data": "workspace:*",
-    "@martian-map/ui": "workspace:*",
+    "@marps/mission-core": "workspace:*",
+    "@marps/data": "workspace:*",
+    "@marps/ui": "workspace:*",
     "ol": "10.11.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"

@@ -1,4 +1,4 @@
-# Marswalk Planner · martian-map
+# Marps
 
 Application statique de préparation de sorties scientifiques sur Mars. Le MVP
 cible Jezero ; ce premier socle ne fournit encore ni carte ni données scientifiques.
@@ -36,7 +36,7 @@ pnpm test       # Vitest, tests des calculs purs
 ```
 
 Pour servir localement le résultat statique après un build :
-`pnpm --filter @martian-map/web preview`.
+`pnpm --filter @marps/web preview`.
 Aucun serveur métier, base de données ou traitement Python n'est requis.
 
 ## Responsabilités et dépendances
@@ -58,8 +58,8 @@ tâches suivantes.
 ## Conventions
 
 - Tous les packages sont privés. Toute dépendance interne utilise `workspace:*`.
-- Importer les API publiques par `@martian-map/mission-core`,
-  `@martian-map/data` ou `@martian-map/ui`, sans chemin vers leurs fichiers internes.
+- Importer les API publiques par `@marps/mission-core`,
+  `@marps/data` ou `@marps/ui`, sans chemin vers leurs fichiers internes.
 - Les exports des packages partagés pointent vers les sources TypeScript : Vite
   et Vitest les transforment directement. Aucun build préalable ni watcher des
   packages n'est nécessaire au développement. Leurs builds vérifient les types ;
@@ -71,7 +71,7 @@ tâches suivantes.
 - Placer les tests `*.test.ts` près des calculs ; `pnpm test` les découvre depuis
   la racine. Ne pas remplacer des données manquantes par des données fictives
   présentées comme scientifiques.
-- Importer les styles partagés via `@martian-map/ui/styles.css`. Les styles
+- Importer les styles partagés via `@marps/ui/styles.css`. Les styles
   OpenLayers sont importés par l'application, qui possède cette dépendance.
 
 ## Variables et déploiement

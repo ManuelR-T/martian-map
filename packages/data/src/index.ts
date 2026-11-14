@@ -1,4 +1,4 @@
-import type { MarsCoordinate } from '@martian-map/mission-core';
+import type { MarsCoordinate } from '@marps/mission-core';
 
 export interface RegionDefinition {
   readonly id: string;

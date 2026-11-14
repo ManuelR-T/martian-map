@@ -1,15 +1,15 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { regions } from '@martian-map/data';
-import { minutesToSeconds } from '@martian-map/mission-core';
-import { Panel } from '@martian-map/ui';
+import { regions } from '@marps/data';
+import { minutesToSeconds } from '@marps/mission-core';
+import { Panel } from '@marps/ui';
 import 'ol/ol.css';
-import '@martian-map/ui/styles.css';
+import '@marps/ui/styles.css';
 
 function App() {
   return (
     <main>
-      <p>Marswalk Planner</p>
+      <p>Marps</p>
       <h1>Préparer une sortie sur Mars</h1>
       <Panel title="Socle de développement prêt">
         <p>Région de démonstration : {regions[0].name}.</p>

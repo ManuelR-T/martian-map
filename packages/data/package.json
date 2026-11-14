@@ -1,5 +1,5 @@
 {
-  "name": "@martian-map/data",
+  "name": "@marps/data",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -14,6 +14,6 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@martian-map/mission-core": "workspace:*"
+    "@marps/mission-core": "workspace:*"
   }
 }

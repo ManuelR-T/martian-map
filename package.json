@@ -1,5 +1,5 @@
 {
-  "name": "martian-map",
+  "name": "marps",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,7 +9,7 @@
     "pnpm": "9.15.4"
   },
   "scripts": {
-    "dev": "pnpm --filter @martian-map/web dev",
+    "dev": "pnpm --filter @marps/web dev",
     "build": "pnpm -r build",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "pnpm -r typecheck",
