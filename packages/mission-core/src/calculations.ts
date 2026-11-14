@@ -139,7 +139,7 @@ export function calculateOxygen(
       return {
         status: 'unavailable' as const,
         reason:
-          'Relief absent ou NoData : activez explicitement le terrain plat pour simuler.',
+          'Pentes du parcours non fournies ou NoData : activez explicitement le terrain plat pour simuler.',
       };
     const rate = oxygenRate(p, s.speedKmh, grade);
     consumption.push({ id: s.id, rate, grams: (rate * s.seconds) / 60 });

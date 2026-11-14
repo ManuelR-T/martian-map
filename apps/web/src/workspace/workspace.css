@@ -1111,3 +1111,8 @@
   gap: 10px;
   margin-top: 12px;
 }
+
+/* Keep the supplemental pages within dev’s flex application shell. */
+.workspace { width:100%; min-width:0; }
+.workspace h1, .workspace .mission-tile h3 { overflow-wrap:anywhere; }
+.mission-app > header nav { display:flex; flex-wrap:wrap; max-width:100%; min-width:0; }

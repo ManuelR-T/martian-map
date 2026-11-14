@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react';
+import { useState } from 'react';
 import {
   Archive,
   ArrowRight,
@@ -12,12 +12,6 @@ import { Button } from '@marps/ui';
 import { calculateBudget } from '@marps/mission-core';
 import { usePlannerState, usePlannerDispatch } from '../state/PlannerProvider';
 import { downloadMission } from '../export';
-import { MapStage } from '../panels/MapStage';
-const PlannerMap = lazy(() =>
-  import('../features/map/PlannerMap').then((module) => ({
-    default: module.PlannerMap,
-  })),
-);
 import { RouteEditor } from './RouteEditor';
 import { Forecast } from './Forecast';
 import { RouteSchematic } from './RouteSchematic';
@@ -28,13 +22,15 @@ export function Plan({ act }: { act: Act }) {
   const m = state.mission;
   const record = state.library.records.find((r) => r.mission.id === m.id)!;
   const [tab, setTab] = useState('route');
-  const [mapOpen, setMapOpen] = useState(false);
   const b = calculateBudget(m);
   const [notice, setNotice] = useState('');
   const ready = !!b;
   return (
     <>
-      <a href={record.archived ? '#/historique' : '#/'} className="back-link">
+      <a
+        href={record.archived ? '#/historique' : '#/missions'}
+        className="back-link"
+      >
         <ChevronLeft size={16} />
         {record.archived ? 'Historique' : 'Mes missions'}
       </a>
@@ -155,32 +151,30 @@ export function Plan({ act }: { act: Act }) {
                   reconnus.
                 </p>
               </Section>
-              <details
-                className="work-card"
-                onToggle={(event) => setMapOpen(event.currentTarget.open)}
+              <Section
+                eyebrow="CARTE ET FICHES SCIENTIFIQUES"
+                title="Explorer le secteur de Jezero"
               >
-                <summary>
-                  <Layers size={16} />
-                  Fond cartographique de contexte
-                </summary>
-                <p className="muted">
-                  Consultez le fond de contexte. Les repères de cette mission ne
-                  sont pas encore affichés sur la carte ; modifiez le parcours
-                  dans la liste d’étapes.
+                <p>
+                  Imagerie HiRISE, couverture des données, sites cliquables et
+                  trace historique de Perseverance sont disponibles sur la carte
+                  principale.
                 </p>
-                {mapOpen && (
-                  <MapStage
-                    map={
-                      <Suspense
-                        fallback={<p role="status">Chargement du fond…</p>}
-                      >
-                        <PlannerMap />
-                      </Suspense>
-                    }
-                    className="context-map relative flex flex-col justify-between p-2"
-                  />
-                )}
-              </details>
+                <a
+                  href="#/"
+                  className="work-primary"
+                  onClick={() =>
+                    dispatch({ type: 'viewChanged', view: 'region' })
+                  }
+                >
+                  <Layers size={16} />
+                  Ouvrir la carte de Jezero
+                </a>
+                <p className="fine-print">
+                  Votre plan reste sauvegardé. Le schéma ci-dessus décrit le
+                  parcours prévu ; la trace du rover est historique.
+                </p>
+              </Section>
               <Section eyebrow="EN UN COUP D’ŒIL" title="Votre enveloppe">
                 <dl className="summary-list">
                   <div>
@@ -337,7 +331,7 @@ export function Plan({ act }: { act: Act }) {
                       type: 'libraryAction',
                       action: { type: 'delete', id: m.id },
                     });
-                    window.location.hash = '#/';
+                    window.location.hash = '#/missions';
                   }
                 }}
               >

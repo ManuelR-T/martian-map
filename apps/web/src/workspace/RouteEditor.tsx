@@ -2,8 +2,9 @@ import { useState, type FormEvent } from 'react';
 import { Check, MapPin, Plus, Route } from 'lucide-react';
 import { Button } from '@marps/ui';
 import { siteSheets } from '@marps/data';
-import { missionReducer as missionReducerForUI } from '@marps/mission-core';
-import { usePlannerState } from '../state/PlannerProvider';
+import { addCatalogVisit } from './visits';
+import { usePlannerDispatch, usePlannerState } from '../state/PlannerProvider';
+import { missingSites } from '../state/storage';
 import { siteNotes, scienceSource } from './science';
 import { Section, uid, names, duration, type Act } from './shared';
 export function RouteEditor({
@@ -14,6 +15,7 @@ export function RouteEditor({
   readonly: boolean;
 }) {
   const state = usePlannerState();
+  const dispatch = usePlannerDispatch();
   const m = state.mission;
   const manifest =
     state.catalog.status === 'ready' ? state.catalog.data.manifest : null;
@@ -65,38 +67,27 @@ export function RouteEditor({
     }
   }
   function addSite(siteId: string) {
-    const site = manifest?.sites.find((s) => s.id === siteId);
-    if (!site) return;
-    const d = manifest?.datasets.find((d) => d.id === site.datasetId);
-    const next = missionReducerForUI(m, {
-      type: 'addStep',
-      step: {
-        id: uid(),
-        name: site.name,
-        siteId: site.id,
-        position: site.coordinate,
-        activities: [
-          { id: uid(), type: 'photo', durationSeconds: 300 },
-          { id: uid(), type: 'observation', durationSeconds: 900 },
-        ],
-      },
-    });
+    if (!manifest) return;
     act({
       type: 'replace',
-      mission: {
-        ...next,
-        dataReferences:
-          d && !next.dataReferences.some((r) => r.id === d.id)
-            ? [
-                ...next.dataReferences,
-                { id: d.id, version: d.version, sourceUrl: d.source.url },
-              ]
-            : next.dataReferences,
-      },
+      mission: addCatalogVisit(m, manifest, siteId, uid()),
     });
   }
+  const missing = manifest
+    ? missingSites(
+        m,
+        manifest.sites.map((site) => site.id),
+      )
+    : [];
   return (
     <>
+      {!!missing.length && (
+        <p role="alert" className="work-notice warning">
+          Sites absents du catalogue actuel : {missing.join(', ')}. Les
+          positions sauvegardées sont conservées ; vérifiez leurs références
+          avant de réutiliser ce plan.
+        </p>
+      )}
       <Section
         eyebrow="POINT DE DÉPART"
         title="1. Votre camp fictif"
@@ -260,6 +251,16 @@ export function RouteEditor({
                             </p>
                           </div>
                         )}
+                        <a
+                          className="text-link"
+                          href="#/"
+                          onClick={() => {
+                            dispatch({ type: 'viewChanged', view: 'region' });
+                            dispatch({ type: 'siteSelected', siteId: s.id });
+                          }}
+                        >
+                          Ouvrir la fiche interactive sur la carte →
+                        </a>
                         <a href={scienceSource}>
                           Description scientifique · EPSC 2024 ↗
                         </a>

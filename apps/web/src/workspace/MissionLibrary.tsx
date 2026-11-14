@@ -110,7 +110,7 @@ export function CreateMission({
   }
   return (
     <div className="creation">
-      <a href="#/" className="back-link">
+      <a href="#/missions" className="back-link">
         <ChevronLeft size={16} />
         Mes missions
       </a>

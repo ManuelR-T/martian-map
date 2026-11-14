@@ -320,7 +320,7 @@ export function Forecast({ act, readonly }: { act: Act; readonly: boolean }) {
           </Section>
         </div>
         <aside>
-          <BudgetPanel className="forecast-budget" />
+          <BudgetPanel standalone className="forecast-budget" />
           <Section eyebrow="RESSOURCE OPTIONNELLE" title="Estimation d’oxygène">
             <p>
               Le budget de temps fonctionne seul. L’O₂ est un modèle pédagogique

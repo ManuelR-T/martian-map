@@ -1,8 +1,9 @@
 # Marps
 
 Application statique de préparation de sorties scientifiques sur Mars. Le MVP
-cible Jezero ; l'écran de planification est en place et les données du MVP sont
-figées avec leur manifeste, mais la carte n'est pas encore intégrée. React,
+cible Jezero ; la carte, les fiches scientifiques et les données du MVP sont
+intégrées avec leur manifeste. La préparation et l’historique des plans
+complètent l’écran cartographique. React,
 TypeScript, Vite, OpenLayers, Tailwind CSS et shadcn/ui sont installés dans un
 workspace pnpm privé.
 
@@ -63,17 +64,17 @@ tâches suivantes.
 
 ## Interface et système de design
 
-L'application s'ouvre sur une bibliothèque de missions. La création guidée propose
-un exemple du delta ou un plan vide. Chaque mission possède trois onglets :
-parcours et activités, prévisionnel, versions et historique. Les plans archivés
-restent consultables et leurs versions se restaurent dans une nouvelle mission.
-Les vues s'adaptent au mobile sans superposer des formulaires à la carte.
+L'application s'ouvre sur la carte de `dev`, avec les vues Mars et Jezero,
+les fiches scientifiques interactives et la trace historique de Perseverance.
+Les pages complémentaires « Mes missions » et « Historique » permettent de
+créer, préparer, sauvegarder et archiver les plans, sans remplacer la carte.
+Le panneau « Plan de mission » ajoute une visite depuis la fiche sélectionnée
+en copiant le temps alloué au moment de l'ajout.
 
-Le schéma du parcours montre les stations et le retour au camp. Le fond OpenLayers
-est consultable séparément ; sa couche interactive de mission reste à relier.
-Les photos scientifiques et les sites viennent du catalogue local. Le guide
-[mission et hypothèses](docs/mission-kanda09.md) décrit les fonctionnalités,
-la migration des sauvegardes et les limites des calculs.
+Le schéma du parcours montre les stations et le retour au camp. Le placement
+interactif de la mission sur la carte et le profil de terrain restent à relier.
+Voir la [revue après rebase](docs/mission-rebase-review.md) pour les tickets,
+les interprétations, les limites et les captures du résultat.
 
 - **Un seul état partagé.** `apps/web/src/state/planner.ts` contient le
   réducteur et les sélecteurs, testables sans React ; `PlannerProvider` les

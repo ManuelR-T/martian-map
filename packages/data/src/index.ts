@@ -30,7 +30,7 @@ export interface Catalog {
  */
 export async function loadCatalog(): Promise<Catalog> {
   const manifest = await loadManifest();
-  return { planet: manifest.planet, coverage: manifest.regions, regions, datasets: manifest.datasets, sites: manifest.sites };
+  return { manifest, planet: manifest.planet, coverage: manifest.regions, regions, datasets: manifest.datasets, sites: manifest.sites };
 }
 
 export * from './contracts';

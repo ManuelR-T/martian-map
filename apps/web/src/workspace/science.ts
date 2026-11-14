@@ -1,3 +1,4 @@
+import { addCatalogVisit } from './visits';
 import type { DataManifest } from '@marps/data';
 import { createEmptyMission, type Mission } from '@marps/mission-core';
 export const scienceSource =
@@ -39,7 +40,7 @@ export function exampleMission(
     throw new Error('Le catalogue des trois sites est incomplet.');
   const region = manifest.regions.find((r) => r.id === 'jezero');
   if (!region) throw new Error('Secteur de Jezero indisponible.');
-  return {
+  const base: Mission = {
     ...createEmptyMission('jezero'),
     id,
     name,
@@ -50,35 +51,14 @@ export function exampleMission(
       latitude: region.extent.south + 0.001,
       longitude: region.extent.west + 0.002,
     },
-    steps: sites.map((s, i) => ({
-      id: `${id}:step:${i}`,
-      name: s!.name,
-      position: s!.coordinate,
-      siteId: s!.id,
-      activities: [
-        { id: `${id}:photo:${i}`, type: 'photo', durationSeconds: 300 },
-        {
-          id: `${id}:observation:${i}`,
-          type: 'observation',
-          durationSeconds: 900,
-        },
-        ...(i === 1
-          ? [
-              {
-                id: `${id}:sample:${i}`,
-                type: 'sampling' as const,
-                durationSeconds: 1800,
-              },
-            ]
-          : []),
-      ],
-    })),
-    dataReferences: manifest.datasets
-      .filter((d) => sites.some((s) => s!.datasetId === d.id))
-      .map((d) => ({ id: d.id, version: d.version, sourceUrl: d.source.url })),
     assumptions: [
       ...createEmptyMission('jezero').assumptions,
       'Exemple : camp fictif choisi dans le secteur ; activités humaines et durées simulées.',
     ],
   };
+  return sites.reduce(
+    (mission, site, i) =>
+      addCatalogVisit(mission, manifest, site!.id, `${id}:step:${i}`),
+    base,
+  );
 }

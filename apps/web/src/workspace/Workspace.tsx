@@ -88,7 +88,7 @@ export function Workspace({ route }: { route: string }) {
         <CreateMission
           onCreate={create}
           onCancel={() => {
-            window.location.hash = '#/';
+            window.location.hash = '#/missions';
           }}
         />
       ) : route === '#/sources' ? (

@@ -9,7 +9,11 @@ import {
   type PlannerState,
 } from './planner';
 
-const jezero = { id: 'jezero', name: 'Jezero', center: { longitude: 77.58, latitude: 18.44 } };
+const jezero = {
+  id: 'jezero',
+  name: 'Jezero',
+  center: { longitude: 77.58, latitude: 18.44 },
+};
 const emptyCatalog: Catalog = { regions: [jezero], datasets: [], sites: [] };
 const exampleDataset: DatasetDescriptor = {
   id: 'exemple',
@@ -22,7 +26,11 @@ const exampleDataset: DatasetDescriptor = {
     url: 'https://example.org/source',
     retrievedAt: '2026-01-01T00:00:00Z',
     credit: 'Test',
-    terms: { summary: 'Test', url: 'https://example.org/terms', verified: false },
+    terms: {
+      summary: 'Test',
+      url: 'https://example.org/terms',
+      verified: false,
+    },
     fingerprint: { target: 'test', sha256: '0'.repeat(64), bytes: 0 },
   },
   acquisition: { date: null, sol: null, note: 'Test' },
@@ -36,15 +44,27 @@ const exampleDataset: DatasetDescriptor = {
   limitations: [],
   files: [],
 };
-const catalogWithDataset: Catalog = { regions: [jezero], datasets: [exampleDataset], sites: [] };
+const catalogWithDataset: Catalog = {
+  regions: [jezero],
+  datasets: [exampleDataset],
+  sites: [],
+};
 
 const loaded = (catalog: Catalog, state: PlannerState = initialPlannerState) =>
-  plannerReducer(state, { type: 'catalogLoaded', request: state.catalogRequest, catalog });
+  plannerReducer(state, {
+    type: 'catalogLoaded',
+    request: state.catalogRequest,
+    catalog,
+  });
 
 describe('état de planification', () => {
   it('démarre en chargement sur Mars entière, sans étape ni site sélectionné', () => {
     expect(initialPlannerState.view).toBe('global');
-    expect(initialPlannerState.mission).toEqual({ regionId: 'jezero', steps: [] });
+    expect(initialPlannerState.mission).toMatchObject({
+      schemaVersion: 1,
+      regionId: 'jezero',
+      steps: [],
+    });
     expect(initialPlannerState.selectedSiteId).toBeNull();
     expect(selectMapStatus(initialPlannerState)).toBe('loading');
     expect(selectPlanningStatus(initialPlannerState)).toBe('loading');
@@ -63,8 +83,15 @@ describe('état de planification', () => {
   });
 
   it('expose l’échec du chargement puis repasse en chargement à la nouvelle tentative', () => {
-    const failed = plannerReducer(initialPlannerState, { type: 'catalogFailed', request: 0, message: 'Réseau coupé' });
-    expect(failed.catalog).toEqual({ status: 'error', message: 'Réseau coupé' });
+    const failed = plannerReducer(initialPlannerState, {
+      type: 'catalogFailed',
+      request: 0,
+      message: 'Réseau coupé',
+    });
+    expect(failed.catalog).toEqual({
+      status: 'error',
+      message: 'Réseau coupé',
+    });
     expect(selectMapStatus(failed)).toBe('error');
     expect(selectPlanningStatus(failed)).toBe('error');
 
@@ -74,25 +101,62 @@ describe('état de planification', () => {
   });
 
   it('ignore la réponse d’un chargement remplacé par une nouvelle tentative', () => {
-    const retried = plannerReducer(initialPlannerState, { type: 'catalogRequested' });
-    const stale = plannerReducer(retried, { type: 'catalogFailed', request: 0, message: 'Ancienne erreur' });
+    const retried = plannerReducer(initialPlannerState, {
+      type: 'catalogRequested',
+    });
+    const stale = plannerReducer(retried, {
+      type: 'catalogFailed',
+      request: 0,
+      message: 'Ancienne erreur',
+    });
     expect(stale).toBe(retried);
     expect(loaded(emptyCatalog, retried).catalog.status).toBe('ready');
   });
 
   it('limite la planification au secteur détaillé : la vue globale est hors couverture', () => {
-    const global = plannerReducer(loaded(catalogWithDataset), { type: 'viewChanged', view: 'global' });
+    const global = plannerReducer(loaded(catalogWithDataset), {
+      type: 'viewChanged',
+      view: 'global',
+    });
     expect(selectPlanningStatus(global)).toBe('insufficient-coverage');
     expect(selectMapStatus(global)).toBe('ready');
 
-    const back = plannerReducer(global, { type: 'viewChanged', view: 'region' });
+    const back = plannerReducer(global, {
+      type: 'viewChanged',
+      view: 'region',
+    });
     expect(selectPlanningStatus(back)).toBe('ready');
   });
 
   it('conserve la même référence quand une action ne change rien', () => {
     const state = loaded(emptyCatalog);
-    expect(plannerReducer(state, { type: 'viewChanged', view: 'global' })).toBe(state);
-    expect(plannerReducer(state, { type: 'siteSelected', siteId: null })).toBe(state);
-    expect(plannerReducer(state, { type: 'siteSelected', siteId: 'amalik' }).selectedSiteId).toBe('amalik');
+    expect(plannerReducer(state, { type: 'viewChanged', view: 'global' })).toBe(
+      state,
+    );
+    expect(plannerReducer(state, { type: 'siteSelected', siteId: null })).toBe(
+      state,
+    );
+    expect(
+      plannerReducer(state, { type: 'siteSelected', siteId: 'amalik' })
+        .selectedSiteId,
+    ).toBe('amalik');
   });
+});
+
+it('garde la fiche dev et la sélection de carte quand on ouvre un plan', () => {
+  const selected = plannerReducer(initialPlannerState, {
+    type: 'siteSelected',
+    siteId: 'skinner-ridge',
+  });
+  const opened = plannerReducer(selected, {
+    type: 'libraryAction',
+    action: {
+      type: 'create',
+      mission: { ...initialPlannerState.mission, id: 'm' },
+      at: '2026-11-14T12:00:00Z',
+    },
+  });
+  expect(opened.selectedSiteId).toBe('skinner-ridge');
+  expect(opened.view).toBe('global');
+  expect(opened.siteWork).toBe(selected.siteWork);
 });

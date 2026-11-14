@@ -69,3 +69,13 @@ AEGIS est une inspiration d'organisation sortie/stations/activités. Aucun code 
 ### Vérification de la refonte
 
 Les tests automatisés couvrent la migration, les missions multiples, l'archivage, les révisions immuables, la restauration, la suppression sans résurrection de l'ancienne sauvegarde et les exemples scientifiques issus du manifeste. Un parcours Chromium a vérifié création à vide et depuis l'exemple, activité, événement/annulation, instantané, archivage/restauration, rechargement et bibliothèque. Les onglets de planification ont été contrôlés sans débordement horizontal à 320, 390, 768 et 1440 px.
+
+## Intégration prioritaire de dev après rebase
+
+Le bilan de référence est désormais [la revue après rebase](mission-rebase-review.md).
+La carte de dev est à nouveau l'accueil (`#/`) et sa fiche interactive reste
+accessible. La bibliothèque complémentaire est sous `#/missions`. Le panneau
+« Plan de mission » relie une fiche au plan actif et copie son temps alloué au
+moment de l'ajout. Les exemples et l'ajout depuis le catalogue reprennent les
+mêmes tâches de référence que les fiches. Les limites O₂ et d'édition
+cartographique restent explicites dans la revue.

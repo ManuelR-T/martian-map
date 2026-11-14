@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { calculateBudget } from '@marps/mission-core';
 import {
   BudgetBreakdown,
@@ -14,10 +15,15 @@ export type BudgetView = Pick<
 export interface BudgetPanelProps {
   className?: string;
   budget?: BudgetView | null;
+  standalone?: boolean;
 }
 const minutes = (seconds: number) =>
   `${(seconds / 60).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} min`;
-export function BudgetPanel({ className, budget }: BudgetPanelProps) {
+export function BudgetPanel({
+  className,
+  budget,
+  standalone = false,
+}: BudgetPanelProps) {
   const { mission } = usePlannerState();
   const b = calculateBudget(mission);
   const available = mission.parameters.availableSeconds;
@@ -78,10 +84,7 @@ export function BudgetPanel({ className, budget }: BudgetPanelProps) {
       className={className}
       contentClassName="overflow-y-auto"
     >
-      <PlanningGate
-        loadingTitle="Chargement du budget"
-        coverageTitle="Pas de budget hors Jezero"
-      >
+      <BudgetGate standalone={standalone}>
         {view ? (
           <>
             <BudgetBreakdown {...view} />
@@ -103,7 +106,26 @@ export function BudgetPanel({ className, budget }: BudgetPanelProps) {
           Disponible − marche aller/retour − activités − réserve. Hypothèses
           simulées ; ce budget ne garantit pas un retour sûr.
         </p>
-      </PlanningGate>
+      </BudgetGate>
     </Panel>
+  );
+}
+
+function BudgetGate({
+  standalone,
+  children,
+}: {
+  standalone: boolean;
+  children: ReactNode;
+}) {
+  return standalone ? (
+    children
+  ) : (
+    <PlanningGate
+      loadingTitle="Chargement du budget"
+      coverageTitle="Pas de budget hors Jezero"
+    >
+      {children}
+    </PlanningGate>
   );
 }
