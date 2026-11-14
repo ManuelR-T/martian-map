@@ -1,0 +1,988 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-14T11:33:21Z",
+  "planet": {
+    "name": "Mars",
+    "radiusMeters": 3396190.0,
+    "coordinates": "planetocentric",
+    "longitude": "degrees, positive east"
+  },
+  "regions": [
+    {
+      "id": "global",
+      "name": "Mars",
+      "kind": "orientation",
+      "extent": {
+        "west": -180.0,
+        "south": -90.0,
+        "east": 180.0,
+        "north": 90.0
+      },
+      "capabilities": [
+        {
+          "id": "orientation-basemap",
+          "label": "Fond d'orientation",
+          "status": "available",
+          "datasetIds": [
+            "mola-colorized-relief"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "jezero",
+      "name": "Jezero",
+      "kind": "detailed",
+      "extent": {
+        "west": 77.395,
+        "south": 18.445,
+        "east": 77.412,
+        "north": 18.465
+      },
+      "capabilities": [
+        {
+          "id": "imagery-hirise",
+          "label": "Imagerie HiRISE",
+          "status": "available",
+          "datasetIds": [
+            "jezero-hirise-mosaic"
+          ]
+        },
+        {
+          "id": "terrain-dem",
+          "label": "Relief CTX 20 m",
+          "status": "available",
+          "datasetIds": [
+            "jezero-ctx-dem"
+          ]
+        },
+        {
+          "id": "science-sites",
+          "label": "Sites scientifiques",
+          "status": "available",
+          "datasetIds": [
+            "jezero-sampling-sites"
+          ]
+        },
+        {
+          "id": "rover-traverse",
+          "label": "Trace historique de Perseverance",
+          "status": "unavailable",
+          "datasetIds": [],
+          "reason": "Non intégré à cette version du manifeste."
+        },
+        {
+          "id": "thermal-themis",
+          "label": "Infrarouge nocturne THEMIS",
+          "status": "unavailable",
+          "datasetIds": [],
+          "reason": "Non intégré à cette version du manifeste."
+        },
+        {
+          "id": "weather-meda",
+          "label": "Température et pression MEDA",
+          "status": "unavailable",
+          "datasetIds": [],
+          "reason": "Non intégré à cette version du manifeste."
+        },
+        {
+          "id": "geology",
+          "label": "Carte géologique",
+          "status": "unavailable",
+          "datasetIds": [],
+          "reason": "Non intégré à cette version du manifeste."
+        }
+      ]
+    }
+  ],
+  "datasets": [
+    {
+      "id": "mola-colorized-relief",
+      "regionId": "global",
+      "title": "Relief colorisé MOLA (orientation mondiale)",
+      "kind": "basemap",
+      "instrument": "Mars Global Surveyor, altimètre laser MOLA (relief colorisé et ombré)",
+      "delivery": "remote",
+      "source": {
+        "url": "https://trek.nasa.gov/tiles/Mars/EQ/Mars_MGS_MOLA_ClrShade_merge_global_463m/1.0.0/WMTSCapabilities.xml",
+        "tileUrlTemplate": "https://trek.nasa.gov/tiles/Mars/EQ/Mars_MGS_MOLA_ClrShade_merge_global_463m/1.0.0/default/default028mm/{z}/{y}/{x}.jpg",
+        "retrievedAt": "2026-11-14T11:33:21Z",
+        "credit": "NASA / équipe scientifique MGS MOLA ; distribué par NASA Mars Trek",
+        "terms": {
+          "summary": "Contenu NASA réutilisable sans autorisation préalable pour un usage factuel sans suggestion de soutien ; NASA doit être citée comme source.",
+          "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+          "verified": true
+        },
+        "fingerprint": {
+          "target": "WMTSCapabilities.xml",
+          "sha256": "2fb4722b5af0417980052354eab806cb9bdea003617548433cec8d8813d8d125",
+          "bytes": 7040
+        }
+      },
+      "acquisition": {
+        "date": null,
+        "sol": null,
+        "note": "Mosaïque globale ; pas de date d'acquisition unique."
+      },
+      "units": {},
+      "crs": "urn:ogc:def:crs:EPSG::104905",
+      "extent": {
+        "west": -180.0,
+        "south": -90.0,
+        "east": 180.0,
+        "north": 90.0
+      },
+      "resolution": {
+        "value": 463.0,
+        "unit": "m/pixel"
+      },
+      "noData": {
+        "kind": "not-applicable"
+      },
+      "status": "available",
+      "version": "merge_global_463m",
+      "limitations": [
+        "Représentation colorisée : aucune valeur d'altitude numérique.",
+        "Orientation uniquement : n'active aucune donnée scientifique détaillée.",
+        "Grille équirectangulaire 2 × 1 tuiles au niveau 0, pas Web Mercator."
+      ],
+      "files": []
+    },
+    {
+      "id": "jezero-hirise-mosaic",
+      "regionId": "jezero",
+      "title": "Mosaïque HiRISE de Jezero (secteur du front du delta)",
+      "kind": "imagery",
+      "instrument": "Mars Reconnaissance Orbiter, caméra HiRISE (mosaïque orthorectifiée)",
+      "delivery": "local",
+      "source": {
+        "url": "https://trek.nasa.gov/tiles/Mars/EQ/JEZ_hirise_soc_006_orthoMosaic_25cm_Eqc_latTs0_lon0_first_dd/1.0.0/WMTSCapabilities.xml",
+        "tileUrlTemplate": "https://trek.nasa.gov/tiles/Mars/EQ/JEZ_hirise_soc_006_orthoMosaic_25cm_Eqc_latTs0_lon0_first_dd/1.0.0/default/default028mm/{z}/{y}/{x}.png",
+        "retrievedAt": "2026-11-14T11:33:21Z",
+        "credit": "NASA/JPL-Caltech/University of Arizona ; distribué par NASA Mars Trek",
+        "terms": {
+          "summary": "Conditions propres à ce produit non vérifiées ; appliquer au minimum la citation de la source et confirmer avant toute redistribution.",
+          "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+          "verified": false
+        },
+        "fingerprint": {
+          "target": "WMTSCapabilities.xml",
+          "sha256": "6a67af4f3e79ed8bf5e625b60d4b9250533f38a8f61e98758410ff8ad9213693",
+          "bytes": 10037
+        }
+      },
+      "acquisition": {
+        "date": null,
+        "sol": null,
+        "note": "Mosaïque d'observations multiples ; dates non relevées par tuile."
+      },
+      "units": {},
+      "crs": "urn:ogc:def:crs:EPSG::104905",
+      "extent": {
+        "west": 77.3931884765625,
+        "south": 18.44329833984375,
+        "east": 77.41241455078125,
+        "north": 18.46527099609375
+      },
+      "resolution": {
+        "value": 0.25,
+        "unit": "m/pixel"
+      },
+      "noData": {
+        "kind": "alpha-channel",
+        "transparentPixelCount": 0
+      },
+      "status": "available",
+      "version": "soc_006",
+      "limitations": [
+        "Tuiles figées de zoom 12 à 16 sur le secteur ; le zoom 16 vaut environ 0,64 m/pixel.",
+        "Les pixels transparents signifient absence de couverture, pas du noir.",
+        "L'image ne mesure ni pente, ni portance du sol."
+      ],
+      "tileset": {
+        "matrixSet": "default028mm",
+        "tileSize": 256,
+        "urlTemplate": "jezero/hirise/{z}/{y}/{x}.png",
+        "ranges": [
+          {
+            "z": 12,
+            "colMin": 5857,
+            "colMax": 5857,
+            "rowMin": 1627,
+            "rowMax": 1628
+          },
+          {
+            "z": 13,
+            "colMin": 11714,
+            "colMax": 11715,
+            "rowMin": 3255,
+            "rowMax": 3256
+          },
+          {
+            "z": 14,
+            "colMin": 23428,
+            "colMax": 23430,
+            "rowMin": 6511,
+            "rowMax": 6513
+          },
+          {
+            "z": 15,
+            "colMin": 46857,
+            "colMax": 46860,
+            "rowMin": 13022,
+            "rowMax": 13026
+          },
+          {
+            "z": 16,
+            "colMin": 93714,
+            "colMax": 93720,
+            "rowMin": 26045,
+            "rowMax": 26052
+          }
+        ],
+        "finestMetresPerPixel": 0.6359485122081708
+      },
+      "files": [
+        {
+          "path": "jezero/hirise/WMTSCapabilities.xml",
+          "bytes": 10037,
+          "sha256": "6a67af4f3e79ed8bf5e625b60d4b9250533f38a8f61e98758410ff8ad9213693",
+          "mediaType": "application/xml"
+        },
+        {
+          "path": "jezero/hirise/12/1627/5857.png",
+          "bytes": 57973,
+          "sha256": "0aa9ef1ac5daef4969b4935ca530ce26fa59fc78cb3bd36620c88d194098de33",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/12/1628/5857.png",
+          "bytes": 56631,
+          "sha256": "1381bed48d9b7bcedad65f96b9d6410eee33878c669d3e1600b01f9eaeae864b",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/13/3255/11714.png",
+          "bytes": 57917,
+          "sha256": "6f1d77c302ad31f43dfa695da3103e8e5916ecb3f9322487d535fd1d93685543",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/13/3255/11715.png",
+          "bytes": 55142,
+          "sha256": "2e8c91340ae115121f326c994c0f563fa6e3cd1d55b79726045dba5695fb06ee",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/13/3256/11714.png",
+          "bytes": 61581,
+          "sha256": "c0e9bc105d1ac68667f9157eadd6362c531f575ead01f5f5bae2adb83461417b",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/13/3256/11715.png",
+          "bytes": 56369,
+          "sha256": "59ddf796e388722d0ef4a7089ba20d58d70ea623d5d17890b40edd7d50b4a7e4",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/14/6511/23428.png",
+          "bytes": 55451,
+          "sha256": "b7398bee03abb1369196d9545d50e10e7526c602e62c25a0395bec1596dd8ce5",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/14/6511/23429.png",
+          "bytes": 57030,
+          "sha256": "4955bebb7c0bd293a8c86c3faa09b8d594fb51f855b072f4b0b6cec3fa25980d",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/14/6511/23430.png",
+          "bytes": 56224,
+          "sha256": "5fbd5e07e6f7d036ad06d0998c05ecad5c1c371aecc1425316893b9cfeb0f690",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/14/6512/23428.png",
+          "bytes": 60679,
+          "sha256": "28ebdd086f205c15c3022da7689f23ba2763840db4b1664952b77fb3503b18c7",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/14/6512/23429.png",
+          "bytes": 56162,
+          "sha256": "d2ca8928e4827ffb6d7008ab8d4db4c026d21dc9ef64fcda47ffc3bf93e9a6ea",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/14/6512/23430.png",
+          "bytes": 49911,
+          "sha256": "3a560a30c30f333294413d9d0e2dfc6acaa7c60b305fdf497685ba2c8009f7d9",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/14/6513/23428.png",
+          "bytes": 62191,
+          "sha256": "827ff493465feb29cda85051fff98dfb3529b694f4dd991dc9cc08f8b5070a98",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/14/6513/23429.png",
+          "bytes": 61329,
+          "sha256": "b9deff6bc22c069af9ca0dd39de0113277c397b2bedc1c3c0b5e93910aa4f17f",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/14/6513/23430.png",
+          "bytes": 53010,
+          "sha256": "b6bfd64101e6a6abddb47733bf02bae3fa95f34490d51af55d205e11ef37bc61",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13022/46857.png",
+          "bytes": 53528,
+          "sha256": "a2c3c8f42dd1d2f3c73930928cabe2121d35b6835c49bac866a213dc0cfdb6d0",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13022/46858.png",
+          "bytes": 50048,
+          "sha256": "573a92a6739f9fe77a221459523ea3a9f4afa548a9852213b9598bccf51ea432",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13022/46859.png",
+          "bytes": 55528,
+          "sha256": "7e7f5e04a50ea7def6769e9d4038b92af827ed7ae62b18d54e4398c48a1e0646",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13022/46860.png",
+          "bytes": 52916,
+          "sha256": "8004151b6129036e92a07089fd3c8d2e5cc2a475fde25eaebb3200420db3ec59",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13023/46857.png",
+          "bytes": 54806,
+          "sha256": "820acc9f049f2a5c48128c47059b0c8da0e14bf9f4ce853e88d7441acd8c860f",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13023/46858.png",
+          "bytes": 55494,
+          "sha256": "c13ebdf7ca5e9e8fea01c6d673a1b4269d9551224ce823ebf8e4631198b17df3",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13023/46859.png",
+          "bytes": 54504,
+          "sha256": "eecdba4354ceea3348481451d024da0ef172dc9882dbc3a99580d8099c0c2c6d",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13023/46860.png",
+          "bytes": 54003,
+          "sha256": "fd463863b26a9d7d994462d6d1926e8c0035163b18a2b323b4d0bfdbfeb76054",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13024/46857.png",
+          "bytes": 56648,
+          "sha256": "f4ee76859f388357424cb05ea1ab4ecde8e80a85c194db286a8617c5ec782815",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13024/46858.png",
+          "bytes": 54201,
+          "sha256": "8855d325939a707f44c97217c717c94f9ceb69471168bbda457df1109160ff64",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13024/46859.png",
+          "bytes": 46032,
+          "sha256": "22e43d97fc0464121fdf37eba563f2f152e62e0e4c2f6113ef1e55e54964f75d",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13024/46860.png",
+          "bytes": 43632,
+          "sha256": "3bf9b46e29a75abbd16f9c4d03b2c364648aecb39517564f6db36354539c252e",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13025/46857.png",
+          "bytes": 59485,
+          "sha256": "6238a06a3a54fe049b59864b9ac6bdbaaed560a0f63a8687d81cc13f8797f630",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13025/46858.png",
+          "bytes": 57685,
+          "sha256": "10585a7cc6f9d0464b7878b1894cf6c6e8a50e4df31e1aade7ed7b1048eeb5d5",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13025/46859.png",
+          "bytes": 50565,
+          "sha256": "536cefdb09c241d8be1d3ebf53010aa6130de65a0609f969a069f898bcb46fce",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13025/46860.png",
+          "bytes": 47587,
+          "sha256": "90ae50f60dc4eb4c9bc400475c184b29fc7a167f32bab2023634d7ac593be862",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13026/46857.png",
+          "bytes": 59841,
+          "sha256": "12cfb4820b6e133b5f9b1f74221095fb87b846682c2ad77de36719223235c8a6",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13026/46858.png",
+          "bytes": 58753,
+          "sha256": "e1a811beb4faa8bbd40aa77c4ab120e8db726cd8ba82444758d2bb34eb291711",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13026/46859.png",
+          "bytes": 56204,
+          "sha256": "98e2ce36016f4ecfdcb52380f066de81b02e33ac8b6ec149fe181d2db2171875",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/15/13026/46860.png",
+          "bytes": 53065,
+          "sha256": "781f77184107c0eb2c8ddce2dabc8e72f9881ded35a1c89ada17cd923cc5620d",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26045/93714.png",
+          "bytes": 48289,
+          "sha256": "d2ee9a1e6e653253ddf6ac8ccd1e4cea5b6a6c31f12f472adcc7f44b35d55a3b",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26045/93715.png",
+          "bytes": 49025,
+          "sha256": "37daa86f6e36293caa556ac60813b3430c3ec85152c30609f5b9b3643189af91",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26045/93716.png",
+          "bytes": 44693,
+          "sha256": "96a923ec8b624fddd856c721d8af61adde1168113c27eaeb853c5f61d439a7fd",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26045/93717.png",
+          "bytes": 42974,
+          "sha256": "9dfadc830313495b79dabf8050eb5820364541d70fcabe0d6dc10b90744f5cac",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26045/93718.png",
+          "bytes": 46608,
+          "sha256": "bcc7a332501302f5889caf11b5c74c2de70b7d4f34adc82d952d45683e1ae47b",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26045/93719.png",
+          "bytes": 47666,
+          "sha256": "8037a138aae6b406a82c16001dbc5e52728c68b3fbeeb71dd8761ace216f0bf7",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26045/93720.png",
+          "bytes": 48630,
+          "sha256": "721fce7cb543adf104b7d0a98c01d1027e974786bb1a90431f9430e9d4f86e5d",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26046/93714.png",
+          "bytes": 49492,
+          "sha256": "2c29cee1ab86be8eb25435adcbda3fc1b39ce8e6e748b197c3e2388014d79b16",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26046/93715.png",
+          "bytes": 48529,
+          "sha256": "837ecffb70b32f1dc59721bbe4c5d98fead7dfe368dc5860866c240f26c08142",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26046/93716.png",
+          "bytes": 50882,
+          "sha256": "e6420f51aa61d3f4148465caa3f2dcf45091997108569ff88e4631867fd55b06",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26046/93717.png",
+          "bytes": 53275,
+          "sha256": "b6527c586ec43601f6078a8b13f3fa1ab682a7c85507837d944b63872c48f6b5",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26046/93718.png",
+          "bytes": 47789,
+          "sha256": "a90c2d78c68c366c02019a5187584da52296a3e117ec362420f95e85cb93accc",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26046/93719.png",
+          "bytes": 47129,
+          "sha256": "002164c399df8e94dd5487cf2a529cac47bc592256fc5fb9143ee6fee7f8eef4",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26046/93720.png",
+          "bytes": 47343,
+          "sha256": "81aa2ec3cfaf4ce2d44bb5a9c67be4a61903b7cd6abad69370bf8e92e5c6f251",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26047/93714.png",
+          "bytes": 49948,
+          "sha256": "2e8e7fe0bd2e3a32bdaa749d5101475b5a2a61607f7066a68525954f5c07cec9",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26047/93715.png",
+          "bytes": 48423,
+          "sha256": "abd127934805c06dfa8eff18f920631bd6656eb5f6eed0429b8020313f47101b",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26047/93716.png",
+          "bytes": 43923,
+          "sha256": "bc280b7f3e4fe66a5f252297dcee45684d4b3791f3b037a5e548c14909f65566",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26047/93717.png",
+          "bytes": 46965,
+          "sha256": "a0302b9f98f087299adb7195a1d059d5d4061f0cf4c323ed132852c1d71ec455",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26047/93718.png",
+          "bytes": 46764,
+          "sha256": "af7a43085d52d94cd10d5c51248be045e8e7c35e90911510ddc7646c44dcee96",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26047/93719.png",
+          "bytes": 44600,
+          "sha256": "367ef6a5d4f5b886b66ddba6297a2ba957b2ed652010b73f5d75f366016ae586",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26047/93720.png",
+          "bytes": 46224,
+          "sha256": "c00ce68ee3b6e517ff8841f0f9e048f86446e904e8793d68d2bf338173975fa7",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26048/93714.png",
+          "bytes": 48093,
+          "sha256": "9f35bfaab8553267007753ae742271655f1b5d55e42fee2bc795c08f72400e40",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26048/93715.png",
+          "bytes": 50431,
+          "sha256": "47e0d16f74dd107a17d472d71deea17fde2e4d362f37e38d112d7e332fd2a5b3",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26048/93716.png",
+          "bytes": 46029,
+          "sha256": "c1a85922a03173758cdbc8c8139cc6bece3b3aecb536b4170515198329538ac9",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26048/93717.png",
+          "bytes": 45473,
+          "sha256": "cca892b2a8046b7709a4ce5f58d3e571b8f797a58c00d7dee6dfb5dee122ed06",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26048/93718.png",
+          "bytes": 41301,
+          "sha256": "ce76acda0b86b1d239fc0ee6798888d05610cefaeeb68aa893f448d45acb9c1b",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26048/93719.png",
+          "bytes": 38931,
+          "sha256": "2b90a92f20ab099c9b75a79496c0442a32fdfeae4f7a2a965e1b4caf68e9a2dc",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26048/93720.png",
+          "bytes": 39865,
+          "sha256": "a03988dcba5086ec95e3b0d4e2a10ea9045259aa0f072be97ea5438ab6d7acfe",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26049/93714.png",
+          "bytes": 49238,
+          "sha256": "dec16120df08698efe59ce738b9b5923cabba2ba48863c10768ae7728f57a1b3",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26049/93715.png",
+          "bytes": 49096,
+          "sha256": "3f76080240d0e80b42830672276f9342e2423cb389ba7f4e5234b07dbcbce894",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26049/93716.png",
+          "bytes": 48566,
+          "sha256": "ece01ec2312fb0e7d9c9c4f8efb973bb5ad4c7d5c2f51b56d7e97858bced0c19",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26049/93717.png",
+          "bytes": 48054,
+          "sha256": "3e3839760bc98eb5efd7d8401f621928c9e3522ea737675dcfbe645bcae2c328",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26049/93718.png",
+          "bytes": 40288,
+          "sha256": "cf4126bbd90b53258ffb894383d85e9ab7038717138ad48af78abc015bdadff7",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26049/93719.png",
+          "bytes": 34506,
+          "sha256": "9f27897309f127aeb139e114dfbc028b4bbb15265a4b737176d588ab1228a193",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26049/93720.png",
+          "bytes": 34896,
+          "sha256": "921c2c904b3817453b748e62f83ab58ab26748b50502a50f62ed522ad7dacad6",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26050/93714.png",
+          "bytes": 53133,
+          "sha256": "39586d62db9783cf0c7aa396677cd0e8ca4e5c4b7ef431e93f11a3c8a59a0ea7",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26050/93715.png",
+          "bytes": 51894,
+          "sha256": "e2fc7dc77fa44f443ff7ab85eb98635ced8048a26f8cda45ccf96ee958f0f94d",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26050/93716.png",
+          "bytes": 49248,
+          "sha256": "50afdf91b37d2519ffac748f4bbfa38f9799da42d6fd7e953ee0e2d968ae1687",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26050/93717.png",
+          "bytes": 46220,
+          "sha256": "828164a9005743c608dc2fda893d8de82073ccaa5ed591e3472bde04a829faa1",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26050/93718.png",
+          "bytes": 40756,
+          "sha256": "e12b43207ac5b64ed31b1ea57ac870ef8ef55f0ce1192399cd1c601d351c2b4c",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26050/93719.png",
+          "bytes": 40102,
+          "sha256": "9b8d17b4f9d31039eefbc8e998702e92d5041c0568820ce754170e18020efec4",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26050/93720.png",
+          "bytes": 36755,
+          "sha256": "905d8ba574f2f6dec73d72f97cb73c1b575c48c64d61157a7e8679045a61f394",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26051/93714.png",
+          "bytes": 53152,
+          "sha256": "324946d201edb9abfd4490d0993560822242670c724414b0762275f2db17a6da",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26051/93715.png",
+          "bytes": 52932,
+          "sha256": "45d4e5f8cbc3d8e53e927c7bc3edb4767ee8e22ac7c7d489f30357902e5fd6b2",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26051/93716.png",
+          "bytes": 53829,
+          "sha256": "69d68a271c7bd408aaf06a1b1dbc010b9624ad5eef9d5f03fa86caa23678328b",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26051/93717.png",
+          "bytes": 52511,
+          "sha256": "d1e64c2c92a8688415247b316757dbb26c497d21e1d6341a651122d639139c0f",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26051/93718.png",
+          "bytes": 46839,
+          "sha256": "92888938ecdfe35ee8fd533ea1002f444e3fbf035719ed5468d9694419d3638b",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26051/93719.png",
+          "bytes": 42679,
+          "sha256": "b48e67a1fc150138fa38147916948c3153477f492ca06bc840482e38817eba7c",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26051/93720.png",
+          "bytes": 43180,
+          "sha256": "a25e26c8ac9084f001bb1fc344e6b8543c3212ae21fc47a643549b1fcc8adf9d",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26052/93714.png",
+          "bytes": 53007,
+          "sha256": "935d7de365d560a70e9bee439e11760bf3dcc7031692a2cb3fe526766c21f6a0",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26052/93715.png",
+          "bytes": 52872,
+          "sha256": "bb32d347fdddfdbbb65b841babeca2ec83fec504cf259c7d06c5459c36cb1ec2",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26052/93716.png",
+          "bytes": 53513,
+          "sha256": "7dc080abc7c95cabf9b0bc64abaff74bb00d6af5634ea73ac411ae01998de73d",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26052/93717.png",
+          "bytes": 52789,
+          "sha256": "896f7b9ffd5aa274eacbbad84c5260f50af2ae91d6cf20f35458bb404ff04d87",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26052/93718.png",
+          "bytes": 48781,
+          "sha256": "e32902373db300bb6417ac75d62159765d4df01f71f2c43a7f3769411a42d3ab",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26052/93719.png",
+          "bytes": 47943,
+          "sha256": "9a80d56a8c9777c894fb2df8d558fe53b560ba714d0c9ddcc9a10f01c6e46670",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/hirise/16/26052/93720.png",
+          "bytes": 45877,
+          "sha256": "491acc228a2831a22ac4b19370305b95eb1f210d2aff7425ab0a347173d56e8e",
+          "mediaType": "image/png"
+        }
+      ]
+    },
+    {
+      "id": "jezero-ctx-dem",
+      "regionId": "jezero",
+      "title": "Altitudes CTX 20 m de Jezero (secteur du front du delta)",
+      "kind": "elevation",
+      "instrument": "Mars Reconnaissance Orbiter, caméra CTX (modèle numérique stéréo)",
+      "delivery": "local",
+      "source": {
+        "url": "https://planetarymaps.usgs.gov/mosaic/mars2020_trn/CTX/JEZ_ctx_B_soc_008_DTM_MOLAtopography_DeltaGeoid_20m_Eqc_latTs0_lon0.tif",
+        "retrievedAt": "2026-11-14T11:33:21Z",
+        "credit": "USGS Astrogeology Science Center ; NASA/JPL, Mars 2020 Terrain Relative Navigation CTX DTM",
+        "terms": {
+          "summary": "Conditions propres à ce produit non vérifiées ; appliquer au minimum la citation de la source et confirmer avant toute redistribution.",
+          "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+          "verified": false
+        },
+        "fingerprint": {
+          "target": "GeoTIFF",
+          "sha256": "16a1aa66c3f48c1bca252795827db7b417876217aff0f5e1aff18027fab2327b",
+          "bytes": 9662387
+        }
+      },
+      "acquisition": {
+        "date": null,
+        "sol": null,
+        "note": "Mosaïque de modèles stéréo CTX ; dates non relevées."
+      },
+      "units": {
+        "elevation": "metre"
+      },
+      "crs": "Equirectangular Mars 2000 Sphere IAU (central meridian 0, standard parallel 0), metres",
+      "extent": {
+        "west": 77.39496686675147,
+        "east": 77.41217488370675,
+        "north": 18.465098700126614,
+        "south": 18.444853974296876
+      },
+      "resolution": {
+        "value": 20.0,
+        "unit": "m/pixel"
+      },
+      "noData": {
+        "kind": "nan",
+        "sourceValue": -3.4028226550889045e+38,
+        "cellCount": 0
+      },
+      "status": "available",
+      "version": "soc_008",
+      "limitations": [
+        "Une maille de 20 m ne résout pas les blocs isolés et ne certifie aucune praticabilité à pied.",
+        "Datum vertical non documenté dans ce contrôle : ne pas le mélanger aux altitudes des prélèvements.",
+        "Recalage horizontal et vertical non validé indépendamment."
+      ],
+      "raster": {
+        "width": 51,
+        "height": 60,
+        "dtype": "float32",
+        "byteOrder": "little-endian",
+        "rowOrder": "north-to-south",
+        "pixelSizeMetres": 20.0
+      },
+      "files": [
+        {
+          "path": "jezero/dem/ctx-20m.f32",
+          "bytes": 12240,
+          "sha256": "c48571b271d3691e384ed3849affca8dfd257fad626ac450429e796097aee8c1",
+          "mediaType": "application/octet-stream"
+        }
+      ]
+    },
+    {
+      "id": "jezero-sampling-sites",
+      "regionId": "jezero",
+      "title": "Points de prélèvement Perseverance : Skinner Ridge, Wildcat Ridge, Amalik",
+      "kind": "sites",
+      "instrument": "Rover Perseverance (Mars 2020), positions de prélèvement publiées par NASA",
+      "delivery": "local",
+      "source": {
+        "url": "https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_SAMPLE_v3.json",
+        "retrievedAt": "2026-11-14T11:33:21Z",
+        "credit": "NASA/JPL-Caltech, Mars 2020 Perseverance, carte des prélèvements (mars.nasa.gov)",
+        "terms": {
+          "summary": "Contenu NASA réutilisable sans autorisation préalable pour un usage factuel sans suggestion de soutien ; NASA doit être citée comme source.",
+          "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+          "verified": true
+        },
+        "fingerprint": {
+          "target": "GeoJSON",
+          "sha256": "60d4b0a275ebcc6edd573fd768da085999a506a1661111e7f20f8d4b0aa1fcae",
+          "bytes": 11389
+        }
+      },
+      "acquisition": {
+        "date": null,
+        "sol": null,
+        "note": "Dates et sols propres à chaque prélèvement, conservés tels que publiés."
+      },
+      "units": {
+        "longitude": "degree",
+        "latitude": "degree",
+        "elevation": "metre"
+      },
+      "crs": "urn:ogc:def:crs:OGC:1.3:CRS84",
+      "extent": {
+        "west": 77.40144029,
+        "east": 77.40617493,
+        "south": 18.45072631,
+        "north": 18.45893136
+      },
+      "resolution": null,
+      "noData": {
+        "kind": "not-applicable"
+      },
+      "status": "available",
+      "version": "M20_SAMPLE_v3",
+      "limitations": [
+        "Points de prélèvement du rover, pas des positions humaines ni des centres d'affleurements.",
+        "Datum vertical de l'altitude non documenté dans le fichier source."
+      ],
+      "files": [
+        {
+          "path": "jezero/sites/sites.geojson",
+          "bytes": 2278,
+          "sha256": "f5ff324cbbef5562cbf733bbab599049984ee99c7b49bc56358f4d041b19b391",
+          "mediaType": "application/geo+json"
+        }
+      ]
+    }
+  ],
+  "sites": [
+    {
+      "id": "skinner-ridge",
+      "name": "Skinner Ridge",
+      "regionId": "jezero",
+      "datasetId": "jezero-sampling-sites",
+      "coordinate": {
+        "longitude": 77.40617493,
+        "latitude": 18.45893136
+      },
+      "elevation": {
+        "value": -2520.188,
+        "unit": "metre",
+        "datum": null
+      },
+      "sol": "490 & 495",
+      "date": "Jul. 7&12, 2022",
+      "sampleName": "Swift Run + Skyland",
+      "rockType": "Sedimentary"
+    },
+    {
+      "id": "wildcat-ridge",
+      "name": "Wildcat Ridge",
+      "regionId": "jezero",
+      "datasetId": "jezero-sampling-sites",
+      "coordinate": {
+        "longitude": 77.40588851,
+        "latitude": 18.45863707
+      },
+      "elevation": {
+        "value": -2523.0974,
+        "unit": "metre",
+        "datum": null
+      },
+      "sol": "509 & 516",
+      "date": "Jul. 27&Aug. 3, 2022",
+      "sampleName": "Hazeltop + Bearwallow",
+      "rockType": "Sedimentary"
+    },
+    {
+      "id": "amalik",
+      "name": "Amalik",
+      "regionId": "jezero",
+      "datasetId": "jezero-sampling-sites",
+      "coordinate": {
+        "longitude": 77.40144029,
+        "latitude": 18.45072631
+      },
+      "elevation": {
+        "value": -2526.525146,
+        "unit": "metre",
+        "datum": null
+      },
+      "sol": "575 & 579",
+      "date": "Oct. 2&6, 2022",
+      "sampleName": "Shuyak + Mageik",
+      "rockType": "Sedimentary"
+    }
+  ]
+}

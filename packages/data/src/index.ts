@@ -1,4 +1,6 @@
 import type { MarsCoordinate } from '@marps/mission-core';
+import { loadManifest } from './coverage';
+import type { DatasetDescriptor } from './contracts';
 
 export interface RegionDefinition {
   readonly id: string;
@@ -6,21 +8,10 @@ export interface RegionDefinition {
   readonly center: MarsCoordinate;
 }
 
-export interface DatasetDescriptor {
-  readonly id: string;
-  readonly regionId: string;
-  readonly title: string;
-  readonly sourceUrl: string;
-  readonly localPath: string;
-  readonly attribution: string;
-}
-
-/** Navigation metadata only; no scientific dataset has been integrated yet. */
+/** Navigation metadata only. Scientific coverage comes from the manifest, never from this list. */
 export const regions = [
   { id: 'jezero', name: 'Jezero', center: { longitude: 77.58, latitude: 18.44 } },
 ] as const satisfies readonly RegionDefinition[];
-
-export const datasets: readonly DatasetDescriptor[] = [];
 
 export interface Catalog {
   readonly regions: readonly RegionDefinition[];
@@ -28,9 +19,14 @@ export interface Catalog {
 }
 
 /**
- * Point d'entrée asynchrone du catalogue : l'interface gère déjà l'attente et
- * l'échec, que le manifeste préparé par #6 soit embarqué ou récupéré.
+ * Point d'entrée asynchrone du catalogue : les jeux de données viennent du
+ * manifeste figé servi avec l'application, jamais d'une liste codée en dur.
+ * Une erreur de lecture remonte à l'interface, qui affiche l'état d'échec.
  */
 export async function loadCatalog(): Promise<Catalog> {
-  return { regions, datasets };
+  const manifest = await loadManifest();
+  return { regions, datasets: manifest.datasets };
 }
+
+export * from './contracts';
+export * from './coverage';

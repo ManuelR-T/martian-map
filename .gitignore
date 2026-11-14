@@ -8,3 +8,7 @@ coverage/
 .DS_Store
 
 .vercel/
+tools/data/.venv/
+tools/data/.cache/
+__pycache__/
+.pytest_cache/
