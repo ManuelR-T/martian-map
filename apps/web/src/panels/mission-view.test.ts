@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { expect, it, vi } from 'vitest';
 import { createEmptyMission } from '@marps/mission-core';
 import { createMissionExport } from '../export';
-import { PrintMission } from './MissionEditor';
+import { PrintMission } from './MissionUtilities';
 import { BudgetPanel } from './BudgetPanel';
 const { state } = vi.hoisted(() => ({
   state: { mission: null as unknown, catalog: { status: 'loading' } },

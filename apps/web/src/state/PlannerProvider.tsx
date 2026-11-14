@@ -6,7 +6,7 @@ import {
   type Dispatch,
   type ReactNode,
 } from 'react';
-import { restoreMission, saveMission } from './storage';
+import { restoreLibrary, activeMission, LIBRARY_KEY } from './library';
 import { loadCatalog, type Catalog } from '@marps/data';
 import {
   initialPlannerState,
@@ -36,12 +36,13 @@ export function PlannerProvider({
     initialPlannerState,
     (initial) => {
       try {
-        const restored = restoreMission(window.localStorage);
+        const restored = restoreLibrary(window.localStorage);
         return {
           ...initial,
-          mission: restored.mission,
+          library: restored.library,
+          mission: activeMission(restored.library),
           storageMessage: restored.message,
-          autoSave: !restored.message.startsWith('Restauration impossible'),
+          autoSave: restored.writable,
         };
       } catch {
         return {
@@ -57,7 +58,7 @@ export function PlannerProvider({
   useEffect(() => {
     if (!state.autoSave) return;
     try {
-      saveMission(window.localStorage, state.mission);
+      window.localStorage.setItem(LIBRARY_KEY, JSON.stringify(state.library));
     } catch {
       dispatch({
         type: 'storageStatus',
@@ -66,7 +67,7 @@ export function PlannerProvider({
         autoSave: false,
       });
     }
-  }, [state.mission, state.autoSave]);
+  }, [state.library, state.autoSave]);
 
   useEffect(() => {
     let active = true;

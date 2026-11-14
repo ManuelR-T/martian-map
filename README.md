@@ -63,13 +63,17 @@ tâches suivantes.
 
 ## Interface et système de design
 
-Sur l'écran de planification (`apps/web`), la carte occupe toute la surface
-sous le bandeau. Le sélecteur de vue (globale ou Jezero), les étapes, le budget
-de temps et la fiche de site flottent par-dessus ; chaque panneau se replie par
-son titre pour dégager la carte. Sous 1024 px, la carte reste en haut et les
-panneaux défilent dessous. Tant que leurs données ne sont pas intégrées, ces
-emplacements affichent un état explicite. La page `#/systeme-design` de l'application montre les jetons, les
-composants et ces états, avec des contenus d'exemple signalés comme tels.
+L'application s'ouvre sur une bibliothèque de missions. La création guidée propose
+un exemple du delta ou un plan vide. Chaque mission possède trois onglets :
+parcours et activités, prévisionnel, versions et historique. Les plans archivés
+restent consultables et leurs versions se restaurent dans une nouvelle mission.
+Les vues s'adaptent au mobile sans superposer des formulaires à la carte.
+
+Le schéma du parcours montre les stations et le retour au camp. Le fond OpenLayers
+est consultable séparément ; sa couche interactive de mission reste à relier.
+Les photos scientifiques et les sites viennent du catalogue local. Le guide
+[mission et hypothèses](docs/mission-kanda09.md) décrit les fonctionnalités,
+la migration des sauvegardes et les limites des calculs.
 
 - **Un seul état partagé.** `apps/web/src/state/planner.ts` contient le
   réducteur et les sélecteurs, testables sans React ; `PlannerProvider` les

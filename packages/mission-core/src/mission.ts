@@ -56,6 +56,7 @@ export interface DataReference {
 }
 export interface Mission {
   readonly schemaVersion: 1;
+  readonly objective?: string;
   readonly id: string;
   readonly name: string;
   readonly regionId: string;
@@ -154,6 +155,8 @@ export function validateMission(m: Mission): Mission {
   if (m.schemaVersion !== 1)
     throw new Error('Version de mission incompatible.');
   [m.id, m.name, m.regionId].forEach(nonEmpty);
+  if (m.objective !== undefined && typeof m.objective !== 'string')
+    throw new Error('Objectif invalide.');
   nonNegative(m.radiusMetres, 'Rayon');
   if (!m.radiusMetres) throw new Error('Rayon nul.');
   if (m.camp !== null) validateCoordinate(m.camp);
@@ -239,14 +242,12 @@ export function routeSegments(m: Mission): RouteSegment[] {
     ...m.steps.map((s) => ({ id: `step:${s.id}`, position: s.position })),
     { id: 'camp', position: m.camp },
   ];
-  return nodes
-    .slice(1)
-    .map((node, i) => ({
-      id: `${nodes[i]!.id}>${node.id}`,
-      from: nodes[i]!.position,
-      to: node.position,
-      returning: i === nodes.length - 2,
-    }));
+  return nodes.slice(1).map((node, i) => ({
+    id: `${nodes[i]!.id}>${node.id}`,
+    from: nodes[i]!.position,
+    to: node.position,
+    returning: i === nodes.length - 2,
+  }));
 }
 export type MissionAction =
   | { type: 'replace'; mission: Mission }

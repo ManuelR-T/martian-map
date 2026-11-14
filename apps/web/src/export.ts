@@ -28,7 +28,7 @@ export function createMissionExport(mission: Mission, catalog: Catalog | null) {
         }
       : null,
     coverageWarnings: [
-      'Carte et profil de terrain non intégrés : aucune couche cartographique déclarée chargée.',
+      'Tracé de mission et profil de terrain non reliés ; aucune couche cartographique déclarée chargée dans cet export.',
       ...(catalog ? [] : ['Catalogue indisponible.']),
       ...(mission.parameters.oxygen.flatTerrain
         ? ['O₂ : hypothèse de terrain plat simulée.']

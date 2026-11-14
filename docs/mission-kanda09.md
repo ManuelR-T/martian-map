@@ -40,3 +40,32 @@ Domaine numérique de l'éditeur : paramètres non négatifs finis jusqu'à 10�
 `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`.
 
 Les tests couvrent le schéma et les entrées invalides, les transitions, les distances analytiques et l'antiméridien, le retour, les unités, les événements cumulés/annulés, la restauration, le stockage indisponible, les références manquantes, la cohérence de l'export et le modèle O₂ (pente directionnelle, NoData, bilan et effet non monotone de la vitesse).
+
+## Refonte du parcours utilisateur et synchronisation avec dev
+
+La branche intègre `origin/dev` (carte globale et locale de contexte, fiches/photographies des sites et grilles de relief). La nouvelle interface conserve ces données et leurs sources. Le modèle de consommation reste indisponible sans pentes directionnelles fournies ou activation explicite du terrain plat.
+
+Le parcours est maintenant organisé en pages accessibles par URL :
+
+1. `#/` : bibliothèque des missions en préparation ; reprise et duplication ; exemple du delta.
+2. `#/nouvelle` : création guidée, nom et objectif scientifique, exemple ou plan vide, temps/réserve/vitesse. Les formulaires appliquent les changements explicitement.
+3. `#/mission` : trois onglets — parcours et activités, prévisionnel, versions et historique. Photos scientifiques, contexte des sites et protocole proposé sont consultables avant l'ajout. Un schéma géographique montre l'ordre et le retour ; le fond OpenLayers reste consultable séparément. `MissionMapAdapterProps` définit les callbacks pour la future couche interactive de mission.
+4. `#/historique` : plans archivés, consultables sans modification. Une version se restaure dans une nouvelle mission, sans écraser l'original.
+5. `#/sources` : provenance et distinction observations/scénario.
+
+Le prévisionnel regroupe distance, temps de terrain, activités et marge. La chronologie part du départ au camp et inclut le retour. Les événements donnent une comparaison explicite entre la marge de référence et la marge simulée. Les coefficients O₂ restent dans un panneau avancé optionnel.
+
+La bibliothèque est stockée sous `marps.library.v1`. Chaque plan a un identifiant, des dates de création et de modification, un statut d'archive et des instantanés nommés. L'ancienne clé `marps.mission.v1` est migrée si aucune bibliothèque n'existe ; son contenu n'est pas supprimé. Une bibliothèque vide après suppression empêche une migration répétée. Un échec de lecture suspend les écritures : les anciens octets sont préservés, de nouveaux plans peuvent être préparés en mémoire et exportés. Les données ne sont pas synchronisées entre appareils.
+
+### Sources supplémentaires consultées
+
+- [Mars Trek, EPSC 2017](https://meetingorganizer.copernicus.org/EPSC2017/EPSC2017-99.pdf) : rapprocher produits cartographiques, sélection des sites et analyse des trajets.
+- [Échantillons de Jezero, EPSC 2024](https://meetingorganizer.copernicus.org/EPSC2024/EPSC2024-1049.html) : descriptions minéralogiques de Skinner Ridge, Wildcat Ridge et Amalik. Les exemples reprennent exclusivement les positions du manifeste local, pas des coordonnées estimées depuis les articles.
+- [Scientific American, septembre 2022](https://www.scientificamerican.com/article/perseverance-mars-rover-makes-fantastic-find-in-search-for-past-life/) : contexte journalistique, recoupé avec NASA/JPL et EPSC. La présence de matière organique n'est pas une preuve de vie.
+- [CNN, lien fourni](https://amp.cnn.com/cnn/2022/09/15/world/perseverance-rover-mars-images-scn) : inaccessible via l'outil de recherche lors de cette intervention ; aucun fait supplémentaire n'en a été importé.
+
+AEGIS est une inspiration d'organisation sortie/stations/activités. Aucun code de ce projet n'a été copié et aucun backend NASA n'est requis à l'exécution.
+
+### Vérification de la refonte
+
+Les tests automatisés couvrent la migration, les missions multiples, l'archivage, les révisions immuables, la restauration, la suppression sans résurrection de l'ancienne sauvegarde et les exemples scientifiques issus du manifeste. Un parcours Chromium a vérifié création à vide et depuis l'exemple, activité, événement/annulation, instantané, archivage/restauration, rechargement et bibliothèque. Les onglets de planification ont été contrôlés sans débordement horizontal à 320, 390, 768 et 1440 px.
