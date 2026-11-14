@@ -138,8 +138,9 @@ function ProfileChart({ grid, stops, threshold }: ProfileChartProps) {
   const stopDistances = profile.flatMap((point) => (point.vertexIndex === undefined ? [] : [point.distanceMetres]));
 
   return (
-    <figure className="m-0 grid gap-1">
-      <div className="flex gap-2">
+    // minmax(0, 1fr): without it the grid column grows to the 1000-unit SVG and overflows the panel.
+    <figure className="m-0 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-1">
+      <div className="flex min-w-0 gap-2">
         <div className="flex w-16 shrink-0 flex-col justify-between py-1 text-right text-xs text-muted-foreground tabular-nums">
           <span>{formatMetres(high)}</span>
           <span>{formatMetres(low)}</span>
@@ -147,7 +148,7 @@ function ProfileChart({ grid, stops, threshold }: ProfileChartProps) {
         <svg
           viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
           preserveAspectRatio="none"
-          className="h-28 min-w-0 flex-1 border bg-muted/40"
+          className="h-28 w-full min-w-0 flex-1 border bg-muted/40"
           role="img"
           aria-label={`Profil d'altitude sur ${formatMetres(total)}, entre ${formatMetres(low)} et ${formatMetres(high)}.`}
         >
