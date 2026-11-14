@@ -1,0 +1,116 @@
+{
+  "sol": 500,
+  "sources": [
+    {
+      "kind": "temperature",
+      "source_csv": "https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_calibrated_env/sol_0420_0539/sol_0500/WE__0500___________CAL_ATS_________________P01.CSV",
+      "source_label": "https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_calibrated_env/sol_0420_0539/sol_0500/WE__0500___________CAL_ATS_________________P01.xml",
+      "csv_status": 206,
+      "content_range": "bytes 0-65535/2518142",
+      "excerpt_file": "temperature-sol0500-first100lines.csv",
+      "excerpt_lines": 100,
+      "label_file": "WE__0500___________CAL_ATS_________________P01.xml",
+      "fields": [
+        {
+          "name": "SCLK",
+          "field_number": "1",
+          "unit": "second",
+          "description": "\n            Spacecraft Clock, as approximated by MEDA internal clock,\n            at the time of the observation, without partition and\n            including decimal thousandths of a second\n          "
+        },
+        {
+          "name": "LMST",
+          "field_number": "2",
+          "unit": null,
+          "description": "Local Mean Solar Time"
+        },
+        {
+          "name": "LTST",
+          "field_number": "3",
+          "unit": null,
+          "description": "Local True Solar Time"
+        },
+        {
+          "name": "ATS_LOCAL_TEMP1",
+          "field_number": "4",
+          "unit": "kelvin",
+          "description": "Local air temperature near the unit mounted on the RSM at 50\u00ba"
+        },
+        {
+          "name": "ATS_LOCAL_TEMP2",
+          "field_number": "5",
+          "unit": "kelvin",
+          "description": "Local air temperature near the unit mounted on the RSM at 155\u00ba"
+        },
+        {
+          "name": "ATS_LOCAL_TEMP3",
+          "field_number": "6",
+          "unit": "kelvin",
+          "description": "Local air temperature near the unit mounted on the RSM at 290\u00ba"
+        },
+        {
+          "name": "ATS_LOCAL_TEMP4",
+          "field_number": "7",
+          "unit": "kelvin",
+          "description": "Local air temperature near the unit mounted on the RFB at Port side/Pilot"
+        },
+        {
+          "name": "ATS_LOCAL_TEMP5",
+          "field_number": "8",
+          "unit": "kelvin",
+          "description": "Local air temperature near the unit mounted on the RFB at Starboard/Co-pilot"
+        }
+      ],
+      "scope": "Access/format check on partial CSV; not a cleaned or validated weather summary"
+    },
+    {
+      "kind": "pressure",
+      "source_csv": "https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_derived_env/sol_0420_0539/sol_0500/WE__0500___________DER_PS__________________P01.CSV",
+      "source_label": "https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_derived_env/sol_0420_0539/sol_0500/WE__0500___________DER_PS__________________P01.xml",
+      "csv_status": 206,
+      "content_range": "bytes 0-65535/1687719",
+      "excerpt_file": "pressure-sol0500-first100lines.csv",
+      "excerpt_lines": 100,
+      "label_file": "WE__0500___________DER_PS__________________P01.xml",
+      "fields": [
+        {
+          "name": "SCLK",
+          "field_number": "1",
+          "unit": "second",
+          "description": "\n            Spacecraft Clock, as approximated by MEDA internal clock,\n            at the time of the observation, without partition and\n            including decimal thousandths of a second\n          "
+        },
+        {
+          "name": "LMST",
+          "field_number": "2",
+          "unit": null,
+          "description": "Local Mean Solar Time"
+        },
+        {
+          "name": "LTST",
+          "field_number": "3",
+          "unit": null,
+          "description": "Local True Solar Time"
+        },
+        {
+          "name": "PRESSURE",
+          "field_number": "4",
+          "unit": "pascal",
+          "description": "Pressure"
+        },
+        {
+          "name": "PRESSURE UNCERTAINTY",
+          "field_number": "5",
+          "unit": "kelvin",
+          "description": "Pressure uncertainty"
+        },
+        {
+          "name": "TRANSDUCER",
+          "field_number": "6",
+          "unit": null,
+          "description": "Transducer used: 1 / 2"
+        }
+      ],
+      "scope": "Access/format check on partial CSV; not a cleaned or validated weather summary"
+    }
+  ],
+  "wind_for_sol_500": "No wind product found in inspected calibrated and derived sol_0500 directories"
+}

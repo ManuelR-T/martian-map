@@ -1,0 +1,9 @@
+{
+"type": "FeatureCollection",
+"name": "M20_SAMPLE_tosol1483",
+"features": [
+{ "type": "Feature", "properties": { "sample_num": "10 & 11", "date": "Jul. 7&12, 2022", "sol": "490 & 495", "sample_name": "Swift Run + Skyland", "outcrop_name": "Skinner Ridge", "sample_location": "Fan Front", "sample_type": "Rock Core", "sample_ht_cm": "6.08", "sample_ht_in": "2.39", "rock_type": "Sedimentary", "easting": 4351980.326, "northing": 1094147.573, "elev": -2520.188, "lon": 77.40617493, "lat": 18.45893136 }, "geometry": { "type": "Point", "coordinates": [ 77.40617493, 18.45893136, -2520.188 ] } },
+{ "type": "Feature", "properties": { "sample_num": "12 & 13", "date": "Jul. 27&Aug. 3, 2022", "sol": "509 & 516", "sample_name": "Hazeltop + Bearwallow", "outcrop_name": "Wildcat Ridge", "sample_location": "Fan Front", "sample_type": "Rock Core", "sample_ht_cm": "3.07", "sample_ht_in": "1.21", "rock_type": "Sedimentary", "easting": 4351964.223, "northing": 1094130.129, "elev": -2523.0974, "lon": 77.40588851, "lat": 18.45863707 }, "geometry": { "type": "Point", "coordinates": [ 77.40588851, 18.45863707, -2523.0974 ] } },
+{ "type": "Feature", "properties": { "sample_num": "14 & 15", "date": "Oct. 2&6, 2022", "sol": "575 & 579", "sample_name": "Shuyak + Mageik", "outcrop_name": "Amalik", "sample_location": "Fan Front", "sample_type": "Rock Core", "sample_ht_cm": "6.50", "sample_ht_in": "2.56", "rock_type": "Sedimentary", "easting": 4351714.133, "northing": 1093661.221, "elev": -2526.525146, "lon": 77.40144029, "lat": 18.45072631 }, "geometry": { "type": "Point", "coordinates": [ 77.40144029, 18.45072631, -2526.525146 ] } }
+]
+}
