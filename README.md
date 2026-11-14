@@ -131,19 +131,20 @@ global, et exporter le composant depuis `src/index.ts`.
 ## Données
 
 Les données du MVP sont **figées dans le dépôt** sous `apps/web/public/data`
-(environ 5 Mo) et servies en statique à l'adresse `/data/`. `pnpm build`,
+(environ 5,4 Mo) et servies en statique à l'adresse `/data/`. `pnpm build`,
 `pnpm test` et l'application ne contactent jamais NASA ni USGS.
 
 | Jeu de données | Livraison | Contenu |
 | --- | --- | --- |
 | `mola-colorized-relief` | distante (Trek) | Fond mondial d'orientation, non figé |
 | `jezero-hirise-mosaic` | figée | Tuiles HiRISE WMTS, zooms 12 à 16, sur le secteur |
-| `jezero-ctx-dem` | figée | Altitudes CTX 20 m du secteur, float32 (`NaN` = pas de donnée) |
+| `jezero-hirise-dem`, `-slope`, `-hillshade` | figée | Altitudes, pentes et relief ombré HiRISE, agrégés à 4 m |
+| `jezero-ctx-dem`, `-slope`, `-hillshade` | figée | Les mêmes grilles à 20 m (CTX), en repli |
 | `jezero-sampling-sites` | figée | Skinner Ridge, Wildcat Ridge et Amalik (GeoJSON NASA) |
 
 Le manifeste sépare l'**orientation globale** (région `global`) du **détail de
 Jezero** (région `jezero`). Chaque capacité (`imagery-hirise`, `terrain-dem`,
-`science-sites`, `thermal-themis`…) porte son statut ; une capacité non préparée
+`terrain-slope`, `science-sites`, `thermal-themis`…) porte son statut ; une capacité non préparée
 est `unavailable` avec sa raison. Un fond ne peut jamais activer une donnée
 absente : `capabilityStatus` de `@marps/data` ne retient que les jeux déclarés
 pour la région demandée et prend le statut le plus faible.
@@ -153,7 +154,13 @@ CRS, emprise (degrés planétocentriques, longitude positive vers l'est),
 résolution, statut, version de la source, crédit, conditions d'usage, empreinte
 SHA-256 de la source amont et de chaque fichier figé. Une valeur inconnue reste
 `null` (date, sol, datum vertical) ; une absence de donnée n'est jamais convertie
-en zéro : pixels transparents pour l'imagerie, `NaN` pour l'altitude.
+en zéro : pixels transparents pour les images, `NaN` pour l'altitude et la pente.
+
+Altitudes et pentes sont des grilles float32 (`NaN` = pas de donnée) dont le
+manifeste donne l'origine, le pas, la projection et le datum vertical.
+`terrainDataset`, `loadGrid` et `sampleGrid` de `@marps/data` les lisent ; HiRISE
+est préféré, CTX prend le relais s'il manque. La taille de maille n'est pas une
+précision de navigation. Détails et limites : [`docs/relief-jezero.md`](docs/relief-jezero.md).
 
 ### Préparer et vérifier
 
@@ -169,14 +176,17 @@ pnpm data:test      # tests des scripts
 
 `data:prepare` écrit dans un dossier temporaire, valide, puis remplace
 `apps/web/public/data` ; un échec réseau ou de validation laisse les données
-actuelles intactes. Le DEM CTX est mis en cache dans `tools/data/.cache` (ignoré
-par Git) et son empreinte est vérifiée : si la source amont change, la préparation
+actuelles intactes. Le DEM CTX et le bloc de lignes lu dans le DEM HiRISE (103 Mo
+sur 1,8 Go, par requête `Range`) sont mis en cache dans `tools/data/.cache` (ignoré
+par Git) et leur empreinte est vérifiée : si une source amont change, la préparation
 s'arrête pour revue. Le secteur, les URL et les crédits sont dans
 `tools/data/marps_data/spec.py`.
 
 `data:check` contrôle : champs requis, emprises et coordonnées valides, sites dans
 le secteur, tailles et empreintes des fichiers, unités, `NaN` des altitudes
-(aucune valeur sentinelle), pixels transparents, et cohérence statut/capacités.
+(aucune valeur sentinelle), pixels transparents, transformation des grilles,
+présence de chaque site sur une maille valide, pentes entre 0° et 90° sur la même
+grille que leurs altitudes, et cohérence statut/capacités.
 Les notes de recherche sont dans [`docs/`](docs/) et les échantillons de contrôle
 dans [`data/research/`](data/research/).
 

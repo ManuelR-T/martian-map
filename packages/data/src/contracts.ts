@@ -1,7 +1,7 @@
 import type { MarsCoordinate } from '@marps/mission-core';
 
 /** Manifest format produced by tools/data; bump with `SCHEMA_VERSION` in tools/data/marps_data/spec.py. */
-export const MANIFEST_SCHEMA_VERSION = 1;
+export const MANIFEST_SCHEMA_VERSION = 2;
 
 /** Lon/lat box in planetocentric degrees, longitude positive east. */
 export interface Extent {
@@ -13,7 +13,8 @@ export interface Extent {
 
 /** `partial` means holes exist (NoData); `unavailable` means nothing usable. Never infer coverage from a basemap. */
 export type DataStatus = 'available' | 'partial' | 'unavailable';
-export type DatasetKind = 'basemap' | 'imagery' | 'elevation' | 'sites';
+/** `slope` and `hillshade` are computed from the `elevation` dataset named by `derivedFrom`. */
+export type DatasetKind = 'basemap' | 'imagery' | 'elevation' | 'slope' | 'hillshade' | 'sites';
 /** `local` files are frozen under the data root; `remote` is streamed and not available offline. */
 export type DatasetDelivery = 'local' | 'remote';
 export type RegionKind = 'orientation' | 'detailed';
@@ -54,7 +55,7 @@ export interface Resolution {
   readonly unit: 'm/pixel';
 }
 
-/** Absent data is never encoded as 0: transparent pixels for imagery, NaN for elevation. */
+/** Absent data is never encoded as 0: transparent pixels for images, NaN for elevation and slope. */
 export type NoDataPolicy =
   | { readonly kind: 'not-applicable' }
   | { readonly kind: 'alpha-channel'; readonly transparentPixelCount: number }
@@ -85,14 +86,39 @@ export interface TileSet {
   readonly finestMetresPerPixel: number;
 }
 
-/** Row-major float32 grid, first row at the north edge; NaN marks NoData. */
+/**
+ * Row-major float32 grid, first row at the north edge; NaN marks NoData.
+ *
+ * Cell (row, column) covers x from `origin.x + column * pixelSizeMetres` and y down from
+ * `origin.y - row * pixelSizeMetres`, where x = R * longitude and y = R * latitude in radians.
+ */
 export interface RasterGrid {
   readonly width: number;
   readonly height: number;
   readonly dtype: 'float32';
   readonly byteOrder: 'little-endian';
   readonly rowOrder: 'north-to-south';
+  /**
+   * Cell size in projected metres. On the ground a cell is this long north-south
+   * but only `pixelSizeMetres * cos(latitude)` wide east-west.
+   */
   readonly pixelSizeMetres: number;
+  /** Projected metres of the north-west corner of the grid. */
+  readonly origin: { readonly x: number; readonly y: number };
+  readonly projection: {
+    readonly name: 'equirectangular';
+    readonly centralMeridian: 0;
+    readonly standardParallel: 0;
+    readonly radiusMetres: number;
+  };
+  /** How source pixels were merged into a cell; null when the grid keeps the source pixels. */
+  readonly aggregation: {
+    readonly method: 'block-mean';
+    readonly factor: number;
+    readonly sourcePixelSizeMetres: number;
+  } | null;
+  /** A cell size is a sampling step, not a positioning accuracy: never present it as one. */
+  readonly navigationGrade: false;
 }
 
 export interface DatasetDescriptor {
@@ -118,7 +144,12 @@ export interface DatasetDescriptor {
   readonly limitations: readonly string[];
   readonly files: readonly FrozenFile[];
   readonly tileset?: TileSet;
+  /** Present for `elevation` and `slope`. A `hillshade` image covers the grid of `derivedFrom`. */
   readonly raster?: RasterGrid;
+  /** Reference surface of the elevations; only for `elevation`. */
+  readonly verticalDatum?: string;
+  /** Id of the elevation dataset a `slope` or `hillshade` was computed from. */
+  readonly derivedFrom?: string;
 }
 
 export interface SiteDescriptor {
