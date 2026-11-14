@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Catalog, DatasetDescriptor } from '@marps/data';
+import type { Catalog, DatasetDescriptor, DataManifest } from '@marps/data';
 import {
   initialPlannerState,
   plannerReducer,
@@ -10,7 +10,8 @@ import {
 } from './planner';
 
 const jezero = { id: 'jezero', name: 'Jezero', center: { longitude: 77.58, latitude: 18.44 } };
-const emptyCatalog: Catalog = { regions: [jezero], datasets: [], sites: [] };
+const manifest = { schemaVersion: 1, generatedAt: '2026-11-14', regions: [], datasets: [], sites: [] } as unknown as DataManifest;
+const emptyCatalog: Catalog = { regions: [jezero], datasets: [], sites: [], manifest };
 const exampleDataset: DatasetDescriptor = {
   id: 'exemple',
   regionId: 'jezero',
@@ -36,7 +37,7 @@ const exampleDataset: DatasetDescriptor = {
   limitations: [],
   files: [],
 };
-const catalogWithDataset: Catalog = { regions: [jezero], datasets: [exampleDataset], sites: [] };
+const catalogWithDataset: Catalog = { regions: [jezero], datasets: [exampleDataset], sites: [], manifest };
 
 const loaded = (catalog: Catalog, state: PlannerState = initialPlannerState) =>
   plannerReducer(state, { type: 'catalogLoaded', request: state.catalogRequest, catalog });
@@ -87,6 +88,15 @@ describe('état de planification', () => {
 
     const back = plannerReducer(global, { type: 'viewChanged', view: 'region' });
     expect(selectPlanningStatus(back)).toBe('ready');
+  });
+
+  it('conserve le manifeste et la provenance lors de la sélection et du changement de vue', () => {
+    const state = loaded(catalogWithDataset);
+    const selected = plannerReducer(state, { type: 'siteSelected', siteId: 'amalik' });
+    const global = plannerReducer(selected, { type: 'viewChanged', view: 'global' });
+    const back = plannerReducer(global, { type: 'viewChanged', view: 'region' });
+    expect(back.catalog).toBe(state.catalog);
+    expect(back.selectedSiteId).toBe('amalik');
   });
 
   it('conserve la même référence quand une action ne change rien', () => {

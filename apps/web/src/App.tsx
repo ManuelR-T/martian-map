@@ -6,10 +6,12 @@ import { SiteDetailsPanel } from './panels/SiteDetailsPanel';
 import { PlannerMap } from './features/map/PlannerMap';
 import { OfflineStatus } from './offline/OfflineStatus';
 import './responsive.css';
+import { SourcesPage } from './panels/Provenance';
 import { StepsPanel } from './panels/StepsPanel';
 
 const DesignSystemPage = lazy(() => import('./design-system/DesignSystemPage'));
 
+const SOURCES_HASH = '#/sources';
 const DESIGN_SYSTEM_HASH = '#/systeme-design';
 const CONTENT_ID = 'contenu';
 
@@ -30,14 +32,17 @@ const floatingPanel = 'power-on pointer-events-auto';
 
 export function App() {
   const [mobilePage, setMobilePage] = useState<'map' | 'mission'>('map');
-  const showsDesignSystem = useHash() === DESIGN_SYSTEM_HASH;
+  const hash = useHash();
+  const showsDesignSystem = hash === DESIGN_SYSTEM_HASH;
+  const showsSources = hash === SOURCES_HASH;
+  const showsPage = showsDesignSystem || showsSources;
 
   useEffect(() => {
-    document.title = showsDesignSystem ? 'Marps – Système de design' : 'Marps';
-  }, [showsDesignSystem]);
+    document.title = showsDesignSystem ? 'Marps – Système de design' : showsSources ? 'Marps – Sources et limites' : 'Marps';
+  }, [showsDesignSystem, showsSources]);
 
   return (
-    <div data-mobile-page={mobilePage} className={showsDesignSystem ? 'flex min-h-dvh flex-col' : 'planner-app flex min-h-dvh flex-col xl:h-dvh'}>
+    <div data-mobile-page={mobilePage} className={showsPage ? 'flex min-h-dvh flex-col' : 'planner-app flex min-h-dvh flex-col xl:h-dvh'}>
       {/* Bandeau nuit, identique dans les deux thèmes : il porte la portée `dark` pour que ses contrôles et son focus en héritent. */}
       <header className="dark relative z-20 flex flex-wrap items-center gap-x-3 gap-y-1 bg-header px-4 py-1.5 text-header-foreground">
         <a
@@ -60,8 +65,9 @@ export function App() {
             Préparer une sortie scientifique à Jezero
           </p>
         </div>
-        <nav aria-label="Pages">
-          {showsDesignSystem ? (
+        <nav aria-label="Pages" className="flex flex-wrap">
+          {!showsSources ? <a href={SOURCES_HASH} className={headerLink}>Sources et limites</a> : null}
+          {showsPage ? (
             <a href="#/" className={headerLink}>
               Planification
             </a>
@@ -76,12 +82,16 @@ export function App() {
         <span aria-hidden="true" className="horizon-draw absolute inset-x-0 -bottom-0.5 h-0.5 bg-[image:var(--horizon)]" />
       </header>
       <OfflineStatus />
-      {!showsDesignSystem && <nav className="compact-navigation" aria-label="Écran de mission">
+      {!showsPage && <nav className="compact-navigation" aria-label="Écran de mission">
         <button type="button" aria-pressed={mobilePage === 'map'} onClick={() => setMobilePage('map')}>Carte</button>
         <button type="button" aria-pressed={mobilePage === 'mission'} onClick={() => setMobilePage('mission')}>Mission</button>
       </nav>}
 
-      {showsDesignSystem ? (
+      {showsSources ? (
+        <main id={CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
+          <SourcesPage />
+        </main>
+      ) : showsDesignSystem ? (
         <main id={CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
           <Suspense
             fallback={
@@ -108,6 +118,7 @@ export function App() {
           <div className="mission-panels relative z-10 flex min-h-0 flex-col gap-3 max-xl:px-3 xl:pointer-events-none xl:col-start-1 xl:row-start-1">
             <StepsPanel className={floatingPanel} />
             <div className="compact-settings">
+              <a href={SOURCES_HASH}>Sources et limites</a>
               <a href={DESIGN_SYSTEM_HASH}>Système de design</a>
               <ThemeToggle />
             </div>

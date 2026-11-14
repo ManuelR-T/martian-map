@@ -15,6 +15,7 @@ export function StepsPanel({ className }: { className?: string }) {
       className={className}
       contentClassName="overflow-y-auto"
     >
+      <p className="mb-3 text-sm">Simulé · Tracé hypothétique.</p>
       <PlanningGate loadingTitle="Chargement des étapes" coverageTitle="Pas d'étapes hors du secteur détaillé" offerRegion>
         {mission.steps.length === 0 ? (
           <DataState

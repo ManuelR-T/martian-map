@@ -3,6 +3,7 @@ import { DataState, Panel } from '@marps/ui';
 import { SitePicker, SiteSheetView } from '../sites/SiteSheetView';
 import { siteWorkOf } from '../sites/siteWork';
 import { usePlannerDispatch, usePlannerState } from '../state/PlannerProvider';
+import { SiteProvenance } from './Provenance';
 import { PlanningGate } from './PlanningGate';
 
 export function SiteDetailsPanel({ className }: { className?: string }) {
@@ -45,6 +46,7 @@ export function SiteDetailsPanel({ className }: { className?: string }) {
             <DataState kind="empty" title="Aucun site sélectionné" description="Choisissez un site pour voir sa fiche." />
           )}
         </div>
+        {selectedSiteId ? <SiteProvenance siteId={selectedSiteId} /> : null}
       </PlanningGate>
     </Panel>
   );

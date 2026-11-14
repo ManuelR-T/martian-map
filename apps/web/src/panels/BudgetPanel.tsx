@@ -25,6 +25,7 @@ export function BudgetPanel({ className, budget }: BudgetPanelProps) {
       className={className}
       contentClassName="overflow-y-auto"
     >
+      <p className="mb-3 text-sm">{budget ? 'Calculé · Estimation selon les hypothèses de mission.' : 'Inconnu · Aucun budget disponible.'}</p>
       <PlanningGate loadingTitle="Chargement du budget" coverageTitle="Pas de budget hors du secteur détaillé">
         {budget ? (
           <BudgetBreakdown {...budget} />

@@ -93,6 +93,10 @@ describe('loadCatalog', () => {
     vi.stubGlobal('fetch', async () => new Response(JSON.stringify(committed)));
     const catalog = await loadCatalog();
     expect(catalog.regions).toEqual(regions);
+    expect(catalog.manifest).toEqual(committed);
+    for (const site of catalog.manifest.sites) {
+      expect(catalog.datasets.some((dataset) => dataset.id === site.datasetId && dataset.regionId === site.regionId)).toBe(true);
+    }
     expect(catalog.datasets.map((dataset) => dataset.id)).toEqual(committed.datasets.map((dataset) => dataset.id));
     expect(catalog.sites.map((site) => site.id)).toEqual(['skinner-ridge', 'wildcat-ridge', 'amalik']);
   });
