@@ -3,6 +3,8 @@ import { BrandMark, DataState, ThemeToggle } from '@marps/ui';
 import { BudgetPanel } from './panels/BudgetPanel';
 import { floatingSurface, MapStage } from './panels/MapStage';
 import { SiteDetailsPanel } from './panels/SiteDetailsPanel';
+import { PlannerMap } from './features/map/PlannerMap';
+import { OfflineStatus } from './offline/OfflineStatus';
 import { StepsPanel } from './panels/StepsPanel';
 
 const DesignSystemPage = lazy(() => import('./design-system/DesignSystemPage'));
@@ -62,6 +64,7 @@ export function App() {
         </nav>
         <ThemeToggle className={headerControl} />
       </header>
+      <OfflineStatus />
 
       {showsDesignSystem ? (
         <main id={CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
@@ -86,11 +89,11 @@ export function App() {
             passer les clics vers elle, seuls les panneaux flottants les captent.
             #7 et #8 passeront ici la carte OpenLayers de la vue active.
           */}
-          <MapStage className="relative flex h-[62dvh] min-h-[24rem] flex-col items-center justify-between gap-3 p-3 lg:pointer-events-none lg:static lg:col-start-2 lg:row-start-1 lg:h-auto lg:min-h-0 lg:p-0" />
+          <MapStage map={<PlannerMap />} className="relative flex h-[62dvh] min-h-[24rem] flex-col items-center justify-between gap-3 p-3 lg:pointer-events-none lg:static lg:col-start-2 lg:row-start-1 lg:h-auto lg:min-h-0 lg:p-0" />
           <div className="relative z-10 flex min-h-0 flex-col gap-3 max-lg:px-3 lg:pointer-events-none lg:col-start-1 lg:row-start-1">
             <StepsPanel className={floatingSurface} />
           </div>
-          <div className="relative z-10 flex min-h-0 flex-col gap-3 max-lg:px-3 max-lg:pb-3 lg:pointer-events-none lg:col-start-3 lg:row-start-1">
+          <div className="relative z-10 flex min-h-0 flex-col gap-3 max-lg:px-3 max-lg:pb-3 lg:pointer-events-none lg:col-start-3 lg:row-start-1 lg:max-h-[calc(100%-8rem)] lg:overflow-y-auto">
             {/* #14 fournira le budget calculé par mission-core. */}
             <BudgetPanel budget={null} className={`${floatingSurface} shrink-0`} />
             {/* #9 fournira les fiches scientifiques. */}

@@ -42,8 +42,8 @@ const loaded = (catalog: Catalog, state: PlannerState = initialPlannerState) =>
   plannerReducer(state, { type: 'catalogLoaded', request: state.catalogRequest, catalog });
 
 describe('état de planification', () => {
-  it('démarre en chargement dans le secteur détaillé, sans étape ni site sélectionné', () => {
-    expect(initialPlannerState.view).toBe('region');
+  it('démarre en chargement sur Mars entière, sans étape ni site sélectionné', () => {
+    expect(initialPlannerState.view).toBe('global');
     expect(initialPlannerState.mission).toEqual({ regionId: 'jezero', steps: [] });
     expect(initialPlannerState.selectedSiteId).toBeNull();
     expect(selectMapStatus(initialPlannerState)).toBe('loading');
@@ -54,7 +54,7 @@ describe('état de planification', () => {
   it('signale un catalogue sans jeu de données comme une absence de données, pas comme une erreur', () => {
     const state = loaded(emptyCatalog);
     expect(selectMapStatus(state)).toBe('empty');
-    expect(selectPlanningStatus(state)).toBe('ready');
+    expect(selectPlanningStatus(state)).toBe('insufficient-coverage');
     expect(selectDetailedRegion(state)).toEqual(jezero);
   });
 
@@ -91,7 +91,7 @@ describe('état de planification', () => {
 
   it('conserve la même référence quand une action ne change rien', () => {
     const state = loaded(emptyCatalog);
-    expect(plannerReducer(state, { type: 'viewChanged', view: 'region' })).toBe(state);
+    expect(plannerReducer(state, { type: 'viewChanged', view: 'global' })).toBe(state);
     expect(plannerReducer(state, { type: 'siteSelected', siteId: null })).toBe(state);
     expect(plannerReducer(state, { type: 'siteSelected', siteId: 'amalik' }).selectedSiteId).toBe('amalik');
   });

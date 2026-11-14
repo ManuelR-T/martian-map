@@ -214,3 +214,54 @@ temporairement le facteur `60` de `minutesToSeconds` par `59` doit faire échoue
 
 Références : [workspaces pnpm](https://pnpm.io/workspaces),
 [guide Vite](https://vite.dev/guide/).
+
+## Global Mars map and offline use (#7)
+
+The map is mounted in #5's `MapStage`, uses `PlannerProvider` view state, and
+consumes #6's dataset descriptors. The existing planner, design system, French
+interface, theme and panels are preserved. The app opens on the interactive global Mars
+view; drag to pan and use the wheel or lower-right zoom controls to explore.
+“Mars entière” restores the full-planet extent; the Jezero marker or “Ouvrir Jezero” returns to
+the detailed sector. Detailed planning remains unavailable outside Jezero.
+
+MOLA uses the manifest's NASA Trek URL and attribution, with a planetocentric
+geographic grid registered as `MARS:104905` (NASA identifier
+`urn:ogc:def:crs:EPSG::104905`). Origin: −180°, 90°; 256-pixel tiles;
+2 × 1 tiles at level 0; source levels 0–7. No Earth Web Mercator or Earth distance
+calculation is used. Two bundled NASA level-0 JPEGs under `public/data/mola`
+provide a coarse global overview without NASA connectivity. The nominal
+463 m/pixel source sampling does not describe that overview's resolution.
+
+Jezero entry displays the prepared local HiRISE tiles using the manifest's
+extent, zoom ranges, URLs, and credit. It never requests a local tile outside
+the frozen ranges. Further detailed-map tools and site overlays belong to #8/#9.
+The approximate global Jezero marker is not used as a scientific site coordinate.
+
+Production builds precache all final assets, fonts, lazy-loaded design-system
+code, the manifest, and prepared local datasets. After the French offline-ready
+message appears, reload works with internet disconnected. First installation
+requires a connection or distribution of the static build over a local server;
+HTTPS or localhost is required for service workers. Development mode does not
+install a worker. Browser storage clearing/eviction requires preparing again.
+Successfully fetched additional global MOLA tiles are cached with a 180-tile
+limit; unvisited detail falls back to the bundled overview. This is not a complete
+high-resolution planetary download or a guarantee of mission suitability.
+
+Installation failure shows an error and retry action; a stalled installation
+times out after 30 seconds. Waiting updates ask users to close all app tabs and
+reopen. Cache versions hash worker logic and every final file, including HTML and
+public data. Regular CI tests cover failure/timeout/update states, public-data
+and HTML invalidation, and cached navigation/assets without network access.
+
+Source of the bundled overview, verified 2026-11-14: NASA / JPL-Caltech / GSFC,
+MGS MOLA, distributed by NASA Trek:
+https://trek.nasa.gov/tiles/Mars/EQ/Mars_MGS_MOLA_ClrShade_merge_global_463m/1.0.0/WMTSCapabilities.xml
+
+Local validation: lint, typecheck, 148 JavaScript tests, production build, the
+frozen-data integrity check, and 19 Python tests pass. Headless Chromium verified
+the planner shell, global/Jezero navigation, rendered local imagery, all 108
+precached resources, reload without internet, mobile width, and no page errors
+or local 404s with NASA blocked. Live NASA JPEGs returned HTTP 200; retry
+recovered after restoring the blocked service, and keyboard navigation emitted
+only in-range global tile URLs. A deployed check of this feature branch remains
+pending publication; earlier `dev` deployments do not contain this implementation.

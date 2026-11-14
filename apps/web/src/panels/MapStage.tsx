@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { Globe, MapPinned } from 'lucide-react';
 import { DataState, SegmentedControl, type SegmentedOption } from '@marps/ui';
-import { formatCoordinate } from '../format';
 import { usePlannerDispatch, usePlannerState } from '../state/PlannerProvider';
 import { selectDetailedRegion, selectMapStatus, type MapView } from '../state/planner';
 import { RetryCatalogButton } from './PlanningGate';
@@ -93,15 +92,7 @@ export function MapStage({ className, map }: MapStageProps) {
 
       {notice ? <div className="pointer-events-auto relative z-10 w-full max-w-sm">{notice}</div> : null}
 
-      {region ? (
-        <p className={`${floatingSurface} relative z-10 flex max-w-full flex-wrap items-baseline gap-x-3 gap-y-0.5 px-3 py-1.5 text-sm`}>
-          <span className="label-caps text-muted-foreground">Repère {region.name}</span>
-          <span className="font-semibold tabular-nums">{formatCoordinate(region.center)}</span>
-          <span className="text-muted-foreground">approximatif</span>
-        </p>
-      ) : (
-        <span aria-hidden="true" />
-      )}
+
     </section>
   );
 }
