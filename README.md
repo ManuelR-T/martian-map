@@ -296,3 +296,33 @@ map dragging and zoom were exercised. The production worker cached the 108 built
 resources, including responsive styles and the prepared datasets. These checks
 use browser simulation; physical tablet/wrist hardware and glove input remain
 unverified.
+
+## Jezero mosaic exploration (#8)
+
+The Jezero view starts at the prepared mission sector and allows exploration of
+NASA's full declared HiRISE footprint (77.2229331–77.583964° E,
+18.3067994–18.669315° N), at WMTS levels 0–17. The pinned capabilities supply
+product bounds and matrix dimensions through optional manifest `wmts` metadata.
+Existing schema-2 readers remain compatible. The 91 prepared tiles at levels
+12–16 retain their original local paths and integrity hashes; other valid tiles
+use the NASA template, with at most eight simultaneous map tile loads and a
+15-second request timeout. Retry and return-to-prepared-sector actions remain
+available after failures. The Mars/Jezero switch preserves planner state.
+
+Yellow outlines mark product bounds, blue dashes the mission sector, and white
+point outlines the prepared tile envelope at the current integer zoom. Patterned
+background means no displayed image; a transparent pixel or a failed request is
+not evidence of navigable terrain. Scientific capabilities remain scoped to the
+original mission sector. The three manifest sites select their existing sheets;
+overlapping touch hits offer a named choice.
+
+The 100 CSS-pixel scale uses the manifest Mars radius (3,396,190 m), angular
+resolution and cosine of the center latitude. Coordinates are planetocentric,
+east-positive longitude/latitude. Nominal 0.25 m/pixel source sampling is distinct
+from displayed sampling and does not establish positioning accuracy.
+
+Production installation includes prepared resources. Extra streamed HiRISE tiles
+are not promised after offline reload: their bounded persistence belongs to #24.
+NASA connectivity is optional for the prepared-sector workflow. Validate browser
+rendering, disconnected reload, and physical tablet/glove interaction before
+operational use; these have not been exercised for this implementation.

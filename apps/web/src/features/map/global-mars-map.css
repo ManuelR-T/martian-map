@@ -32,3 +32,26 @@
   text-shadow: none;
 }
 .mars-map-container:has(.ol-attribution:not(.ol-collapsed)) .map-information { visibility: hidden; }
+.jezero-map .mars-map { background: repeating-linear-gradient(135deg, var(--mars-surface), var(--mars-surface) 8px, var(--muted) 8px, var(--muted) 10px); }
+.jezero-status { position: absolute; top: 4.5rem; left: .5rem; max-width: min(30rem, calc(100% - 5rem)); }
+.jezero-status > div button { min-height: 44px; margin-top: .25rem; }
+@media (max-height: 600px) { .jezero-status { max-height: 40%; overflow-y: auto; } }
+
+@media (min-width: 1280px) and (min-height: 601px) {
+  .jezero-status {
+    top: var(--steps-panel-bottom, 5rem);
+    left: .75rem;
+    width: 19rem;
+    max-width: calc(100% - 1.5rem);
+    max-height: max(6rem, calc(100% - var(--steps-panel-bottom, 5rem) - 5rem));
+    overflow-y: auto;
+  }
+}
+
+.jezero-legend li { display: flex; align-items: center; gap: .5rem; }
+.jezero-legend svg, .jezero-missing-swatch { flex: 0 0 40px; width: 40px; height: 24px; }
+.jezero-legend svg { background: #151b25; }
+.jezero-missing-swatch { border: 1px solid var(--border); background: repeating-linear-gradient(135deg, var(--mars-surface), var(--mars-surface) 8px, var(--muted) 8px, var(--muted) 10px); }
+@media (max-width: 1279px) and (min-height: 601px) {
+  .jezero-status { max-height: calc(100% - 10rem); overflow-y: auto; }
+}

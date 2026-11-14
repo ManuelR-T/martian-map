@@ -66,3 +66,13 @@ def test_cell_at_agrees_with_the_window_of_the_same_point():
 
 def test_cell_at_is_none_outside_the_grid():
     assert geo.cell_at(DEM_ORIGIN, 20.0, DEM_SHAPE, 10.0, 0.0, RADIUS) is None
+
+
+def test_pinned_wmts_product_contract():
+    from marps_data.wmts import imagery_wmts
+    from marps_data.spec import DATA_DIR
+    product = imagery_wmts((DATA_DIR / 'jezero/hirise/WMTSCapabilities.xml').read_bytes())
+    assert product['extent']['west'] == 77.2229331
+    assert len(product['matrices']) == 18
+    assert product['matrices'][-1]['width'] == 262144
+    assert product['matrices'][-1]['origin'] == [-180.0, 90.0]

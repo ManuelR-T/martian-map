@@ -19,6 +19,7 @@ import numpy as np
 import tifffile
 from PIL import Image
 
+from .wmts import imagery_wmts
 from . import check, geo, spec, terrain
 
 # Covers the TIFF tags and the row offsets of the largest source (HiRISE: 172 609 bytes).
@@ -152,6 +153,7 @@ def prepare_hirise(staging: Path, retrieved_at: str) -> dict:
     )
     return {
         "id": "jezero-hirise-mosaic",
+        "wmts": imagery_wmts(capabilities),
         "regionId": "jezero",
         "title": "Mosaïque HiRISE de Jezero (secteur du front du delta)",
         "kind": "imagery",
