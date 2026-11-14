@@ -121,7 +121,18 @@ export interface RasterGrid {
   readonly navigationGrade: false;
 }
 
+export interface ImageryWmts {
+  readonly layer: string;
+  readonly style: string;
+  readonly matrixSet: string;
+  readonly crs: string;
+  readonly format: string;
+  readonly extent: Extent;
+  readonly matrices: readonly { readonly id: string; readonly origin: readonly number[]; readonly tileSize: number; readonly width: number; readonly height: number }[];
+}
+
 export interface DatasetDescriptor {
+  readonly wmts?: ImageryWmts;
   readonly id: string;
   readonly regionId: string;
   readonly title: string;

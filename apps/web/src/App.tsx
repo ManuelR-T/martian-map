@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { BrandMark, DataState, ThemeToggle } from '@marps/ui';
 import { BudgetPanel } from './panels/BudgetPanel';
 import { floatingSurface, MapStage } from './panels/MapStage';
@@ -26,11 +26,26 @@ const headerControl = 'text-header-foreground/85 hover:bg-white/10 hover:text-he
 const headerLink = `label-caps inline-flex h-9 items-center px-3 transition-colors ${headerControl}`;
 
 export function App() {
+  const mainRef = useRef<HTMLElement>(null);
   const [mobilePage, setMobilePage] = useState<'map' | 'mission'>('map');
   const showsDesignSystem = useHash() === DESIGN_SYSTEM_HASH;
 
   useEffect(() => {
     document.title = showsDesignSystem ? 'Marps – Système de design' : 'Marps';
+  }, [showsDesignSystem]);
+
+  useEffect(() => {
+    const main = mainRef.current;
+    const steps = main?.querySelector('.mission-steps');
+    if (!main || !steps) return;
+    const positionStatus = () => {
+      main.style.setProperty('--steps-panel-bottom', `${steps.getBoundingClientRect().bottom - main.getBoundingClientRect().top + 12}px`);
+    };
+    const observer = new ResizeObserver(positionStatus);
+    observer.observe(steps);
+    observer.observe(main);
+    positionStatus();
+    return () => observer.disconnect();
   }, [showsDesignSystem]);
 
   return (
@@ -86,6 +101,7 @@ export function App() {
         </main>
       ) : (
         <main
+          ref={mainRef}
           id={CONTENT_ID}
           tabIndex={-1}
           className="planner-main relative flex flex-1 flex-col gap-3 outline-none xl:grid xl:min-h-0 xl:grid-cols-[19rem_minmax(0,1fr)_21rem] xl:grid-rows-[minmax(0,1fr)] xl:p-3"
@@ -97,7 +113,7 @@ export function App() {
           */}
           <MapStage map={<PlannerMap />} className="planner-map-stage relative flex h-[62dvh] min-h-[24rem] flex-col items-center justify-between gap-3 p-3 xl:pointer-events-none xl:static xl:col-start-2 xl:row-start-1 xl:h-auto xl:min-h-0 xl:p-0" />
           <div className="mission-panels relative z-10 flex min-h-0 flex-col gap-3 max-xl:px-3 xl:pointer-events-none xl:col-start-1 xl:row-start-1">
-            <StepsPanel className={floatingSurface} />
+            <StepsPanel className={`${floatingSurface} mission-steps`} />
             <div className="compact-settings">
               <a href={DESIGN_SYSTEM_HASH}>Système de design</a>
               <ThemeToggle />

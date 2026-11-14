@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Map from 'ol/Map';
+import { defaults as defaultControls } from 'ol/control';
+import { MapInformation } from './MapInformation';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import ImageLayer from 'ol/layer/Image';
@@ -45,7 +47,7 @@ export function GlobalMarsMap({ dataset, global, onSelectRegion }: Props) {
     const view = new View({ projection: marsProjection, center: [0, 0],
       resolutions: global ? resolutions : Array.from({ length: Math.max(...levels) + 1 }, (_, z) => 360 / (512 * 2 ** z)),
       extent: global ? [-180, -90, 180, 90] : bounds, minZoom: Math.min(...levels), maxZoom: Math.max(...levels), showFullExtent: true });
-    const map = new Map({ target: target.current!, layers: [
+    const map = new Map({ controls: defaultControls({ attribution: false }), target: target.current!, layers: [
       ...(global ? [fallback('west', [-180, -90, 0, 90]), fallback('east', [0, -90, 180, 90])] : []),
       new TileLayer({ source }),
       ...(global ? [new VectorLayer({ source: new VectorSource({ features: [marker], wrapX: false }) })] : []),
@@ -64,8 +66,7 @@ export function GlobalMarsMap({ dataset, global, onSelectRegion }: Props) {
   }, [dataset, global, onSelectRegion]);
   return <div className="mars-map-container">
     <div ref={target} className="mars-map" tabIndex={0} aria-label={global ? 'Carte globale de Mars. Flèches pour déplacer, plus et moins pour zoomer.' : 'Carte du secteur Jezero'} />
-    <details className="map-information border bg-card/95 p-2 text-xs text-foreground backdrop-blur-sm">
-      <summary className="map-info-toggle cursor-pointer font-semibold">Carte et sources</summary>
+    <MapInformation>
       <div className="flex flex-wrap items-center gap-2">
       {global && <>
         <Button size="sm" className="px-2" onClick={onSelectRegion}>Ouvrir Jezero</Button>
@@ -80,6 +81,6 @@ export function GlobalMarsMap({ dataset, global, onSelectRegion }: Props) {
       {global && <p>Repère Jezero approximatif : 77,58° E, 18,44° N. Le fond global est destiné à l’orientation.</p>}
       <a className="underline" href={dataset.source.url}>Source : {dataset.source.credit}</a>
       </div>
-    </details>
+    </MapInformation>
   </div>;
 }

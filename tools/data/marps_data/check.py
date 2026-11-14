@@ -328,6 +328,14 @@ def validate(root: Path) -> list[str]:
             errors += check_hillshade(root, datasets, d)
         elif d.get("kind") == "imagery":
             errors += check_imagery(root, d)
+            if d.get("wmts") is not None:
+                from .wmts import imagery_wmts
+                try:
+                    expected = imagery_wmts((root / "jezero/hirise/WMTSCapabilities.xml").read_bytes())
+                    if d["wmts"] != expected:
+                        errors.append("imagery: WMTS metadata differs from frozen capabilities")
+                except (OSError, ValueError, AttributeError, TypeError) as error:
+                    errors.append(f"imagery: invalid WMTS metadata: {error}")
         elif d.get("kind") == "sites":
             errors += check_sites(root, manifest, d)
     return errors + check_capabilities(manifest, datasets)
