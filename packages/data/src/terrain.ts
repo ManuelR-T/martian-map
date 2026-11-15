@@ -35,6 +35,18 @@ export function terrainDataset(
   return candidates[0] ?? null;
 }
 
+/** Shaded relief computed from this elevation grid, so the map shows the relief the profile reads. */
+export function hillshadeFor(
+  manifest: Pick<DataManifest, 'datasets'>,
+  elevation: DatasetDescriptor,
+): DatasetDescriptor | null {
+  return (
+    manifest.datasets.find(
+      (dataset) => dataset.kind === 'hillshade' && dataset.derivedFrom === elevation.id && dataset.status !== 'unavailable',
+    ) ?? null
+  );
+}
+
 /** Cell containing the coordinate, or null outside the grid. */
 export function cellAt(raster: RasterGrid, coordinate: MarsCoordinate): GridCell | null {
   const { radiusMetres } = raster.projection;

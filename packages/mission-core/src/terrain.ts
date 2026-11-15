@@ -127,3 +127,29 @@ export function steepPortions(profile: readonly ProfilePoint[], thresholdDegrees
   if (current) portions.push(current);
   return portions;
 }
+
+/** Route coordinates of each steep portion, to draw on the map exactly where the profile flags it. */
+export function steepStretches(profile: readonly ProfilePoint[], portions: readonly SteepPortion[]): MarsCoordinate[][] {
+  // Portion bounds are distances of profile points, so the comparison is exact.
+  return portions.map((portion) =>
+    profile
+      .filter((point) => point.distanceMetres >= portion.startMetres && point.distanceMetres <= portion.endMetres)
+      .map((point) => point.coordinate),
+  );
+}
+
+/** Position on the route at a distance from its start; null outside the route. */
+export function pointAtDistance(profile: readonly ProfilePoint[], metres: number): MarsCoordinate | null {
+  const end = profile.at(-1);
+  if (!end || metres < 0 || metres > end.distanceMetres) return null;
+  const index = profile.findIndex((point) => point.distanceMetres >= metres);
+  const to = profile[index] as ProfilePoint;
+  const from = profile[index - 1];
+  if (!from || to.distanceMetres === metres) return to.coordinate;
+  // Consecutive points lie on one straight leg (stops are profile points), so linear is exact.
+  const t = (metres - from.distanceMetres) / (to.distanceMetres - from.distanceMetres);
+  return {
+    longitude: from.coordinate.longitude + (to.coordinate.longitude - from.coordinate.longitude) * t,
+    latitude: from.coordinate.latitude + (to.coordinate.latitude - from.coordinate.latitude) * t,
+  };
+}

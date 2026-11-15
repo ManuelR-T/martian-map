@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   MARS_RADIUS_METRES,
   groundDistanceMetres,
+  pointAtDistance,
   sampleProfile,
   slopeSegments,
   steepPortions,
+  steepStretches,
   type ElevationSampler,
   type MarsCoordinate,
 } from './index';
@@ -91,5 +93,48 @@ describe('steep portions', () => {
     const holed: ElevationSampler = (coordinate) =>
       Math.abs(coordinate.latitude - 18.45) < 0.0005 ? { elevationMetres: null, status: 'no-data' } : plane(coordinate);
     expect(steepPortions(sampleProfile(northward, holed, STEP), 15)).toHaveLength(2);
+  });
+});
+
+describe('profile on the map', () => {
+  // Flat until 18.45° N, then the 26.6° plane: the climb starts halfway along the route.
+  const flatThenClimb: ElevationSampler = (coordinate) =>
+    coordinate.latitude < 18.45 ? plane({ ...coordinate, latitude: 18.45 }) : plane(coordinate);
+  const cellInDegrees = STEP / METRES_PER_DEGREE_LATITUDE;
+
+  it('draws the steep stretch on the map where the profile flags it: from 18.45° N to the end of the route', () => {
+    const profile = sampleProfile(northward, flatThenClimb, STEP);
+    const portions = steepPortions(profile, 15);
+    const stretches = steepStretches(profile, portions);
+    expect(stretches).toHaveLength(1);
+    // The red line on the map is as long as the red band on the profile.
+    const drawn = stretches[0]!.slice(1).reduce((sum, point, index) => sum + groundDistanceMetres(stretches[0]![index]!, point), 0);
+    expect(drawn).toBeCloseTo(portions[0]!.endMetres - portions[0]!.startMetres, 2);
+    expect(stretches[0]?.[0]?.latitude).toBeCloseTo(18.45, 4);
+    expect(Math.abs((stretches[0]?.[0]?.latitude ?? 0) - 18.45)).toBeLessThanOrEqual(cellInDegrees);
+    expect(stretches[0]?.at(-1)).toEqual(northward[1]);
+  });
+
+  it('puts the point touched halfway along the profile halfway along the route', () => {
+    const profile = sampleProfile(northward, flat, STEP);
+    const point = pointAtDistance(profile, (profile.at(-1)?.distanceMetres ?? 0) / 2);
+    expect(point?.longitude).toBeCloseTo(77.4, 9);
+    expect(point?.latitude).toBeCloseTo(18.45, 9);
+  });
+
+  it('follows the route around a stop: 100 m after a turn east is on the eastward leg', () => {
+    const turn: MarsCoordinate = { longitude: 77.4, latitude: 18.455 };
+    const east: MarsCoordinate = { longitude: 77.41, latitude: 18.455 };
+    const profile = sampleProfile([northward[0]!, turn, east], flat, STEP);
+    const point = pointAtDistance(profile, groundDistanceMetres(northward[0]!, turn) + 100);
+    expect(point?.latitude).toBeCloseTo(18.455, 9);
+    expect(groundDistanceMetres(turn, point!)).toBeCloseTo(100, 1);
+  });
+
+  it('places nothing before the start or after the end of the route', () => {
+    const profile = sampleProfile(northward, flat, STEP);
+    expect(pointAtDistance(profile, -1)).toBeNull();
+    expect(pointAtDistance(profile, (profile.at(-1)?.distanceMetres ?? 0) + 1)).toBeNull();
+    expect(pointAtDistance(profile, profile.at(-1)?.distanceMetres ?? 0)).toEqual(northward[1]);
   });
 });

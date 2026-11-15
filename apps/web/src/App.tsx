@@ -8,6 +8,7 @@ import { OfflineStatus } from './offline/OfflineStatus';
 import './responsive.css';
 import { StepsPanel } from './panels/StepsPanel';
 import { ProfilePanel } from './terrain/ProfilePanel';
+import { RouteProfileProvider } from './terrain/RouteProfileProvider';
 
 const DesignSystemPage = lazy(() => import('./design-system/DesignSystemPage'));
 
@@ -101,6 +102,8 @@ export function App() {
           </Suspense>
         </main>
       ) : (
+        // Profile and map share one relief load, the threshold and the point touched on the profile.
+        <RouteProfileProvider>
         <main
           ref={mainRef}
           id={CONTENT_ID}
@@ -128,6 +131,7 @@ export function App() {
             <SiteDetailsPanel className={floatingSurface} />
           </div>
         </main>
+        </RouteProfileProvider>
       )}
     </div>
   );

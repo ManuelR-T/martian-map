@@ -1,21 +1,15 @@
-import { useEffect, useId, useMemo, useState } from 'react';
-import { elevationSampler, loadGrid, terrainDataset, type DatasetDescriptor, type TerrainGrid } from '@marps/data';
-import { sampleProfile, steepPortions, type ProfilePoint } from '@marps/mission-core';
+import { useId, type KeyboardEvent, type PointerEvent } from 'react';
+import type { TerrainGrid } from '@marps/data';
+import type { ProfilePoint, SteepPortion } from '@marps/mission-core';
 import { DataState, Panel } from '@marps/ui';
 import { PlanningGate } from '../panels/PlanningGate';
 import { usePlannerState } from '../state/PlannerProvider';
-import { DETAILED_REGION_ID } from '../state/planner';
-import { demoRoute, type RouteStop } from './demoRoute';
+import type { RouteStop } from './demoRoute';
+import { useRouteProfile } from './RouteProfileProvider';
 
 const THRESHOLD_CHOICES = [5, 10, 15, 20, 25] as const;
-const DEFAULT_THRESHOLD = 10;
 const CHART_WIDTH = 1000;
 const CHART_HEIGHT = 120;
-
-type GridState =
-  | { readonly status: 'loading' }
-  | { readonly status: 'error' }
-  | { readonly status: 'ready'; readonly grid: TerrainGrid };
 
 const formatMetres = (metres: number) => `${Math.round(metres).toLocaleString('fr-FR')} m`;
 
@@ -30,13 +24,17 @@ function runsOf(profile: readonly ProfilePoint[]) {
   return runs;
 }
 
+/** Profile point closest to a distance, to read the altitude under the finger. */
+function nearestPoint(profile: readonly ProfilePoint[], metres: number) {
+  return profile.reduce((best, point) =>
+    Math.abs(point.distanceMetres - metres) < Math.abs(best.distanceMetres - metres) ? point : best,
+  );
+}
+
 export function ProfilePanel({ className }: { className?: string }) {
-  const { catalog, view } = usePlannerState();
-  const [threshold, setThreshold] = useState<number>(DEFAULT_THRESHOLD);
+  const { view } = usePlannerState();
+  const { dem, stops, relief, threshold, setThreshold } = useRouteProfile();
   const thresholdId = useId();
-  // Finest complete relief first: HiRISE 4 m, CTX 20 m as fallback.
-  const dem = catalog.status === 'ready' ? terrainDataset(catalog.data, DETAILED_REGION_ID, 'elevation') : null;
-  const stops = useMemo(() => (catalog.status === 'ready' ? demoRoute(catalog.data.sites) : []), [catalog]);
 
   const thresholdControl = (
     <label htmlFor={thresholdId} className="flex items-center gap-2 text-sm">
@@ -73,52 +71,29 @@ export function ProfilePanel({ className }: { className?: string }) {
           <DataState kind="empty" title="Relief indisponible" description="Aucun relief n'est préparé pour ce secteur." />
         ) : stops.length < 2 ? (
           <DataState kind="empty" title="Pas de parcours" description="Il faut au moins deux sites pour tracer un profil." />
+        ) : !relief || relief.status === 'loading' ? (
+          <DataState kind="loading" title="Chargement du relief" />
+        ) : relief.status === 'error' ? (
+          <DataState kind="error" title="Relief non chargé" description="Le fichier d'altitudes est inaccessible. Rechargez la page." />
         ) : (
-          // Keyed by dataset: a new relief starts from « chargement » instead of showing the previous one.
-          <ReliefProfile key={dem.id} dem={dem} stops={stops} threshold={threshold} />
+          <ProfileChart grid={relief.grid} profile={relief.profile} steep={relief.steep} stops={stops} threshold={threshold} />
         )}
       </PlanningGate>
     </Panel>
   );
 }
 
-function ReliefProfile({ dem, stops, threshold }: { dem: DatasetDescriptor; stops: readonly RouteStop[]; threshold: number }) {
-  const [gridState, setGridState] = useState<GridState>({ status: 'loading' });
-
-  useEffect(() => {
-    let active = true;
-    loadGrid(dem).then(
-      (grid) => active && setGridState({ status: 'ready', grid }),
-      (error: unknown) => {
-        console.error(error);
-        if (active) setGridState({ status: 'error' });
-      },
-    );
-    return () => {
-      active = false;
-    };
-  }, [dem]);
-
-  if (gridState.status === 'loading') return <DataState kind="loading" title="Chargement du relief" />;
-  if (gridState.status === 'error') {
-    return <DataState kind="error" title="Relief non chargé" description="Le fichier d'altitudes est inaccessible. Rechargez la page." />;
-  }
-  return <ProfileChart grid={gridState.grid} stops={stops} threshold={threshold} />;
-}
-
 interface ProfileChartProps {
   grid: TerrainGrid;
+  profile: readonly ProfilePoint[];
+  steep: readonly SteepPortion[];
   stops: readonly RouteStop[];
   threshold: number;
 }
 
-function ProfileChart({ grid, stops, threshold }: ProfileChartProps) {
-  // One point per relief cell: a finer step would invent detail the data does not have.
-  const profile = useMemo(
-    () => sampleProfile(stops.map((stop) => stop.coordinate), elevationSampler(grid), grid.raster.pixelSizeMetres),
-    [grid, stops],
-  );
-  const steep = useMemo(() => steepPortions(profile, threshold), [profile, threshold]);
+function ProfileChart({ grid, profile, steep, stops, threshold }: ProfileChartProps) {
+  const { focusMetres, setFocusMetres } = useRouteProfile();
+  const descriptionId = useId();
   const total = profile.at(-1)?.distanceMetres ?? 0;
   const elevations = profile.flatMap((point) => (point.elevationMetres === null ? [] : [point.elevationMetres]));
   if (total === 0 || elevations.length === 0) {
@@ -136,6 +111,39 @@ function ProfileChart({ grid, stops, threshold }: ProfileChartProps) {
   const leavesCoverage = gaps.some((gap) => gap.status === 'out-of-coverage');
   // Same distances as the sampled profile, so stop lines never drift from the curve.
   const stopDistances = profile.flatMap((point) => (point.vertexIndex === undefined ? [] : [point.distanceMetres]));
+  // A focus left from a longer route would fall past the end of this one.
+  const focus = focusMetres !== null && focusMetres <= total ? focusMetres : null;
+  // Distance as touched, so the text, the line and the map diamond agree; altitude of the closest cell.
+  const focusElevation = focus === null ? null : nearestPoint(profile, focus).elevationMetres;
+  const focusText =
+    focus === null
+      ? 'aucun point désigné'
+      : `${formatMetres(focus)} du départ, ${focusElevation === null ? 'altitude non mesurée' : `altitude ${formatMetres(focusElevation)}`}`;
+
+  // Mouse hover, or a finger dragged along the chart: the map shows the same point.
+  const designate = (event: PointerEvent<SVGSVGElement>) => {
+    if (event.pointerType !== 'mouse' && event.buttons === 0) return;
+    const box = event.currentTarget.getBoundingClientRect();
+    setFocusMetres(Math.min(Math.max((event.clientX - box.left) / box.width, 0), 1) * total);
+  };
+  const step = (event: KeyboardEvent<SVGSVGElement>) => {
+    const current = focus ?? 0;
+    const moves: Record<string, number | null> = {
+      ArrowRight: current + total / 100,
+      ArrowUp: current + total / 100,
+      ArrowLeft: current - total / 100,
+      ArrowDown: current - total / 100,
+      PageUp: current + total / 10,
+      PageDown: current - total / 10,
+      Home: 0,
+      End: total,
+      Escape: null,
+    };
+    if (!(event.key in moves)) return;
+    event.preventDefault();
+    const next = moves[event.key] ?? null;
+    setFocusMetres(next === null ? null : Math.min(Math.max(next, 0), total));
+  };
 
   return (
     // minmax(0, 1fr): without it the grid column grows to the 1000-unit SVG and overflows the panel.
@@ -148,9 +156,19 @@ function ProfileChart({ grid, stops, threshold }: ProfileChartProps) {
         <svg
           viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
           preserveAspectRatio="none"
-          className="h-28 w-full min-w-0 flex-1 border bg-muted/40"
-          role="img"
-          aria-label={`Profil d'altitude sur ${formatMetres(total)}, entre ${formatMetres(low)} et ${formatMetres(high)}.`}
+          // pan-y: a vertical swipe still scrolls the panel, a horizontal drag designates a point.
+          className="h-28 w-full min-w-0 flex-1 cursor-crosshair touch-pan-y border bg-muted/40 focus-visible:outline-2 focus-visible:outline-ring"
+          role="slider"
+          tabIndex={0}
+          aria-label="Point du parcours à montrer sur la carte"
+          aria-describedby={descriptionId}
+          aria-valuemin={0}
+          aria-valuemax={Math.round(total)}
+          aria-valuenow={Math.round(focus ?? 0)}
+          aria-valuetext={focusText}
+          onPointerDown={designate}
+          onPointerMove={designate}
+          onKeyDown={step}
         >
           {steep.map((portion) => (
             <rect
@@ -192,7 +210,21 @@ function ProfileChart({ grid, stops, threshold }: ProfileChartProps) {
                 />
               ),
             )}
+          {focus !== null && (
+            <line
+              x1={x(focus)}
+              x2={x(focus)}
+              y1={0}
+              y2={CHART_HEIGHT}
+              className="stroke-foreground"
+              strokeWidth={2}
+              vectorEffect="non-scaling-stroke"
+            />
+          )}
         </svg>
+        <span id={descriptionId} className="sr-only">
+          {`Profil d'altitude sur ${formatMetres(total)}, entre ${formatMetres(low)} et ${formatMetres(high)}. Flèches : déplacer le point sur la carte.`}
+        </span>
       </div>
 
       {/* Same left offset as the altitude column (w-16 + gap-2), so labels sit on their dashed lines. */}
@@ -219,6 +251,16 @@ function ProfileChart({ grid, stops, threshold }: ProfileChartProps) {
       </div>
 
       <figcaption className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm">
+        <span className="w-full tabular-nums">
+          {focus !== null ? (
+            <>
+              <span aria-hidden="true" className="mr-1 inline-block size-2.5 rotate-45 border-2 border-foreground bg-card align-middle" />
+              Sur la carte : {focusText}.
+            </>
+          ) : (
+            'Touchez le profil pour situer un point sur la carte.'
+          )}
+        </span>
         <span className="tabular-nums" aria-live="polite">
           {steep.length === 0 ? (
             `Aucune pente au-delà de ${threshold}° sur ${formatMetres(total)}.`

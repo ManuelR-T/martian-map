@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Map from 'ol/Map';
 import { defaults as defaultControls } from 'ol/control';
 import { MapInformation } from './MapInformation';
@@ -35,9 +35,11 @@ interface Props {
   sites: readonly SiteDescriptor[];
   selected: string | null;
   onSelect: (id: string) => void;
+  /** Extra layers and controls given the map instance, e.g. the relief and route of #15. */
+  overlay?: (map: Map | null) => ReactNode;
 }
 const bounds = (extent: Extent) => [extent.west, extent.south, extent.east, extent.north];
-export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, datasets, roverEnabled, onRoverToggle }: Props) {
+export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, datasets, roverEnabled, onRoverToggle, overlay }: Props) {
   const [history, setHistory] = useState<RoverHistory | null>(null);
   const [historyFailed, setHistoryFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -54,6 +56,7 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, 
   }, [datasets, roverEnabled, history, attempt]);
   const target = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
+  const [overlayMap, setOverlayMap] = useState<Map | null>(null);
   const [failed, setFailed] = useState(false);
   const [outside, setOutside] = useState(false);
   const [offline, setOffline] = useState(!navigator.onLine);
@@ -111,7 +114,7 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, 
       } }),
       new VectorLayer({ zIndex: 3, source: new VectorSource({ features, wrapX: false }) }),
     ], view });
-    mapRef.current = map;
+    mapRef.current = map; setOverlayMap(map);
     view.fit(bounds(sector), { size: map.getSize(), padding: [90, 40, 160, 40] });
     const update = () => {
       const center = view.getCenter()!;
@@ -143,7 +146,7 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, 
     const connectivity = () => { setOffline(!navigator.onLine); };
     window.addEventListener('online', connectivity); window.addEventListener('offline', connectivity);
     const observer = new ResizeObserver(() => map.updateSize()); observer.observe(target.current!);
-    return () => { pending.forEach(cancel => cancel()); observer.disconnect(); window.removeEventListener('online', connectivity); window.removeEventListener('offline', connectivity); map.dispose(); mapRef.current = null; };
+    return () => { pending.forEach(cancel => cancel()); observer.disconnect(); window.removeEventListener('online', connectivity); window.removeEventListener('offline', connectivity); map.dispose(); mapRef.current = null; setOverlayMap(null); };
   }, [dataset, sector, radius, sites, onSelect]);
   useEffect(() => {
     historyRef.current = history;
@@ -163,6 +166,7 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, 
       <Button size="sm" onClick={() => mapRef.current?.getView().fit(bounds(sector), { size: mapRef.current.getSize(), padding: [90, 40, 160, 40] })}>{messages.return}</Button>
       {failed && <Button size="sm" variant="outline" onClick={() => { setFailed(false); mapRef.current?.getLayers().forEach(layer => { if (layer instanceof TileLayer) layer.getSource()?.refresh(); }); }}>{messages.retry}</Button>}
       <RoverHistoryControl enabled={roverEnabled} onToggle={onRoverToggle} history={history} candidates={roverCandidates} failed={historyFailed} retry={() => { setHistoryFailed(false); setAttempt(value => value + 1); }} selected={roverSelected} onSelect={index => { setRoverSelected(index); if (index === null) setRoverCandidates(null); }} />
+      {overlay?.(overlayMap)}
       <div className="jezero-legend mt-2 border-t pt-2 text-xs" role="group" aria-label={messages.legendTitle}>
         <p className="font-semibold">{messages.legendTitle}</p>
         <ul className="mt-1 grid gap-1">

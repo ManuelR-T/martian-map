@@ -14,7 +14,15 @@ export function minutesToSeconds(minutes: number): number {
 
 export { createEmptyMission } from './mission';
 export type { Mission, MissionStep } from './mission';
-export { MARS_RADIUS_METRES, groundDistanceMetres, sampleProfile, slopeSegments, steepPortions } from './terrain';
+export {
+  MARS_RADIUS_METRES,
+  groundDistanceMetres,
+  pointAtDistance,
+  sampleProfile,
+  slopeSegments,
+  steepPortions,
+  steepStretches,
+} from './terrain';
 export type {
   ElevationSample,
   ElevationSampler,
