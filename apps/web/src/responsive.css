@@ -96,11 +96,11 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .map-drawer-rail, .map-drawer-rails { scrollbar-width: none; }
 .map-drawer-rail::-webkit-scrollbar, .map-drawer-rails::-webkit-scrollbar { display: none; }
 
-/* Agrandissement individuel hors mobile : 1/3 en 16:9, jusqu'à 1/2
+/* Agrandissement individuel hors mobile : 30 % en 16:9, jusqu'à 45 %
    en format plus vertical. Les cartes voisines gardent leur largeur. */
 .map-drawer-resize { display: none; }
 @media (min-width: 801px) {
-  .map-drawer-rail { width: clamp(33.333333vw, 59.259259vh, 50vw); }
+  .map-drawer-rail { width: clamp(30vw, 53.333333vh, 45vw); }
   .map-drawer { width: min(25rem, 100%); }
   .map-drawer-right { align-self: flex-end; }
   .map-drawer[data-expanded=true] { width: 100%; }
