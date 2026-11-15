@@ -1,3 +1,4 @@
+import { GlobalAtlasReferences } from '../features/map/GlobalAtlas';
 import {
   capabilityStatus,
   datasetScientificStatus,
@@ -82,6 +83,7 @@ export function SourcesPage() {
         <h2 className="heading-display mt-3 text-3xl font-bold">Sources et limites</h2>
         <p className="mt-3 text-muted-foreground">Les données et les hypothèses pour interpréter votre mission.</p>
       </div>
+      <Panel title="Atlas mondial de Mars" collapsible defaultOpen={false}><GlobalAtlasReferences /></Panel>
       <Panel title="Légende et limites" collapsible defaultOpen={false}>
         <div className="space-y-3 text-sm">
           <p><ProvenanceBadge status="measured" /> Observation issue d’un instrument.</p>

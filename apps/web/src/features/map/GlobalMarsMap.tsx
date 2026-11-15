@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import Map from 'ol/Map';
 import { defaults as defaultControls } from 'ol/control';
 import { MapInformation } from './MapInformation';
+import { GlobalAtlas } from './GlobalAtlas';
+import { MapPanelDock } from './MapPanelDock';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import ImageLayer from 'ol/layer/Image';
@@ -18,12 +20,14 @@ import { createGlobalMarsSource, createRegionSource, marsProjection, resolutions
 import './global-mars-map.css';
 
 interface Props {
+  panelHost: HTMLElement | null;
   dataset: DatasetDescriptor;
   global: boolean;
   onSelectRegion: () => void;
 }
 
-export function GlobalMarsMap({ dataset, global, onSelectRegion }: Props) {
+export function GlobalMarsMap({ panelHost, dataset, global, onSelectRegion }: Props) {
+  const [atlasMap, setAtlasMap] = useState<Map | null>(null);
   const target = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
   const sourceRef = useRef<ReturnType<typeof createGlobalMarsSource> | ReturnType<typeof createRegionSource> | null>(null);
@@ -48,16 +52,18 @@ export function GlobalMarsMap({ dataset, global, onSelectRegion }: Props) {
     const view = new View({ projection: marsProjection, center: [0, 0],
       resolutions: global ? resolutions : Array.from({ length: Math.max(...levels) + 1 }, (_, z) => 360 / (512 * 2 ** z)),
       extent: global ? [-180, -90, 180, 90] : bounds, minZoom: Math.min(...levels), maxZoom: Math.max(...levels), showFullExtent: !global });
+    const markers = new VectorLayer({ source: new VectorSource({ features: [marker], wrapX: false }), zIndex: 10 });
     const map = new Map({ controls: defaultControls({ attribution: false }), target: target.current!, layers: [
       ...(global ? [fallback('west', [-180, -90, 0, 90]), fallback('east', [0, -90, 180, 90])] : []),
       new TileLayer({ source }),
-      ...(global ? [new VectorLayer({ source: new VectorSource({ features: [marker], wrapX: false }) })] : []),
+      ...(global ? [markers] : []),
     ], view });
     mapRef.current = map;
+    setAtlasMap(map);
     // Globally the planet fills the stage, centred on Jezero when the screen is too narrow for all of Mars.
     if (global) { view.fit([-180, -90, 180, 90], { size: map.getSize() }); view.setCenter([jezero.center.longitude, 0]); }
     else view.fit(bounds, { size: map.getSize(), padding: [80, 30, 100, 30] });
-    map.on('singleclick', event => { if (global && map.hasFeatureAtPixel(event.pixel)) onSelectRegion(); });
+    map.on('singleclick', event => { if (global && map.hasFeatureAtPixel(event.pixel, { layerFilter: layer => layer === markers })) onSelectRegion(); });
     source.on('tileloaderror', () => setFailed(true));
     view.on('change:resolution', () => setResolution(view.getResolution() ?? null));
     const connectivity = () => { setOffline(!navigator.onLine); };
@@ -73,6 +79,7 @@ export function GlobalMarsMap({ dataset, global, onSelectRegion }: Props) {
       <p>{failed ? 'Certaines tuiles sont indisponibles.' : 'Hors ligne : seules les données téléchargées sont accessibles.'}</p>
       {failed && <Button variant="outline" size="sm" onClick={() => { setFailed(false); sourceRef.current?.refresh(); }}>Réessayer les tuiles</Button>}
     </div>}</div>
+    {global && <MapPanelDock host={panelHost}><GlobalAtlas map={atlasMap} /></MapPanelDock>}
     <MapInformation>
       <div className="flex flex-wrap items-center gap-2">
       {global && <>
