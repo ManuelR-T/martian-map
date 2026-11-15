@@ -75,7 +75,7 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 }
 
 /* Sélecteur de vue, posé sur la carte : il change la carte, pas la page. */
-.map-view-switch { position: absolute; z-index: 11; top: .75rem; left: 50%; translate: -50% 0; pointer-events: auto; }
+.map-view-switch { position: absolute; z-index: 11; top: .75rem; left: 50%; translate: -50% 0; pointer-events: auto; max-width: calc(100vw - 1.5rem); overflow-x: auto; }
 .map-view-switch [data-slot=segmented-control] { border-radius: 6px; box-shadow: var(--elevation); }
 .map-view-switch [role=radio] { min-height: 44px; height: 44px; }
 

@@ -267,4 +267,20 @@ GEOLOGY_LIMITATIONS = (
     "Couleurs choisies par l'application, pas celles de la feuille USGS.",
 )
 
+# Detailed regions declared before their data is verified (docs/regions.md). Each one lists
+# the same capabilities as unavailable until its checklist passes; nothing is copied from Jezero.
+# Extents frame the landing site for navigation only (coordinates from the mission pages cited there).
+PENDING_REGIONS: tuple[dict, ...] = (
+    {"id": "gale", "name": "Gale", "extent": {"west": 137.3, "south": -4.75, "east": 137.55, "north": -4.5}},
+    {"id": "utopia", "name": "Utopia Planitia", "extent": {"west": 109.8, "south": 24.95, "east": 110.05, "north": 25.2}},
+    {"id": "elysium", "name": "Elysium Planitia", "extent": {"west": 135.5, "south": 4.4, "east": 135.75, "north": 4.6}},
+)
+PENDING_REGION_CAPABILITIES = (
+    ("imagery", "Imagerie détaillée"),
+    ("terrain-dem", "Altitudes"),
+    ("science-sites", "Sites scientifiques"),
+    ("weather", "Conditions météo"),
+)
+REGION_NOT_VERIFIED = "Données non vérifiées pour cette région : checklist à compléter avant activation."
+
 ROVER_HASHES = {'waypoints': 'bd143ee69241229926abd373e6305b8bbb326d6b5a7b4a8d6935262696f93dc4', 'traverse': '6ddd0ece913d75b45d105946082f95ed84e68f4718b68d32a4421dc30877e7e6'}

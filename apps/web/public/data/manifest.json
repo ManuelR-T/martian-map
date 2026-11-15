@@ -126,6 +126,129 @@
           ]
         }
       ]
+    },
+    {
+      "id": "gale",
+      "name": "Gale",
+      "extent": {
+        "west": 137.3,
+        "south": -4.75,
+        "east": 137.55,
+        "north": -4.5
+      },
+      "kind": "detailed",
+      "capabilities": [
+        {
+          "id": "imagery",
+          "label": "Imagerie détaillée",
+          "status": "unavailable",
+          "datasetIds": [],
+          "reason": "Données non vérifiées pour cette région : checklist à compléter avant activation."
+        },
+        {
+          "id": "terrain-dem",
+          "label": "Altitudes",
+          "status": "unavailable",
+          "datasetIds": [],
+          "reason": "Données non vérifiées pour cette région : checklist à compléter avant activation."
+        },
+        {
+          "id": "science-sites",
+          "label": "Sites scientifiques",
+          "status": "unavailable",
+          "datasetIds": [],
+          "reason": "Données non vérifiées pour cette région : checklist à compléter avant activation."
+        },
+        {
+          "id": "weather",
+          "label": "Conditions météo",
+          "status": "unavailable",
+          "datasetIds": [],
+          "reason": "Données non vérifiées pour cette région : checklist à compléter avant activation."
+        }
+      ]
+    },
+    {
+      "id": "utopia",
+      "name": "Utopia Planitia",
+      "extent": {
+        "west": 109.8,
+        "south": 24.95,
+        "east": 110.05,
+        "north": 25.2
+      },
+      "kind": "detailed",
+      "capabilities": [
+        {
+          "id": "imagery",
+          "label": "Imagerie détaillée",
+          "status": "unavailable",
+          "datasetIds": [],
+          "reason": "Données non vérifiées pour cette région : checklist à compléter avant activation."
+        },
+        {
+          "id": "terrain-dem",
+          "label": "Altitudes",
+          "status": "unavailable",
+          "datasetIds": [],
+          "reason": "Données non vérifiées pour cette région : checklist à compléter avant activation."
+        },
+        {
+          "id": "science-sites",
+          "label": "Sites scientifiques",
+          "status": "unavailable",
+          "datasetIds": [],
+          "reason": "Données non vérifiées pour cette région : checklist à compléter avant activation."
+        },
+        {
+          "id": "weather",
+          "label": "Conditions météo",
+          "status": "unavailable",
+          "datasetIds": [],
+          "reason": "Données non vérifiées pour cette région : checklist à compléter avant activation."
+        }
+      ]
+    },
+    {
+      "id": "elysium",
+      "name": "Elysium Planitia",
+      "extent": {
+        "west": 135.5,
+        "south": 4.4,
+        "east": 135.75,
+        "north": 4.6
+      },
+      "kind": "detailed",
+      "capabilities": [
+        {
+          "id": "imagery",
+          "label": "Imagerie détaillée",
+          "status": "unavailable",
+          "datasetIds": [],
+          "reason": "Données non vérifiées pour cette région : checklist à compléter avant activation."
+        },
+        {
+          "id": "terrain-dem",
+          "label": "Altitudes",
+          "status": "unavailable",
+          "datasetIds": [],
+          "reason": "Données non vérifiées pour cette région : checklist à compléter avant activation."
+        },
+        {
+          "id": "science-sites",
+          "label": "Sites scientifiques",
+          "status": "unavailable",
+          "datasetIds": [],
+          "reason": "Données non vérifiées pour cette région : checklist à compléter avant activation."
+        },
+        {
+          "id": "weather",
+          "label": "Conditions météo",
+          "status": "unavailable",
+          "datasetIds": [],
+          "reason": "Données non vérifiées pour cette région : checklist à compléter avant activation."
+        }
+      ]
     }
   ],
   "datasets": [

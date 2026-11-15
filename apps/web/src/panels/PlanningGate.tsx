@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { RotateCw } from 'lucide-react';
 import { Button, DataState, Skeleton } from '@marps/ui';
 import { usePlannerDispatch, usePlannerState } from '../state/PlannerProvider';
-import { selectDetailedRegion, selectPlanningStatus } from '../state/planner';
+import { selectMissionRegion, selectPlanningStatus } from '../state/planner';
 
 export function RetryCatalogButton() {
   const dispatch = usePlannerDispatch();
@@ -60,15 +60,16 @@ export function PlanningGate({ loadingTitle, coverageTitle, offerRegion = false,
   }
 
   if (status === 'insufficient-coverage') {
-    const regionName = selectDetailedRegion(state)?.name ?? 'Jezero';
+    const region = selectMissionRegion(state);
+    const regionName = region?.name ?? 'Jezero';
     return (
       <DataState
         kind="insufficient-coverage"
         title={localize(coverageTitle)}
-        description={localize("La vue globale sert à s'orienter. La planification détaillée n'est proposée que dans le secteur de {{v0}}.", { v0: regionName })}
+        description={localize("La vue globale et les régions sans données vérifiées servent à s'orienter. La planification détaillée n'est proposée que dans le secteur de {{v0}}.", { v0: regionName })}
         action={
-          offerRegion ? (
-            <Button type="button" size="sm" onClick={() => dispatch({ type: 'viewChanged', view: 'region' })}>
+          offerRegion && region ? (
+            <Button type="button" size="sm" onClick={() => dispatch({ type: 'regionOpened', regionId: region.id })}>
               {localize("Ouvrir")} {localize(regionName)}
             </Button>
           ) : undefined

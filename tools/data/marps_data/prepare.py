@@ -721,6 +721,17 @@ def unpublished(capability_id: str, label: str, reason: str, reason_url: str) ->
     return {"id": capability_id, "label": label, "status": "unavailable", "datasetIds": [], "reason": reason, "reasonUrl": reason_url}
 
 
+def pending_region(region: dict) -> dict:
+    return {
+        **region,
+        "kind": "detailed",
+        "capabilities": [
+            {"id": capability_id, "label": label, "status": "unavailable", "datasetIds": [], "reason": spec.REGION_NOT_VERIFIED}
+            for capability_id, label in spec.PENDING_REGION_CAPABILITIES
+        ],
+    }
+
+
 def build_manifest(datasets: list[dict], sites: list[dict], generated_at: str) -> dict:
     by_id = {d["id"]: d for d in datasets}
 
@@ -771,6 +782,7 @@ def build_manifest(datasets: list[dict], sites: list[dict], generated_at: str) -
                     available("geology", "Carte géologique (interprétative)", "jezero-geology-units"),
                 ],
             },
+            *(pending_region(region) for region in spec.PENDING_REGIONS),
         ],
         "datasets": datasets,
         "sites": sites,

@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { regions, scienceSources, siteSheets, type Catalog, type DataManifest } from '@marps/data';
+import { detailedRegions, scienceSources, siteSheets, type Catalog, type DataManifest } from '@marps/data';
 import {
   initialPlannerState,
   plannerReducer,
@@ -10,7 +10,7 @@ import {
 } from './planner';
 
 const manifest = JSON.parse(readFileSync(new URL('../../public/data/manifest.json', import.meta.url), 'utf8')) as DataManifest;
-const catalog: Catalog = { regions, datasets: manifest.datasets, sites: manifest.sites, manifest };
+const catalog: Catalog = { regions: detailedRegions(manifest.regions), datasets: manifest.datasets, sites: manifest.sites, manifest };
 const loaded = plannerReducer(initialPlannerState, { type: 'catalogLoaded', request: 0, catalog });
 
 describe('planner provenance', () => {

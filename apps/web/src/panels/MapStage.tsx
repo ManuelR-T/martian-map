@@ -3,12 +3,12 @@ import '../i18n';
 import type { ReactNode } from 'react';
 import { DataState } from '@marps/ui';
 import { usePlannerState } from '../state/PlannerProvider';
-import { selectDetailedRegion, selectMapStatus } from '../state/planner';
+import { selectMapStatus, selectRegion } from '../state/planner';
 import { RetryCatalogButton } from './PlanningGate';
 
 export interface MapStageProps {
   className?: string;
-  /** Carte OpenLayers de la vue active, montée par #7 (globale) et #8 (Jezero). */
+  /** Carte OpenLayers de la vue active, montée par #7 (globale) et #8 (région détaillée). */
   map?: ReactNode;
 }
 
@@ -18,8 +18,7 @@ export interface MapStageProps {
 export function MapStage({ className, map }: MapStageProps) {
   const state = usePlannerState();
   const status = selectMapStatus(state);
-  const region = selectDetailedRegion(state);
-  const regionName = region?.name ?? 'Jezero';
+  const regionName = selectRegion(state)?.name ?? state.regionId;
   const global = state.view === 'global';
   const showsMap = status === 'ready' && Boolean(map);
 
