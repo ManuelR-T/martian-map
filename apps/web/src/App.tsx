@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from 'react';
 import { BrandMark, Button, DataState, ThemeToggle } from '@marps/ui';
 import { BudgetPanel } from './panels/BudgetPanel';
+import { ConditionsPanel } from './panels/ConditionsPanel';
 import { MapStage } from './panels/MapStage';
 import { SiteDetailsPanel } from './panels/SiteDetailsPanel';
 import { PlannerMap } from './features/map/PlannerMap';
@@ -128,7 +129,8 @@ export function App() {
             {/* #14 fournira le budget calculé par mission-core. */}
             <BudgetPanel budget={null} className={`${floatingPanel} shrink-0 [--power-delay:240ms]`} />
             {/* #9 fournira les fiches scientifiques. */}
-            <SiteDetailsPanel className={`${floatingPanel} [--power-delay:360ms]`} />
+            <SiteDetailsPanel className={`${floatingPanel} shrink-0 [--power-delay:360ms]`} />
+            <ConditionsPanel className={`${floatingPanel} shrink-0 [--power-delay:480ms]`} />
           </div>
         </main>
         </RouteProfileProvider>

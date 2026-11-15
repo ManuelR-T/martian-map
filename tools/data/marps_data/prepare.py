@@ -20,7 +20,7 @@ import tifffile
 from PIL import Image
 
 from .wmts import imagery_wmts
-from . import check, geo, spec, terrain
+from . import check, geo, meda, spec, terrain
 from .rover import prepare_rover
 
 # Covers the TIFF tags and the row offsets of the largest source (HiRISE: 172 609 bytes).
@@ -66,7 +66,7 @@ def fetch_range(url: str, start: int, end: int) -> bytes:
 
 
 def cached(name: str, expected_sha256: str, download: Callable[[], bytes]) -> bytes:
-    """Elevation sources are static and large: reuse a verified local copy instead of downloading again."""
+    """Static upstream files (elevation, MEDA CSV): reuse a verified local copy instead of downloading again."""
     cache = spec.CACHE_DIR / name
     if cache.exists() and sha256(cache.read_bytes()) == expected_sha256:
         return cache.read_bytes()
@@ -458,6 +458,82 @@ def prepare_sites(staging: Path, retrieved_at: str) -> tuple[dict, list[dict]]:
     return dataset, sites
 
 
+def prepare_meda(staging: Path, retrieved_at: str, sites: list[dict]) -> list[dict]:
+    """One dataset per measure; each file holds the 24 LMST hours of one sol."""
+    # Same pinned file as the rover layer (#20), so the map and the panel agree on the position.
+    waypoints = json.loads(cached("M20_waypoints.json", spec.ROVER_HASHES["waypoints"], lambda: fetch(spec.WAYPOINTS_URL)))
+    datasets = []
+    for product in spec.MEDA_PRODUCTS:
+        label = meda.read_label(fetch(f"{product.base_url}.xml"), product.column)
+        if label["unit"] != product.unit or label["sol"] != product.sol:
+            raise RuntimeError(f"{product.product}: label declares {label['unit']} on sol {label['sol']}; review spec.py.")
+        raw = cached(f"{product.product}.CSV", product.sha256, lambda url=f"{product.base_url}.CSV": fetch(url))
+        if hashlib.md5(raw).hexdigest() != label["md5"]:  # noqa: S324 (PDS integrity checksum, not security)
+            raise RuntimeError(f"{product.product}: CSV does not match the md5 of its PDS label.")
+        hours = meda.hourly_values(raw.decode("ascii"), product.column, product.sol, product.valid_range)
+        position = meda.rover_position(waypoints, product.sol)
+        location = {**position, "nearestSite": meda.nearest_site(position, sites, spec.MARS_RADIUS_M)}
+        series = {
+            "measure": product.measure,
+            "sol": product.sol,
+            "column": product.column,
+            "unit": product.unit,
+            "sensor": product.sensor,
+            "aggregation": "median",
+            "timeScale": "LMST",
+            "startUtc": label["startUtc"],
+            "stopUtc": label["stopUtc"],
+            "location": location,
+            "hours": hours,
+        }
+        body = (json.dumps(series, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+        entry = write_file(staging, f"jezero/meda/{product.measure}-sol{product.sol:04d}.json", body, "application/json")
+        empty_hours = sum(1 for h in hours if h["median"] is None)
+        datasets.append(
+            {
+                "id": f"jezero-meda-{product.measure}",
+                "regionId": "jezero",
+                "title": product.title,
+                "kind": "weather",
+                "instrument": f"Rover Perseverance, station météo MEDA ({product.sensor})",
+                "delivery": "local",
+                "source": {
+                    "url": f"{product.base_url}.CSV",
+                    "labelUrl": f"{product.base_url}.xml",
+                    "retrievedAt": retrieved_at,
+                    "credit": spec.MEDA_CREDIT,
+                    "terms": spec.UNVERIFIED_TERMS,
+                    "fingerprint": fingerprint("CSV", raw),
+                },
+                "acquisition": {
+                    "date": label["startUtc"][:10],
+                    "sol": str(product.sol),
+                    "note": f"Sol {product.sol}, du {label['startUtc']} au {label['stopUtc']} (UTC).",
+                },
+                "units": {product.measure: product.unit},
+                "crs": "urn:ogc:def:crs:OGC:1.3:CRS84",
+                # A rover that did not drive measures at one point.
+                "extent": {
+                    "west": position["longitude"],
+                    "east": position["longitude"],
+                    "south": position["latitude"],
+                    "north": position["latitude"],
+                },
+                "resolution": None,
+                "noData": {
+                    "kind": "invalid-samples",
+                    "invalidSampleCount": sum(h["invalid"] for h in hours),
+                    "emptyHourCount": empty_hours,
+                },
+                "status": "available" if empty_hours == 0 else "partial",
+                "version": product.product[-3:],
+                "limitations": [*product.limitations, *spec.MEDA_LIMITATIONS],
+                "files": [entry],
+            }
+        )
+    return datasets
+
+
 def not_integrated(capability_id: str, label: str) -> dict:
     return {
         "id": capability_id,
@@ -513,7 +589,7 @@ def build_manifest(datasets: list[dict], sites: list[dict], generated_at: str) -
                     available("science-sites", "Sites scientifiques", "jezero-sampling-sites"),
                     available("rover-traverse", "Trace historique de Perseverance", "jezero-perseverance-waypoints", "jezero-perseverance-traverse"),
                     not_integrated("thermal-themis", "Infrarouge nocturne THEMIS"),
-                    not_integrated("weather-meda", "Température et pression MEDA"),
+                    available("weather-meda", "Température et pression MEDA", "jezero-meda-temperature", "jezero-meda-pressure"),
                     not_integrated("geology", "Carte géologique"),
                 ],
             },
@@ -536,6 +612,7 @@ def main() -> None:
         *(d for product in spec.ELEVATION_PRODUCTS for d in prepare_terrain(staging, retrieved_at, product)),
         sites_dataset,
         *prepare_rover(staging, retrieved_at),
+        *prepare_meda(staging, retrieved_at, sites),
     ]
     manifest = build_manifest(datasets, sites, retrieved_at)
     (staging / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", "utf-8")

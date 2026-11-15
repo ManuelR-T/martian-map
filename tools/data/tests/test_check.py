@@ -150,3 +150,45 @@ def test_slope_cannot_exist_where_elevation_is_missing(data_copy):
 def test_hillshade_must_match_its_grid(data_copy):
     edit_manifest(data_copy, lambda m: dataset(m, "jezero-ctx-hillshade").update(derivedFrom="jezero-hirise-dem"))
     assert any("jezero-ctx-hillshade: extent differs from jezero-hirise-dem" in e for e in check.validate(data_copy))
+
+
+def rewrite_series(root, dataset_id, change):
+    """Edit a frozen MEDA series and keep its recorded size and hash in step."""
+    manifest = json.loads((root / "manifest.json").read_text("utf-8"))
+    path = root / dataset(manifest, dataset_id)["files"][0]["path"]
+    series = json.loads(path.read_text("utf-8"))
+    change(series)
+    path.write_text(json.dumps(series), "utf-8")
+    data = path.read_bytes()
+    edit_manifest(root, lambda m: dataset(m, dataset_id)["files"][0].update(sha256=prepare.sha256(data), bytes=len(data)))
+
+
+def test_weather_capability_is_backed_by_temperature_and_pressure():
+    manifest = json.loads((spec.DATA_DIR / "manifest.json").read_text("utf-8"))
+    weather = capability(manifest, "weather-meda")
+    assert (weather["status"], weather["datasetIds"]) == ("available", ["jezero-meda-temperature", "jezero-meda-pressure"])
+
+
+def test_invalid_sentinel_leaked_into_an_hour_is_rejected(data_copy):
+    rewrite_series(data_copy, "jezero-meda-pressure", lambda s: s["hours"][3].update(median=9999999999.0))
+    assert any("physical range" in e for e in check.validate(data_copy))
+
+
+def test_an_hour_cannot_have_a_value_without_valid_samples(data_copy):
+    rewrite_series(data_copy, "jezero-meda-temperature", lambda s: s["hours"][5].update(samples=0))
+    assert any("exactly when it has valid samples" in e for e in check.validate(data_copy))
+
+
+def test_an_empty_hour_forces_a_partial_status(data_copy):
+    def empty_hour(series):
+        series["hours"][17].update(median=None, samples=0, firstLmst=None, lastLmst=None)
+
+    rewrite_series(data_copy, "jezero-meda-temperature", empty_hour)
+    edit_manifest(data_copy, lambda m: dataset(m, "jezero-meda-temperature")["noData"].update(emptyHourCount=1))
+    assert any("'partial' exactly when an hour has no value" in e for e in check.validate(data_copy))
+
+
+def test_rover_position_outside_the_sector_is_rejected(data_copy):
+    rewrite_series(data_copy, "jezero-meda-pressure", lambda s: s["location"].update(longitude=77.5))
+    edit_manifest(data_copy, lambda m: dataset(m, "jezero-meda-pressure")["extent"].update(west=77.5, east=77.5))
+    assert any("outside the jezero sector" in e for e in check.validate(data_copy))
