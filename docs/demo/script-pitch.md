@@ -1,66 +1,70 @@
 # Pitch script (#17)
 
-4 min 20 s, then 4 min of questions. One person tells, another manipulates. Figures: [demo mission](mission-demo.md).
+About 3 minutes, one part per slide. The jury is not expert: explain every technical term.
 
-**Red thread:** on Mars, Houston responds too late. Live help comes from the habitat, and its card is Marps.
+## 1. Marps
 
-**The scenario in brief:**
-- **Context:** a team of three astronauts lives in a habitat in the Jezero crater on Mars. A message to Earth takes 4 to 22 minutes depending on the position of the planets, 12 that day, so Houston can't help them live.
-- **The characters:** Léa and Sam go out on foot to collect rocks. Anna stays in the habitat and follows them on the Marps tablet. These are invented characters.
-- **The day before:** the crew prepares a 6-hour outing to three sites already studied by the Perseverance rover. There are 32 minutes of margin left. He wants a 2nd sample in Amalik, and the margin drops to −18 min. He then renounces the Skinner Ridge sample and returns to +27 min.
-- **During the outing:** Léa and Sam announce each task done on the radio, and Anna checks it off. At Wildcat Ridge, the habitat's sensors trigger a radiation alert (simulated in the demo), and Anna gives them the order to return: 610 m, or 21 minutes of walking.
+- Team Yarnify3D
+- Challenge: "Interplanetary Survival Guide: Martian Map"
+- Marps: a tablet map to plan and follow a walk on Mars
 
-## The pitch
+## 2. Context
 
-**1. The hook (0:00–0:30)**
-Screen: black, then Whole Mars.
-> Sol 47, Jezero crater. Léa and Sam set off on foot towards a rock which could keep traces of ancient life.
->If they have a problem, Houston will find out in 12 minutes. His response will take another 12 minutes.
-> Their only live help is Anna, in the habitat. And his card is Marps.
+- Decades of NASA robots on Mars: orbiters and rovers
+- Result: surface mapped, environment measured
+- What the first astronauts need: a precise map for each walk (where to go, slopes, what to collect)
+- Problem 1: data spread across many missions
+- Problem 2: today's tools (e.g. NASA's Mars Trek) explore Mars, they do not plan a 1 km walk (stops, timing, way back)
+- Problem 3: Houston (NASA's mission control) is too far, up to 22 min per message, so it can only advise with a delay
 
-**2. The day before: where to go (0:30–1:10)**
-Screen: zoom on Jezero, the three sites, Amalik's file.
-> Perseverance has already collected here. Amalik is the rock best suited to retaining organic molecules.
-> The sheet shows the photo of the rover: on site, the crew will know what to look for.
+## 3. How a walk goes, and what Marps does
 
-**3. One map, four NASA missions (1:10–2:00)**
-Screen: activate relief, infrared, rover track; hover over a red section of the profile.
-> Each layer answers a question. Where am I going? Is it going up? Is the ground hard? Where did the rover go?
-> I fly over a slope on the profile: Marps shows it on the ground.
+- The crew lives in a base: the habitat
+- The walk: 2 astronauts outside, on foot, for a few hours, to study and collect rocks
+- Marps' role: 1 astronaut inside becomes the control tower for the walkers
+- Already tested by NASA (BASALT field tests): 2 outside, 1 inside who guides
+- The day before: planning in Marps (camp, stops, tasks, climbs)
+- During the walk: each task reported by radio, checked off on the tablet
+- No network needed once the app is installed (Jezero sector and mission)
 
-**4. The Dilemma (2:00–2:50)**
-Screen: “At the base”, the mission at +32 min; addition of the 2nd sample (−18); removal of the Skinner Ridge sample (+27).
-> Six hours outside, one hour reserve: 32 minutes margin.
-> The team wants a 2nd sample from Amalik. The margin drops to minus 18.
-> At Skinner Ridge, the rover has already cored twice: we will only take photos there. Plus 27.
-> The crew decides. Marps shows the price of each choice.
+## 4. One NASA dataset per crew question
 
-**5. Release day (2:50–3:40)**
-Screen: “Start this mission”, “On mission” mode, check Skinner Ridge, then “Simulate radiation alert”.
-> Léa describes the rock on the radio, Anna ticks. With pressurized gloves, a touch screen is almost unusable outdoors.
-> At Wildcat Ridge, radiation alert: “Return to camp now”, 610 meters, 21 minutes. Anna transmits.
-> The alert is simulated: we have no radiation measurements at Jezero.
+- "Where am I going?": images from orbit, 1 pixel = 25 cm (HiRISE camera)
+- "Does it climb?": elevation and slopes from USGS (US Geological Survey)
+- "Rock or loose sand?": night infrared, rock stays warm at night (THEMIS camera, about 100 m per pixel)
+- "Which rock unit?": USGS geologic map
+- "What did the rover find?": samples from the Perseverance rover
+- "How cold is it?": Perseverance weather station
 
-**6. The end (3:40–4:20)**
-Screen: the map of Jezero, then the sources.
-> NASA and USGS public data. Each number says whether it is measured, calculated or assumed. Everything works without a network.
-> The first humans on Mars will decide for themselves. Marps gives them the card that Houston won't be able to give them in time.
+## 5. The day before: know each stop
 
-**If a PR is not merged:** without the budget (#14), give the margins orally. Without the alert (#26), stop at the checked activities.
+- For each stop: what to bring back + the rover's photo
+- Route profile: slopes above a crew-chosen threshold (10° here) flagged on the map
+- Temperature measured by the rover (−44 °C at local noon, sol 500, July 2022): helps choose the time to go out
 
-## 30s version (backup video)
+## 6. During the walk: calling the crew back
 
-> On Mars, Houston responds 24 minutes late. Live help comes from the home.
-> Images, relief, infrared, rover track: four NASA missions on a single map.
-> One more sample? Marps shows what it costs, and what to sacrifice.
-> Marps, the card that Houston will not be able to give them in time.
+- Tracking: tasks checked off as they are reported by radio
+- Alert: immediate return ordered from the habitat
+- Way back given by Marps: straight line to camp, 610 m, about 21 min, tasks left behind
+- In the demo, the radiation alert is simulated (no radiation measurement at Jezero)
+
+## 7. Conclusion
+
+- Every source and assumption labelled: measured, calculated, simulated or unknown
+- Missing data shown, never invented
+- Next: live position of the walkers, a real helmet display (simulated today), Gale, Utopia and Elysium (already marked, data to add), the Moon (Artemis missions)
+- Try it at marps.vercel.app
+
+**Optional demo (1 min, after slide 3):** open Jezero → route profile → touch a red section → "On a mission" → "Simulate radiation alert".
 
 ## Likely questions
 
-- **Why does the tablet stay in the habitat?** A pressurized glove makes the touch screen almost unusable (NASA). The astronaut speaks on the radio, the teammate follows on the tablet.
-- **6 hours of exit and 75 minutes per stop, is that realistic?** Apollo 17: 7 hours per exit, stops of 30 to 66 minutes. The distribution into activities is our hypothesis.
-- **Why straight lines?** The route connects the stops. The relief at 4 m does not show each rock, so the path is not verified.
-- **Oxygen, weather, radiation?** Not modeled live. The radiation alert is an exercise: RAD (Curiosity) measures Gale, not Jezero.
-- **Without network?** Yes for the app and the prepared sector, after a first visit.
-- **Infrared gives the temperature?** No: gray levels show the ability of the ground to retain heat.
-- **Where does the data come from?** NASA and USGS, frozen in the repository, with source and file imprint. Credits: [credits-donnees.md](credits-donnees.md).
+- **Why is the tablet inside the habitat?** Pressurized gloves make a touchscreen almost unusable outside, so radio outside and tablet inside
+- **Is the route safe?** No: relief measured every 4 m, without every rock or ground strength, so the route is a hypothesis
+- **Are the durations realistic?** Walk length based on Apollo 17 (about 7 h, stops of 30 to 66 min); stop times, reserve and 0.5 m/s speed are our assumptions
+- **Does infrared give temperature or firmness?** Neither: only rock versus fine sand, about 100 m per pixel, no number
+- **Why 1 km?** Suit, oxygen and the way back limit range; Artemis III stays within 2 km of the lander; our demo walk is 1.3 km
+- **Why 10°?** A threshold the crew can change, not a validated suit limit
+- **Has radiation been measured on Mars?** Yes, by RAD on Curiosity at Gale crater (about 0.2 mGy per day), never at Jezero, hence the simulated alert
+- **Is the data live?** No: NASA and USGS data frozen in the repository, each with its source ([credits-donnees.md](credits-donnees.md))
