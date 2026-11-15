@@ -60,6 +60,7 @@ export function ProfilePanel({ className }: { className?: string }) {
 
   return (
     <Panel
+      floating
       title="Profil du parcours"
       description="Parcours de démonstration : les sites en ligne droite, puis retour"
       collapsible

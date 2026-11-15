@@ -46,3 +46,22 @@ Chaque choix répond à un usage concret d'un astronaute en sortie sur Mars et s
 - **Pente dans le sens de la marche seulement.** La pente en travers, quand on longe un versant, relève du ticket #44.
 
 **Limites :** même à 4 m par case, le relief ne montre ni les rochers ni les petites marches, et il ne garantit pas qu'un passage est praticable. Le parcours de démonstration relie les sites en ligne droite en attendant le tracé (#12) ; ce n'est pas un chemin calculé.
+
+## Alerte radiation simulée (#26)
+
+L'alerte sert pendant la sortie, dans le mode « En mission ». Le coéquipier resté dans l'habitat lit l'ordre sur la tablette et le transmet à la radio.
+
+| Élément | Usage pour l'équipage | Source |
+| --- | --- | --- |
+| Ordre « Rentrer au camp maintenant » | Répéter la décision réelle : pendant un événement solaire, une sortie peut être interrompue et l'équipage mis à l'abri. Le groupe d'analyse des radiations de la NASA (SRAG) donne un avis sur chaque sortie et alerte les contrôleurs. | [SRAG, NASA JSC, 2000](https://lws.gsfc.nasa.gov/documents/community_ws_5_10_2000/golightly.pdf), [NASA OCHMO](https://www.nasa.gov/sites/default/files/atoms/files/radiation_protection_technical_brief_ochmo.pdf) |
+| Retour direct depuis l'étape en cours | La NASA juge une sortie bien protégée si elle peut s'arrêter en moins de 2 heures avec un abri accessible. L'alerte donne la distance et la durée du retour en ligne droite jusqu'au camp, à la vitesse prévue de la mission. | NASA OCHMO |
+| Activités abandonnées, résumées par site | Savoir ce que la sortie ne rapportera pas, pour replanifier sans attendre la Terre. | Choix de l'équipe |
+| Mention « Simulation » et contexte replié | Aucune mesure des radiations n'existe à Jezero : RAD, sur Curiosity, mesure au cratère Gale, et MEDA RDS, sur Perseverance, mesure la lumière du Soleil et la poussière. L'alerte est donc un exercice. | [NASA, 2013](https://www.nasa.gov/news-release/nasa-rover-results-include-first-age-measurement-on-mars-and-help-for-human-exploration/), [NASA, mesures RAD](https://science.nasa.gov/resource/radiation-measurements-on-mars/), [NASA, MEDA RDS](https://science.nasa.gov/resource/medas-radiation-and-dust-sensor/) |
+
+**Choix de l'équipe, sans source NASA :**
+- L'application ne connaît pas la position de l'équipage. L'étape en cours est la première étape qui a encore une activité non cochée, ou la dernière quand tout est coché.
+- Tout ce qui n'est pas coché, à partir de l'étape en cours, est abandonné.
+- Les chiffres sont figés au déclenchement, comme un ordre transmis à la radio. Passer par « À la base » garde l'alerte ; un rechargement de la page l'annule.
+- La marge restante n'est pas affichée tant que le budget de temps (#14) n'est pas calculé.
+
+**Écarté volontairement :** toute dose personnelle, probabilité de survie ou alerte locale déduite d'une alerte terrestre. Le seul chiffre cité, environ 210 micrograys par jour mesurés par RAD à Gale en 2012-2013, décrit le lieu de la mesure.

@@ -12,8 +12,8 @@ export function minutesToSeconds(minutes: number): number {
   return minutes * 60;
 }
 
-export { createEmptyMission } from './mission';
-export type { Mission, MissionStep } from './mission';
+export * from './mission';
+export * from './radiation';
 export {
   MARS_RADIUS_METRES,
   groundDistanceMetres,

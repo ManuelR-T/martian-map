@@ -19,16 +19,7 @@
 .jezero-status > div button { min-height: 44px; margin-top: .25rem; }
 @media (max-height: 600px) { .jezero-status { max-height: 40%; overflow-y: auto; } }
 
-@media (min-width: 1280px) and (min-height: 601px) {
-  .jezero-status {
-    top: var(--steps-panel-bottom, 5rem);
-    left: .75rem;
-    width: 19rem;
-    max-width: calc(100% - 1.5rem);
-    max-height: max(6rem, calc(100% - var(--steps-panel-bottom, 5rem) - 5rem));
-    overflow-y: auto;
-  }
-}
+.map-panel-dock .jezero-status { position: static; width: 100%; max-width: none; max-height: none; }
 
 .jezero-legend li { display: flex; align-items: center; gap: .5rem; }
 .jezero-legend svg, .jezero-missing-swatch { flex: 0 0 40px; width: 40px; height: 24px; }

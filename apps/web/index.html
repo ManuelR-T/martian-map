@@ -3,20 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#131f38" />
+    <meta name="theme-color" content="#060912" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Marps</title>
     <script>
-      // Applique le thème avant le premier rendu : choix enregistré, sinon préférence du système.
+      // Applique le thème avant le premier rendu. Le thème nuit est celui d'origine, comme sur un
+      // poste de pilotage ; le thème jour ne s'applique que s'il a été choisi.
       (function () {
         var theme = null;
         try {
           theme = window.localStorage.getItem('marps-theme');
         } catch (error) {}
-        if (theme !== 'light' && theme !== 'dark') {
-          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-        if (theme === 'dark') document.documentElement.classList.add('dark');
+        if (theme !== 'light') document.documentElement.classList.add('dark');
       })();
     </script>
   </head>

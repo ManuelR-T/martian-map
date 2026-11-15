@@ -1,5 +1,7 @@
 import { CircleDashed } from 'lucide-react';
 import { BudgetBreakdown, Panel, type BudgetBreakdownProps } from '@marps/ui';
+import { usePlannerState } from '../state/PlannerProvider';
+import { selectCurrentMission } from '../state/planner';
 import { PlanningGate } from './PlanningGate';
 
 export type BudgetView = Pick<
@@ -17,15 +19,23 @@ export interface BudgetPanelProps {
 }
 
 export function BudgetPanel({ className, budget }: BudgetPanelProps) {
+  const state = usePlannerState();
+  const mission = selectCurrentMission(state);
   return (
     <Panel
       title="Budget de temps"
       description="Marche, observations, retour et réserve"
       collapsible
+      floating
       className={className}
       contentClassName="overflow-y-auto"
     >
       <PlanningGate loadingTitle="Chargement du budget" coverageTitle="Pas de budget hors du secteur détaillé">
+        {(state.workspace === 'base' || state.runningMission) && <dl className="mb-3 grid gap-1 text-sm">
+          <div><dt className="inline">Durée disponible : </dt><dd className="inline">{mission.parameters.availableSeconds / 60} min</dd></div>
+          <div><dt className="inline">Vitesse prévue : </dt><dd className="inline">{mission.parameters.speedMetresPerSecond} m/s</dd></div>
+          <div><dt className="inline">Réserve : </dt><dd className="inline">{mission.parameters.reserveSeconds / 60} min</dd></div>
+        </dl>}
         {budget ? (
           <BudgetBreakdown {...budget} />
         ) : (
