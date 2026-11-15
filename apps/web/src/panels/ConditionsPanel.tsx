@@ -110,7 +110,7 @@ function ConditionsView({ conditions, sols, firstSol, wind }: ConditionsViewProp
       <div className="grid gap-1 text-sm">
         {now.temperature ? (
           <p>
-            {localize("Mesuré de")} {formatLmst(now.temperature.firstLmst)} {localize("à")} {formatLmst(now.temperature.lastLmst)}{localize(".")} </p>
+            {localize("Mesuré de {{v0}} à {{v1}}.", { v0: formatLmst(now.temperature.firstLmst), v1: formatLmst(now.temperature.lastLmst) })} </p>
         ) : null}
         {/* Le lieu ne dépend pas de la température : une heure avec la seule pression le montre aussi. */}
         {now.location ? (
@@ -135,7 +135,8 @@ function ConditionsView({ conditions, sols, firstSol, wind }: ConditionsViewProp
         <p className="text-muted-foreground">
           <a href={source.url} className="underline">
             {localize("NASA PDS · MEDA")} </a>
-          {localize(series ? `, ${series.sensor.charAt(0).toLowerCase()}${series.sensor.slice(1)}` : '')}
+          {/* Lowercased after the comma; the catalog holds that lowercase form. */}
+          {series ? <>{localize(",")} {localize(`${series.sensor.charAt(0).toLowerCase()}${series.sensor.slice(1)}`)}</> : null}
           {localize(' · ')}
           <a href={pressureSource.url} className="underline">
             {localize("source de la pression")} </a>

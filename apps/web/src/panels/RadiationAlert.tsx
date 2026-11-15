@@ -9,7 +9,7 @@ import { radiationReturn, type Mission, type RadiationReturn } from '@marps/miss
 // Jezero returns are a few hundred metres: kilometres rounded to 0,1 would hide them.
 const distance = (metres: number) => metres < 1000 ? `${Math.round(metres)} m` : `${(metres / 1000).toLocaleString(locale(), { maximumFractionDigits: 1 })} km`;
 const minutes = (seconds: number) => `${Math.ceil(seconds / 60)} min`;
-const plural = (n: number) => localize("{{v0}} activité{{v1}}", { v0: n, v1: n > 1 ? 's' : '' });
+const plural = (count: number) => localize("{{count}} activité", { count });
 const link = (href: string, label: string) => <a className="underline" href={href} target="_blank" rel="noreferrer">{localize(label)}</a>;
 
 /** Collapsed context: Jezero has no ionizing-radiation measurement, so the alert can only be an exercise. */
