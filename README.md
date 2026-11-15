@@ -151,7 +151,7 @@ global, et exporter le composant depuis `src/index.ts`.
 ## Données
 
 Les données du MVP sont **figées dans le dépôt** sous `apps/web/public/data`
-(environ 5,4 Mo) et servies en statique à l'adresse `/data/`. `pnpm build`,
+(environ 6,0 Mo) et servies en statique à l'adresse `/data/`. `pnpm build`,
 `pnpm test` et l'application ne contactent jamais NASA ni USGS.
 
 | Jeu de données | Livraison | Contenu |
@@ -161,6 +161,8 @@ Les données du MVP sont **figées dans le dépôt** sous `apps/web/public/data`
 | `jezero-hirise-dem`, `-slope`, `-hillshade` | figée | Altitudes, pentes et relief ombré HiRISE, agrégés à 4 m |
 | `jezero-ctx-dem`, `-slope`, `-hillshade` | figée | Les mêmes grilles à 20 m (CTX), en repli |
 | `jezero-sampling-sites` | figée | Skinner Ridge, Wildcat Ridge et Amalik (GeoJSON NASA) |
+| `jezero-themis-night-ir` | figée | Infrarouge de nuit THEMIS (Mars Odyssey), 4 tuiles du niveau 9 couvrant toute la mosaïque HiRISE ; contraste qualitatif, pas une température |
+
 | `jezero-meda-temperature`, `-pressure` | figée | Température et pression MEDA du sol 500, une valeur par heure martienne |
 
 Le manifeste sépare l'**orientation globale** (région `global`) du **détail de

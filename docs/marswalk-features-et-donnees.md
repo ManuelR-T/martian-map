@@ -61,11 +61,15 @@ Les trois réponses HTTP 200 ont été décodées. Des extraits sont conservés 
 
 Le segment historique conservé ne relie pas les trois arrêts. Il faut préparer le parcours du scénario ; il ne doit pas apparaître automatiquement comme une route humaine validée.
 
-### Infrarouge THEMIS : affichage disponible
+### Infrarouge THEMIS : intégré (#22)
 
 Couche du [catalogue NASA Trek](https://trek.nasa.gov/tiles/apidoc/trekAPI.html?body=mars) : `THEMIS_NightIR_ControlledMosaics_100m_v2_oct2018`, mission Mars Odyssey, mosaïque nocturne à 100 m/pixel.
 
-Configuration WMTS et tuile `9/203/732.png` récupérées, tuile HTTP 200, PNG 256 × 256 décodé, opaque et non uniforme, CORS `*`. Le fichier est conservé avec son URL exacte dans le manifeste. Ces niveaux de gris ne sont pas une série de températures en degrés. Le catalogue explique que les contrastes nocturnes renseignent notamment sur les différences d'inertie thermique ; utiliser la couche comme contexte scientifique.
+Configuration WMTS et tuile `9/203/732.png` récupérées, tuile HTTP 200, PNG 256 × 256 décodé, opaque et non uniforme, CORS `*`. L'échantillon de recherche est dans `data/research/`.
+
+Intégrée par #22 : `pnpm data:prepare` fige les capacités WMTS et les 4 tuiles du niveau 9 (le plus fin, environ 81 m/pixel) qui couvrent toute l'emprise du produit HiRISE, sous `apps/web/public/data/jezero/themis/` (jeu `jezero-themis-night-ir`, environ 220 Ko). Le gabarit officiel contient `1.0.0//{Style}` ; la forme à un seul `/` renvoie les mêmes octets. Au-delà de ±65° de latitude et au niveau 10, Trek répond HTTP 404.
+
+Ces niveaux de gris ne sont pas des températures. L'USGS décrit ces mosaïques comme des produits 8 bits qualitatifs, étirés et fondus pour l'affichage : ni degrés, ni inertie thermique chiffrée. La nuit, poussière et sable fin se refroidissent vite et paraissent sombres ; roche et sols indurés restent clairs ([USGS](https://stac.astrogeology.usgs.gov/docs/data/mars/themis_controlled_mosaics/)).
 
 ### Géologie détaillée : produit identifié, préparation supplémentaire
 

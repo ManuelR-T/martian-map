@@ -33,6 +33,11 @@ MOLA_TILE_TEMPLATE = f"{TREK}/{MOLA_LAYER}/1.0.0/default/default028mm/{{z}}/{{y}
 HIRISE_CAPABILITIES_URL = f"{TREK}/{HIRISE_LAYER}/1.0.0/WMTSCapabilities.xml"
 HIRISE_TILE_TEMPLATE = f"{TREK}/{HIRISE_LAYER}/1.0.0/default/default028mm/{{z}}/{{y}}/{{x}}.png"
 HIRISE_ZOOMS = range(12, 17)  # z16 is about 0.64 m/pixel; native product is 0.25 m/pixel
+THEMIS_LAYER = "THEMIS_NightIR_ControlledMosaics_100m_v2_oct2018"
+THEMIS_CAPABILITIES_URL = f"{TREK}/{THEMIS_LAYER}/1.0.0/WMTSCapabilities.xml"
+# The capabilities template has "1.0.0//{Style}"; the single-slash form serves the same bytes.
+THEMIS_TILE_TEMPLATE = f"{TREK}/{THEMIS_LAYER}/1.0.0/default/default028mm/{{z}}/{{y}}/{{x}}.png"
+THEMIS_ZOOM = 9  # finest WMTS level, about 81 m/pixel at the equator; the product samples 100 m/pixel
 
 USGS_MOSAICS = "https://planetarymaps.usgs.gov/mosaic/mars2020_trn"
 # Constraints read on the USGS Astropedia record of each product.

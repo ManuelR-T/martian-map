@@ -12,6 +12,7 @@ from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from functools import partial
 from io import BytesIO
 from pathlib import Path
 
@@ -120,9 +121,9 @@ def prepare_mola(retrieved_at: str) -> dict:
     }
 
 
-def fetch_tile(job: tuple[int, int, int]) -> tuple[tuple[int, int, int], bytes, int]:
+def fetch_tile(template: str, job: tuple[int, int, int]) -> tuple[tuple[int, int, int], bytes, int]:
     zoom, col, row = job
-    url = spec.HIRISE_TILE_TEMPLATE.format(z=zoom, y=row, x=col)
+    url = template.format(z=zoom, y=row, x=col)
     data = fetch(url)
     image = Image.open(BytesIO(data))
     image.load()
@@ -143,7 +144,7 @@ def prepare_hirise(staging: Path, retrieved_at: str) -> dict:
 
     transparent = 0
     with ThreadPoolExecutor(max_workers=4) as pool:
-        for (zoom, col, row), data, transparent_count in pool.map(fetch_tile, jobs):
+        for (zoom, col, row), data, transparent_count in pool.map(partial(fetch_tile, spec.HIRISE_TILE_TEMPLATE), jobs):
             transparent += transparent_count
             files.append(write_file(staging, f"jezero/hirise/{zoom}/{row}/{col}.png", data, "image/png"))
 
@@ -191,6 +192,63 @@ def prepare_hirise(staging: Path, retrieved_at: str) -> dict:
             "urlTemplate": "jezero/hirise/{z}/{y}/{x}.png",
             "ranges": ranges,
             "finestMetresPerPixel": geo.metres_per_pixel(finest["z"], spec.MARS_RADIUS_M),
+        },
+        "files": files,
+    }
+
+
+def prepare_themis(staging: Path, retrieved_at: str, footprint: geo.Extent) -> dict:
+    """Night infrared context: the finest THEMIS level over the whole HiRISE product, frozen for offline use."""
+    capabilities = fetch(spec.THEMIS_CAPABILITIES_URL)
+    files = [write_file(staging, "jezero/themis/WMTSCapabilities.xml", capabilities, "application/xml")]
+    zoom = spec.THEMIS_ZOOM
+    col_min, col_max, row_min, row_max = geo.tile_range(footprint, zoom)
+    jobs = [(zoom, c, r) for r in range(row_min, row_max + 1) for c in range(col_min, col_max + 1)]
+
+    transparent = 0
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        for (_, col, row), data, transparent_count in pool.map(partial(fetch_tile, spec.THEMIS_TILE_TEMPLATE), jobs):
+            transparent += transparent_count
+            files.append(write_file(staging, f"jezero/themis/{zoom}/{row}/{col}.png", data, "image/png"))
+
+    return {
+        "id": "jezero-themis-night-ir",
+        "regionId": "jezero",
+        "title": "Infrarouge de nuit THEMIS (contexte thermique)",
+        "kind": "thermal",
+        "instrument": "Mars Odyssey, caméra THEMIS (mosaïque contrôlée de l'infrarouge de nuit)",
+        "delivery": "local",
+        "source": {
+            "url": spec.THEMIS_CAPABILITIES_URL,
+            "tileUrlTemplate": spec.THEMIS_TILE_TEMPLATE,
+            "retrievedAt": retrieved_at,
+            "credit": "NASA/JPL-Caltech/Arizona State University ; mosaïque USGS ; distribué par NASA Mars Trek",
+            "terms": spec.UNVERIFIED_TERMS,
+            "fingerprint": fingerprint("WMTSCapabilities.xml", capabilities),
+        },
+        "acquisition": {
+            "date": None,
+            "sol": None,
+            "note": "Mosaïque historique publiée en octobre 2018, assemblée à partir de nombreuses nuits ; dates non relevées par tuile.",
+        },
+        "units": {},
+        "crs": "urn:ogc:def:crs:EPSG::104905",
+        "extent": geo.union(geo.tile_extent(zoom, col_min, row_min), geo.tile_extent(zoom, col_max, row_max)),
+        "resolution": {"value": 100.0, "unit": "m/pixel"},
+        "noData": {"kind": "alpha-channel", "transparentPixelCount": transparent},
+        "status": "available" if transparent == 0 else "partial",
+        "version": "v2_oct2018",
+        "limitations": [
+            "Niveaux de gris étirés pour l'affichage (USGS : produit qualitatif) : ni température, ni inertie thermique chiffrée.",
+            "Sombre : matériaux fins (poussière, sable) ; clair : roche ou sol induré. Lecture qualitative.",
+            "Seul le niveau 9 (environ 81 m/pixel) est figé, sur l'emprise du produit HiRISE ; aucune tuile au-delà.",
+        ],
+        "tileset": {
+            "matrixSet": "default028mm",
+            "tileSize": geo.TILE_SIZE,
+            "urlTemplate": "jezero/themis/{z}/{y}/{x}.png",
+            "ranges": [{"z": zoom, "colMin": col_min, "colMax": col_max, "rowMin": row_min, "rowMax": row_max}],
+            "finestMetresPerPixel": geo.metres_per_pixel(zoom, spec.MARS_RADIUS_M),
         },
         "files": files,
     }
@@ -603,7 +661,7 @@ def build_manifest(datasets: list[dict], sites: list[dict], generated_at: str) -
                     available("terrain-hillshade", "Relief ombré", *terrain_ids("hillshade")),
                     available("science-sites", "Sites scientifiques", "jezero-sampling-sites"),
                     available("rover-traverse", "Trace historique de Perseverance", "jezero-perseverance-waypoints", "jezero-perseverance-traverse"),
-                    not_integrated("thermal-themis", "Infrarouge nocturne THEMIS"),
+                    available("thermal-themis", "Infrarouge nocturne THEMIS", "jezero-themis-night-ir"),
                     available("weather-meda", "Température et pression MEDA", "jezero-meda-temperature", "jezero-meda-pressure"),
                     unpublished("weather-wind", "Vent MEDA", spec.MEDA_WIND_REASON, spec.MEDA_RELEASE_NOTES_URL),
                     not_integrated("geology", "Carte géologique"),
@@ -622,9 +680,11 @@ def main() -> None:
     staging.mkdir(parents=True)
 
     sites_dataset, sites = prepare_sites(staging, retrieved_at)
+    hirise = prepare_hirise(staging, retrieved_at)
     datasets = [
         prepare_mola(retrieved_at),
-        prepare_hirise(staging, retrieved_at),
+        hirise,
+        prepare_themis(staging, retrieved_at, hirise["wmts"]["extent"]),
         *(d for product in spec.ELEVATION_PRODUCTS for d in prepare_terrain(staging, retrieved_at, product)),
         sites_dataset,
         *prepare_rover(staging, retrieved_at),
