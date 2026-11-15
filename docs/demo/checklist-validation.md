@@ -20,9 +20,9 @@
 | [ ] | Poser le camp à 77,4095° E, 18,4513° N | Camp affiché comme position fictive. |
 | [ ] | Ajouter Skinner Ridge, Wildcat Ridge, Amalik | Même ordre sur la carte et dans la liste. |
 | [ ] | Régler 360 min, réserve 60 min, 2 km/h, arrêts de 75 min | Distance 1 499 m (± 1 m) ; marche 45 min ; retour 14 min affiché à part. |
-| [ ] | Lire la marge | +30 min. |
-| [ ] | Passer Amalik à 125 min (2e prélèvement) | Marge −20 min ; alerte en texte et en couleur. |
-| [ ] | Passer Skinner Ridge à 30 min | Marge +25 min ; l'alerte disparaît. |
+| [ ] | Lire la marge | +32 min. |
+| [ ] | Passer Amalik à 125 min (2e prélèvement) | Marge −18 min ; alerte en texte et en couleur. |
+| [ ] | Passer Skinner Ridge à 30 min | Marge +27 min ; l'alerte disparaît. |
 
 
 ## Contrôles
@@ -52,7 +52,7 @@ Dans les outils de développement du navigateur, onglet Réseau.
 | ✓ | Élément | Attendu |
 | --- | --- | --- |
 | [ ] | Tests unitaires du moteur | `pnpm test` passe dans la CI de chaque pull request. |
-| [ ] | Tests d'intégration du parcours critique | Ajout de la mission, dépassement à −20 min, adaptation à +25 min, retour compté une fois. Ils restent à écrire après #12 et #14. Le dépôt n'a aujourd'hui que Vitest, sans outil de test dans un vrai navigateur. |
+| [ ] | Tests d'intégration du parcours critique | Ajout de la mission, dépassement à −18 min, adaptation à +27 min, retour compté une fois. Ils restent à écrire après #12 et #14. Le dépôt n'a aujourd'hui que Vitest, sans outil de test dans un vrai navigateur. |
 
 ## Vidéo de secours
 

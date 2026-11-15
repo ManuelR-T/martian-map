@@ -15,7 +15,7 @@ Léa, Sam et Noor sont des personnages inventés pour l'histoire.
 - À l'écran : écran noir, puis la carte globale de Mars.
 - À dire :
   - Sol 47, cratère Jezero. Léa et Sam enfilent leur combinaison.
-  - Ils vont marcher 1,5 km vers une roche qui pourrait garder des traces de vie ancienne.
+  - Ils vont marcher 1,3 km vers une roche qui pourrait garder des traces de vie ancienne.
   - S'ils ont un problème à 500 m du camp, Houston l'apprendra dans 12 minutes. Sa réponse mettra encore 12 minutes à arriver.
   - Sur Mars, la seule aide en direct, c'est Noor, restée dans l'habitat. Et sa carte, c'est Marps.
 
@@ -42,21 +42,21 @@ Léa, Sam et Noor sont des personnages inventés pour l'histoire.
 
 ### 2:00–2:50 · Le dilemme
 
-- À l'écran : le budget à +30 min, l'ajout du 2e prélèvement à Amalik, l'alerte à −20 min, Skinner Ridge réduit à des photos, la marge à +25 min.
+- À l'écran : mode « À la base », la mission préparée et enregistrée, le budget à +32 min. On ajoute le 2e prélèvement à Amalik (alerte à −18 min), puis on retire le prélèvement de Skinner Ridge (marge à +27 min).
 - À dire :
-  - Six heures dehors, dont une heure de réserve. Le plan tient : 30 minutes de marge.
+  - Six heures dehors, dont une heure de réserve. Le plan tient : 32 minutes de marge.
   - Mais Amalik est la meilleure chance de la journée. L'équipe veut un 2e échantillon.
-  - 50 minutes de plus : la marge tombe à moins 20. Marps l'affiche tout de suite.
+  - 50 minutes de plus : la marge tombe à moins 18. Marps l'affiche tout de suite.
   - Que sacrifier ? À Skinner Ridge, le rover a déjà carotté deux fois. On y fera seulement des photos.
-  - La marge remonte à plus 25. La décision reste à l'équipage, et Marps lui montre le prix de chaque choix.
+  - La marge remonte à plus 27. La décision reste à l'équipage, et Marps lui montre le prix de chaque choix.
 
 ### 2:50–3:40 · Le jour de la sortie
 
-- À l'écran : le mode « En mission ». On coche une tâche de Wildcat Ridge, puis on déclenche l'alerte radiation simulée.
+- À l'écran : « Démarrer cette mission », puis le mode « En mission ». On coche les activités de Skinner Ridge, puis on clique sur « Simuler une alerte radiation ».
 - À dire :
-  - Le jour même, Léa décrit la roche à la radio. Noor coche la tâche sur la tablette.
+  - Le jour même, Léa décrit la roche à la radio. Noor coche les activités sur la tablette.
   - Dehors, avec des gants pressurisés, un écran tactile est presque inutilisable. La tablette reste donc dans l'habitat.
-  - Soudain, une alerte radiation. Marps affiche l'ordre « Rentrer au camp maintenant », le temps de retour, 27 minutes, et ce qu'on abandonne. Noor le transmet à la radio.
+  - À Wildcat Ridge, une alerte radiation tombe. Marps affiche l'ordre « Rentrer au camp maintenant » : 600 mètres, 21 minutes, et ce qu'on abandonne. Noor le transmet à la radio.
   - Nous n'avons aucune mesure de radiation à Jezero. Ce scénario est donc simulé, et l'écran l'indique.
 
 ### 3:40–4:20 · La conclusion
@@ -73,8 +73,8 @@ Léa, Sam et Noor sont des personnages inventés pour l'histoire.
 | Scène | Tickets nécessaires | Sinon |
 | --- | --- | --- |
 | Une carte, quatre missions NASA | #15 pour le relief et le profil, #22 pour l'infrarouge | Passer la couche absente sous silence. |
-| Le dilemme | #11 à #14 pour la mission, le parcours et le budget | Captures ou vidéo de secours. |
-| Le jour de la sortie | #26 pour l'alerte | Garder seulement la tâche cochée. |
+| Le dilemme | PR #50 pour la mission, #13 et #14 pour les distances et le budget | Sans #14, montrer l'ajout et le retrait des activités, et donner les marges à l'oral. |
+| Le jour de la sortie | PR #50 pour le mode « En mission », #26 pour l'alerte | Sans #26, garder seulement les activités cochées. |
 
 ## Version de 30 s (vidéo de secours)
 
@@ -90,7 +90,7 @@ Léa, Sam et Noor sont des personnages inventés pour l'histoire.
 
 ### 0:16–0:24
 
-- À l'écran : le 2e prélèvement à Amalik, l'alerte à −20, l'adaptation à +25.
+- À l'écran : le 2e prélèvement à Amalik, l'alerte à −18, l'adaptation à +27.
 - À dire : un échantillon de plus ? Marps montre ce qu'il coûte, et quoi sacrifier.
 
 ### 0:24–0:30
