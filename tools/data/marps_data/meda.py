@@ -16,6 +16,8 @@ INVALID_SENTINEL = 9_999_999_999.0
 HOURS = range(24)
 # Local Mean Solar Time as written by MEDA, for example 00500M14:00:03.640 (sol 500, 14:00:03).
 LMST = re.compile(r"^(\d{5})M(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?$")
+# Wind file of a sol directory listing, calibrated or derived, any version.
+WIND_FILE = re.compile(r'href="(WE__\d{4}_+(?:CAL|DER)_WS_+P\d{2}\.CSV)"')
 PDS = {"pds": "http://pds.nasa.gov/pds4/pds/v1", "m20": "http://pds.nasa.gov/pds4/mission/mars2020/v1"}
 
 
@@ -90,6 +92,16 @@ def read_label(xml_bytes: bytes, column: str) -> dict:
         "stopUtc": root.findtext(".//pds:stop_date_time", namespaces=PDS),
         "unit": fields[column],
     }
+
+
+def wind_files(listing_html: str, sol: int) -> list[str]:
+    """Wind CSV files of a PDS sol directory. Fails on a page that is not a complete listing of that sol."""
+    if f'href="WE__{sol:04d}_' not in listing_html:
+        raise ValueError(f"not a listing of sol {sol}: cannot tell whether wind was published")
+    # WS files sort last: a listing cut short would silently lose them.
+    if "</table>" not in listing_html:
+        raise ValueError(f"listing of sol {sol} is cut short: cannot tell whether wind was published")
+    return sorted(set(WIND_FILE.findall(listing_html)))
 
 
 def rover_position(waypoints: dict, sol: int) -> dict:

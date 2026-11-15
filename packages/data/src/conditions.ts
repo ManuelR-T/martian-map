@@ -1,4 +1,4 @@
-import type { DatasetDescriptor } from './contracts';
+import type { DatasetDescriptor, RegionCoverage } from './contracts';
 import { DATA_BASE_URL } from './coverage';
 
 /** Past conditions measured at the rover by MEDA; never a forecast along a traverse. */
@@ -140,4 +140,24 @@ export function availableHours(conditions: MedaConditions, sol: number): Set<num
       return at.temperature !== null || at.pressure !== null;
     }),
   );
+}
+
+export interface WindStatus {
+  readonly reason: string;
+  readonly reasonUrl?: string;
+}
+
+const WIND_CAPABILITY = 'weather-wind';
+
+/**
+ * MEDA wind of the Jezero sector. No wind dataset is prepared (#27): it is always unpublished,
+ * with the manifest's reason when it gives one.
+ */
+export function windStatus(coverage: readonly RegionCoverage[] | undefined): WindStatus {
+  const wind = coverage
+    ?.find((region) => region.id === 'jezero')
+    ?.capabilities.find((capability) => capability.id === WIND_CAPABILITY);
+  return wind?.status === 'unavailable' && wind.reason
+    ? { reason: wind.reason, ...(wind.reasonUrl ? { reasonUrl: wind.reasonUrl } : {}) }
+    : { reason: 'Vent non publié.' };
 }

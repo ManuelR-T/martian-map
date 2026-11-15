@@ -329,6 +329,8 @@ def check_capabilities(manifest: dict, datasets: dict[str, dict]) -> list[str]:
                 errors.append(f"{where}: an available capability must reference datasets")
             if cap.get("status") == "unavailable" and not cap.get("reason"):
                 errors.append(f"{where}: an unavailable capability needs a reason")
+            if "reasonUrl" in cap and not str(cap["reasonUrl"]).startswith("https://"):
+                errors.append(f"{where}: reasonUrl must be an https link")
             for dataset_id in cap.get("datasetIds", []):
                 dataset = datasets.get(dataset_id)
                 if dataset is None:

@@ -458,10 +458,21 @@ def prepare_sites(staging: Path, retrieved_at: str) -> tuple[dict, list[dict]]:
     return dataset, sites
 
 
+def assert_no_wind(sol: int, fetcher: Callable[[str], bytes] = lambda url: fetch(url)) -> None:
+    """Wind is declared unpublished only after checking both collections of the sol."""
+    for collection in ("data_calibrated_env", "data_derived_env"):
+        url = f"{spec.MEDA_BUNDLE}/{collection}/sol_0420_0539/sol_{sol:04d}/"
+        found = meda.wind_files(fetcher(url).decode("utf-8"), sol)
+        if found:
+            raise RuntimeError(f"sol {sol} now has wind files {found}: integrate them instead of declaring wind unpublished.")
+
+
 def prepare_meda(staging: Path, retrieved_at: str, sites: list[dict]) -> list[dict]:
     """One dataset per measure; each file holds the 24 LMST hours of one sol."""
     # Same pinned file as the rover layer (#20), so the map and the panel agree on the position.
     waypoints = json.loads(cached("M20_waypoints.json", spec.ROVER_HASHES["waypoints"], lambda: fetch(spec.WAYPOINTS_URL)))
+    for sol in sorted({product.sol for product in spec.MEDA_PRODUCTS}):
+        assert_no_wind(sol)
     datasets = []
     for product in spec.MEDA_PRODUCTS:
         label = meda.read_label(fetch(f"{product.base_url}.xml"), product.column)
@@ -544,6 +555,10 @@ def not_integrated(capability_id: str, label: str) -> dict:
     }
 
 
+def unpublished(capability_id: str, label: str, reason: str, reason_url: str) -> dict:
+    return {"id": capability_id, "label": label, "status": "unavailable", "datasetIds": [], "reason": reason, "reasonUrl": reason_url}
+
+
 def build_manifest(datasets: list[dict], sites: list[dict], generated_at: str) -> dict:
     by_id = {d["id"]: d for d in datasets}
 
@@ -590,6 +605,7 @@ def build_manifest(datasets: list[dict], sites: list[dict], generated_at: str) -
                     available("rover-traverse", "Trace historique de Perseverance", "jezero-perseverance-waypoints", "jezero-perseverance-traverse"),
                     not_integrated("thermal-themis", "Infrarouge nocturne THEMIS"),
                     available("weather-meda", "Température et pression MEDA", "jezero-meda-temperature", "jezero-meda-pressure"),
+                    unpublished("weather-wind", "Vent MEDA", spec.MEDA_WIND_REASON, spec.MEDA_RELEASE_NOTES_URL),
                     not_integrated("geology", "Carte géologique"),
                 ],
             },

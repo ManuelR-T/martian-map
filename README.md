@@ -181,6 +181,11 @@ un sol où le rover a roulé est refusé, car ses mesures viendraient de plusieu
 endroits. `loadMedaConditions`, `conditionsAt` et `availableHours` de
 `@marps/data` les lisent.
 
+Le vent n'est plus publié après le sol 315 (capteur endommagé) : la capacité
+`weather-wind` est déclarée indisponible, avec sa raison et sa source, et
+`windStatus` la lit. La préparation s'arrête si un fichier de vent apparaît pour
+un sol préparé. Inventaire : [`docs/meteo-et-dangers.md`](docs/meteo-et-dangers.md).
+
 ### Préparer et vérifier
 
 La préparation est une étape explicite. Elle demande [uv](https://docs.astral.sh/uv/)

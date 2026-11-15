@@ -189,6 +189,8 @@ export interface Capability {
   readonly datasetIds: readonly string[];
   /** Required when `status` is `unavailable`. */
   readonly reason?: string;
+  /** Source that states the reason, for example the instrument release notes. */
+  readonly reasonUrl?: string;
 }
 
 export interface RegionCoverage {

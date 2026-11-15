@@ -156,14 +156,21 @@ def offline_meda(tmp_path, monkeypatch):
         f"{product.base_url}.CSV": lambda: csv_bytes,
         f"{product.base_url}.xml": lambda: label["text"].encode(),
         spec.WAYPOINTS_URL: lambda: waypoints_bytes,
+        # Sol 500 directories without wind file, as on the PDS archive.
+        **{
+            f"{spec.MEDA_BUNDLE}/{collection}/sol_0420_0539/sol_0500/": lambda: f'<table><a href="{product.product}.CSV">x</a></table>'.encode()
+            for collection in ("data_calibrated_env", "data_derived_env")
+        },
     }
     monkeypatch.setitem(spec.ROVER_HASHES, "waypoints", prepare.sha256(waypoints_bytes))
     monkeypatch.setattr(spec, "MEDA_PRODUCTS", (product,))
     monkeypatch.setattr(spec, "CACHE_DIR", tmp_path / "cache")
     monkeypatch.setattr(prepare, "fetch", lambda url: responses[url]())
 
-    def run(change_label=lambda text: text):
+    def run(change_label=lambda text: text, derived_listing=None):
         label["text"] = change_label(label["text"])
+        if derived_listing is not None:
+            responses[f"{spec.MEDA_BUNDLE}/data_derived_env/sol_0420_0539/sol_0500/"] = lambda: derived_listing
         return prepare.prepare_meda(tmp_path / "staging", "2026-11-14T00:00:00Z", [SKINNER])
 
     return run
@@ -185,3 +192,43 @@ def test_preparation_stops_when_the_label_declares_another_unit(offline_meda):
 def test_preparation_stops_when_the_csv_does_not_match_its_label_checksum(offline_meda):
     with pytest.raises(RuntimeError, match="md5"):
         offline_meda(lambda text: text.replace("<md5_checksum>", "<md5_checksum>0"))
+
+
+# Excerpts of the real PDS listings: sol 500 has no wind file, sol 300 has both levels.
+SOL_500_DERIVED = (
+    '<table><a href="WE__0500___________DER_ANCILLARY___________P01.CSV">x</a>'
+    '<a href="WE__0500___________DER_PS__________________P01.CSV">x</a></table>'
+)
+SOL_300_DERIVED = (
+    '<table><a href="WE__0300___________DER_PS__________________P01.CSV">x</a>'
+    '<a href="WE__0300___________DER_WS__________________P01.CSV">x</a>'
+    '<a href="WE__0300___________DER_WS__________________P01.xml">x</a></table>'
+)
+
+
+def test_a_sol_without_wind_file_has_no_wind():
+    assert meda.wind_files(SOL_500_DERIVED, 500) == []
+
+
+def test_calibrated_and_derived_wind_files_of_any_version_are_found():
+    calibrated = '<table><a href="WE__0313___________CAL_WS__________________P02.CSV">x</a></table>'
+    assert meda.wind_files(SOL_300_DERIVED, 300) == ["WE__0300___________DER_WS__________________P01.CSV"]
+    assert meda.wind_files(calibrated, 313) == ["WE__0313___________CAL_WS__________________P02.CSV"]
+
+
+def test_an_error_page_never_counts_as_a_sol_without_wind():
+    with pytest.raises(ValueError, match="not a listing of sol 500"):
+        meda.wind_files("<html>503 Service Unavailable</html>", 500)
+
+
+def test_preparation_writes_nothing_when_wind_is_published_for_the_sol(offline_meda, tmp_path):
+    listing = b'<table><a href="WE__0500___________DER_WS__________________P01.CSV">x</a></table>'
+    with pytest.raises(RuntimeError, match="sol 500 now has wind files"):
+        offline_meda(derived_listing=listing)
+    assert not (tmp_path / "staging").exists()
+
+
+def test_a_listing_cut_before_the_wind_files_never_counts_as_a_sol_without_wind():
+    cut = SOL_300_DERIVED.split("WE__0300___________DER_WS")[0]
+    with pytest.raises(ValueError, match="cut short"):
+        meda.wind_files(cut, 300)
