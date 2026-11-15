@@ -34,3 +34,8 @@ export function formatLmst(clock: string): string {
 export function formatMonthYear(isoUtc: string): string {
   return monthYear().format(new Date(isoUtc));
 }
+
+/** « 454 m », « 1,2 km » : Jezero legs are a few hundred metres, kilometres rounded to 0,1 would hide them. */
+export function formatGroundDistance(metres: number): string {
+  return metres < 1000 ? `${Math.round(metres)} m` : `${(metres / 1000).toLocaleString(locale(), { maximumFractionDigits: 1 })} km`;
+}

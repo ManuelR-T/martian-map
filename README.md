@@ -340,6 +340,25 @@ resources, including responsive styles and the prepared datasets. These checks
 use browser simulation; physical tablet/wrist hardware and glove input remain
 unverified.
 
+## Helmet view (#30)
+
+During a walk, “Helmet view” in the mission tracking panel opens `#/casque`: a
+full-screen, high-contrast readout of the current stop and activity, the next
+stop, the planned time remaining, the plan margin and the alerts. It reads the
+running mission that the tracking panel and the time budget use, so ticking in
+either place updates both, and the margin is the budget panel's own figure.
+
+Progress is manual: “Activity done” ticks the current activity and “Undo last”
+unticks the latest one. The current stop is the first stop with an unticked
+activity; the app knows no real position on Mars. The remaining time is a plan
+figure (unticked activities plus the planned walk from the current stop back to
+camp), not a measured elapsed time. Alerts cover a budget overrun, steep
+sections ahead for the slope threshold chosen in the route profile (an
+assumption) and the simulated radiation alert; when no relief is loaded the view
+says that slopes are not checked. This is an interface view only: no augmented
+reality hardware and no operational navigation. It was not checked on a headset
+or with gloves.
+
 ## Jezero mosaic exploration (#8)
 
 The Jezero view starts at the prepared mission sector and allows exploration of

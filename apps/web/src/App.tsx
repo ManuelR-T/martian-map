@@ -14,6 +14,8 @@ import { ConditionsPanel } from './panels/ConditionsPanel';
 import { ProfilePanel } from './terrain/ProfilePanel';
 import { RouteProfileProvider } from './terrain/RouteProfileProvider';
 import { SiteDetailsPanel } from './panels/SiteDetailsPanel';
+import { HelmetView } from './helmet/HelmetView';
+import { HELMET_HASH } from './helmet/helmetRoute';
 import { PlannerMap } from './features/map/PlannerMap';
 import { OfflineStatus } from './offline/OfflineStatus';
 import './responsive.css';
@@ -66,6 +68,7 @@ export function App() {
   const hash = useHash();
   const showsDesignSystem = hash === DESIGN_SYSTEM_HASH;
   const showsSources = hash === SOURCES_HASH;
+  const showsHelmet = hash === HELMET_HASH;
   const showsPage = showsDesignSystem || showsSources;
   // Hors du secteur de la mission (vue globale ou région sans données vérifiées), seuls Mission et Calques restent.
   const global = state.view === 'global' || selectPlanningStatus(state) === 'insufficient-coverage';
@@ -80,10 +83,13 @@ export function App() {
   const chooseWorkspace = (next: 'base' | 'mission') => { dispatch({ type: 'workspaceChanged', workspace: next }); setDrawer('steps', true); };
 
   useEffect(() => {
-    document.title = showsDesignSystem ? localize("Marps – Système de design") : showsSources ? localize("Marps – Sources et limites") : 'Marps';
-  }, [showsDesignSystem, showsSources, i18n.language]);
+    document.title = showsDesignSystem ? localize("Marps – Système de design") : showsSources ? localize("Marps – Sources et limites") : showsHelmet ? localize("Marps – Vue casque") : 'Marps';
+  }, [showsDesignSystem, showsSources, showsHelmet, i18n.language]);
 
+  // The helmet view replaces the whole screen, header included; the profile provider keeps the slope threshold chosen in the planner.
   return (
+    <RouteProfileProvider>
+    {showsHelmet ? <HelmetView key={i18n.language} /> :
     <div className={showsPage ? 'flex min-h-dvh flex-col' : 'planner-app flex min-h-dvh flex-col xl:h-dvh'}>
       {/* Bandeau Heure bleue : ses contrôles et son focus héritent de la palette nuit. */}
       <header className="dark relative z-20 flex items-center gap-x-3 bg-header px-4 py-1.5 text-header-foreground max-sm:gap-x-1 max-sm:px-2">
@@ -140,7 +146,6 @@ export function App() {
           </Suspense>
         </main>
       ) : (
-        <RouteProfileProvider>
         <main
           key={i18n.language} id={CONTENT_ID}
           tabIndex={-1}
@@ -178,8 +183,8 @@ export function App() {
           </div>
           <ConfirmHost />
         </main>
-        </RouteProfileProvider>
       )}
-    </div>
+    </div>}
+    </RouteProfileProvider>
   );
 }
