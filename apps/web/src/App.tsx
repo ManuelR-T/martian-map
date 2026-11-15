@@ -106,7 +106,7 @@ export function App() {
           <BrandMark className="size-9 shrink-0" />
           <div className="min-w-0">
             <h1 className="heading-display text-2xl leading-none font-extrabold tracking-[0.06em] uppercase [font-stretch:125%]">
-              {localize("Marps")} </h1>
+              Marps</h1>
             <p className="mt-1 truncate text-sm leading-tight text-header-foreground/75 max-md:hidden">
               {localize("Préparer une sortie scientifique à Jezero")} </p>
           </div>

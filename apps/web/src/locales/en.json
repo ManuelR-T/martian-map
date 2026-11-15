@@ -363,7 +363,7 @@
   "Maille du relief": "Relief mesh",
   "Map and sources": "Map and sources",
   "Marche, observations, retour et réserve": "Walk, observations, return and reserve",
-  "Marps": "Mars",
+  "Marps": "Marps",
   "Marps – Sources et limites": "Marps – Sources and Limits",
   "Marps – Système de design": "Marps – Design System",
   "Marps, planification": "Marps, planning",
@@ -816,5 +816,6 @@
   "—": "—",
   "↑": "↑",
   "↓": "↓",
-  "Vue :": "View:"
+  "Vue :": "View:",
+  "Français": "Français"
 }

@@ -29,13 +29,19 @@ it('switches through the accessible header selector without a network request', 
   const host = document.createElement('div');
   const root = createRoot(host);
   await act(async () => { root.render(<LanguageSelector />); });
-  const select = host.querySelector('select')!;
-  await act(async () => { select.value = 'en'; select.dispatchEvent(new Event('change', { bubbles: true })); });
+  const french = host.querySelector<HTMLButtonElement>('button[lang=fr]')!;
+  const english = host.querySelector<HTMLButtonElement>('button[lang=en]')!;
+  expect(french.getAttribute('aria-pressed')).toBe('true');
+  expect(english.getAttribute('aria-pressed')).toBe('false');
+  await act(async () => { english.click(); });
+  expect(english.getAttribute('aria-pressed')).toBe('true');
+  expect(french.getAttribute('aria-pressed')).toBe('false');
   expect(i18n.language).toBe('en');
   expect(document.documentElement.lang).toBe('en');
   expect(localStorage.getItem(LANGUAGE_KEY)).toBe('en');
-  expect(host.textContent).toContain('Language');
+  expect(host.querySelector('[role=group]')?.getAttribute('aria-label')).toBe('Language');
   expect(localize('Calques')).toBe('Layers');
+  expect(localize('Marps')).toBe('Marps');
   await act(async () => { root.unmount(); });
 });
 
