@@ -11,12 +11,13 @@ export function MapViewSelector() {
     { value: 'region', label: selectDetailedRegion(state)?.name ?? 'Jezero', icon: <MapPinned aria-hidden="true" /> },
   ];
 
-  return <div className="planning-map-selector">
+  return (
     <SegmentedControl
+      className="map-view-switch glass power-on pointer-events-auto relative z-10 shrink-0"
       label="Vue de la carte"
       value={state.view}
       options={views}
       onValueChange={(view) => dispatch({ type: 'viewChanged', view })}
     />
-  </div>;
+  );
 }

@@ -1,12 +1,9 @@
 import type { ReactNode } from 'react';
-import { Globe, MapPinned } from 'lucide-react';
-import { DataState, SegmentedControl, type SegmentedOption } from '@marps/ui';
-import { usePlannerDispatch, usePlannerState } from '../state/PlannerProvider';
-import { selectDetailedRegion, selectMapStatus, type MapView } from '../state/planner';
+import { DataState } from '@marps/ui';
+import { usePlannerState } from '../state/PlannerProvider';
+import { selectDetailedRegion, selectMapStatus } from '../state/planner';
 import { RetryCatalogButton } from './PlanningGate';
-
-/** Surface commune des commandes posées sur la carte : verre presque opaque, lisible sur l'imagerie. */
-const floatingSurface = 'glass pointer-events-auto border';
+import { MapViewSelector } from './MapViewSelector';
 
 export interface MapStageProps {
   className?: string;
@@ -20,17 +17,11 @@ export interface MapStageProps {
  */
 export function MapStage({ className, map }: MapStageProps) {
   const state = usePlannerState();
-  const dispatch = usePlannerDispatch();
   const status = selectMapStatus(state);
   const region = selectDetailedRegion(state);
   const regionName = region?.name ?? 'Jezero';
   const global = state.view === 'global';
   const showsMap = status === 'ready' && Boolean(map);
-
-  const views: readonly SegmentedOption<MapView>[] = [
-    { value: 'global', label: 'Mars', icon: <Globe aria-hidden="true" /> },
-    { value: 'region', label: regionName, icon: <MapPinned aria-hidden="true" /> },
-  ];
 
   let notice: ReactNode = null;
   if (status === 'loading') {
@@ -97,21 +88,9 @@ export function MapStage({ className, map }: MapStageProps) {
         )}
       </div>
 
-      <div className={`${floatingSurface} power-on map-view-switch relative z-10 flex max-w-full flex-wrap items-center gap-x-3 gap-y-1 p-1.5`}>
-        <SegmentedControl
-          label="Vue de la carte"
-          value={state.view}
-          options={views}
-          onValueChange={(view) => dispatch({ type: 'viewChanged', view })}
-        />
-        <p className="map-view-description pr-2 text-sm text-muted-foreground">
-          {global ? "Mars entière, pour s'orienter" : `Secteur de ${regionName}`}
-        </p>
-      </div>
+      <MapViewSelector />
 
       {notice ? <div className="power-on pointer-events-auto relative z-10 w-full max-w-sm [--power-delay:480ms]">{notice}</div> : null}
-
-
     </section>
   );
 }

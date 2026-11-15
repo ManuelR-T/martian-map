@@ -1,4 +1,8 @@
 .compact-navigation, .compact-settings, .offline-short { display: none; }
+
+.map-view-switch { width: min(100%, 18rem); padding: .25rem; }
+.map-view-switch [role=radio] { flex: 1; height: 44px; min-width: 44px; padding-inline: .5rem; }
+
 @media (max-width: 1279px), (max-height: 600px) {
   .planner-app { height: 100dvh; min-height: 0; overflow: hidden; }
   .planner-main { display: flex; min-height: 0; padding: 0; gap: 0; overflow-y: auto; }
@@ -16,9 +20,6 @@
   .compact-settings { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
   .compact-settings a { display: inline-flex; align-items: center; padding-inline: .5rem; text-decoration: underline; }
   .planner-app button, .planner-app a, .planner-app summary { touch-action: manipulation; }
-  .map-view-switch { padding: .25rem; }
-  .map-view-switch [role=radio] { min-height: 44px; min-width: 44px; padding-inline: .5rem; }
-  .map-view-description { display: none; }
 }
 @media (max-width: 480px), (max-height: 480px) {
   .planner-app > header { min-height: 44px; gap: .25rem; padding: 0 .5rem; }
@@ -29,7 +30,6 @@
   .offline-full { display: none; }
   .offline-short { display: inline; }
   .offline-status { flex-shrink: 0; padding: .125rem .5rem; }
-  .map-view-switch [role=radio] svg { display: none; }
 }
 @media (max-width: 360px) and (max-height: 400px) {
   .planner-app > header { display: none; }
@@ -38,7 +38,4 @@
 }
 @media (pointer: coarse) {
   .planner-app button, .planner-app summary { min-height: 44px; min-width: 44px; }
-}
-@media (max-width: 480px) {
-  .map-view-switch { align-self: flex-start; max-width: calc(100% - 3.5rem); }
 }
