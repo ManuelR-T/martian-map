@@ -1,6 +1,6 @@
 # Estimation d’oxygène (modèle v1)
 
-L’estimation est toujours proposée, avec les valeurs simulées du modèle par défaut. Il simule un scénario pédagogique,
+L’estimation est toujours proposée, avec les valeurs simulées du modèle par défaut. Ce modèle simule un scénario pédagogique,
 sans calibration humaine ni dimensionnement de scaphandre. Toutes les valeurs
 initiales sont **simulées**. Les archives du rover fournissent le relief, jamais
 une mesure de consommation humaine. Fuites et pertes du système sont exclues.
