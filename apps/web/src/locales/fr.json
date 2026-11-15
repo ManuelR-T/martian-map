@@ -951,5 +951,12 @@
   "Ajoutez un camp et une étape pour estimer l’O₂.": "Ajoutez un camp et une étape pour estimer l’O₂.",
   "Formule et hypothèses O₂ — modèle v1": "Formule et hypothèses O₂ — modèle v1",
   "Simulation pédagogique : tous les paramètres par défaut sont simulés, sans calibration physiologique. Aucune donnée du rover ne mesure la consommation humaine. Pertes et fuites non modélisées.": "Simulation pédagogique : tous les paramètres par défaut sont simulés, sans calibration physiologique. Aucune donnée du rover ne mesure la consommation humaine. Pertes et fuites non modélisées.",
-  "q en g/min, v en m/s, m en kg, θ en degrés signés ; consommation = Σ q × durée en minutes. À l’arrêt : débit distinct constant. Retour inclus une fois. Durées horizontales, coefficients non négatifs, |θ| < 90°. Aucune plage physiologique validée.": "q en g/min, v en m/s, m en kg, θ en degrés signés ; consommation = Σ q × durée en minutes. À l’arrêt : débit distinct constant. Retour inclus une fois. Durées horizontales, coefficients non négatifs, |θ| < 90°. Aucune plage physiologique validée."
+  "q en g/min, v en m/s, m en kg, θ en degrés signés ; consommation = Σ q × durée en minutes. À l’arrêt : débit distinct constant. Retour inclus une fois. Durées horizontales, coefficients non négatifs, |θ| < 90°. Aucune plage physiologique validée.": "q en g/min, v en m/s, m en kg, θ en degrés signés ; consommation = Σ q × durée en minutes. À l’arrêt : débit distinct constant. Retour inclus une fois. Durées horizontales, coefficients non négatifs, |θ| < 90°. Aucune plage physiologique validée.",
+  "Simulation O₂ — modèle non calibré": "Simulation O₂ — modèle non calibré",
+  "Plein : besoin estimé · Hachures : réserve restante · Vide : marge disponible": "Plein : besoin estimé · Hachures : réserve restante · Vide : marge disponible",
+  "Estimation incertaine : les pentes réelles ne sont pas prises en compte.": "Estimation incertaine : les pentes réelles ne sont pas prises en compte.",
+  "Valeurs de scénario simulées : même avec le relief, cette estimation ne garantit pas une autonomie réelle.": "Valeurs de scénario simulées : même avec le relief, cette estimation ne garantit pas une autonomie réelle.",
+  "Estimation désactivée. Activez le modèle dans les paramètres ci-dessous.": "Estimation désactivée. Activez le modèle dans les paramètres ci-dessous.",
+  "Chargement du relief : estimation O₂ masquée.": "Chargement du relief : estimation O₂ masquée.",
+  "Paramètres et données O₂": "Paramètres et données O₂"
 }
