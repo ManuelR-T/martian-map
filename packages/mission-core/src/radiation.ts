@@ -1,17 +1,6 @@
-import type { MarsCoordinate } from './index';
+import { marsDistanceMetres } from './distance';
+export { MARS_RADIUS_METRES, marsDistanceMetres } from './distance';
 import type { Mission, MissionStep } from './mission';
-
-/** Mars equatorial radius (IAU/MOLA), the sphere of the demo mission distances (PR #51, docs/demo/mission-demo.md). */
-export const MARS_RADIUS_METRES = 3_396_190;
-
-/** Great-circle distance on the Mars sphere (haversine). */
-export function marsDistanceMetres(a: MarsCoordinate, b: MarsCoordinate): number {
-  const rad = Math.PI / 180;
-  const dLat = (b.latitude - a.latitude) * rad;
-  const dLon = (b.longitude - a.longitude) * rad;
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.latitude * rad) * Math.cos(b.latitude * rad) * Math.sin(dLon / 2) ** 2;
-  return 2 * MARS_RADIUS_METRES * Math.asin(Math.min(1, Math.sqrt(h)));
-}
 
 export interface RadiationReturn {
   readonly fromStep: MissionStep;
