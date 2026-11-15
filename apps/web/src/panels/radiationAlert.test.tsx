@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
-import { act } from 'react';
+import { act, useEffect } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { IDBFactory } from 'fake-indexeddb';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
@@ -10,6 +10,7 @@ import type { Catalog } from '@marps/data';
 import { PlannerProvider, usePlannerDispatch } from '../state/PlannerProvider';
 import { MissionDatabase } from '../storage/missionDatabase';
 import { StepsPanel } from './StepsPanel';
+import { MissionEvents } from './MissionEvents';
 import { useTranslation } from 'react-i18next';
 import { setLanguage } from '../i18n';
 
@@ -18,11 +19,13 @@ let container: HTMLDivElement;
 // Wildcat Ridge position from the data manifest; the camp is the « Jezero Beta » simulation camp.
 const manifest = JSON.parse(readFileSync(resolve(fileURLToPath(import.meta.url), '../../../public/data/manifest.json'), 'utf8')) as import('@marps/data').DataManifest;
 const catalog: Catalog = { manifest, regions: [], datasets: [], sites: [{ id: 'wildcat', name: 'Wildcat Ridge', regionId: 'jezero', datasetId: 'test', coordinate: { longitude: 77.40588851, latitude: 18.45863707 }, elevation: null, sol: '1', date: 'test', sampleName: 'test', rockType: 'test' }] };
+let send: ReturnType<typeof usePlannerDispatch>;
 const Screen = () => {
   const dispatch = usePlannerDispatch();
+  useEffect(() => { send = dispatch; }, [dispatch]);
   return <><button onClick={() => dispatch({ type: 'viewChanged', view: 'region' })}>Jezero</button>
     <button onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'base' })}>À la base</button>
-    <button onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'mission' })}>En mission</button><StepsPanel /></>;
+    <button onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'mission' })}>En mission</button><StepsPanel /><MissionEvents /></>;
 };
 // Like `App`, remount the screen when the language changes.
 const Localized = () => <Screen key={useTranslation().i18n.language} />;
@@ -83,6 +86,17 @@ it('affiche l’ordre de retour simulé depuis l’étape en cours, puis l’ann
   // Wildcat Ridge → Jezero Beta camp is 102 m: at 0,5 m/s, 3,4 min rounded up to 4.
   expect(alert.textContent).toContain('102 m · 4 min');
   expect(alert.textContent).toContain('Wildcat Ridge (1 activité)');
+  const tracking = container.querySelector('ol[aria-label="Parcours de la sortie en cours"]')!.parentElement!;
+  expect(tracking.textContent).not.toContain('Simuler une alerte radiation');
+  expect(tracking.textContent).not.toContain('Rentrer au camp maintenant');
+  expect(tracking.querySelector('[role="alert"]')).toBeNull();
+  const context = alert.querySelector('details')!;
+  expect(context.textContent).toContain('Curiosity');
+  expect(context.textContent).toContain('Gale');
+  expect(context.textContent).toContain('MEDA RDS');
+  expect(context.textContent).toContain('Il ne mesure pas les radiations ionisantes');
+  expect(context.querySelector('a[href="https://science.nasa.gov/resource/radiation-measurements-on-mars/"]')).not.toBeNull();
+  expect(context.querySelector('a[href="https://science.nasa.gov/resource/medas-radiation-and-dust-sensor/"]')).not.toBeNull();
   // Ticket: no personal dose or survival figure. The collapsed context only cites RAD's measurement at Gale.
   const visible = alert.textContent!.replace(alert.querySelector('details')!.textContent!, '');
   expect(visible).not.toMatch(/dose|survie|gray|sievert/i);
@@ -168,4 +182,19 @@ it('coche et décoche une activité, restaure sa coche puis termine sans confirm
     expect(await new MissionDatabase().activeMission()).toBeNull();
     expect((await new MissionDatabase().history())[0]?.mission.steps[0]?.activities[0]?.completed).toBe(true);
   });
+});
+
+
+it('actualise un ordre radiatif actif avec les ralentissements simulés et restaure son budget après annulation', async () => {
+  await startSavedMission();
+  await click('Simuler une alerte radiation');
+  const alert = () => container.querySelector('[role="alert"]')!;
+  expect(alert().textContent).toContain('102 m · 4 min');
+  await act(async () => { send({ type: 'eventAdded', event: { id: 'visibility', simulated: true, kind: 'visibility', legIndices: [1], speedFactor: 0.5 } }); });
+  expect(alert().textContent).toContain('102 m · 7 min');
+  expect(alert().textContent).toContain('ralentissements');
+  await act(async () => { send({ type: 'eventsCleared' }); });
+  expect(alert().textContent).toContain('102 m · 4 min');
+  await click('Annuler la simulation');
+  expect(container.querySelector('[role="alert"]')).toBeNull();
 });

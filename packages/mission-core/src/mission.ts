@@ -1,3 +1,4 @@
+import { validMissionEvents, type MissionEvent } from './events';
 import { DEFAULT_OXYGEN_PARAMETERS, validOxygenParameters, type OxygenParameters } from './oxygen';
 import type { MarsCoordinate } from './index';
 
@@ -61,6 +62,8 @@ export interface SiteProgress {
 }
 export interface Mission {
   readonly schemaVersion: 1;
+  /** Explicit simulated modifiers; absent in older v1 saves. */
+  readonly events?: readonly MissionEvent[];
   readonly id: string;
   readonly name: string;
   /** Absent on older v1 saves. */
@@ -113,12 +116,16 @@ export function isMission(value: unknown): value is Mission {
         && Array.isArray(s.activities) && unique(s.activities.map((a: MissionActivity) => a.id)) && s.activities.every(validActivity))
       && (m.routeLegs === undefined || (Array.isArray(m.routeLegs) && !!m.camp && m.steps.length > 0
         && m.routeLegs.length === m.steps.length + 1 && m.routeLegs.every(leg => Array.isArray(leg) && leg.every(validPosition))))
+      && validMissionEvents(m)
       && !!m.siteWork && typeof m.siteWork === 'object' && !Array.isArray(m.siteWork)
       && Object.values(m.siteWork).every(w => Number.isFinite(w.allottedMinutes) && w.allottedMinutes >= 0
         && Array.isArray(w.doneTaskIds) && w.doneTaskIds.every(nonempty));
   } catch { return false; }
 }
 export type MissionAction =
+  | { type: 'eventAdded'; event: MissionEvent }
+  | { type: 'eventRemoved'; id: string }
+  | { type: 'eventsCleared' }
   | { type: 'routeLegChanged'; index: number; vertices: readonly MarsCoordinate[] }
   | { type: 'routeLegsReplaced'; legs: readonly (readonly MarsCoordinate[])[] }
   | { type: 'routeReset' }
@@ -137,6 +144,9 @@ export type MissionAction =
 export function missionReducer(m: Mission, action: MissionAction): Mission {
   let next = m;
   switch (action.type) {
+    case 'eventAdded': next = { ...m, events: [...(m.events ?? []), action.event] }; break;
+    case 'eventRemoved': next = { ...m, events: m.events?.filter(e => e.id !== action.id) }; break;
+    case 'eventsCleared': next = { ...m, events: undefined }; break;
     case 'routeReset': next = { ...m, routeLegs: undefined }; break;
     case 'routeLegsReplaced': next = { ...m, routeLegs: action.legs }; break;
     case 'routeLegChanged': {
@@ -168,6 +178,11 @@ export function missionReducer(m: Mission, action: MissionAction): Mission {
             : s.activities.map(a => a.id === action.activity.id ? action.activity : a) }) }; break;
   }
   if (['campPlaced', 'campCleared', 'stepAdded', 'stepRemoved', 'stepMoved'].includes(action.type)) next = { ...next, routeLegs: undefined };
+  if (next.events && !['eventAdded', 'eventRemoved', 'eventsCleared'].includes(action.type)) {
+    const topologyChanged = ['campPlaced', 'campCleared', 'stepAdded', 'stepRemoved', 'stepMoved'].includes(action.type);
+    next = { ...next, events: next.events.filter(e => e.kind === 'visibility' ? !topologyChanged
+      : next.steps.some(s => s.id === e.stepId && s.activities.some(a => a.id === e.activityId))) };
+  }
   return isMission(next) ? next : m;
 }
 /** A schematic closed route, never a validated navigable path. */

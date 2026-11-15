@@ -1,3 +1,4 @@
+import { activityDurationMinutes, legSpeedFactor } from './events';
 import { groundDistanceMetres } from './distance';
 import type { Mission, MissionActivity, MissionStep } from './mission';
 
@@ -50,7 +51,8 @@ export function missionProgress(mission: Mission | null): MissionProgress | null
   const legsMetres = stops.slice(1).map((_, k) => legMetres(k));
   const sum = (legs: readonly number[]) => legs.reduce((total, metres) => total + metres, 0);
   const travelledMetres = sum(legsMetres.slice(0, stepIndex + 1));
-  const walkMetres = sum(legsMetres.slice(stepIndex + 1));
+  const walkingMinutes = legsMetres.reduce((minutes, metres, i) => minutes + (i > stepIndex
+    ? metres / (mission.parameters.speedMetresPerSecond * legSpeedFactor(mission, i)) / 60 : 0), 0);
   const activities = mission.steps.flatMap(s => s.activities);
   const pending = activities.filter(a => !a.completed);
   const activityIndex = step.activities.findIndex(a => !a.completed);
@@ -62,6 +64,7 @@ export function missionProgress(mission: Mission | null): MissionProgress | null
     completedActivities: activities.length - pending.length,
     totalActivities: activities.length,
     finished: pending.length === 0,
-    remainingMinutes: pending.reduce((sum, a) => sum + a.durationMinutes, 0) + walkMetres / mission.parameters.speedMetresPerSecond / 60,
+    remainingMinutes: mission.steps.reduce((minutes, s) => minutes + s.activities.reduce((sum, a) => sum
+      + (a.completed ? 0 : activityDurationMinutes(mission, s.id, a)), 0), 0) + walkingMinutes,
   };
 }

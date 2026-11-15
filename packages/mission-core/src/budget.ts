@@ -1,3 +1,4 @@
+import { activityDurationMinutes, routeSegmentSpeeds } from './events';
 import { missionDistances, type MissionDistances } from './distance';
 import { isMission, type Mission } from './mission';
 
@@ -35,11 +36,14 @@ export function calculateMissionBudget(mission: Mission | null): MissionBudget {
   const speedKilometresPerHour = mission.parameters.speedMetresPerSecond * 3.6;
   const availableMinutes = mission.parameters.availableSeconds / 60;
   const reserveMinutes = mission.parameters.reserveSeconds / 60;
-  const explorationMinutes = 60 * distances.exploration.kilometres / speedKilometresPerHour;
-  const returnMinutes = 60 * distances.return.kilometres / speedKilometresPerHour;
-  const walkingMinutes = 60 * distances.total.kilometres / speedKilometresPerHour;
+  const speeds = routeSegmentSpeeds(mission);
+  const times = distances.segments.map((d, i) => d.metres / speeds[i]! / 60);
+  const returnSegments = (mission.routeLegs?.at(-1)?.length ?? 0) + 1;
+  const explorationMinutes = times.slice(0, -returnSegments).reduce((sum, t) => sum + t, 0);
+  const returnMinutes = times.slice(-returnSegments).reduce((sum, t) => sum + t, 0);
+  const walkingMinutes = explorationMinutes + returnMinutes;
   const activityMinutes = mission.steps.reduce((sum, step) => sum
-    + step.activities.reduce((minutes, activity) => minutes + activity.durationMinutes, 0), 0);
+    + step.activities.reduce((minutes, activity) => minutes + activityDurationMinutes(mission, step.id, activity), 0), 0);
   const missionMinutes = walkingMinutes + activityMinutes;
   const marginMinutes = availableMinutes - missionMinutes - reserveMinutes;
   // Valid finite inputs may still overflow when accumulated or divided by a tiny speed.

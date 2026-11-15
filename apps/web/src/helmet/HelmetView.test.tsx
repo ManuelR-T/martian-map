@@ -89,7 +89,7 @@ it('avance à la main, d’une activité puis d’un arrêt à l’autre, et sai
   expect(hud().querySelector('h1')?.textContent).toBe('Wildcat Ridge');
   expect(readout('Ensuite')).toBe('Camp');
   // The tracking panel reads the same mission: its boxes follow the helmet view.
-  expect([...container.querySelectorAll<HTMLInputElement>('input[type=checkbox]')].map(box => box.checked)).toEqual([true, true, false, false]);
+  expect([...container.querySelectorAll<HTMLInputElement>('ol[aria-label="Parcours de la sortie en cours"] input[type=checkbox]')].map(box => box.checked)).toEqual([true, true, false, false]);
   await click('Annuler la dernière');
   expect(hud().querySelector('h1')?.textContent).toBe('Skinner Ridge');
   expect(current()).toContain('Photo');
@@ -114,13 +114,16 @@ it('reprend la marge du budget principal et signale son dépassement', async () 
   expect(readout('Marge du plan')).toBe(margin);
 });
 
-it('partage l’alerte radiation simulée avec le suivi', async () => {
+it('partage l’alerte radiation avec les événements sans l’afficher dans le suivi', async () => {
   await mount();
   expect(hud().textContent).toContain('Aucune alerte.');
   await click('Simuler une alerte radiation');
   expect(hud().querySelector('[role=alert]')?.textContent).toContain('Simulation · Alerte radiation');
   expect(hud().querySelector('[role=alert]')?.textContent).toContain('Rentrer au camp maintenant');
   expect(container.querySelectorAll('[role=alert]')).toHaveLength(2);
+  const tracking = container.querySelector('section[data-slot="panel"] ol[aria-label="Parcours de la sortie en cours"]')!.parentElement!;
+  expect(tracking.querySelector('[role=alert]')).toBeNull();
+  expect(tracking.textContent).not.toContain('Simuler une alerte radiation');
   await click('Annuler la simulation', container);
   expect(hud().querySelector('[role=alert]')?.textContent).toBe('');
 });
@@ -154,4 +157,24 @@ it('renvoie au planificateur sans sortie en cours, et se traduit', async () => {
   expect(hud().querySelector('a[href="#/"]')).toBeTruthy();
   await act(async () => { setLanguage('en'); });
   expect(hud().querySelector('a[href="#/"]')?.textContent).toBe('Planner');
+});
+
+
+it('partage les retards, ralentissements et mises à jour radiatives avec le planificateur', async () => {
+  const initial = demo();
+  await mount(initial);
+  const before = readout('Reste prévu');
+  await click('Simuler une alerte radiation');
+  const alertBefore = hud().querySelector('[role=alert]')!.textContent;
+  await send({ type: 'eventAdded', event: { id: 'delay', simulated: true, kind: 'activity-delay', stepId: 'skinner-ridge', activityId: 'observation', delayMinutes: 15 } });
+  expect(current()).toContain('25 min');
+  expect(readout('Reste prévu')).not.toBe(before);
+  await send({ type: 'eventAdded', event: { id: 'visibility', simulated: true, kind: 'visibility', legIndices: [2], speedFactor: 0.5 } });
+  expect(hud().querySelector('[role=alert]')!.textContent).not.toBe(alertBefore);
+  const trackingAlert = [...container.querySelectorAll('[role=alert]')].find(a => !hud().contains(a))!;
+  expect(trackingAlert.textContent).toContain('Rentrer au camp maintenant');
+  await send({ type: 'eventsCleared' });
+  expect(current()).toContain('10 min');
+  expect(readout('Reste prévu')).toBe(before);
+  expect(hud().querySelector('[role=alert]')!.textContent).toBe(alertBefore);
 });

@@ -125,6 +125,11 @@ export function plannerReducer(state: PlannerState, action: PlannerAction): Plan
         siteWork: Object.fromEntries(Object.entries(state.mission.siteWork).map(([id, work]) => [id, { ...work, doneTaskIds: [] }])) };
       return { ...state, workspace: 'mission', runningMission, regionId: runningMission.regionId, selectedSiteId: null };
     }
+    case 'eventAdded': case 'eventRemoved': case 'eventsCleared': {
+      if (selectPlanningStatus(state) !== 'ready') return state;
+      if (state.workspace === 'base') return { ...state, mission: missionReducer(state.mission, action) };
+      return state.runningMission ? { ...state, runningMission: missionReducer(state.runningMission, action) } : state;
+    }
     case 'activityToggled': {
       if (state.workspace !== 'mission' || !state.runningMission) return state;
       const activity = state.runningMission.steps.find(s => s.id === action.stepId)?.activities.find(a => a.id === action.activityId);

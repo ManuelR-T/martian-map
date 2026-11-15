@@ -1,3 +1,4 @@
+import { activityDurationMinutes, legSpeedFactor } from '@marps/mission-core';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Check, FlaskConical, Maximize, TriangleAlert, Undo2 } from 'lucide-react';
@@ -173,10 +174,10 @@ function Hud({ mission, progress }: { mission: Mission; progress: MissionProgres
   const budget = calculateMissionBudget(mission);
   const { step, activity, nextStep } = progress;
   const sheet = step.siteId ? findSiteSheet(step.siteId) : undefined;
-  const radiation = radiationAlert?.missionId === mission.id ? radiationAlert.alert : null;
+  const radiation = radiationAlert?.missionId === mission.id ? radiationReturn(mission, radiationAlert.alert.fromIndex) : null;
   const campDirect = radiationReturn(mission);
   const lastDone = mission.steps.flatMap(s => s.activities.map(a => ({ stepId: s.id, activityId: a.id, completed: a.completed }))).filter(entry => entry.completed).at(-1);
-  const walkMinutes = (metres: number) => formatBudgetMinutes(Math.ceil(metres / mission.parameters.speedMetresPerSecond / 60));
+  const walkMinutes = (metres: number) => formatBudgetMinutes(Math.ceil(metres / (mission.parameters.speedMetresPerSecond * legSpeedFactor(mission, progress.stepIndex + 1)) / 60));
   // Same margin object as the budget panel: the two views cannot disagree.
   const margin = budget.status === 'ready' ? toBudgetView(budget).margin : null;
   const steepAhead = relief?.status === 'ready' ? relief.steep.filter(portion => portion.endMetres > progress.travelledMetres) : null;
@@ -234,8 +235,8 @@ function Hud({ mission, progress }: { mission: Mission; progress: MissionProgres
                 className={`${row} ${current ? 'min-h-20 border-2 border-mars bg-mars/10' : 'border-header-foreground/20 hover:bg-accent'}`}>
                 {tick(a.completed)}
                 <span className={`min-w-0 flex-1 ${current ? 'heading-display text-[clamp(1.5rem,3.4vw,2.5rem)] text-mars' : a.completed ? `${quiet} line-through` : 'text-lg'}`}>{localize(activityLabels[a.type])}</span>
-                {current && <ActivityClock key={a.id} plannedMinutes={a.durationMinutes} />}
-                <span className={`tabular-nums ${current ? 'text-lg' : quiet}`}>{current && '/ '}{formatBudgetMinutes(a.durationMinutes)}</span>
+                {current && <ActivityClock key={a.id} plannedMinutes={activityDurationMinutes(mission, step.id, a)} />}
+                <span className={`tabular-nums ${current ? 'text-lg' : quiet}`}>{current && '/ '}{formatBudgetMinutes(activityDurationMinutes(mission, step.id, a))}</span>
               </button>
             </li>;
           })}
@@ -263,7 +264,7 @@ function Hud({ mission, progress }: { mission: Mission; progress: MissionProgres
           {budget.status === 'ready' && <div className="col-span-2"><BudgetBar budget={budget} remainingMinutes={progress.remainingMinutes} /></div>}
           <Readout label="Ensuite" value={nextStep ? localize(nextStep.name) : localize("Camp")}
             detail={`${formatGroundDistance(progress.nextLegMetres)} · ${walkMinutes(progress.nextLegMetres)}`} />
-          {campDirect && <Readout label="Camp en direct" value={formatGroundDistance(campDirect.distanceMetres)} detail={walkMinutes(campDirect.distanceMetres)} />}
+          {campDirect && <Readout label="Camp en direct" value={formatGroundDistance(campDirect.distanceMetres)} detail={formatBudgetMinutes(Math.ceil(campDirect.returnSeconds / 60))} />}
         </dl>
         <p className={quiet}>
           {!radiation && margin?.status !== 'over' && !steepAhead?.length && <>{localize("Aucune alerte.")} </>}
