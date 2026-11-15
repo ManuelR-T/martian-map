@@ -32,6 +32,7 @@ export interface PlannerState {
   readonly draftError: string | null;
   /** Transient validity of the parameter form; invalid text is never persisted as mission data. */
   readonly parameterDraftValid: boolean;
+  readonly oxygenParameterDraftValid: boolean;
   readonly view: MapView;
   /** Région détaillée affichée par la vue `region` ; ses capacités disent ce qu'elle offre. */
   readonly regionId: string;
@@ -52,6 +53,7 @@ export type PlannerAction =
   | { readonly type: 'trackingFailed'; readonly request: number; readonly message: string }
   | { readonly type: 'trackingStatusChanged'; readonly message: string }
   | { readonly type: 'draftStatusChanged'; readonly message: string }
+  | { readonly type: 'oxygenParameterDraftValidityChanged'; readonly valid: boolean }
   | { readonly type: 'parameterDraftValidityChanged'; readonly valid: boolean }
   | { readonly type: 'activityToggled'; readonly stepId: string; readonly activityId: string }
   | { readonly type: 'radiationAlertChanged'; readonly alert: RadiationAlertState | null }
@@ -77,6 +79,7 @@ export const initialPlannerState: PlannerState = {
   draftStatus: '',
   draftError: null,
   parameterDraftValid: true,
+  oxygenParameterDraftValid: true,
   view: 'global',
   regionId: DETAILED_REGION_ID,
   catalog: { status: 'loading' },
@@ -87,6 +90,8 @@ export const initialPlannerState: PlannerState = {
 
 export function plannerReducer(state: PlannerState, action: PlannerAction): PlannerState {
   switch (action.type) {
+    case 'oxygenParameterDraftValidityChanged':
+      return state.workspace === 'base' ? { ...state, oxygenParameterDraftValid: action.valid } : state;
     case 'parameterDraftValidityChanged':
       return state.workspace === 'base' ? { ...state, parameterDraftValid: action.valid } : state;
     case 'draftStatusChanged':
@@ -114,7 +119,7 @@ export function plannerReducer(state: PlannerState, action: PlannerAction): Plan
       return started === opened ? state : started;
     }
     case 'missionStarted': {
-      if (state.catalog.status !== 'ready' || state.workspace !== 'base' || !state.parameterDraftValid || !state.trackingReady || !state.mission.camp || !state.mission.steps.length || !missionMatchesCatalog(state.mission, state.catalog) || !action.id.trim() || selectPlanningStatus(state) !== 'ready') return state;
+      if (state.catalog.status !== 'ready' || state.workspace !== 'base' || !state.parameterDraftValid || (state.mission.parameters.returnLimitMode === 'time-and-oxygen' && !state.oxygenParameterDraftValid) || !state.trackingReady || !state.mission.camp || !state.mission.steps.length || !missionMatchesCatalog(state.mission, state.catalog) || !action.id.trim() || selectPlanningStatus(state) !== 'ready') return state;
       const runningMission: Mission = { ...withDataReferences(state.mission, state.catalog.data), id: action.id,
         steps: state.mission.steps.map(step => ({ ...step, activities: step.activities.map(a => ({ ...a, completed: false })) })),
         siteWork: Object.fromEntries(Object.entries(state.mission.siteWork).map(([id, work]) => [id, { ...work, doneTaskIds: [] }])) };
@@ -152,7 +157,7 @@ export function plannerReducer(state: PlannerState, action: PlannerAction): Plan
       if (state.workspace !== 'base' || selectPlanningStatus(state) !== 'ready' || !Number.isFinite(action.minutes) || action.minutes < 0) return state;
       return { ...state, mission: { ...state.mission, siteWork: siteWorkReducer(state.mission.siteWork, action) } };
     case 'missionOpened':
-      return state.workspace === 'base' && isMission(action.mission) && missionMatchesCatalog(action.mission, state.catalog) ? { ...state, mission: action.mission, draftError: null, parameterDraftValid: true } : state;
+      return state.workspace === 'base' && isMission(action.mission) && missionMatchesCatalog(action.mission, state.catalog) ? { ...state, mission: action.mission, draftError: null, parameterDraftValid: true, oxygenParameterDraftValid: true } : state;
     default: {
       if (state.workspace !== 'base' || selectPlanningStatus(state) !== 'ready') return state;
       const mission = missionReducer(state.mission, action);

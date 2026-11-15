@@ -1,3 +1,4 @@
+import { createRouteArrowLayer } from './routeArrows';
 import { MissionRouteEditor } from './MissionRouteEditor';
 import { TerrainAnnotations } from './TerrainAnnotations';
 import { findTerrainAnnotationDataset } from '@marps/data';
@@ -137,14 +138,14 @@ export function JezeroMap({ routePanelHost = null, annotationsEnabled = false, o
     });
     const map = new Map({ controls: defaultControls({ attribution: false }), target: target.current!, maxTilesLoading: 8, layers: [
       new TileLayer({ source: createRegionSource(dataset) }), new TileLayer({ source }),
-      // Order: imagery < night infrared < geology (zIndex 1) < rover traverse (zIndex 2) < outlines and sites (zIndex 3).
+      // Sites (4) stay above the return-limit overlay (3.5); outlines remain at 3.
       ...(themisLayer ? [themisLayer] : []),
       new VectorLayer({ zIndex: 3, source: new VectorSource({ features: [boundary(product.extent, '#ffcc66', []), boundary(sector, SECTOR_COLOUR, [10, 5])], wrapX: false }) }),
       new VectorLayer({ zIndex: 3, source: new VectorSource({ features: prepared, wrapX: false }), style: feature => {
         if (feature.get('level') !== Math.round(view.getZoom() ?? 12)) return;
         return new Style({ stroke: new Stroke({ color: '#fff', width: 2, lineDash: [2, 6] }) });
       } }),
-      new VectorLayer({ zIndex: 3, declutter: true, source: new VectorSource({ features, wrapX: false }) }),
+      new VectorLayer({ zIndex: 4, declutter: true, source: new VectorSource({ features, wrapX: false }) }),
     ], view });
     mapRef.current = map; setOverlayMap(map);
     view.fit(bounds(sector), { size: map.getSize(), padding: [90, 40, 160, 40] });
@@ -202,8 +203,10 @@ export function JezeroMap({ routePanelHost = null, annotationsEnabled = false, o
     const map = mapRef.current;
     if (!map) return;
     const layer = createMissionLayer(mission);
+    const arrows = createRouteArrowLayer(mission);
     map.addLayer(layer);
-    return () => { map.removeLayer(layer); };
+    map.addLayer(arrows);
+    return () => { map.removeLayer(layer); map.removeLayer(arrows); };
   }, [mission, dataset, sector, radius, sites, onSelect, themisLayer]);
   return <div className="mars-map-container jezero-map">
     <div ref={target} className="mars-map" tabIndex={0} aria-label={localize(messages.label)} />
@@ -253,6 +256,7 @@ export function JezeroMap({ routePanelHost = null, annotationsEnabled = false, o
       <p>{localize(scale)} {localize("·")} {localize(messages.scale)}</p>
     </div>
     <MapInformation>
+      <p>{localize("Arrows show planned travel direction, including the return to camp.")}</p>
       <p>{localize("Camp et étapes : simulation. Parcours hypothétique, retour inclus, sans validation du terrain.")}</p>
       <p>{localize(messages.legend)}</p>
       <p>{localize(messages.coordinates)} {localize("R =")} {localize(radius)} {localize("m.")}</p>

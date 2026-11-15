@@ -39,7 +39,7 @@ export function saveMissionDraft(mission: Mission, storage: Pick<Storage, 'setIt
     'activityGramsPerMinute', 'referenceSpeedMetresPerSecond', 'speedCoefficient',
     'uphillCoefficient', 'downhillCoefficient', 'loadCoefficientPerKg', 'assumeFlatTerrain',
   ] as const).map(key => [key, source[key]]));
-  const parameters = { availableSeconds, speedMetresPerSecond, reserveSeconds, oxygen };
+  const parameters = { availableSeconds, speedMetresPerSecond, reserveSeconds, oxygen, returnLimitMode: mission.parameters.returnLimitMode };
   const { simulation, route, terrainValidated } = mission.assumptions;
   const assumptions = { simulation, route, terrainValidated };
   const siteWork = Object.fromEntries(Object.entries(mission.siteWork).map(([id, { allottedMinutes, doneTaskIds }]) => [id, { allottedMinutes, doneTaskIds }]));

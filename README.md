@@ -638,3 +638,34 @@ The three catalogue sites are visited in catalogue order, followed by return to
 the selected camp. Edit each connecting leg as desired; this scenario makes no
 claim of traversability. Drawing and dragging still require manual browser and
 touch acceptance testing.
+
+## Return limit under mission assumptions (#33)
+
+The Budget drawer shares a planned immediate-retreat calculation with the map.
+At each chronological position it reverses the route already traveled, including
+edited vertices and positions on the planned return leg. It does not substitute
+the straight-line distance or the remaining planned route. Earlier activities
+and the elapsed fraction of the current activity count; future activities are
+abandoned. Completion checkboxes do not measure elapsed time or location.
+
+Time-only mode works without terrain. **Include O₂ in return limit** explicitly
+adds the existing simulated model-v1 oxygen constraint; this choice persists
+with the mission. Older missions can explicitly initialize simulated O₂
+parameters. Reverse slopes use their own costs. Missing terrain/parameters
+remain indeterminate; flat terrain is an explicit assumption in O₂ settings.
+The protected reserves are subtracted once, and zero margin reaches a reserve.
+
+The summary identifies the limiting constraint, visit/activity or route leg,
+numerical margins, and interpolation bracket. Solid/dashed/dotted portions and
+triangular threshold markers complement text. All thresholds remain in an
+accessible touch-target list; overlapping visits retain chronological identity.
+Overlapping route strokes show the later passage, so consult the list for each
+passage's state. The compact Time menu opens the detailed summary.
+
+Calculations use local mission inputs and the already-loaded prepared DEM, with
+no remote service. Derived results are recomputed rather than saved. Evaluation
+is capped at 50,000 travel samples to bound work on tablets; a larger route is
+explicitly unevaluated. Terrain spacing is estimation granularity, not navigation
+accuracy. This hypothetical plan and uncalibrated O₂ model are not telemetry or
+a guarantee of return. Tablet interaction and disconnected production acceptance
+must be verified separately from automated calculation and storage tests.

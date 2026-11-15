@@ -125,3 +125,17 @@ The alert is used during the exit, in “On Mission” mode. The teammate remain
 - The remaining margin is not displayed until the time budget (#14) is calculated.
 
 **Deliberately excluded:** any personal dose, probability of survival or local alert deduced from a terrestrial alert. The only figure cited, around 210 micrograys per day measured by RAD in Gale in 2012-2013, describes the location of the measurement.
+
+## Return limit (#33)
+
+The habitat tablet displays the same immediate-retreat estimate on the map and
+in Budget. A shared pure calculation preserves chronological visits and stopped
+activities, including a threshold reached without moving. Return reverses the
+traveled prefix, with opposite signed slopes for O₂. This is a team-selected
+scenario, not a computed navigable path or physiological validation.
+
+Time-only is the default; O₂ is an explicit additional constraint. Unknown data
+stays indeterminate and flat terrain requires an explicit choice. The Time menu keeps its compact label; the status, details and complete event list stay
+inside the drawer, with 44 px controls rather than new permanent map furniture. Text,
+dash patterns and marker shapes supplement color. All computation uses onboard
+inputs and prepared local terrain, independent of Earth connectivity.

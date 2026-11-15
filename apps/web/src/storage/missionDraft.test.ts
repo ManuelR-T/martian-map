@@ -84,3 +84,12 @@ describe('préparation locale versionnée', () => {
     expect(withDataReferences(mission, catalog)).toBe(mission);
   });
 });
+
+it('round trips the optional return constraint mode without derived calculations', () => {
+  const storage = memoryStorage();
+  const combined = { ...mission, parameters: { ...mission.parameters, returnLimitMode: 'time-and-oxygen' as const } };
+  saveMissionDraft(combined, storage);
+  expect(loadMissionDraft(storage)?.parameters.returnLimitMode).toBe('time-and-oxygen');
+  expect(isMission({ ...combined, parameters: { ...combined.parameters, returnLimitMode: 'automatic' } })).toBe(false);
+  expect(storage.getItem(MISSION_DRAFT_KEY)).not.toContain('crossings');
+});
