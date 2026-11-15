@@ -70,6 +70,11 @@ export function MissionEditor({ className }: { className?: string }) {
     if (runningMission && !window.confirm('Remplacer le suivi précédent par cette nouvelle sortie ? Son historique sera conservé.')) return;
     dispatch({ type: 'missionStarted', id: uid() });
   };
+  const startSaved = (value: Mission) => {
+    if (!missionMatchesCatalog(value, catalog)) { setStatus('Cette préparation contient un camp ou un parcours hors du secteur Jezero, ou un site incompatible avec le catalogue.'); return; }
+    if (runningMission && !window.confirm('Remplacer le suivi précédent par cette nouvelle sortie ? Son historique sera conservé.')) return;
+    dispatch({ type: 'savedMissionStarted', mission: value, id: uid() });
+  };
   const content = (
     <div className="grid gap-3 text-sm">
     <p role="status">{status}</p>
@@ -79,6 +84,7 @@ export function MissionEditor({ className }: { className?: string }) {
       {(action === 'saved' ? saved : templates).map(value => <div key={value.id} className="grid gap-2 border p-3">
         <p className="font-semibold">{value.name}</p><p>{value.steps.length} étapes · {value.camp?.name ?? 'Camp à choisir'}</p>
         {action === 'templates' && <Button disabled={busy} onClick={() => open({ ...value, id: uid(), siteWork: {}, steps: value.steps.map(s => ({ ...s, activities: s.activities.map(a => ({ ...a, completed: false })) })) }, 'new')}>Créer une mission avec ce modèle</Button>}
+        {action === 'saved' && <Button disabled={busy || !trackingReady || !value.camp || !value.steps.length} onClick={() => startSaved(value)}>Démarrer cette mission</Button>}
         <Button variant="outline" disabled={busy} onClick={() => open(value, action === 'templates' ? 'template' : 'new')}>Modifier {action === 'templates' ? 'le modèle' : 'la mission'}</Button>
         <Button variant="outline" disabled={busy} onClick={() => {
           if (!window.confirm(`Supprimer « ${value.name} » ? L’historique des sorties sera conservé.`)) return;

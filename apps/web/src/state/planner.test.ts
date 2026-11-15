@@ -170,3 +170,13 @@ it('bloque le remplacement d’un suivi non restauré et ignore les réponses de
   expect(plannerReducer(retry, { type: 'trackingFailed', request: 0, message: 'Ancienne erreur' })).toBe(retry);
   expect(plannerReducer(retry, { type: 'trackingLoaded', mission: null, request: 1 }).trackingReady).toBe(true);
 });
+
+describe('démarrage d’une mission enregistrée', () => {
+  it('laisse la préparation ouverte intacte quand le démarrage est refusé', () => {
+    // Catalog loaded, so the saved mission could be opened; tracking not loaded yet, so the start is refused.
+    const state = loaded(emptyCatalog);
+    expect(plannerReducer(state, { type: 'missionOpened', mission: { ...state.mission, id: 'saved', name: 'Mission enregistrée' } })).not.toBe(state);
+    const saved = { ...initialPlannerState.mission, id: 'saved', name: 'Mission enregistrée' };
+    expect(plannerReducer(state, { type: 'savedMissionStarted', mission: saved, id: 'run' })).toBe(state);
+  });
+});
