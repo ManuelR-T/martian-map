@@ -148,6 +148,7 @@ export function ConditionsPanel({ className }: { className?: string }) {
       title="Conditions au rover"
       actions={<ProvenanceBadge status="measured" />}
       collapsible
+      floating
       className={className}
       contentClassName="overflow-y-auto p-3"
     >

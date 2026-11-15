@@ -66,10 +66,16 @@ tâches suivantes.
 Sur l'écran de planification (`apps/web`), la carte occupe toute la surface
 sous le bandeau. Le sélecteur de vue (globale ou Jezero), les étapes, le budget
 de temps et la fiche de site flottent par-dessus ; chaque panneau se replie par
-son titre pour dégager la carte. Sous 1024 px, la carte reste en haut et les
-panneaux défilent dessous. Tant que leurs données ne sont pas intégrées, ces
-emplacements affichent un état explicite. La page `#/systeme-design` de l'application montre les jetons, les
-composants et ces états, avec des contenus d'exemple signalés comme tels.
+son bandeau de titre pour dégager la carte. Sous 1024 px, la carte reste en haut
+et les panneaux défilent dessous. Tant que leurs données ne sont pas intégrées,
+ces emplacements affichent un état explicite, sur un décor d'attente (limbe de
+Mars ou quadrillage) qui n'est pas une donnée. La page `#/systeme-design` de
+l'application montre les jetons, les composants et ces états, avec des contenus
+d'exemple signalés comme tels.
+
+Le système de design s'appelle « Heure bleue » : sur Mars, le ciel de jour est
+caramel et le coucher de soleil est bleu. Le thème nuit est celui d'origine ; le
+thème jour s'applique quand il a été choisi.
 
 - **Un seul état partagé.** `apps/web/src/state/planner.ts` contient le
   réducteur et les sélecteurs, testables sans React ; `PlannerProvider` les
@@ -79,21 +85,35 @@ composants et ces états, avec des contenus d'exemple signalés comme tels.
   données et couverture insuffisante. Toute zone qui dépend de données en
   affiche un plutôt qu'un vide.
 - **Couleurs.** Les jetons de `packages/ui/src/styles.css` forment deux
-  familles, désaturées pour rester calmes, en thème clair et sombre. Le bleu
-  (`--primary`) et le marine (`--header`), dérivés du bleu NASA `#0B3D91`,
-  portent l'interface et les actions. Les teintes de Mars marquent le terrain
-  et les repères : rouille (`--mars`), poussière (`--mars-surface`), neutres
-  chauds le jour et basalte la nuit. `tokens.test.ts` échoue si une paire
-  texte/fond passe sous 4,5:1 ou une bordure de contrôle sous 3:1.
+  familles, en thème nuit et jour. Le bleu crépuscule (`--primary`) porte
+  l'interface et les actions ; la braise (`--mars`) marque le terrain, les
+  repères et le parcours. Le fond est une nuit de basalte, ou un plein jour
+  clair et froid. Le bandeau (`--header`) reste nuit dans les deux thèmes : il
+  porte la classe `dark`, que toute zone peut reprendre pour forcer ces jetons.
+  `tokens.test.ts` échoue si le texte principal passe sous 7:1, un autre texte
+  sous 4,5:1 ou une bordure de contrôle sous 3:1.
 - **Accessibilité.** Un état ne repose jamais sur la seule couleur : il porte
-  aussi une icône, un texte ou un motif. Le focus clavier est un contour plein
-  de 3 px défini une fois dans `styles.css` ; ne pas le retirer d'un composant.
-- **Typographie.** Public Sans pour le texte, Archivo élargi pour les titres
-  (`heading-display`) et les libellés courts en capitales (`label-caps`),
-  servis depuis le bundle, sans appel externe.
-- **Formes.** Esprit console de mission : angles droits, aucune ombre, panneaux
-  à bandeau de titre et filet supérieur rouille, boutons et badges en aplats. Ne pas
-  réintroduire de coins arrondis ni d'ombres portées sur un composant.
+  aussi une icône, un texte, une forme ou un motif. Le focus clavier est un
+  contour plein de 3 px défini une fois dans `styles.css` ; ne pas le retirer
+  d'un composant. Les cibles sont prévues pour une main gantée : 44 px de haut
+  par défaut pour un bouton, 40 au minimum, et le bandeau entier d'un panneau
+  ou la ligne entière d'une étape sont activables.
+- **Typographie.** Public Sans pour le texte, Archivo sur toute sa largeur pour
+  les titres (`heading-display`), les libellés courts en capitales
+  (`label-caps`) et les relevés chiffrés (`numeral-display`), servis depuis le
+  bundle, sans appel externe.
+- **Formes et lumière.** Esprit instrument de bord : angles droits, filet
+  d'horizon braise vers bleu (`--horizon`) sur l'arête haute des panneaux et
+  sous le bandeau, équerres de viseur aux angles bas (`panel-frame`). Une
+  surface posée sur la carte est un verre presque opaque (`glass`, activé par
+  la propriété `floating` de `Panel` et `DataState`). La lumière a un sens :
+  seuls rayonnent l'action principale, la sélection et les alertes
+  (`shadow-glow`, `shadow-ember`). Ne pas ajouter de coins arrondis ni de lueur
+  décorative à un composant.
+- **Mouvement.** Un seul moment orchestré, la mise sous tension des panneaux à
+  l'ouverture (`power-on`, échelonnée par `--power-delay`). Ensuite un
+  mouvement signale un chargement (`scan`, `shimmer`) ou répond à un geste.
+  `prefers-reduced-motion` les neutralise tous.
 
 Pour ajouter un composant shadcn/ui, lancer le CLI depuis `packages/ui` :
 
@@ -369,3 +389,79 @@ precache. After a successful online/local installation and offline-ready status,
 the layer needs no NASA connection. Failed history loads offer retry without
 blocking imagery or the mission. Production offline/tablet interaction still
 requires acceptance testing; the automatic checks do not establish it.
+
+## Missions, camps et activités (#11)
+
+La navigation À la base / En mission sépare la préparation et le suivi. Le thème,
+la carte et les composants Panel, Button et StepList sont conservés.
+
+### À la base : missions, modèles et camps
+
+Un seul panneau **Mission** a trois onglets : **Préparer** (l’assistant, pour
+une mission ou un modèle), **Camps** (le catalogue des camps) et **Missions**
+(missions enregistrées, modèles et historique). Une mission enregistrée se
+démarre directement depuis l’onglet Missions. Une nouvelle mission peut
+toujours partir d’un modèle existant.
+La création suit trois étapes :
+
+1. Objectif et nom : choisir reconnaissance, observation, photographie ou
+   prélèvement. Un nom est proposé automatiquement et reste modifiable. Une
+   nouvelle mission peut reprendre un modèle enregistré sans modifier ce modèle.
+2. Camp et parcours : sélectionner un camp déjà enregistré, ajouter des étapes
+   du catalogue ou par coordonnées, réordonner les visites et définir leurs
+   activités (photo, observation, prélèvement) et durées en minutes. Une mission
+   exige un camp et au moins une étape ; un modèle peut les laisser à compléter.
+3. Vérification : consulter le récapitulatif, régler durée disponible, vitesse et
+   réserve, puis enregistrer. Le démarrage est proposé après enregistrement.
+
+L’onglet **Camps** permet de rechercher parmi les camps existants ou d’en
+enregistrer un nouveau, puis de les modifier ou de les supprimer. À l’étape 2,
+le bouton « Créer un camp » ouvre cet onglet. Enregistrer un camp ne sélectionne
+ni ne modifie le camp d’une mission en préparation. Les missions conservent une copie du camp choisi,
+y compris si le catalogue est modifié par la suite.
+
+Les actions destructrices demandent confirmation. Un message signale les erreurs
+de stockage. Les contrôles de préparation ne sont disponibles qu’à Jezero.
+Le catalogue des camps reste consultable indépendamment de la vue de la carte.
+
+### En mission
+
+Démarrer crée une copie indépendante du plan et remet les coches à zéro.
+Modifier un modèle ou une mission à la base ne modifie pas la sortie en cours.
+Le reducer interdit les modifications de configuration dans le suivi. Le parcours,
+les activités à cocher et les fiches de site restent accessibles ; les paramètres
+et les allocations sont en lecture seule. Les tâches des fiches restent distinctes
+des activités des visites et ne sont pas additionnées automatiquement à celles-ci.
+
+Le suivi est enregistré automatiquement sur cet appareil et restauré au
+rechargement. Chaque sortie dispose d’une entrée d’historique mise à jour avec
+ses coches ; démarrer une autre sortie conserve les précédentes. L’historique
+indique la date de dernière sauvegarde et ne prétend pas qu’une sortie est
+terminée. La géométrie camp–étapes–camp relie des segments directs : elle ne
+constitue pas un chemin praticable validé. Le calcul complet du budget reste #14.
+
+### Stockage et données de simulation
+
+IndexedDB `marps-missions` version 3 sépare `camps`, `missions`, `templates`,
+`tracking` et `history`. Les migrations conservent les anciennes données. Les
+préparations existantes restent dans missions ; elles ne sont pas reclassées
+automatiquement comme modèles. Les missions portent `schemaVersion: 1`, leur
+identité, type (facultatif pour les anciennes sauvegardes), nom, région, camp,
+étapes ordonnées, activités et coches, paramètres, hypothèses et travail des
+fiches. Les durées générales sont en secondes, la vitesse en m/s et les durées
+d’activités en minutes. Les valeurs négatives/non finies, la vitesse nulle et
+une réserve supérieure à la durée disponible sont refusées.
+
+Le repository `apps/web/src/storage/missionDatabase.ts` constitue le point à
+étendre pour un futur catalogue partagé. Il n’existe actuellement ni serveur,
+ni synchronisation multi-équipage, ni télémétrie. Effacer les données du
+navigateur efface cette base.
+
+Les camps d’exemple de `packages/data/src/camps.ts` sont fictifs et initialisés
+une seule fois. Leurs positions dans le secteur préparé ne confirment ni
+habitabilité, ni présence d’équipements, ni sélection NASA. La recherche n’a pas
+identifié de catalogue NASA de camps humains martiens enregistrés. Le rapport
+[NASA sur la science et la protection planétaire avant les missions humaines](https://ntrs.nasa.gov/citations/20250009522)
+étudie un scénario à Jezero sans valider ces camps. Les
+[données Perseverance](https://science.nasa.gov/mission/mars-2020-perseverance/)
+concernent l’exploration robotique réelle et restent séparées des simulations.

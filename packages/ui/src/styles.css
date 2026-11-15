@@ -9,96 +9,120 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Jetons de couleur. Deux familles : le bleu et le marine de la NASA pour
- * l'interface et les actions, les teintes de Mars (rouille, poussière, basalte)
- * pour le terrain et les repères. Toutes sont désaturées pour rester calmes ;
- * chaque paire texte/fond est contrôlée par tokens.test.ts.
+ * « Heure bleue ». Sur Mars, le ciel de jour est caramel et le coucher de
+ * soleil est bleu : la palette part de cette inversion. Le bleu crépuscule
+ * porte l'interface et les actions, la braise marque le terrain et les repères,
+ * sur une nuit de basalte (thème sombre) ou un plein jour froid (thème clair).
+ * Chaque paire texte/fond est contrôlée par tokens.test.ts.
  */
 :root {
   color-scheme: light;
   --radius: 0.125rem;
 
-  --background: #f5f1ec;
-  --foreground: #1a2030;
+  --background: #edf0f5;
+  --foreground: #0b1220;
   --card: #ffffff;
-  --card-foreground: #1a2030;
+  --card-foreground: #0b1220;
   --popover: #ffffff;
-  --popover-foreground: #1a2030;
-  --primary: #27457a;
+  --popover-foreground: #0b1220;
+  --primary: #1a48c4;
   --primary-foreground: #ffffff;
-  --secondary: #ebe5dd;
-  --secondary-foreground: #2b2a33;
-  --muted: #eee8e0;
-  --muted-foreground: #5a5650;
-  --accent: #e2e7f0;
-  --accent-foreground: #1b2c4a;
-  --destructive: #a23b2c;
+  --secondary: #e2e7ef;
+  --secondary-foreground: #1b2536;
+  --muted: #e6eaf1;
+  --muted-foreground: #465165;
+  --accent: #dbe5fb;
+  --accent-foreground: #0f2a66;
+  --destructive: #b3261e;
   --destructive-foreground: #ffffff;
-  --border: #ddd4c8;
-  --input: #857b6f;
-  --ring: #27457a;
+  --border: #cfd6e2;
+  --input: #6b778c;
+  --ring: #1a48c4;
 
-  --header: #131f38;
+  --header: #060912;
   --header-foreground: #ffffff;
-  --mars: #a8512f;
+  --mars: #c2410c;
   --mars-foreground: #ffffff;
-  --mars-surface: #f2e4d8;
+  --mars-surface: #f6e7dc;
 
-  --danger: #8a2c1e;
-  --danger-surface: #faf0ee;
-  --danger-border: #bd5645;
-  --warning: #684a14;
-  --warning-surface: #faf3e2;
-  --warning-border: #a67a35;
-  --success: #215a41;
-  --success-surface: #eef6f1;
-  --success-border: #4b8c6b;
-  --info: #27457a;
-  --info-surface: #eef2f9;
-  --info-border: #5a76ab;
+  --danger: #8f1d14;
+  --danger-surface: #fdeeeb;
+  --danger-border: #d0503f;
+  --warning: #6b4a00;
+  --warning-surface: #fdf3d7;
+  --warning-border: #b07c12;
+  --success: #0f5c3c;
+  --success-surface: #e9f7ef;
+  --success-border: #2f8f63;
+  --info: #1a48c4;
+  --info-surface: #ebf1fe;
+  --info-border: #4f78d8;
 }
 
 .dark {
   color-scheme: dark;
 
-  --background: #14110f;
-  --foreground: #ece7e1;
-  --card: #1c1815;
-  --card-foreground: #ece7e1;
-  --popover: #1c1815;
-  --popover-foreground: #ece7e1;
-  --primary: #a3b9e2;
-  --primary-foreground: #0f1a2e;
-  --secondary: #2a2420;
-  --secondary-foreground: #e3dcd3;
-  --muted: #241f1b;
-  --muted-foreground: #b3a99e;
-  --accent: #2a3246;
-  --accent-foreground: #e4eaf5;
-  --destructive: #e5937f;
-  --destructive-foreground: #2a0d07;
-  --border: #372f28;
-  --input: #8b7f72;
-  --ring: #b5c7ea;
+  --background: #070a11;
+  --foreground: #eef2f8;
+  --card: #0f1522;
+  --card-foreground: #eef2f8;
+  --popover: #121a2a;
+  --popover-foreground: #eef2f8;
+  --primary: #8fbaff;
+  --primary-foreground: #06122b;
+  --secondary: #1a2233;
+  --secondary-foreground: #dfe6f2;
+  --muted: #151c2b;
+  --muted-foreground: #a7b2c6;
+  --accent: #1c2a47;
+  --accent-foreground: #e6eeff;
+  --destructive: #ff9480;
+  --destructive-foreground: #2b0a04;
+  --border: #263147;
+  --input: #7d8aa3;
+  --ring: #b9d4ff;
 
-  --header: #131f38;
+  --header: #060912;
   --header-foreground: #ffffff;
-  --mars: #d27b55;
-  --mars-foreground: #1f0d05;
-  --mars-surface: #2c1c14;
+  --mars: #ff8a4c;
+  --mars-foreground: #2a0f02;
+  --mars-surface: #21150f;
 
-  --danger: #f0b4a6;
-  --danger-surface: #2e1814;
-  --danger-border: #c9705d;
-  --warning: #e8cf9a;
-  --warning-surface: #2b2212;
-  --warning-border: #b8914a;
-  --success: #a9d8bf;
-  --success-surface: #15241d;
-  --success-border: #5fa082;
-  --info: #bfd0ee;
-  --info-surface: #1a2336;
-  --info-border: #7f9bcf;
+  --danger: #ffb4a6;
+  --danger-surface: #2b1210;
+  --danger-border: #e0624f;
+  --warning: #ffd88a;
+  --warning-surface: #2a1f08;
+  --warning-border: #d19a2e;
+  --success: #9ff0c4;
+  --success-surface: #0c2419;
+  --success-border: #3fb37f;
+  --info: #b7d2ff;
+  --info-surface: #101d36;
+  --info-border: #5b8fe0;
+}
+
+/*
+ * Lumière. Le filet d'horizon (braise vers bleu) signe les bandeaux et les
+ * panneaux ; les ombres ne servent qu'à deux choses : détacher une surface qui
+ * flotte sur la carte, et faire rayonner un élément actif. Déclarés pour les
+ * deux portées afin qu'une zone forcée en `.dark` (le bandeau) les recalcule.
+ */
+:root,
+.dark {
+  --horizon: linear-gradient(90deg in oklab, var(--mars), var(--primary));
+  --surface-glass: color-mix(in srgb, var(--card) 84%, transparent);
+  --elevation: 0 1px 2px rgb(11 18 32 / 0.06), 0 18px 40px -18px rgb(11 18 32 / 0.32);
+  --glow-primary: 0 10px 24px -12px color-mix(in srgb, var(--primary) 80%, transparent);
+  --glow-mars: 0 0 0 3px color-mix(in srgb, var(--mars) 16%, transparent);
+}
+
+.dark {
+  --elevation: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 24px 48px -20px rgb(0 0 0 / 0.85);
+  --glow-primary:
+    0 0 0 1px color-mix(in srgb, var(--primary) 35%, transparent),
+    0 0 26px -4px color-mix(in srgb, var(--primary) 60%, transparent);
+  --glow-mars: 0 0 18px -2px color-mix(in srgb, var(--mars) 65%, transparent);
 }
 
 @theme inline {
@@ -113,6 +137,12 @@
   --radius-md: var(--radius);
   --radius-lg: calc(var(--radius) + 2px);
   --radius-xl: calc(var(--radius) + 6px);
+
+  --shadow-float: var(--elevation);
+  --shadow-glow: var(--glow-primary);
+  --shadow-ember: var(--glow-mars);
+
+  --ease-instrument: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -159,6 +189,8 @@
     border-color: var(--border);
     /* Couleur posée d'avance : l'anneau de focus apparaît net, sans fondu depuis la couleur du texte. */
     outline-color: var(--ring);
+    scrollbar-color: var(--input) transparent;
+    scrollbar-width: thin;
   }
 
   html {
@@ -168,7 +200,10 @@
 
   body {
     margin: 0;
-    background: var(--background);
+    /* Lueur de crépuscule fixe en haut de page : à peine visible, elle donne sa profondeur au fond. */
+    background:
+      radial-gradient(90% 55% at 50% 0%, color-mix(in oklab, var(--primary) 10%, transparent), transparent 70%) fixed,
+      var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);
     font-size: 1rem;
@@ -177,7 +212,11 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Un seul style de focus, plein et décalé : visible sur fond clair, sombre ou bleu. */
+  ::selection {
+    background: color-mix(in srgb, var(--primary) 35%, transparent);
+  }
+
+  /* Un seul style de focus, plein et décalé : visible sur fond clair, sombre ou sur la carte. */
   :focus-visible {
     outline: 3px solid var(--ring);
     outline-offset: 2px;
@@ -187,6 +226,7 @@
     *,
     ::before,
     ::after {
+      animation-delay: 0ms !important;
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
@@ -198,10 +238,10 @@
 /* Titres : Archivo élargi, dans l'esprit des manuels graphiques de la NASA. */
 @utility heading-display {
   font-family: var(--font-display);
-  font-stretch: 112%;
-  font-weight: 650;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
+  font-stretch: 118%;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
 }
 
 /*
@@ -211,21 +251,189 @@
 @utility label-caps {
   font-family: var(--font-display);
   font-size: 0.8125rem;
-  font-stretch: 112%;
+  font-stretch: 110%;
   font-weight: 650;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   line-height: 1.35;
   text-transform: uppercase;
 }
 
-/* Quadrillage de l'emplacement carte : méridiens et parallèles couleur rouille, estompés vers les bords. */
+/* Relevés : la valeur qui décide (marge, durée) en chiffres larges, alignés en colonnes. */
+@utility numeral-display {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+/*
+ * Surface qui flotte sur la carte : presque opaque pour rester lisible sur
+ * l'imagerie, floutée derrière, avec un reflet bleu en tête. Ne pas la cumuler
+ * avec `bg-card` : les composants l'activent par leur propriété `floating`.
+ */
+@utility glass {
+  background-color: var(--surface-glass);
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 9%, transparent), transparent 5rem);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  backdrop-filter: blur(18px) saturate(1.5);
+  box-shadow: var(--elevation);
+}
+
+/*
+ * Cadre d'instrument : filet d'horizon sur l'arête haute, équerres de viseur
+ * aux deux angles bas. L'élément doit être positionné et border d'un pixel.
+ */
+@utility panel-frame {
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -1px -1px auto -1px;
+    height: 2px;
+    background: var(--horizon);
+    pointer-events: none;
+  }
+
+  &::after {
+    --tick: color-mix(in srgb, var(--foreground) 60%, transparent);
+
+    content: "";
+    position: absolute;
+    inset: -1px;
+    background:
+      linear-gradient(var(--tick), var(--tick)) left bottom / 0.75rem 1px no-repeat,
+      linear-gradient(var(--tick), var(--tick)) left bottom / 1px 0.75rem no-repeat,
+      linear-gradient(var(--tick), var(--tick)) right bottom / 0.75rem 1px no-repeat,
+      linear-gradient(var(--tick), var(--tick)) right bottom / 1px 0.75rem no-repeat;
+    pointer-events: none;
+  }
+}
+
+/* Fond d'attente de la carte : la nuit, la lueur bleue du couchant et la poussière autour. */
+@utility stage-backdrop {
+  background:
+    radial-gradient(
+      85% 60% at 50% 100%,
+      color-mix(in oklab, var(--primary) 50%, transparent) 0%,
+      color-mix(in oklab, var(--primary) 20%, transparent) 32%,
+      color-mix(in oklab, var(--mars) 14%, transparent) 62%,
+      transparent 100%
+    ),
+    var(--background);
+}
+
+/* Limbe de Mars, purement décoratif : un disque à contre-jour, ourlé de braise puis de l'atmosphère bleue du couchant. */
+@utility planet-limb {
+  border-radius: 50%;
+  background: radial-gradient(
+    circle closest-side,
+    color-mix(in oklab, var(--mars) 16%, var(--background)) 0%,
+    color-mix(in oklab, var(--mars) 30%, var(--background)) 80%,
+    color-mix(in oklab, var(--mars) 62%, var(--background)) 92%,
+    var(--mars) 98%,
+    color-mix(in oklab, var(--mars) 70%, white) 100%
+  );
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--primary) 65%, transparent),
+    0 -2px 16px 0 color-mix(in srgb, var(--primary) 70%, transparent),
+    0 -10px 80px 4px color-mix(in srgb, var(--primary) 42%, transparent);
+}
+
+/* Quadrillage de l'emplacement carte : parallèles et méridiens, lignes maîtresses couleur braise, estompé vers les bords. */
 @utility graticule {
+  --line: color-mix(in srgb, var(--foreground) 9%, transparent);
+  --line-major: color-mix(in srgb, var(--mars) 38%, transparent);
+
   background-image:
-    linear-gradient(to right, color-mix(in srgb, var(--mars) 22%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in srgb, var(--mars) 22%, transparent) 1px, transparent 1px);
-  background-size: 3.5rem 3.5rem;
+    linear-gradient(to right, var(--line-major) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line-major) 1px, transparent 1px),
+    linear-gradient(to right, var(--line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+  background-size:
+    12rem 12rem,
+    12rem 12rem,
+    3rem 3rem,
+    3rem 3rem;
   background-position: center;
-  mask-image: radial-gradient(ellipse at center, #000 35%, transparent 95%);
+  mask-image: radial-gradient(ellipse at center, #000 30%, transparent 92%);
+}
+
+/* Balayage : une ligne descend sur la zone tant qu'elle charge. À poser sur un élément positionné qui masque son débordement. */
+@utility scan {
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: -30%;
+    height: 30%;
+    border-bottom: 1px solid color-mix(in srgb, var(--primary) 75%, transparent);
+    background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--primary) 16%, transparent));
+    animation: scan 3.2s linear infinite;
+    pointer-events: none;
+  }
+}
+
+/* Reflet qui traverse un squelette de chargement. */
+@utility shimmer {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--foreground) 16%, transparent), transparent);
+    animation: shimmer 1.6s ease-in-out infinite;
+  }
+}
+
+/*
+ * Mise sous tension : la surface monte et s'allume, puis son filet d'horizon
+ * se trace de gauche à droite. `--power-delay` échelonne les instruments.
+ */
+@utility power-on {
+  animation: power-on 600ms var(--ease-instrument) both;
+  animation-delay: var(--power-delay, 0ms);
+
+  &::before {
+    transform-origin: left;
+    animation: horizon-draw 900ms var(--ease-instrument) both;
+    animation-delay: calc(var(--power-delay, 0ms) + 150ms);
+  }
+}
+
+/* Tracé du filet d'horizon seul, pour un élément qui est lui-même le filet. */
+@utility horizon-draw {
+  transform-origin: left;
+  animation: horizon-draw 1100ms var(--ease-instrument) both;
+  animation-delay: var(--power-delay, 0ms);
+}
+
+@keyframes power-on {
+  from {
+    opacity: 0;
+    transform: translateY(0.625rem);
+  }
+}
+
+@keyframes horizon-draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes scan {
+  to {
+    transform: translateY(440%);
+  }
+}
+
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
 }
 
 /* Motifs des segments de budget : chaque part se distingue sans la couleur. */
