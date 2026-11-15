@@ -54,8 +54,8 @@ export function BudgetPanel({ className, collapsible = true }: BudgetPanelProps)
                 : budget.missing.includes('camp') ? localize('Budget non calculé : ajoutez un camp.') : localize('Budget non calculé : ajoutez au moins une étape.')}
           </p>
         )}
-        <MissionEvents />
         <OxygenBudget />
+        <MissionEvents />
       </PlanningGate>
     </Panel>
   );
