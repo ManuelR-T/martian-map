@@ -1,8 +1,8 @@
 # Whole Mars: five additional resources for Marps
 
 Documentary research verified on **November 15, 2026**, after reading
-`README.md` and `docs/ressources-mars.md`. This selection completes the six
-existing resources without taking them over. It aims for scientific exploration
+`README.md`. This selection completes the resources already in the manifest
+without taking them over. It aims for scientific exploration
 worldwide, while detailed preparation remains limited to Jezero.
 
 **Scope:** primary pages and documentation accessed by the web tool; none

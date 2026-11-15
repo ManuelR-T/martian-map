@@ -40,8 +40,8 @@ overhaul of the preparation.
 ## Projection and transformation
 
 Both products use x = R·λ and y = R·φ (radians, R = 3,396,190 m). The mesh
-(row, column) covers x starting from `origin.x + colonne × pas` and y going down
-from `origin.y − ligne × pas`. The manifest carries this transformation in
+(row, column) covers x starting from `origin.x + column × step` and y going down
+from `origin.y − row × step`. The manifest carries this transformation in
 `raster`: `origin`, `pixelSizeMetres`, `projection`, `width`, `height`.
 
 | Grid | Meshes (columns × rows) | Not | Origin x, y (m) |

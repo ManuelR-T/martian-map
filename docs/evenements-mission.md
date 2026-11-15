@@ -1,52 +1,49 @@
-# Événements de mission simulés
+# Simulated mission events
 
-Dans le panneau Budget, « Événements simulés » permet d’ajouter un retard à une
-activité ou de réduire la vitesse des portions choisies. Les valeurs sont des
-hypothèses pédagogiques : aucune visibilité ou alerte météo locale n’est observée.
+In the Budget panel, "Simulated events" adds a delay to an activity or reduces
+the walking speed on chosen legs. The values are teaching assumptions: no local
+visibility or weather alert is observed.
 
-Les retards s’additionnent à la durée initiale de l’activité, sans la modifier.
-Les facteurs de visibilité se multiplient et s’appliquent à la vitesse initiale
-sur toute la portion sélectionnée, y compris ses détours. Un facteur de 0,5
-double la durée ; deux facteurs de 0,5 donnent une vitesse de 0,25 fois la vitesse
-initiale. Le retour est une portion distincte, sélectionnable, comptée une fois.
+Delays add to the activity's initial duration without changing it. Visibility
+factors multiply and apply to the initial speed over the whole selected leg,
+detours included. A factor of 0.5 doubles the duration; two factors of 0.5 give
+0.25 times the initial speed. The return is a separate leg that can be selected
+and is counted once.
 
-Chaque événement reste actif jusqu’à son annulation. Les calculs portent sur le
-plan complet, activités cochées comprises : ils ne mesurent pas le temps écoulé.
-Annuler un événement retire uniquement son effet ; tout annuler restitue les
-budgets initiaux. Le bilan O₂ utilise les durées retardées, son débit à l’arrêt
-et les vitesses de marche modifiées (son débit varie aussi avec la vitesse).
+Each event stays active until it is cancelled. Calculations cover the full plan,
+checked activities included: they do not measure elapsed time. Cancelling an
+event removes only its effect; cancelling all of them restores the initial
+budgets. The O₂ estimate uses the delayed durations, its stationary flow and the
+modified walking speeds (its flow also varies with speed).
 
-Les événements sont conservés avec la préparation, les missions enregistrées et
-le suivi dans le champ optionnel `events` du schéma v1. Ils sont indépendants
-entre préparation et sortie active. Une activité supprimée perd ses retards.
-Changer le camp, ajouter, retirer ou réordonner une étape retire les événements
-de visibilité pour éviter d’appliquer un facteur à une autre portion ; éditer
-les détours conserve leur cible logique.
+Events are saved with the preparation, the saved missions and the tracking, in
+the optional `events` field of schema v1. Preparation and the active outing keep
+separate events. A deleted activity loses its delays. Changing the camp, or
+adding, removing or reordering a stop, removes the visibility events so a factor
+is never applied to another leg; editing detours keeps their logical target.
 
-## Intégration avec l’alerte radiative fictive (#26)
+## Link with the simulated radiation alert (#26)
 
-L’ordre radiatif reste une proposition de retour direct depuis une étape figée.
-Sa durée tient compte des facteurs de visibilité sur la portion « retour au
-camp », même si les événements sont modifiés après le déclenchement de l’alerte.
-Les délais des activités abandonnées ne sont pas ajoutés au retour direct.
-Annuler l’alerte conserve les autres événements, qui restent annulables séparément.
-Cette proposition ne remplace pas le plan complet dans les budgets et ne fournit
-aucune position réelle ou durée déjà écoulée.
+The radiation order stays a proposed direct return from a fixed stop. Its
+duration takes into account the visibility factors on the "return to camp" leg,
+even if events change after the alert is raised. Delays of abandoned activities
+are not added to the direct return. Cancelling the alert keeps the other events,
+which can still be cancelled one by one. This proposal does not replace the full
+plan in the budgets and gives no real position or elapsed time.
 
-L’alerte et son contexte scientifique existants restent explicitement simulés ;
-les événements de #19 n’ajoutent aucune donnée radiative observée à Jezero.
+The alert and its scientific context remain explicitly simulated; the events of
+#19 add no observed radiation data at Jezero.
 
-La vue casque partage les événements avec le planificateur : ses durées d’activité,
-le reste prévu, la marche suivante et le retour direct utilisent les mêmes effets.
-L’alerte radiative reste partagée et se recalcule depuis son étape de départ figée.
+The helmet view shares events with the planner: its activity durations, planned
+remaining time, next walk and direct return use the same effects. The radiation
+alert is shared too and is recalculated from its fixed starting stop.
 
-La limite de retour (#33) applique aussi les retards et facteurs de vitesse.
-Son repli suit le préfixe parcouru en sens inverse : chaque portion conserve son
-propre facteur de visibilité, à la différence du retour radiatif direct proposé.
+The return limit (#33) also applies delays and speed factors. Its fallback
+follows the walked part of the route in reverse: each leg keeps its own
+visibility factor, unlike the proposed direct radiation return.
 
-L’alerte radiative est également déclenchable dans « Événements simulés ».
-À la base, elle sert de prévisualisation indépendante de la sortie active.
-En mission, elle partage son état avec la vue casque. Le panneau « Suivi de
-mission » conserve uniquement le suivi des activités, sans afficher l’alerte
-ni son bouton de déclenchement. « Annuler tous
-les événements » retire aussi l’alerte de l’espace courant, sans altérer l’autre.
+The radiation alert can also be raised from "Simulated events". At base, it is
+an independent preview of the active outing. On a mission, it shares its state
+with the helmet view. The "Mission tracking" panel only tracks activities and
+does not show the alert or its trigger button. "Cancel all events" also removes
+the alert from the current workspace without changing the other one.
