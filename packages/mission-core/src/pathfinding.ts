@@ -28,17 +28,18 @@ export interface SlopeGrid {
  * below it, one metre walked counts as `1 + slopeWeight × slope / maxSlopeDegrees` flat metres.
  */
 export interface RouteScenario {
-  readonly id: 'cautious' | 'balanced' | 'bold';
   readonly maxSlopeDegrees: number;
   readonly slopeWeight: number;
 }
 
-/** Scenario assumptions, not operational limits of a suit or a crew. */
-export const routeScenarios = [
-  { id: 'cautious', maxSlopeDegrees: 15, slopeWeight: 4 },
-  { id: 'balanced', maxSlopeDegrees: 20, slopeWeight: 2 },
-  { id: 'bold', maxSlopeDegrees: 25, slopeWeight: 1 },
-] as const satisfies readonly RouteScenario[];
+/** A modelling assumption, not an operational limit of a suit or a crew: a metre at the limit counts as 3. */
+export const SLOPE_WEIGHT = 2;
+
+/** The crew chooses the steepest slope it accepts; the cost model stays the same. */
+export function slopeScenario(maxSlopeDegrees: number): RouteScenario {
+  if (!Number.isFinite(maxSlopeDegrees) || maxSlopeDegrees <= 0) throw new RangeError('Slope limit must be positive.');
+  return { maxSlopeDegrees, slopeWeight: SLOPE_WEIGHT };
+}
 
 /** Why a cell cannot be walked. */
 export type CellBlock = 'out-of-coverage' | 'no-data' | 'too-steep';
