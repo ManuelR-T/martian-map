@@ -24,7 +24,7 @@ const en = {
   missingImagery: 'No image displayed · coverage not confirmed',
   legend: 'Yellow line: product bounds; blue dashes: mission sector; white dots: prepared tiles at the current level (12–16). The pattern means no image is displayed, not evidence of empty terrain.',
   coordinates: 'Planetocentric coordinates, east longitude. Nominal source: 0.25 m/pixel; display varies with zoom. No navigation accuracy guaranteed.',
-  cache: 'Additional downloads are not guaranteed offline (#24). Imagery outside the sector enables neither terrain nor planning.',
+  cache: 'Additional HiRISE tiles are retained separately up to 16 MiB; missing tiles require internet. Imagery outside the sector enables neither terrain nor planning.',
 };
 const fr: Record<keyof typeof en, string> = {
   label: 'Carte HiRISE de Jezero. Flèches pour déplacer, plus et moins pour zoomer.',
@@ -52,6 +52,6 @@ const fr: Record<keyof typeof en, string> = {
   missingImagery: 'Aucune image affichée · couverture non confirmée',
   legend: 'Trait jaune : emprise du produit ; tirets bleus : secteur de mission ; pointillés blancs : tuiles préparées au niveau courant (12–16). Le motif indique un fond sans image affichée, pas une preuve de terrain vide.',
   coordinates: 'Coordonnées planétocentriques, longitude est. Source : 0,25 m/pixel ; affichage selon le zoom. Aucune précision de navigation garantie.',
-  cache: 'Les téléchargements supplémentaires ne sont pas garantis hors ligne (#24). L’imagerie hors secteur n’active ni relief ni planification.',
+  cache: 'Les tuiles HiRISE supplémentaires sont conservées séparément dans la limite de 16 Mio ; les tuiles absentes nécessitent internet. L’imagerie hors secteur n’active ni relief ni planification.',
 };
 export const jezeroMessages = { en, fr };
