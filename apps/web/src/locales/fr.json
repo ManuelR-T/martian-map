@@ -1083,5 +1083,6 @@
   "Essayez une pente maximale plus élevée.": "Essayez une pente maximale plus élevée.",
   "{{v0}}, dont {{v1}} sur terrain fermé à {{v2}}° : coût non comparable": "{{v0}}, dont {{v1}} sur terrain fermé à {{v2}}° : coût non comparable",
   "Sur la carte : chemin proposé.": "Sur la carte : chemin proposé.",
-  "Coût : chaque mètre compte 1 + 2 × pente / pente maximale mètres à plat. Le poids 2 est une hypothèse de modèle, pas une limite de combinaison.": "Coût : chaque mètre compte 1 + 2 × pente / pente maximale mètres à plat. Le poids 2 est une hypothèse de modèle, pas une limite de combinaison."
+  "Coût : chaque mètre compte 1 + 2 × pente / pente maximale mètres à plat. Le poids 2 est une hypothèse de modèle, pas une limite de combinaison.": "Coût : chaque mètre compte 1 + 2 × pente / pente maximale mètres à plat. Le poids 2 est une hypothèse de modèle, pas une limite de combinaison.",
+  "Les flèches indiquent le sens de marche, retour au camp compris.": "Les flèches indiquent le sens de marche, retour au camp compris."
 }

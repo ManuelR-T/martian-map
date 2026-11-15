@@ -1083,5 +1083,6 @@
   "Essayez une pente maximale plus élevée.": "Try a higher maximum slope.",
   "{{v0}}, dont {{v1}} sur terrain fermé à {{v2}}° : coût non comparable": "{{v0}}, of which {{v1}} on terrain closed at {{v2}}°: cost not comparable",
   "Sur la carte : chemin proposé.": "On the map: proposed path.",
-  "Coût : chaque mètre compte 1 + 2 × pente / pente maximale mètres à plat. Le poids 2 est une hypothèse de modèle, pas une limite de combinaison.": "Cost: each metre counts as 1 + 2 × slope / maximum slope metres on flat ground. The weight 2 is a modelling assumption, not a suit limit."
+  "Coût : chaque mètre compte 1 + 2 × pente / pente maximale mètres à plat. Le poids 2 est une hypothèse de modèle, pas une limite de combinaison.": "Cost: each metre counts as 1 + 2 × slope / maximum slope metres on flat ground. The weight 2 is a modelling assumption, not a suit limit.",
+  "Les flèches indiquent le sens de marche, retour au camp compris.": "The arrows show the walking direction, including the return to camp."
 }

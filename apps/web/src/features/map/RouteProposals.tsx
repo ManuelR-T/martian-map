@@ -9,6 +9,7 @@ import { Button, localize } from '@marps/ui';
 import { loadGrid, measureRoute, proposeRoute, terrainDataset, type RouteProposal, type TerrainGrid } from '@marps/data';
 import { missionGeometry, slopeScenario, type CellBlock, type MarsCoordinate, type RouteScenario } from '@marps/mission-core';
 import { locale } from '../../i18n';
+import { routeArrowStyles } from './routeArrows';
 import { usePlannerDispatch, usePlannerState } from '../../state/PlannerProvider';
 import { selectCurrentMission } from '../../state/planner';
 
@@ -98,10 +99,13 @@ export function RouteProposals({ map, names }: { map: Map | null; names: readonl
 
   useEffect(() => {
     if (!map || !preview) return;
-    const feature = new Feature(new LineString(preview.map((point) => [point.longitude, point.latitude])));
-    feature.setStyle([
+    const line = new LineString(preview.map((point) => [point.longitude, point.latitude]));
+    const feature = new Feature(line);
+    // Same direction arrows as the mission route, so the proposal reads the way the applied route will.
+    feature.setStyle((_feature, resolution) => [
       new Style({ stroke: new Stroke({ color: '#151b25', width: 6 }) }),
       new Style({ stroke: new Stroke({ color: PROPOSAL_COLOUR, width: 3 }) }),
+      ...routeArrowStyles(line, resolution),
     ]);
     const layer = new VectorLayer({ zIndex: 2.75, source: new VectorSource({ features: [feature], wrapX: false }) });
     map.addLayer(layer);
@@ -169,7 +173,7 @@ export function RouteProposals({ map, names }: { map: Map | null; names: readonl
               </dl>
               <p className="flex items-center gap-2">
                 <svg viewBox="0 0 40 12" className="w-10 shrink-0" aria-hidden="true"><path d="M0 6H40" stroke="#151b25" strokeWidth="6" /><path d="M0 6H40" stroke={PROPOSAL_COLOUR} strokeWidth="3" /></svg>
-                {localize('Sur la carte : chemin proposé.')}
+                {localize('Sur la carte : chemin proposé.')} {localize("Les flèches indiquent le sens de marche, retour au camp compris.")}
               </p>
               <Button size="sm" onClick={() => dispatch({ type: 'routeLegsReplaced', legs: result.proposal.legs })}>
                 {localize('Appliquer ce chemin au parcours')}
