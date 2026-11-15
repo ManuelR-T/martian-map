@@ -4,8 +4,9 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { elevationSampler, loadGrid, terrainDataset, type DatasetDescriptor, type TerrainGrid } from '@marps/data';
 import { sampleProfile, steepPortions, type ProfilePoint, type SteepPortion } from '@marps/mission-core';
 import { usePlannerState } from '../state/PlannerProvider';
-import { DETAILED_REGION_ID } from '../state/planner';
-import { demoRoute, type RouteStop } from './demoRoute';
+import { missionGeometry } from '@marps/mission-core';
+import { selectCurrentMission, DETAILED_REGION_ID } from '../state/planner';
+import { type RouteStop } from './demoRoute';
 
 export const DEFAULT_THRESHOLD = 10;
 
@@ -38,12 +39,14 @@ type Loaded = { readonly demId: string } & ({ readonly status: 'error' } | { rea
 
 /** Loads the relief once and shares the profile between the profile panel and the map. */
 export function RouteProfileProvider({ children }: { children: ReactNode }) {
-  const { catalog, view } = usePlannerState();
+  const planner = usePlannerState();
+  const { catalog, view } = planner;
+  const mission = selectCurrentMission(planner);
   const [threshold, setThreshold] = useState(DEFAULT_THRESHOLD);
   const [focusMetres, setFocusMetres] = useState<number | null>(null);
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const dem = catalog.status === 'ready' ? terrainDataset(catalog.data, DETAILED_REGION_ID, 'elevation') : null;
-  const stops = useMemo(() => (catalog.status === 'ready' ? demoRoute(catalog.data.sites) : []), [catalog]);
+  const stops = useMemo(() => (missionGeometry(mission)?.coordinates.map(([longitude, latitude], index) => ({ label: String(index + 1), coordinate: { longitude, latitude } })) ?? []), [mission]);
   // The global view has no relief: the grid is only fetched once the crew opens the sector.
   const wanted = view !== 'global' && dem !== null && stops.length >= 2;
 

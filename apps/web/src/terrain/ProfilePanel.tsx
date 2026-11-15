@@ -63,7 +63,7 @@ export function ProfilePanel({ className, collapsible = true }: { className?: st
     <Panel
       floating
       title={localize("Profil du parcours")}
-      description={localize("Parcours de démonstration : les sites en ligne droite, puis retour")}
+      description={localize("Parcours hypothétique de la mission, retour au camp inclus")}
       collapsible={collapsible}
       className={className}
     >

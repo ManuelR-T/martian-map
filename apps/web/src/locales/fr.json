@@ -908,5 +908,17 @@
   "Not measured bearing capacity or an operational exclusion.": "Pas une portance mesurée ni une exclusion opérationnelle.",
   "Composite pixel (1350, 800); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown.": "Pixel de la mosaïque (1350, 800) ; origine colonne 93714, ligne 26045. Précision absolue de positionnement inconnue.",
   "Composite pixel (500, 800); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown.": "Pixel de la mosaïque (500, 800) ; origine colonne 93714, ligne 26045. Précision absolue de positionnement inconnue.",
-  "Composite pixel (350, 1000); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown.": "Pixel de la mosaïque (350, 1000) ; origine colonne 93714, ligne 26045. Précision absolue de positionnement inconnue."
+  "Composite pixel (350, 1000); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown.": "Pixel de la mosaïque (350, 1000) ; origine colonne 93714, ligne 26045. Précision absolue de positionnement inconnue.",
+  "Parcours hypothétique · terrain non validé.": "Parcours hypothétique · terrain non validé.",
+  "Retour au camp inclus une fois. Changer le camp ou les étapes réinitialise tous les segments directs.": "Retour au camp inclus une fois. Changer le camp ou les étapes réinitialise tous les segments directs.",
+  "Parcours hors couverture : données de terrain incomplètes.": "Parcours hors couverture : données de terrain incomplètes.",
+  "Segment à éditer": "Segment à éditer",
+  "Dessiner les points intermédiaires, double-cliquer pour terminer. Les extrémités restent fixées aux visites. Échap annule.": "Dessiner les points intermédiaires, double-cliquer pour terminer. Les extrémités restent fixées aux visites. Échap annule.",
+  "Dessiner": "Dessiner",
+  "Segments directs": "Segments directs",
+  "Dessin en cours": "Dessin en cours",
+  "Déplacer un point ou insérer un sommet sur le segment.": "Déplacer un point ou insérer un sommet sur le segment.",
+  "Démonstration : visiter les trois sites": "Démonstration : visiter les trois sites",
+  "Parcours hypothétique de la mission, retour au camp inclus": "Parcours hypothétique de la mission, retour au camp inclus",
+  "Camp et étapes : simulation. Parcours hypothétique, retour inclus, sans validation du terrain.": "Camp et étapes : simulation. Parcours hypothétique, retour inclus, sans validation du terrain."
 }

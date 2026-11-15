@@ -1,3 +1,4 @@
+import { MissionRouteEditor } from './MissionRouteEditor';
 import { TerrainAnnotations } from './TerrainAnnotations';
 import { findTerrainAnnotationDataset } from '@marps/data';
 import { locale } from '../../i18n';
@@ -219,6 +220,7 @@ export function JezeroMap({ annotationsEnabled = false, onAnnotationsToggle = ()
       <Button size="sm" onClick={() => mapRef.current?.getView().fit(bounds(sector), { size: mapRef.current.getSize(), padding: [90, 40, 160, 40] })}>{localize(messages.return)}</Button>
       {failed && <Button size="sm" variant="outline" onClick={() => { setFailed(false); mapRef.current?.getLayers().forEach(layer => { if (layer instanceof TileLayer) layer.getSource()?.refresh(); }); }}>{localize(messages.retry)}</Button>}
 
+      <MissionRouteEditor map={overlayMap} sector={sector} />
       {/* One list, one control: every layer is shown or hidden with the same switch. */}
       <div className="mt-2 border-t pt-2" role="group" aria-label={localize(messages.layersTitle)}>
         <p className="text-xs font-semibold">{localize(messages.layersTitle)}</p>
@@ -250,7 +252,7 @@ export function JezeroMap({ annotationsEnabled = false, onAnnotationsToggle = ()
       <p>{localize(scale)} {localize("·")} {localize(messages.scale)}</p>
     </div>
     <MapInformation>
-      <p>{localize("Camp et étapes : simulation. Tirets orange du parcours : segments directs, sans validation du terrain.")}</p>
+      <p>{localize("Camp et étapes : simulation. Parcours hypothétique, retour inclus, sans validation du terrain.")}</p>
       <p>{localize(messages.legend)}</p>
       <p>{localize(messages.coordinates)} {localize("R =")} {localize(radius)} {localize("m.")}</p>
       <p>{localize(messages.cache)}</p>

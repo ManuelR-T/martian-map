@@ -385,7 +385,7 @@
   "Mission sector": "Sector mission",
   "Missions": "Missions",
   "Missions enregistrées": "Saved Missions",
-  "Modifier": "To modify",
+  "Modifier": "Modify",
   "Modifier la mission": "Edit mission",
   "Modifier le modèle": "Edit template",
   "Modèle enregistré. Il est disponible pour créer de nouvelles missions.": "Registered model. It is available to create new missions.",
@@ -908,5 +908,17 @@
   "Not measured bearing capacity or an operational exclusion.": "Not measured bearing capacity or an operational exclusion.",
   "Composite pixel (1350, 800); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown.": "Composite pixel (1350, 800); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown.",
   "Composite pixel (500, 800); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown.": "Composite pixel (500, 800); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown.",
-  "Composite pixel (350, 1000); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown.": "Composite pixel (350, 1000); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown."
+  "Composite pixel (350, 1000); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown.": "Composite pixel (350, 1000); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown.",
+  "Parcours hypothétique · terrain non validé.": "Hypothetical route · terrain not validated.",
+  "Retour au camp inclus une fois. Changer le camp ou les étapes réinitialise tous les segments directs.": "Return to camp included once. Changing the camp or stops resets all legs to direct segments.",
+  "Parcours hors couverture : données de terrain incomplètes.": "Route outside coverage: incomplete terrain data.",
+  "Segment à éditer": "Leg to edit",
+  "Dessiner les points intermédiaires, double-cliquer pour terminer. Les extrémités restent fixées aux visites. Échap annule.": "Draw intermediate points; double-click to finish. Endpoints stay fixed to visits. Escape cancels.",
+  "Dessiner": "Draw",
+  "Segments directs": "Direct segments",
+  "Dessin en cours": "Drawing in progress",
+  "Déplacer un point ou insérer un sommet sur le segment.": "Move a point or insert a vertex on the leg.",
+  "Démonstration : visiter les trois sites": "Demo: visit the three sites",
+  "Parcours hypothétique de la mission, retour au camp inclus": "Hypothetical mission route, including return to camp",
+  "Camp et étapes : simulation. Parcours hypothétique, retour inclus, sans validation du terrain.": "Camp and stops: simulation. Hypothetical route, including return, without terrain validation."
 }

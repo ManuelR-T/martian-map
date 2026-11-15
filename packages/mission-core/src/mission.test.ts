@@ -79,3 +79,16 @@ it('conserve un moteur de mission indépendant de Jezero', () => {
   expect(mission.camp?.regionId).toBe('autre-region');
   expect(isMission(mission)).toBe(true);
 });
+
+it('persists intermediate vertices, resets them after itinerary changes and rejects corrupt legs', () => {
+  let m = missionReducer(missionReducer(empty, { type: 'campPlaced', camp }), { type: 'stepAdded', step: step('a') });
+  m = missionReducer(m, { type: 'routeLegChanged', index: 0, vertices: [{ longitude: 77.402, latitude: 18.45 }] });
+  m = missionReducer(m, { type: 'routeLegChanged', index: 1, vertices: [{ longitude: 77.403, latitude: 18.45 }] });
+  expect(missionGeometry(m)?.coordinates).toEqual([[77.4, 18.45], [77.402, 18.45], [77.401, 18.451], [77.403, 18.45], [77.4, 18.45]]);
+  expect(isMission(JSON.parse(JSON.stringify(m)))).toBe(true);
+  expect(isMission({ ...m, routeLegs: [[]] })).toBe(false);
+  expect(missionReducer(m, { type: 'routeLegChanged', index: 1, vertices: [{ longitude: NaN, latitude: 0 }] })).toBe(m);
+  expect(missionReducer(m, { type: 'stepAdded', step: step('b') }).routeLegs).toBeUndefined();
+  expect(missionReducer(m, { type: 'stepRemoved', id: 'a' }).routeLegs).toBeUndefined();
+  expect(missionReducer(m, { type: 'campPlaced', camp }).routeLegs).toBeUndefined();
+});

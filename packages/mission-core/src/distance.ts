@@ -54,9 +54,10 @@ export function missionDistances(mission: Mission, radiusMetres = MARS_RADIUS_ME
   const geometry = missionGeometry(mission);
   if (!geometry) return null;
   const result = polylineDistances(geometry.coordinates.map(([longitude, latitude]) => ({ longitude, latitude })), radiusMetres);
+  const returnSegments = (mission.routeLegs?.at(-1)?.length ?? 0) + 1;
   return {
     ...result,
-    exploration: distance(result.segments.slice(0, -1).reduce((sum, segment) => sum + segment.metres, 0)),
-    return: result.segments.at(-1)!,
+    exploration: distance(result.segments.slice(0, -returnSegments).reduce((sum, segment) => sum + segment.metres, 0)),
+    return: distance(result.segments.slice(-returnSegments).reduce((sum, segment) => sum + segment.metres, 0)),
   };
 }
