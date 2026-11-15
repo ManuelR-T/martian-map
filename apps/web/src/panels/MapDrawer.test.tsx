@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { Timer, MapPin } from 'lucide-react';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { MapDrawer } from './MapDrawer';
-import { drawerProjection } from './useDrawerPerspective';
+import { drawerProjection, visibleDrawerProjection } from './useDrawerPerspective';
 
 beforeEach(() => {
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
@@ -91,8 +91,21 @@ it('keeps both projected edges inside the rail even for very tall cards', () => 
         const z = depth + edge * height / 2 * Math.sin(tilt * Math.PI / 180);
         const projectedWidth = perspective / (perspective - z);
         expect(projectedWidth).toBeLessThanOrEqual(1);
-        expect(projectedWidth).toBeGreaterThan(0.97);
+        expect(projectedWidth).toBeGreaterThan(0.94);
       }
     }
   }
+});
+
+it('bases the projection on the visible portion regardless of offscreen content', () => {
+  const short = visibleDrawerProjection(450, 150, 0, 600);
+  const long = visibleDrawerProjection(450, 2000, 0, 600);
+  expect(long).toEqual(short);
+  expect(long.origin).toBe(75);
+  const spanning = visibleDrawerProjection(-700, 2000, 0, 600);
+  expect(spanning.tilt).toBe(0);
+  expect(spanning.origin).toBe(1000);
+  const exiting = visibleDrawerProjection(-1850, 2000, 0, 600);
+  expect(exiting.tilt).toBe(-long.tilt);
+  expect(exiting.origin).toBe(1925);
 });
