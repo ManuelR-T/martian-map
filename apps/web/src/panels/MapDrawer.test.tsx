@@ -2,8 +2,13 @@
 import { act, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Timer, MapPin } from 'lucide-react';
-import { expect, it, vi } from 'vitest';
+import { beforeEach, expect, it, vi } from 'vitest';
 import { MapDrawer } from './MapDrawer';
+
+beforeEach(() => {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} });
+});
 
 function Drawers() {
   const [budget, setBudget] = useState(false);
@@ -44,5 +49,31 @@ it('opens cards independently, keeps edits when closed and restores focus on Esc
     expect(document.activeElement).toBe(triggers[0]);
   } finally {
     await act(async () => root.unmount()); container.remove(); vi.unstubAllGlobals();
+  }
+});
+
+it('updates perspective when the rail scrolls without CSS scroll timelines', async () => {
+  vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);
+  let tick: FrameRequestCallback | undefined;
+  vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => { tick = callback; return 1; });
+  vi.stubGlobal('cancelAnimationFrame', vi.fn());
+  let top = 300;
+  const geometry = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+    return { top: this.classList.contains('map-drawer') ? top : 0, height: this.classList.contains('map-drawer') ? 200 : 600 } as DOMRect;
+  });
+  const container = document.createElement('div');
+  document.body.append(container);
+  const root = createRoot(container);
+  try {
+    await act(async () => root.render(<div className="map-drawer-rail"><MapDrawer label="Budget" icon={Timer} side="right" open onOpenChange={() => {}}>Contenu</MapDrawer></div>));
+    const card = container.querySelector<HTMLElement>('.map-drawer')!;
+    expect(parseFloat(card.style.getPropertyValue('--drawer-tilt'))).toBeGreaterThan(0);
+    top = 0;
+    container.querySelector('.map-drawer-rail')!.dispatchEvent(new Event('scroll'));
+    tick!(0);
+    expect(parseFloat(card.style.getPropertyValue('--drawer-tilt'))).toBeLessThan(0);
+  } finally {
+    await act(async () => root.unmount());
+    geometry.mockRestore(); container.remove(); vi.unstubAllGlobals();
   }
 });
