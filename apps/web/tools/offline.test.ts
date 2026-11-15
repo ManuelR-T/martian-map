@@ -40,10 +40,11 @@ it('serves precached app assets offline despite Vary: Origin and keeps navigatio
       if (url.endsWith('/assets/app.js') && options?.ignoreVary) return asset.clone();
       return undefined;
     } };
+    let online = false;
     runInNewContext(await readFile(join(directory, 'sw.js'), 'utf8'), {
-      URL, self: { location: { href: 'https://example.test/app/sw.js' }, addEventListener: (name: string, handler: (event: unknown) => void) => handlers.set(name, handler) },
+      URL, Request, self: { location: { href: 'https://example.test/app/sw.js' }, addEventListener: (name: string, handler: (event: unknown) => void) => handlers.set(name, handler) },
       caches: { open: async () => cache },
-      fetch: () => { throw new Error('Network unavailable'); },
+      fetch: () => { if (online) return Promise.resolve(new Response('<html>current blue hour app</html>')); throw new Error('Network unavailable'); },
     });
     async function request(url: string, mode = 'cors') {
       let response: Promise<Response> | undefined;
@@ -52,5 +53,7 @@ it('serves precached app assets offline despite Vary: Origin and keeps navigatio
     }
     expect(await request('https://example.test/app/assets/app.js')).toBe('cached application');
     expect(await request('https://example.test/app/?mission=demo', 'navigate')).toBe('<html>offline app</html>');
+    online = true;
+    expect(await request('https://example.test/app/index.html', 'navigate')).toBe('<html>current blue hour app</html>');
   } finally { await rm(directory, { recursive: true, force: true }); }
 });

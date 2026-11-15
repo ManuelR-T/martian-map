@@ -53,7 +53,7 @@ export function SegmentedControl<Value extends string>({
             className={cn(
               'label-caps relative inline-flex h-10 min-w-0 shrink-0 items-center justify-center gap-1.5 px-3.5 whitespace-nowrap text-foreground transition-[color,background-color,box-shadow] duration-200 focus-visible:z-10',
               'hover:bg-accent hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-50',
-              'data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:shadow-glow',
+              'data-[state=checked]:bg-mars data-[state=checked]:text-mars-foreground data-[state=checked]:shadow-ember',
               '[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
             )}
           >

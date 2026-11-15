@@ -1,12 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const css = readFileSync(new URL('./styles.css', import.meta.url), 'utf8');
+const css = readFileSync(new URL('./styles.css', import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
 
 function readTokens(selector: string): Record<string, string> {
-  const start = css.indexOf(`${selector} {`);
-  if (start < 0) throw new Error(`Bloc ${selector} introuvable dans styles.css.`);
-  const block = css.slice(start, css.indexOf('}', start));
+  const block = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+    .find((match) => match[1].split(',').some((name) => name.split(';').at(-1)?.trim() === selector))?.[2];
+  if (!block) throw new Error(`Bloc ${selector} introuvable dans styles.css.`);
   return Object.fromEntries(
     [...block.matchAll(/--([a-z-]+):\s*(#[0-9a-f]{6});/g)].map((match) => [match[1], match[2]]),
   );
@@ -57,6 +57,7 @@ const textPairs: readonly (readonly [string, string])[] = [
   ['muted-foreground', 'danger-surface'],
   ['muted-foreground', 'warning-surface'],
   ['mars-foreground', 'mars'],
+  ['twilight-foreground', 'twilight'],
   ['foreground', 'mars-surface'],
   ['muted-foreground', 'mars-surface'],
 ];
@@ -104,8 +105,8 @@ const graphicPairs: readonly (readonly [string, string])[] = [
 ];
 
 describe.each([
-  ['clair', ':root'],
-  ['sombre', '.dark'],
+  ['par défaut', ':root'],
+  ['heure bleue', '.dark'],
 ])('jetons de couleur du thème %s', (_name, selector) => {
   const tokens = readTokens(selector);
   const ratio = (foreground: string, background: string) => {
@@ -127,8 +128,8 @@ describe.each([
   });
 });
 
-describe('thèmes clair et sombre', () => {
+describe('palette unique heure bleue', () => {
   it('définissent exactement les mêmes jetons de couleur', () => {
-    expect(Object.keys(readTokens('.dark')).sort()).toEqual(Object.keys(readTokens(':root')).sort());
+    expect(readTokens('.dark')).toEqual(readTokens(':root'));
   });
 });

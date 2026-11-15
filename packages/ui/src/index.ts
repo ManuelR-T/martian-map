@@ -19,9 +19,4 @@ export { SegmentedControl } from './components/segmented-control';
 export type { SegmentedControlProps, SegmentedOption } from './components/segmented-control';
 export { StepList, StepListItem } from './components/step-list';
 export type { StepKind, StepListItemProps, StepListProps } from './components/step-list';
-export { ThemeToggle } from './components/theme-toggle';
-export type { ThemeToggleProps } from './components/theme-toggle';
-
-export { THEME_STORAGE_KEY, useTheme } from './lib/theme';
-export type { Theme } from './lib/theme';
 export { cn } from './lib/utils';

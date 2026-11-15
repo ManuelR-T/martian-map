@@ -5,7 +5,7 @@ import { cn } from '../lib/utils';
 /**
  * Repère de Marps : le disque de Mars éclairé, cerné du bleu de son couchant et
  * traversé par un parcours. Décoratif ; ses couleurs sont fixes car il vit sur
- * le bandeau nuit, identique dans les deux thèmes (et dans favicon.svg).
+ * le bandeau nuit (et dans favicon.svg).
  */
 export function BrandMark({ className, ...props }: ComponentProps<'svg'>) {
   const gradientId = useId();

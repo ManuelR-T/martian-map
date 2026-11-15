@@ -6,7 +6,7 @@ import { usePlannerDispatch, usePlannerState } from '../state/PlannerProvider';
 import { SiteProvenance } from './Provenance';
 import { PlanningGate } from './PlanningGate';
 
-export function SiteDetailsPanel({ className }: { className?: string }) {
+export function SiteDetailsPanel({ className, collapsible = true }: { className?: string; collapsible?: boolean }) {
   const { catalog, selectedSiteId, siteWork } = usePlannerState();
   const dispatch = usePlannerDispatch();
   const sites = catalog.status === 'ready' ? catalog.data.sites : [];
@@ -15,7 +15,7 @@ export function SiteDetailsPanel({ className }: { className?: string }) {
   return (
     <Panel
       title="Fiche de site"
-      collapsible
+      collapsible={collapsible}
       floating
       className={className}
       contentClassName="overflow-y-auto p-3"

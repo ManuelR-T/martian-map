@@ -8,7 +8,7 @@ const TILES = 'marps-mola-tiles-v1';
 const FILES = __FILES__;
 const root = new URL('./', self.location.href);
 self.addEventListener('install', event => event.waitUntil(
-  caches.open(APP).then(cache => cache.addAll(FILES.map(file => new URL(file, root).href)))
+  caches.open(APP).then(cache => cache.addAll(FILES.map(file => new URL(file, root).href))).then(() => self.skipWaiting())
 ));
 self.addEventListener('activate', event => event.waitUntil((async () => {
   for (const key of await caches.keys()) if (key.startsWith('marps-app-') && key !== APP) await caches.delete(key);
@@ -20,9 +20,15 @@ self.addEventListener('fetch', event => {
   if (url.origin === root.origin && url.pathname.startsWith(root.pathname)) {
     event.respondWith((async () => {
       const cache = await caches.open(APP);
+      if (event.request.mode === 'navigate') {
+        try {
+          const response = await fetch(event.request, { cache: 'no-cache' });
+          if (response.ok) return response;
+        } catch { /* The installed application remains available offline. */ }
+        return (await cache.match(new URL('index.html', root).href)) || fetch(event.request);
+      }
       const cached = await cache.match(event.request, { ignoreVary: true });
       if (cached) return cached;
-      if (event.request.mode === 'navigate') return (await cache.match(new URL('index.html', root).href)) || fetch(event.request);
       return fetch(event.request);
     })());
   } else if (url.origin === 'https://trek.nasa.gov' && url.pathname.includes('/Mars_MGS_MOLA_ClrShade_merge_global_463m/') && url.pathname.endsWith('.jpg')) {

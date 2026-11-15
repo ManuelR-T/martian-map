@@ -28,10 +28,11 @@ interface Swatch {
 }
 
 const swatches: readonly Swatch[] = [
-  { token: 'primary', name: 'Bleu crépuscule', usage: 'Actions principales, sélection, liens', className: 'bg-primary text-primary-foreground' },
-  { token: 'mars', name: 'Braise', usage: 'Repères d\'étape, parcours, marque', className: 'bg-mars text-mars-foreground' },
-  { token: 'header', name: 'Nuit', usage: 'Bandeau, identique dans les deux thèmes', className: 'bg-header text-header-foreground' },
-  { token: 'background', name: 'Fond', usage: 'Fond de page : basalte la nuit, plein jour froid', className: 'bg-background text-foreground' },
+  { token: 'primary', name: 'Bleu action', usage: 'Boutons principaux, liens et lueurs des volets', className: 'bg-primary text-primary-foreground' },
+  { token: 'twilight', name: 'Bleu crépuscule', usage: 'Ambiance, lueurs et fonds bleu nuit', className: 'bg-twilight text-twilight-foreground' },
+  { token: 'mars', name: 'Braise', usage: 'Sélection de vue, page active, étapes et parcours', className: 'bg-mars text-mars-foreground' },
+  { token: 'header', name: 'Nuit', usage: 'Bandeau de navigation', className: 'bg-header text-header-foreground' },
+  { token: 'background', name: 'Fond', usage: 'Fond de page bleu nuit', className: 'bg-background text-foreground' },
   { token: 'card', name: 'Surface', usage: 'Panneaux et contrôles', className: 'bg-card text-card-foreground' },
   { token: 'muted', name: 'Atténué', usage: 'Zones secondaires, squelettes', className: 'bg-muted text-muted-foreground' },
   { token: 'accent', name: 'Accent', usage: 'Survol, élément sélectionné', className: 'bg-accent text-accent-foreground' },
@@ -85,14 +86,16 @@ type DemoView = 'global' | 'region';
 function Section({ title, intro, children }: { title: string; intro?: string; children: ReactNode }) {
   const id = useId();
   return (
-    <section aria-labelledby={id} className="grid gap-5">
-      <div>
+    <section aria-labelledby={id} className="border-b pb-4">
+      <div className="py-3">
         <h3 id={id} className="heading-display text-2xl">
           {title}
         </h3>
-        {intro ? <p className="mt-2 max-w-prose text-muted-foreground">{intro}</p> : null}
       </div>
-      {children}
+      <div className="grid gap-5 py-4">
+        {intro ? <p className="max-w-prose text-muted-foreground">{intro}</p> : null}
+        {children}
+      </div>
     </section>
   );
 }
@@ -103,7 +106,7 @@ export default function DesignSystemPage() {
   const [bootCount, setBootCount] = useState(0);
 
   return (
-    <div>
+    <div className="[--scene-terrain:var(--mars)]">
       {/* Ouverture : le couchant bleu de Mars, toujours de nuit, dans la continuité du bandeau. */}
       <div className="dark stage-backdrop relative isolate overflow-hidden text-foreground">
         <div aria-hidden="true" className="graticule absolute inset-0 -z-10 opacity-50" />
@@ -112,11 +115,12 @@ export default function DesignSystemPage() {
           className="planet-limb absolute top-[68%] left-1/2 -z-10 aspect-square w-[max(140%,64rem)] -translate-x-1/2"
         />
         <div aria-hidden="true" className="absolute inset-x-0 bottom-0 -z-10 h-28 bg-linear-to-t from-background to-transparent" />
-        <div className="mx-auto max-w-5xl px-5 pt-14 pb-40 sm:pt-20 sm:pb-52">
-          <h2 className="heading-display text-5xl font-extrabold [font-stretch:125%] sm:text-7xl">Heure bleue</h2>
+        <div className="mx-auto max-w-5xl px-5 py-8 sm:py-12">
+          <a href="#/" className="inline-flex min-h-11 items-center underline">Retour à la planification</a>
+          <h2 className="heading-display text-3xl font-extrabold [font-stretch:125%] sm:text-4xl">Heure bleue</h2>
           <p className="mt-5 max-w-xl text-lg text-foreground/90">
             Sur Mars, le ciel de jour est caramel et le coucher de soleil est bleu. Le système de design de Marps part
-            de cette inversion : le bleu du crépuscule porte les actions, la braise marque le terrain.
+            de cette inversion : le bleu du crépuscule habille les fonds, les boutons restent bleus, l’orange martien souligne les sélections et les repères.
           </p>
         </div>
       </div>
@@ -149,7 +153,7 @@ export default function DesignSystemPage() {
 
         <Section
           title="Couleurs"
-          intro="Chaque jeton existe dans les deux thèmes. Le thème nuit est celui d'origine : une nuit de basalte, éclairée par le bleu du couchant. Le thème jour garde les mêmes rôles sur un fond clair et froid."
+          intro="Une seule palette pour tous les écrans : une nuit de basalte, éclairée par le bleu du couchant."
         >
           <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 lg:grid-cols-3">
             {swatches.map((swatch) => (

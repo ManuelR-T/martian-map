@@ -72,26 +72,25 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange }: S
           <p className="text-sm leading-snug">{sheet.objective}</p>
         </div>
       </div>
-      <p className="text-xs text-muted-foreground">
-        <ProvenanceBadge status="measured" /> <span className="font-semibold text-foreground">Déjà fait par le rover : </span>
-        {sheet.roverWork.text}
-      </p>
-
-      <p className="text-xs text-muted-foreground"><ProvenanceBadge status="simulated" /> Activités et durées choisies par l’équipe, d’après les procédures Apollo.</p>
+      <details className="text-xs text-muted-foreground">
+        <summary className="min-h-11 cursor-pointer py-3 font-semibold">Contexte scientifique et méthode</summary>
+        <p><ProvenanceBadge status="measured" /> Déjà fait par le rover : {sheet.roverWork.text}</p>
+        <p className="mt-2"><ProvenanceBadge status="simulated" /> Activités et durées choisies par l’équipe, d’après les procédures Apollo.</p>
+      </details>
       <ul aria-label="Tâches" className="m-0 grid list-none p-0">
         {sheet.tasks.map((task) => {
           const done = work.doneTaskIds.includes(task.id);
           return (
             <li key={task.id} className="-mt-px first:mt-0">
               {/* Cible tactile de 44 px : le coéquipier dans l'habitat coche en direct, sans viser. */}
-              <label className="flex h-11 cursor-pointer items-center gap-3 border px-3 hover:bg-accent">
+              <label className="flex min-h-11 cursor-pointer items-center gap-3 border px-3 hover:bg-accent">
                 <input
                   type="checkbox"
                   checked={done}
                   onChange={() => onTaskToggle(task.id)}
-                  className="size-5 shrink-0 accent-primary"
+                  className="size-5 shrink-0 accent-mars"
                 />
-                <span className={done ? 'flex-1 truncate text-muted-foreground line-through' : 'flex-1 truncate'}>
+                <span className={done ? 'min-w-0 flex-1 py-2 text-muted-foreground line-through' : 'min-w-0 flex-1 py-2'}>
                   {task.label}
                 </span>
                 <span className="text-sm text-muted-foreground tabular-nums">{task.minutes} min</span>
