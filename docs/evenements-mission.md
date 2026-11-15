@@ -43,3 +43,8 @@ L’alerte radiative reste partagée et se recalcule depuis son étape de dépar
 La limite de retour (#33) applique aussi les retards et facteurs de vitesse.
 Son repli suit le préfixe parcouru en sens inverse : chaque portion conserve son
 propre facteur de visibilité, à la différence du retour radiatif direct proposé.
+
+L’alerte radiative est également déclenchable dans « Événements simulés ».
+À la base, elle sert de prévisualisation indépendante de la sortie active.
+En mission, elle partage son état avec le suivi et la vue casque. « Annuler tous
+les événements » retire aussi l’alerte de l’espace courant, sans altérer l’autre.

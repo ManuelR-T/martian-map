@@ -120,7 +120,7 @@ it('partage l’alerte radiation simulée avec le suivi', async () => {
   await click('Simuler une alerte radiation');
   expect(hud().querySelector('[role=alert]')?.textContent).toContain('Simulation · Alerte radiation');
   expect(hud().querySelector('[role=alert]')?.textContent).toContain('Rentrer au camp maintenant');
-  expect(container.querySelectorAll('[role=alert]')).toHaveLength(2);
+  expect(container.querySelectorAll('[role=alert]')).toHaveLength(3);
   await click('Annuler la simulation', container);
   expect(hud().querySelector('[role=alert]')?.textContent).toBe('');
 });

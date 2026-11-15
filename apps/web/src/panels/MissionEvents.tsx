@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import { RadiationAlert } from './RadiationAlert';
+import type { RadiationAlertState } from '../state/planner';
 import { useTranslation } from 'react-i18next';
 import { Button, localize } from '@marps/ui';
 import { calculateMissionBudget, type MissionEvent } from '@marps/mission-core';
@@ -8,11 +11,19 @@ export function MissionEvents() {
   const state = usePlannerState();
   const dispatch = usePlannerDispatch();
   const mission = state.workspace === 'base' ? state.mission : state.runningMission;
+  // Preparation previews must not replace the active walk's shared alert.
+  const [previewRadiation, setPreviewRadiation] = useState<RadiationAlertState | null>(null);
+  const radiation = state.workspace === 'base' ? previewRadiation : state.radiationAlert;
+  const onRadiationChange = (alert: RadiationAlertState | null) => {
+    if (state.workspace === 'base') setPreviewRadiation(alert);
+    else dispatch({ type: 'radiationAlertChanged', alert });
+  };
   if (!mission?.camp || !mission.steps.length) return null;
   const activities = mission.steps.flatMap(s => s.activities.map(a => ({ stepId: s.id, activityId: a.id, name: `${s.name} · ${localize(a.type === 'sampling' ? 'Prélèvement' : a.type === 'photo' ? 'Photo' : 'Observation')}` })));
   const legNames = [...mission.steps.map(s => localize('Vers : {{v0}}', { v0: s.name })), localize('Retour au camp')];
   const add = (event: MissionEvent) => dispatch({ type: 'eventAdded', event });
   const events = mission.events ?? [];
+  const hasRadiation = radiation?.missionId === mission.id;
   const baseline = calculateMissionBudget({ ...mission, events: undefined });
   const current = calculateMissionBudget(mission);
   const minutes = (n: number) => `${n.toLocaleString(i18n.language, { maximumFractionDigits: 1 })} min`;
@@ -24,7 +35,12 @@ export function MissionEvents() {
       <p className="font-semibold">{localize('Simulé')} · {e.kind === 'activity-delay' ? <>{localize('Retard d’activité')} +{minutes(e.delayMinutes)} · {activities.find(a => a.stepId === e.stepId && a.activityId === e.activityId)?.name}</> : <>{localize('Visibilité réduite')} · ×{e.speedFactor.toLocaleString(i18n.language)} · {e.legIndices.map(i => legNames[i]).join(', ')}</>}</p>
       <Button type="button" variant="outline" onClick={() => dispatch({ type: 'eventRemoved', id: e.id })}>{localize('Annuler cet événement')}</Button>
     </li>)}</ul>
-    {events.length > 0 && <Button type="button" variant="outline" onClick={() => dispatch({ type: 'eventsCleared' })}>{localize('Annuler tous les événements')}</Button>}
+    {(events.length > 0 || hasRadiation) && <Button type="button" variant="outline" onClick={() => { dispatch({ type: 'eventsCleared' }); onRadiationChange(null); }}>{localize('Annuler tous les événements')}</Button>}
+    <div className="grid gap-2 border p-3">
+      <h4 className="font-semibold">{localize('Alerte radiative simulée')}</h4>
+      <p className="text-xs text-muted-foreground">{localize('Retour direct proposé ; le budget du plan complet reste inchangé. À la base : prévisualisation indépendante. En sortie : alerte partagée avec le suivi et la vue casque.')}</p>
+      <RadiationAlert mission={mission} state={radiation} onChange={onRadiationChange} />
+    </div>
     <details><summary className="min-h-11 cursor-pointer font-semibold">{localize('Simuler un événement')}</summary>
       {activities.length > 0 && <form className="grid gap-2 border-b py-3" onSubmit={e => {
         e.preventDefault();

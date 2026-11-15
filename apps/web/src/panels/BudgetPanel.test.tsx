@@ -251,3 +251,33 @@ it('cumule et annule les événements via le panneau, puis les sauvegarde pendan
   // Starting the walk isolates it from the prepared scenario.
   expect(loadMissionDraft()!.events).toHaveLength(3);
 });
+
+
+it('simule une alerte radiative depuis les événements, isole la préparation et annule toutes les simulations', async () => {
+  await mount();
+  const events = () => container.querySelector('section[aria-label="Événements simulés"]')!;
+  const clickEvent = async (label: string) => {
+    const button = [...events().querySelectorAll('button')].find(b => b.textContent === label)!;
+    expect(button).toBeTruthy();
+    await act(async () => button.click());
+  };
+  const margin = value('Marge après réserve');
+  await clickEvent('Simuler une alerte radiation');
+  expect(events().querySelector('[role="alert"]')?.textContent).toContain('Rentrer au camp maintenant');
+  expect(value('Marge après réserve')).toBe(margin);
+  await send({ type: 'missionStarted', id: 'radiation-events-walk' });
+  expect(events().querySelector('[role="alert"]')).toBeNull();
+  await clickEvent('Simuler une alerte radiation');
+  expect(events().querySelector('[role="alert"]')).not.toBeNull();
+  // Cancel the preparation preview without altering the active outing's alert.
+  await send({ type: 'workspaceChanged', workspace: 'base' });
+  await clickEvent('Annuler la simulation');
+  await send({ type: 'workspaceChanged', workspace: 'mission' });
+  expect(events().querySelector('[role="alert"]')).not.toBeNull();
+  await clickEvent('Simuler un retard');
+  expect(events().textContent).toContain('Retard d’activité');
+  await clickEvent('Annuler tous les événements');
+  expect(events().querySelector('[role="alert"]')).toBeNull();
+  expect(events().querySelectorAll('li')).toHaveLength(0);
+  expect(value('Marge après réserve')).toBe(margin);
+});
