@@ -20,14 +20,14 @@ export function OxygenBudget() {
   const mission = state.workspace === 'base' ? state.mission : state.runningMission;
   const profile = useOptionalRouteProfile();
   const relief = profile?.relief;
-  const p = mission?.parameters.oxygen;
+  const p = mission?.parameters.oxygen ?? DEFAULT_OXYGEN_PARAMETERS;
   const [draft, setDraft] = useState<{ source: OxygenParameters; values: OxygenParameters } | null>(null);
   const values = p && draft?.source === p ? draft.values : p;
   const valid = !values || validOxygenParameters(values);
   const result = !valid || (state.workspace === 'base' && !state.parameterDraftValid)
     ? { status: 'invalid-inputs' } as const
     : calculateMissionOxygen(mission, relief?.status === 'ready' ? { sample: elevationSampler(relief.grid), spacingMetres: relief.grid.raster.pixelSizeMetres } : undefined);
-  const save = (next: OxygenParameters | undefined) => {
+  const save = (next: OxygenParameters) => {
     if (!mission) return;
     dispatch({ type: 'parametersChanged', parameters: { ...mission.parameters, oxygen: next } });
   };
@@ -64,11 +64,10 @@ export function OxygenBudget() {
           <ol>{result.legs.map((leg, i) => <li key={i}>{localize(leg.returnToCamp ? 'Retour au camp' : 'Segment')} {i + 1} : {format(leg.grams)}</li>)}</ol>
           <ul>{result.activities.map(a => <li key={`${a.stepId}/${a.activityId}`}>{a.stepId} / {a.activityId} : {format(a.grams)}</li>)}</ul>
         </details>
-      </> : <p role="status" className="border border-dashed bg-muted/40 p-3 text-sm">{localize(result.status === 'disabled' ? 'Estimation désactivée. Activez le modèle dans les paramètres ci-dessous.' : result.status === 'invalid-inputs' ? 'O₂ non calculable : vérifiez les valeurs et la réserve.' : result.status === 'terrain-unavailable' && relief?.status === 'loading' ? 'Chargement du relief : estimation O₂ masquée.' : result.status === 'terrain-unavailable' ? 'O₂ indisponible : relief absent ou NoData sur le parcours. Le terrain plat doit être activé explicitement.' : 'Ajoutez un camp et une étape pour estimer l’O₂.')}</p>}
-      <details className="border-t pt-2">
-        <summary className="flex min-h-11 cursor-pointer items-center gap-2 font-semibold"><Settings2 aria-hidden="true" className="size-4" />{localize('Paramètres et données O₂')}</summary>
+      </> : <p role="status" className="border border-dashed bg-muted/40 p-3 text-sm">{localize(result.status === 'invalid-inputs' ? 'O₂ non calculable : vérifiez les valeurs et la réserve.' : result.status === 'terrain-unavailable' && relief?.status === 'loading' ? 'Chargement du relief : estimation O₂ masquée.' : result.status === 'terrain-unavailable' ? 'O₂ indisponible : relief absent ou NoData sur le parcours. Le terrain plat doit être activé explicitement.' : 'Ajoutez un camp et une étape pour estimer l’O₂.')}</p>}
+      <section className="border-t pt-2" aria-label={localize('Paramètres et données O₂')}>
+        <h4 className="flex min-h-11 items-center gap-2 font-semibold"><Settings2 aria-hidden="true" className="size-4" />{localize('Paramètres et données O₂')}</h4>
         <div className="grid gap-3 pb-3">
-    {state.workspace === 'base' && mission && <label className="flex min-h-11 items-center gap-2"><input type="checkbox" checked={!!p} onChange={e => { setDraft(null); save(e.target.checked ? { ...DEFAULT_OXYGEN_PARAMETERS } : undefined); }} />{localize('Activer le modèle O₂ simulé')}</label>}
     {p && values && <>
       {state.workspace === 'base' && <div className="grid gap-2">
         {fields.map(([key, label]) => <label key={key} className="grid grid-cols-2 items-center gap-2 text-sm">{localize(label)}<input className="min-h-11 w-full border bg-background px-2" type="number" step="any" min={key === 'referenceSpeedMetresPerSecond' ? Number.MIN_VALUE : 0} value={Number.isNaN(values[key]) ? '' : values[key]} onChange={e => {
@@ -82,15 +81,15 @@ export function OxygenBudget() {
           if (validOxygenParameters(next)) { save(next); setDraft(null); }
         }} />{localize('Supposer explicitement un terrain plat')}</label>
       </div>}
+      {state.workspace === 'mission' && <dl>{fields.map(([key, label]) => <div key={key}><dt className="inline">{localize(label)} : </dt><dd className="inline">{p[key]}</dd></div>)}</dl>}
     </>}
         </div>
-      </details>
+      </section>
       {p && values && <>
       <details><summary className="min-h-11 cursor-pointer">{localize('Formule et hypothèses O₂ — modèle v1')}</summary>
         <p>{localize('Simulation pédagogique : tous les paramètres par défaut sont simulés, sans calibration physiologique. Aucune donnée du rover ne mesure la consommation humaine. Pertes et fuites non modélisées.')}</p>
         <p>q = q₀ × [1 + kᵥ(v/v₀ − 1)²] × [1 + k↑ max(0, tan θ) + k↓ max(0, −tan θ)] × (1 + kₘ m)</p>
         <p>{localize('q en g/min, v en m/s, m en kg, θ en degrés signés ; consommation = Σ q × durée en minutes. À l’arrêt : débit distinct constant. Retour inclus une fois. Durées horizontales, coefficients non négatifs, |θ| < 90°. Aucune plage physiologique validée.')}</p>
-        <dl>{fields.map(([key, label]) => <div key={key}><dt className="inline">{localize(label)} : </dt><dd className="inline">{p[key]}</dd></div>)}</dl>
       </details>
       </>}
   </section>;

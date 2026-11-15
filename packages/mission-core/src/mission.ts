@@ -1,4 +1,4 @@
-import { validOxygenParameters, type OxygenParameters } from './oxygen';
+import { DEFAULT_OXYGEN_PARAMETERS, validOxygenParameters, type OxygenParameters } from './oxygen';
 import type { MarsCoordinate } from './index';
 
 export interface MissionRegion {
@@ -75,7 +75,7 @@ export interface Mission {
 }
 export function createEmptyMission(regionId: string, id = 'draft'): Mission {
   return { schemaVersion: 1, id, name: missionTypes.reconnaissance, missionType: 'reconnaissance', regionId, camp: null, steps: [],
-    parameters: { availableSeconds: 14400, speedMetresPerSecond: 0.5, reserveSeconds: 1800 },
+    parameters: { availableSeconds: 14400, speedMetresPerSecond: 0.5, reserveSeconds: 1800, oxygen: { ...DEFAULT_OXYGEN_PARAMETERS } },
     assumptions: { simulation: true, route: 'straight-segments', terrainValidated: false }, siteWork: {} };
 }
 export function validPosition(p: MarsCoordinate): boolean {

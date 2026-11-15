@@ -64,10 +64,12 @@ describe('oxygen model v1', () => {
     expect(validOxygenParameters({ ...defaults, referenceSpeedMetresPerSecond: 0 })).toBe(false);
     expect(calculateMissionOxygen({ ...mission, parameters: { ...mission.parameters, oxygen: { ...defaults, assumeFlatTerrain: true, referenceGramsPerMinute: Number.MAX_VALUE } } }).status).toBe('invalid-inputs');
   });
-  it('is optional, versioned and survives JSON serialization without affecting time budgets', () => {
+  it('defaults older scenarios to model v1 and survives JSON serialization without affecting time budgets', () => {
     expect(ready(JSON.parse(JSON.stringify(mission)))).toEqual(ready());
     const old = { ...mission, parameters: { availableSeconds: 3600, reserveSeconds: 0, speedMetresPerSecond: 1 } };
-    expect(calculateMissionOxygen(old).status).toBe('disabled');
+    expect(calculateMissionOxygen(old).status).toBe('terrain-unavailable');
+    expect(calculateMissionOxygen(null).status).toBe('missing-inputs');
+    expect(createEmptyMission('test').parameters.oxygen).toEqual(defaults);
     expect(calculateMissionBudget(old)).toEqual(calculateMissionBudget(mission));
     expect(isMission(old)).toBe(true);
   });

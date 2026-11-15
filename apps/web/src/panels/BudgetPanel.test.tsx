@@ -182,21 +182,23 @@ it('switches budget labels, numeric formatting and overrun alerts between French
   expect(breakdown().querySelector('[role="alert"]')?.textContent).toContain('Dépassement de 17,7 min');
 });
 
-it('active le modèle O₂, exige le relief ou le plat explicite et conserve les paramètres après modification du temps et restauration', async () => {
+it('estime par défaut sans interrupteur, exige le relief ou le plat explicite et conserve les paramètres', async () => {
   await mount();
   const oxygen = () => container.querySelector('section[aria-label="Estimation d’oxygène"]')!;
   const toggle = async (text: string) => {
     const label = [...oxygen().querySelectorAll('label')].find(l => l.textContent?.includes(text))!;
     await act(async () => label.querySelector<HTMLInputElement>('input')!.click());
   };
-  await toggle('Activer le modèle');
+  expect(oxygen().textContent).not.toContain('Activer le modèle');
+  expect(oxygen().querySelectorAll('input[type=number]')).toHaveLength(10);
   expect(oxygen().textContent).toContain('O₂ indisponible');
   expect(oxygen().textContent).not.toContain('Besoin total, retour compris');
   await toggle('Supposer explicitement');
   expect(oxygen().textContent).toContain('Besoin total, retour compris');
   expect(oxygen().textContent).toContain('Hypothèse active : terrain plat');
   expect(oxygen().textContent).toContain('Estimation incertaine');
-  const settings = [...oxygen().querySelectorAll('details')].find(d => d.querySelector('summary')?.textContent === 'Paramètres et données O₂')!;
+  const settings = oxygen().querySelector('section[aria-label="Paramètres et données O₂"]')!;
+  expect(settings.closest('details')).toBeNull();
   expect(oxygen().querySelector('dl')!.compareDocumentPosition(settings) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   const saved = loadMissionDraft()!;
   expect(saved.parameters.oxygen?.assumeFlatTerrain).toBe(true);
