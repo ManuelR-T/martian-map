@@ -1,11 +1,13 @@
-import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { BrandMark, DataState, ThemeToggle } from '@marps/ui';
+import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from 'react';
+import { BrandMark, Button, DataState, ThemeToggle } from '@marps/ui';
 import { BudgetPanel } from './panels/BudgetPanel';
 import { floatingSurface, MapStage } from './panels/MapStage';
 import { SiteDetailsPanel } from './panels/SiteDetailsPanel';
 import { PlannerMap } from './features/map/PlannerMap';
 import { OfflineStatus } from './offline/OfflineStatus';
 import './responsive.css';
+import { usePlannerDispatch, usePlannerState } from './state/PlannerProvider';
+import { CampsPanel } from './panels/CampsPanel';
 import { StepsPanel } from './panels/StepsPanel';
 
 const DesignSystemPage = lazy(() => import('./design-system/DesignSystemPage'));
@@ -26,26 +28,14 @@ const headerControl = 'text-header-foreground/85 hover:bg-white/10 hover:text-he
 const headerLink = `label-caps inline-flex h-9 items-center px-3 transition-colors ${headerControl}`;
 
 export function App() {
-  const mainRef = useRef<HTMLElement>(null);
+  const { workspace } = usePlannerState();
+  const dispatch = usePlannerDispatch();
+  const [mapPanelHost, setMapPanelHost] = useState<HTMLDivElement | null>(null);
   const [mobilePage, setMobilePage] = useState<'map' | 'mission'>('map');
   const showsDesignSystem = useHash() === DESIGN_SYSTEM_HASH;
 
   useEffect(() => {
     document.title = showsDesignSystem ? 'Marps – Système de design' : 'Marps';
-  }, [showsDesignSystem]);
-
-  useEffect(() => {
-    const main = mainRef.current;
-    const steps = main?.querySelector('.mission-steps');
-    if (!main || !steps) return;
-    const positionStatus = () => {
-      main.style.setProperty('--steps-panel-bottom', `${steps.getBoundingClientRect().bottom - main.getBoundingClientRect().top + 12}px`);
-    };
-    const observer = new ResizeObserver(positionStatus);
-    observer.observe(steps);
-    observer.observe(main);
-    positionStatus();
-    return () => observer.disconnect();
   }, [showsDesignSystem]);
 
   return (
@@ -66,8 +56,12 @@ export function App() {
         <BrandMark className="size-7" />
         <div className="mr-auto min-w-0">
           <h1 className="heading-display text-xl font-extrabold tracking-[0.04em] uppercase [font-stretch:125%]">Marps</h1>
-          <p className="text-sm text-header-foreground/75 max-sm:sr-only">Préparer une sortie scientifique à Jezero</p>
+          <p className="text-sm text-header-foreground/75 max-sm:sr-only">{workspace === 'base' ? 'À la base · préparer les sorties' : 'En mission · suivre la sortie'}</p>
         </div>
+        {!showsDesignSystem && <nav aria-label="Espaces de travail" className="flex flex-wrap gap-1">
+          <button type="button" aria-pressed={workspace === 'base'} className={`${headerLink} min-h-11 border ${workspace === 'base' ? 'border-current bg-white/10' : 'border-transparent'}`} onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'base' })}>À la base</button>
+          <button type="button" aria-pressed={workspace === 'mission'} className={`${headerLink} min-h-11 border ${workspace === 'mission' ? 'border-current bg-white/10' : 'border-transparent'}`} onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'mission' })}>En mission</button>
+        </nav>}
         <nav aria-label="Pages">
           {showsDesignSystem ? (
             <a href="#/" className={headerLink}>
@@ -101,7 +95,6 @@ export function App() {
         </main>
       ) : (
         <main
-          ref={mainRef}
           id={CONTENT_ID}
           tabIndex={-1}
           className="planner-main relative flex flex-1 flex-col gap-3 outline-none xl:grid xl:min-h-0 xl:grid-cols-[19rem_minmax(0,1fr)_21rem] xl:grid-rows-[minmax(0,1fr)] xl:p-3"
@@ -111,10 +104,14 @@ export function App() {
             passer les clics vers elle, seuls les panneaux flottants les captent.
             #7 et #8 passeront ici la carte OpenLayers de la vue active.
           */}
-          <MapStage map={<PlannerMap />} className="planner-map-stage relative flex h-[62dvh] min-h-[24rem] flex-col items-center justify-between gap-3 p-3 xl:pointer-events-none xl:static xl:col-start-2 xl:row-start-1 xl:h-auto xl:min-h-0 xl:p-0" />
-          <div className="mission-panels relative z-10 flex min-h-0 flex-col gap-3 max-xl:px-3 xl:pointer-events-none xl:col-start-1 xl:row-start-1">
-            <StepsPanel className={`${floatingSurface} mission-steps`} />
+          <MapStage map={<PlannerMap panelHost={mapPanelHost} />} className="planner-map-stage relative flex h-[62dvh] min-h-[24rem] flex-col items-center justify-between gap-3 p-3 xl:pointer-events-none xl:static xl:col-start-2 xl:row-start-1 xl:h-auto xl:min-h-0 xl:p-0" />
+          <div className="mission-panels relative z-10 flex min-h-0 flex-col gap-3 max-xl:px-3 xl:pointer-events-none xl:col-start-1 xl:row-start-1 xl:overflow-y-auto">
+            <StepsPanel className={`${floatingSurface} mission-steps shrink-0`} />
+            {workspace === 'base' && <CampsPanel className={`${floatingSurface} shrink-0`} />}
+            <div ref={setMapPanelHost} className="map-panel-dock pointer-events-auto shrink-0 empty:hidden" />
             <div className="compact-settings">
+              <Button variant="outline" aria-pressed={workspace === 'base'} onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'base' })}>À la base</Button>
+              <Button variant="outline" aria-pressed={workspace === 'mission'} onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'mission' })}>En mission</Button>
               <a href={DESIGN_SYSTEM_HASH}>Système de design</a>
               <ThemeToggle />
             </div>

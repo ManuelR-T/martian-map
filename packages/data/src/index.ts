@@ -1,12 +1,8 @@
-import type { MarsCoordinate } from '@marps/mission-core';
+import type { MissionRegion } from '@marps/mission-core';
 import { loadManifest } from './coverage';
 import type { DataManifest, DatasetDescriptor, SiteDescriptor } from './contracts';
 
-export interface RegionDefinition {
-  readonly id: string;
-  readonly name: string;
-  readonly center: MarsCoordinate;
-}
+export type RegionDefinition = MissionRegion;
 
 /** Navigation metadata only. Scientific coverage comes from the manifest, never from this list. */
 export const regions = [
@@ -37,3 +33,4 @@ export * from './coverage';
 export * from './siteSheets';
 export * from './terrain';
 export * from './rover';
+export * from './camps';
