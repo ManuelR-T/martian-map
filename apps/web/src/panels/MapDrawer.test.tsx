@@ -2,8 +2,13 @@
 import { act, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Timer, MapPin } from 'lucide-react';
-import { expect, it, vi } from 'vitest';
+import { beforeEach, expect, it, vi } from 'vitest';
 import { MapDrawer } from './MapDrawer';
+
+beforeEach(() => {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} });
+});
 
 function Drawers() {
   const [budget, setBudget] = useState(false);

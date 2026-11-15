@@ -26,10 +26,9 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .map-drawer-trigger:hover, .map-drawer-close:hover { background: var(--accent); color: var(--accent-foreground); box-shadow: var(--glow-primary); }
 .map-drawer-trigger[hidden] { display: none; }
 .map-drawer-card-icon { position: absolute; top: 0; left: 0; z-index: 3; color: var(--mars); pointer-events: none; }
-/* Seul sur son rail, un volet prend toute la hauteur libre ; à plusieurs, chacun est plafonné. */
-.map-drawer-content { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 0; width: 100%; max-height: max(44px, calc(100cqh - var(--closed-drawers, 0) * 52px)); overflow: hidden; pointer-events: none; background: var(--card); border: 1px solid var(--border); border-top: 2px solid transparent; border-radius: 6px; box-shadow: var(--elevation), 0 0 24px -16px var(--mars); opacity: 0; visibility: hidden; transition: clip-path 240ms var(--ease-instrument), opacity 180ms ease, visibility 0s 240ms; }
-.map-drawer-rail[data-multi] .map-drawer-content { max-height: clamp(44px, calc(100cqh - 52px), 32rem); }
-.map-drawer-scroll { min-height: 0; flex: 1; overflow-y: auto; overscroll-behavior: contain; }
+/* Les cartes gardent leur hauteur naturelle ; seul le rail défile. */
+.map-drawer-content { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 0; width: 100%; overflow: hidden; pointer-events: none; background: var(--card); border: 1px solid var(--border); border-top: 2px solid transparent; border-radius: 6px; box-shadow: var(--elevation), 0 0 24px -16px var(--mars); opacity: 0; visibility: hidden; transition: clip-path 240ms var(--ease-instrument), opacity 180ms ease, visibility 0s 240ms; }
+.map-drawer-body { min-height: 0; flex-shrink: 0; }
 .map-drawer-left .map-drawer-content { left: 0; border-top-left-radius: 0; clip-path: inset(0 calc(100% - 44px) calc(100% - 44px) 0 round 6px); }
 .map-drawer-right .map-drawer-content { right: 0; border-top-right-radius: 0; clip-path: inset(0 0 calc(100% - 44px) calc(100% - 44px) round 6px); }
 .map-drawer[data-state=open] .map-drawer-content { clip-path: inset(0 round 6px); opacity: 1; visibility: visible; pointer-events: auto; transition-delay: 0s; }
@@ -37,8 +36,8 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .map-drawer-content [data-slot=panel]::before { display: none; }
 /* Les coins décoratifs restent dans le cadre pour éviter un débordement de 1 px. */
 .map-drawer-content [data-slot=panel]::after { inset: 0; }
-/* Le titre reste en tête pendant le défilement, sous la croix. */
-.map-drawer-content [data-slot=panel] > header { position: sticky; top: 0; z-index: 2; padding-inline: 3.25rem; min-height: 44px; background: var(--card); }
+/* Le titre accompagne sa carte pendant le défilement du rail. */
+.map-drawer-content [data-slot=panel] > header { position: relative; z-index: 2; padding-inline: 3.25rem; min-height: 44px; background: var(--card); }
 .map-drawer-content [data-slot=panel] > div { transition: opacity 120ms ease, translate 180ms ease; }
 .map-drawer[data-state=closed] .map-drawer-content [data-slot=panel] > div { opacity: 0; translate: 0 -4px; }
 .map-drawer[data-state=open] .map-drawer-content [data-slot=panel] > div { transition-delay: 90ms; }
@@ -62,7 +61,7 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
   .map-drawer-rails { top: 4.25rem; }
 }
 
-/* Sur écran étroit, les volets partagent une pile ; un volet ouvert masque les autres boutons et prend la hauteur. */
+/* Sur écran étroit, tous les volets partagent une pile défilante. */
 @media (max-width: 800px) {
   .map-drawer-rails { bottom: 9.75rem; display: flex; flex-direction: column; gap: .5rem; overflow-y: auto; overscroll-behavior: contain; container-type: size; }
   .map-drawer-rail { display: contents; }
@@ -70,8 +69,6 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
   .map-drawer { width: min(25rem, calc(100vw - 3.75rem)); }
   .map-drawer-left { align-self: flex-start; }
   .map-drawer-right { align-self: flex-end; }
-  .map-drawer-rails:has(.map-drawer[data-state=open]) .map-drawer[data-state=closed] { display: none; }
-  .map-drawer-content, .map-drawer-rail[data-multi] .map-drawer-content { max-height: max(44px, 100cqh); }
 }
 
 /* Sélecteur de vue, posé sur la carte : il change la carte, pas la page. */

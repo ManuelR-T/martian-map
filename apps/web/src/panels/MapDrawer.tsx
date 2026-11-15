@@ -17,12 +17,10 @@ export function MapDrawer({ label, shortLabel, icon: Icon, side, open, onOpenCha
   const id = useId();
   const trigger = useRef<HTMLButtonElement>(null);
   const content = useRef<HTMLDivElement>(null);
-  const scroller = useRef<HTMLDivElement>(null);
   const restoreFocus = useRef(false);
 
   useEffect(() => {
     if (open && content.current) {
-      if (scroller.current) scroller.current.scrollTop = 0;
       content.current.focus();
     } else if (restoreFocus.current) {
       trigger.current?.focus();
@@ -63,12 +61,12 @@ export function MapDrawer({ label, shortLabel, icon: Icon, side, open, onOpenCha
         if (event.key === 'Escape') { event.stopPropagation(); close(); }
       }}
     >
-      {/* Hors de la zone défilante : le repère et la croix restent visibles dans un long formulaire. */}
+      {/* Le repère et la croix accompagnent la carte dans le rail. */}
       <span aria-hidden="true" className="map-drawer-card-icon"><Icon className="size-5" /></span>
       <button type="button" className="map-drawer-close" aria-label={localize("Fermer : {{v0}}", { v0: label })} title={localize("Fermer : {{v0}}", { v0: label })} onClick={close}>
         <X aria-hidden="true" className="size-5" />
       </button>
-      <div ref={scroller} className="map-drawer-scroll">{localize(children)}</div>
+      <div className="map-drawer-body">{localize(children)}</div>
     </div>
   </div>;
 }

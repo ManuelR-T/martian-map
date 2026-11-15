@@ -57,18 +57,10 @@ export function App() {
   const { workspace } = state;
   const dispatch = usePlannerDispatch();
   const [mapPanelHost, setMapPanelHost] = useState<HTMLDivElement | null>(null);
-  /**
-   * Ouvre ou ferme un volet. Sous 1280 px, un seul volet reste ouvert par côté, et un seul
-   * en tout sous 800 px : la carte garde ainsi une largeur utile.
-   */
-  const setDrawer = useCallback((key: DrawerKey, open: boolean) => setOpenDrawers((current) => {
-    if (!open) return { ...current, [key]: false };
-    if (narrow('(max-width: 800px)')) return { ...allClosed, [key]: true };
-    if (!narrow('(max-width: 1279px)')) return { ...current, [key]: true };
-    const next = { ...current };
-    for (const other of drawerKeys) if (drawerSides[other] === drawerSides[key]) next[other] = false;
-    return { ...next, [key]: true };
-  }), []);
+  // Tous les volets peuvent rester ouverts, quelle que soit la largeur de l'écran.
+  const setDrawer = useCallback((key: DrawerKey, open: boolean) => {
+    setOpenDrawers(current => ({ ...current, [key]: open }));
+  }, []);
   const openSiteDetails = useCallback(() => setDrawer('site', true), [setDrawer]);
   const hash = useHash();
   const showsDesignSystem = hash === DESIGN_SYSTEM_HASH;
