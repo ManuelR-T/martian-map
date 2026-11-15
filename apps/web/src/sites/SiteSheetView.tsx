@@ -1,7 +1,7 @@
 import { useId, useRef } from 'react';
 import { CircleAlert, Maximize2, X } from 'lucide-react';
 import { STOP_MINUTES_CHOICES, type SiteDescriptor, type SiteSheet } from '@marps/data';
-import { Button } from '@marps/ui';
+import { Button, ProvenanceBadge } from '@marps/ui';
 import { summarizeStop, type SiteWork } from './siteWork';
 
 export interface SitePickerProps {
@@ -55,25 +55,29 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange }: S
   return (
     <div className="grid gap-1.5">
       <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={() => dialogRef.current?.showModal()}
-          className="relative w-28 shrink-0 border"
-          aria-label={`Agrandir la photo à repérer : ${sheet.photo.caption}`}
-        >
-          <img src={photoUrl} alt="" width={sheet.photo.width} height={sheet.photo.height} className="block h-auto w-full" />
-          <Maximize2 aria-hidden="true" className="absolute right-1 bottom-1 size-5 bg-card/90 p-0.5" />
-        </button>
+        <figure className="m-0 w-28 shrink-0">
+          <button
+            type="button"
+            onClick={() => dialogRef.current?.showModal()}
+            className="relative w-full border"
+            aria-label={`Agrandir la photo à repérer : ${sheet.photo.caption}`}
+          >
+            <img src={photoUrl} alt="" width={sheet.photo.width} height={sheet.photo.height} className="block h-auto w-full" />
+            <Maximize2 aria-hidden="true" className="absolute right-1 bottom-1 size-5 bg-card/90 p-0.5" />
+          </button>
+          <figcaption className="mt-1 text-xs"><ProvenanceBadge status="measured" /> Photo, sol {sheet.photo.sol}</figcaption>
+        </figure>
         <div className="grid min-w-0 content-start gap-0.5">
-          <p className="label-caps text-muted-foreground">Objectif</p>
+          <p className="label-caps text-muted-foreground">Objectif proposé <ProvenanceBadge status="simulated" /></p>
           <p className="text-sm leading-snug">{sheet.objective}</p>
         </div>
       </div>
       <p className="text-xs text-muted-foreground">
-        <span className="font-semibold text-foreground">Déjà fait par le rover : </span>
+        <ProvenanceBadge status="measured" /> <span className="font-semibold text-foreground">Déjà fait par le rover : </span>
         {sheet.roverWork.text}
       </p>
 
+      <p className="text-xs text-muted-foreground"><ProvenanceBadge status="simulated" /> Activités et durées choisies par l’équipe, d’après les procédures Apollo.</p>
       <ul aria-label="Tâches" className="m-0 grid list-none p-0">
         {sheet.tasks.map((task) => {
           const done = work.doneTaskIds.includes(task.id);
@@ -97,9 +101,9 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange }: S
         })}
       </ul>
 
-      <div className="flex items-center justify-between gap-2">
-        <label htmlFor={selectId} className="flex items-center gap-2 text-sm">
-          Alloué
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <label htmlFor={selectId} className="flex flex-wrap items-center gap-2 text-sm">
+          Alloué (scénario)
           <select
             id={selectId}
             value={work.allottedMinutes}
@@ -114,6 +118,7 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange }: S
           </select>
         </label>
         <p aria-live="polite" className="text-right text-sm tabular-nums">
+          <ProvenanceBadge status="calculated" />{' '}
           {shortfallMinutes > 0 ? (
             <span className="inline-flex items-center gap-1 font-semibold text-warning">
               <CircleAlert aria-hidden="true" className="size-4 shrink-0" />
@@ -148,7 +153,7 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange }: S
             <figcaption className="grid gap-0.5">
               <span>{sheet.photo.caption}</span>
               <span className="text-xs text-muted-foreground">
-                Photo du rover, sol {sheet.photo.sol}. Crédit : {sheet.photo.credit}.
+                <ProvenanceBadge status="measured" /> Photo du rover, sol {sheet.photo.sol}. Crédit : {sheet.photo.credit}.
               </span>
             </figcaption>
           </figure>

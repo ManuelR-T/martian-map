@@ -182,6 +182,30 @@ manifeste donne l'origine, le pas, la projection et le datum vertical.
 est préféré, CTX prend le relais s'il manque. La taille de maille n'est pas une
 précision de navigation. Détails et limites : [`docs/relief-jezero.md`](docs/relief-jezero.md).
 
+### Sources, hypothèses et couverture (#16)
+
+« Carte et sources » affiche la provenance de la couche active : instrument,
+date/sol, unités, résolution de la source et échantillonnage local, emprise,
+version et limites. Les badges distinguent les observations mesurées, les
+produits calculés, les scénarios simulés (dont l'éclairage du relief ombré) et
+les données inconnues. La disponibilité reste limitée à la région et à l'emprise
+déclarées ; le fond mondial ne fournit pas le détail de Jezero ailleurs sur Mars.
+
+Chaque fiche conserve les sources propres à son objectif, aux observations du
+rover, à la photo et à la procédure. Les activités et leurs durées sont des choix
+du scénario, visibles à côté des tâches ; le temps restant est un calcul à partir
+de ces hypothèses. Le budget et la page « Sources et limites » exposent les durées
+allouées actuelles ainsi que la vitesse, la durée de sortie, la réserve et le
+seuil de pente encore inconnus. Aucun paramètre absent n'est remplacé par zéro.
+La météo historique au rover, la résolution du relief, le tracé hypothétique et
+l'absence de validation opérationnelle sont explicités dans l'interface.
+
+La sélection d'un site et le passage entre Mars et Jezero conservent le manifeste.
+`selectProvenanceSnapshot` prépare un objet sérialisable pour accompagner une
+future sauvegarde de mission : manifeste complet avec versions et empreintes,
+couche active, site sélectionné, fiches, références scientifiques et hypothèses.
+La sauvegarde elle-même n'est pas encore implémentée.
+
 ### Préparer et vérifier
 
 La préparation est une étape explicite. Elle demande [uv](https://docs.astral.sh/uv/)

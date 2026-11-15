@@ -1,4 +1,7 @@
-import { BudgetBreakdown, DataState, Panel, type BudgetBreakdownProps } from '@marps/ui';
+import { BudgetBreakdown, DataState, Panel, ProvenanceBadge, type BudgetBreakdownProps } from '@marps/ui';
+import { usePlannerState } from '../state/PlannerProvider';
+import { selectMissionAssumptions } from '../state/planner';
+import { MissionAssumptions } from './MissionAssumptions';
 import { PlanningGate } from './PlanningGate';
 
 export type BudgetView = Pick<
@@ -16,6 +19,7 @@ export interface BudgetPanelProps {
 }
 
 export function BudgetPanel({ className, budget }: BudgetPanelProps) {
+  const state = usePlannerState();
   return (
     <Panel
       title="Budget de temps"
@@ -25,7 +29,7 @@ export function BudgetPanel({ className, budget }: BudgetPanelProps) {
       className={className}
       contentClassName="overflow-y-auto"
     >
-      <p className="mb-3 text-sm">{budget ? 'Calculé · Estimation selon les hypothèses de mission.' : 'Inconnu · Aucun budget disponible.'}</p>
+      <p className="mb-3 text-sm"><ProvenanceBadge status={budget ? 'calculated' : 'unknown'} /> {budget ? 'Estimation selon les hypothèses de mission.' : 'Aucun budget disponible.'}</p>
       <PlanningGate loadingTitle="Chargement du budget" coverageTitle="Pas de budget hors du secteur détaillé">
         {budget ? (
           <BudgetBreakdown {...budget} />
@@ -36,6 +40,7 @@ export function BudgetPanel({ className, budget }: BudgetPanelProps) {
             description="Le budget s'affichera quand la mission aura un camp, au moins une étape et ses paramètres de durée."
           />
         )}
+        <MissionAssumptions assumptions={selectMissionAssumptions(state)} />
       </PlanningGate>
     </Panel>
   );

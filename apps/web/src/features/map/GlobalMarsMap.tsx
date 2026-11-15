@@ -9,24 +9,27 @@ import ImageStatic from 'ol/source/ImageStatic';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import { Circle, Fill, Stroke, Style, Text } from 'ol/style';
-import { regions, type DatasetDescriptor } from '@marps/data';
-import { Button } from '@marps/ui';
+import { datasetScientificStatus, regions, type DataManifest, type DatasetDescriptor } from '@marps/data';
+import { Button, ProvenanceBadge } from '@marps/ui';
+import { DatasetProvenance, RegionCapabilities } from '../../panels/Provenance';
 import { createGlobalMarsSource, createRegionSource, marsProjection, resolutions } from './marsWmts';
 import './global-mars-map.css';
 
 interface Props {
   dataset: DatasetDescriptor;
+  manifest: DataManifest;
   global: boolean;
   onSelectRegion: () => void;
 }
 
-export function GlobalMarsMap({ dataset, global, onSelectRegion }: Props) {
+export function GlobalMarsMap({ dataset, manifest, global, onSelectRegion }: Props) {
   const target = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
   const sourceRef = useRef<ReturnType<typeof createGlobalMarsSource> | ReturnType<typeof createRegionSource> | null>(null);
   const [offline, setOffline] = useState(!navigator.onLine);
   const [failed, setFailed] = useState(false);
   const [resolution, setResolution] = useState<number | null>(null);
+  const region = manifest.regions.find((candidate) => candidate.id === dataset.regionId);
   useEffect(() => {
     const source = global ? createGlobalMarsSource(dataset) : createRegionSource(dataset);
     sourceRef.current = source;
@@ -65,7 +68,7 @@ export function GlobalMarsMap({ dataset, global, onSelectRegion }: Props) {
   return <div className="mars-map-container">
     <div ref={target} className="mars-map" tabIndex={0} aria-label={global ? 'Carte globale de Mars. Flèches pour déplacer, plus et moins pour zoomer.' : 'Carte du secteur Jezero'} />
     <details className="map-information border bg-card/95 p-2 text-xs text-foreground backdrop-blur-sm">
-      <summary className="map-info-toggle cursor-pointer font-semibold">Carte et sources</summary>
+      <summary className="map-info-toggle cursor-pointer font-semibold">Carte et sources · <ProvenanceBadge status={datasetScientificStatus(dataset)} /></summary>
       <div className="flex flex-wrap items-center gap-2">
       {global && <>
         <Button size="sm" className="px-2" onClick={onSelectRegion}>Ouvrir Jezero</Button>
@@ -75,10 +78,17 @@ export function GlobalMarsMap({ dataset, global, onSelectRegion }: Props) {
       <p role="status">{failed ? 'Certaines tuiles sont indisponibles.' : offline ? 'Hors ligne : données locales et tuiles déjà téléchargées.' : global ? 'Carte disponible. Les détails globaux se chargent en ligne.' : 'Imagerie locale chargée.'} {global ? 'Glissez pour explorer Mars ; utilisez la molette ou + / − pour zoomer.' : 'Imagerie locale figée ; hors secteur, aucune couverture.'}</p>
       {failed && <Button variant="outline" size="sm" onClick={() => { setFailed(false); sourceRef.current?.refresh(); }}>Réessayer les tuiles</Button>}
       <div className="map-metadata">
-      <p className="mt-2">{dataset.title} · Échantillonnage nominal : {dataset.resolution?.value ?? 'inconnu'} m/pixel. {resolution !== null && `Vue : ${resolution.toFixed(6)}°/pixel.`} {global && 'Le fond de secours est moins détaillé. La planification est limitée à Jezero.'}</p>
-      <p>Couverture : {dataset.extent.west.toFixed(6)}° à {dataset.extent.east.toFixed(6)}° E ; {dataset.extent.south.toFixed(6)}° à {dataset.extent.north.toFixed(6)}° N.</p>
-      {global && <p>Repère Jezero approximatif : 77,58° E, 18,44° N. Le fond global est destiné à l’orientation.</p>}
-      <a className="underline" href={dataset.source.url}>Source : {dataset.source.credit}</a>
+      <p className="mt-2">{dataset.title}. {resolution !== null && `Vue : ${resolution.toFixed(6)}°/pixel.`}</p>
+      {global
+        ? <p>Orientation mondiale uniquement. Les détails de Jezero ne sont pas disponibles partout sur Mars. Le fond de secours est moins détaillé que la source nominale ; la planification est limitée à Jezero. Repère Jezero approximatif : 77,58° E, 18,44° N.</p>
+        : <p>Imagerie du secteur préparé uniquement. Aucune validation opérationnelle : les images ne garantissent pas la praticabilité du terrain.</p>}
+      <DatasetProvenance dataset={dataset} datasets={manifest.datasets} />
+      {region && <details className="border-t py-2">
+        <summary className="min-h-11 cursor-pointer py-2 font-semibold">Disponibilité des données de {region.name}</summary>
+        <RegionCapabilities region={region} manifest={manifest} />
+        {!global && <p>La météo historique au rover n’est ni une prévision ni une mesure sur tout le secteur. Le relief ne résout pas les obstacles plus petits que sa maille.</p>}
+      </details>}
+      <a className="inline-flex min-h-11 items-center underline" href="#/sources">Toutes les sources, hypothèses et limites</a>
       </div>
     </details>
   </div>;
