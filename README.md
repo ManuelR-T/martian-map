@@ -471,3 +471,25 @@ identifié de catalogue NASA de camps humains martiens enregistrés. Le rapport
 étudie un scénario à Jezero sans valider ces camps. Les
 [données Perseverance](https://science.nasa.gov/mission/mars-2020-perseverance/)
 concernent l’exploration robotique réelle et restent séparées des simulations.
+
+### Distances de mission (#13)
+
+`missionDistances` de `@marps/mission-core` mesure la polyligne
+camp–visites ordonnées–camp : chaque segment, exploration (camp jusqu’à la
+dernière visite), retour direct (dernière visite au camp, compté une seule fois)
+et total. Chaque valeur expose explicitement `metres` et `kilometres`.
+Sans camp ou sans visite, le résultat est `null` ; des positions identiques
+produisent une distance nulle.
+
+Le calcul pur utilise le plus court arc de grand cercle (haversine), avec le
+rayon explicite de la sphère du manifeste et des grilles Jezero : **3 396 190 m**.
+Ce rayon de référence n’est pas le rayon moyen volumétrique de Mars. Le sélecteur
+transmet `manifest.planet.radiusMeters` ; aucun défaut terrestre OpenLayers
+n’intervient. L’API accepte un autre rayon positif en mètres pour un autre
+référentiel sphérique. Les coordonnées sont planétocentriques en degrés,
+longitude positive vers l’est, dans les bornes −180 à 180 et −90 à 90.
+
+Le panneau Budget affiche ces **distances horizontales estimées**. Elles ne
+valident ni la praticabilité ni la précision de navigation. Aucun calcul 3D
+n’est ajouté : il exigerait un profil suffisamment complet et une résolution
+adaptée. Le budget de temps reste à implémenter dans #14.

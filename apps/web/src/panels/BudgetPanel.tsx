@@ -1,7 +1,7 @@
 import { CircleDashed } from 'lucide-react';
 import { BudgetBreakdown, Panel, type BudgetBreakdownProps } from '@marps/ui';
 import { usePlannerState } from '../state/PlannerProvider';
-import { selectCurrentMission } from '../state/planner';
+import { selectCurrentMission, selectMissionDistances } from '../state/planner';
 import { PlanningGate } from './PlanningGate';
 
 export type BudgetView = Pick<
@@ -21,6 +21,7 @@ export interface BudgetPanelProps {
 export function BudgetPanel({ className, budget }: BudgetPanelProps) {
   const state = usePlannerState();
   const mission = selectCurrentMission(state);
+  const distances = selectMissionDistances(state);
   return (
     <Panel
       title="Budget de temps"
@@ -36,13 +37,21 @@ export function BudgetPanel({ className, budget }: BudgetPanelProps) {
           <div><dt className="inline">Vitesse prévue : </dt><dd className="inline">{mission.parameters.speedMetresPerSecond} m/s</dd></div>
           <div><dt className="inline">Réserve : </dt><dd className="inline">{mission.parameters.reserveSeconds / 60} min</dd></div>
         </dl>}
+        {distances && <div className="mb-3 text-sm">
+          <dl className="grid gap-1">
+            {([['Exploration', distances.exploration], ['Retour', distances.return], ['Total', distances.total]] as const).map(([label, value]) => (
+              <div key={label}><dt className="inline">{label} : </dt><dd className="inline">{value.metres.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} m · {value.kilometres.toLocaleString('fr-FR', { maximumFractionDigits: 2 })} km</dd></div>
+            ))}
+          </dl>
+          <p className="text-muted-foreground">Distances horizontales estimées, sans correction du relief. Parcours non validé.</p>
+        </div>}
         {budget ? (
           <BudgetBreakdown {...budget} />
         ) : (
           // One line only: the empty budget must not push the site sheet below the fold on a 1280 × 800 screen.
           <p className="flex items-center gap-2 text-sm text-muted-foreground">
             <CircleDashed aria-hidden="true" className="size-4 shrink-0" />
-            Budget non calculé : ajoutez un camp et une étape.
+            {distances ? 'Budget de temps non calculé.' : 'Budget non calculé : ajoutez un camp et une étape.'}
           </p>
         )}
       </PlanningGate>

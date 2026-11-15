@@ -1,5 +1,5 @@
 import { scienceSources, siteSheets, type Catalog, type DatasetDescriptor, type RegionDefinition } from '@marps/data';
-import { createEmptyMission, missionReducer, isMission, type MissionAction, type Mission } from '@marps/mission-core';
+import { createEmptyMission, missionDistances, missionReducer, isMission, type MissionAction, type Mission } from '@marps/mission-core';
 import { siteWorkOf, siteWorkReducer, type SiteWorkAction } from '../sites/siteWork';
 
 /** Région détaillée du MVP ; la carte globale ne sert qu'à s'orienter. */
@@ -208,4 +208,10 @@ export function selectProvenanceSnapshot(state: PlannerState) {
     scienceSources,
     assumptions: selectMissionAssumptions(state),
   };
+}
+
+/** Distances follow the active mission and the catalog reference sphere. */
+export function selectMissionDistances(state: PlannerState) {
+  if (state.catalog.status !== 'ready') return null;
+  return missionDistances(selectCurrentMission(state), state.catalog.data.manifest.planet.radiusMeters);
 }

@@ -15,8 +15,6 @@ export function minutesToSeconds(minutes: number): number {
 export * from './mission';
 export * from './radiation';
 export {
-  MARS_RADIUS_METRES,
-  groundDistanceMetres,
   pointAtDistance,
   sampleProfile,
   slopeSegments,
@@ -31,3 +29,5 @@ export type {
   SlopeSegment,
   SteepPortion,
 } from './terrain';
+
+export * from './distance';

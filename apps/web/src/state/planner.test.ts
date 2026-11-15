@@ -190,3 +190,17 @@ describe('fin de sortie', () => {
     expect(plannerReducer(initialPlannerState, { type: 'missionEnded' })).toBe(initialPlannerState);
   });
 });
+
+it('calcule les distances avec le rayon du catalogue et la mission active', async () => {
+  const { selectMissionDistances } = await import('./planner');
+  const { createEmptyMission } = await import('@marps/mission-core');
+  const mission = { ...createEmptyMission('jezero'),
+    camp: { id: 'camp', name: 'Camp', regionId: 'jezero', position: { longitude: 0, latitude: 0 }, provenance: 'simulation' as const, note: '', referenceUrl: null },
+    steps: [{ id: 'a', name: 'A', position: { longitude: 90, latitude: 0 }, siteId: null, activities: [] }],
+  };
+  const state: PlannerState = { ...initialPlannerState, mission, catalog: { status: 'ready', data: { ...emptyCatalog, manifest: { ...manifest, planet: { ...manifest.planet, radiusMeters: 100 } } } } };
+  expect(selectMissionDistances(state)?.total.metres).toBeCloseTo(100 * Math.PI);
+  expect(selectMissionDistances({ ...state, catalog: { status: 'loading' } })).toBeNull();
+  expect(selectMissionDistances({ ...state, workspace: 'mission', runningMission: null })).toBeNull();
+  expect(selectMissionDistances({ ...state, workspace: 'mission', runningMission: { ...mission, steps: [{ ...mission.steps[0]!, position: { longitude: 0, latitude: 0 } }] } })?.total.metres).toBe(0);
+});

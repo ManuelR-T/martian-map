@@ -1,7 +1,6 @@
 import type { MarsCoordinate } from './index';
 
-/** Mean Mars radius used by the NASA M20 map configuration and the relief grids. */
-export const MARS_RADIUS_METRES = 3_396_190;
+import { groundDistanceMetres } from './distance';
 
 export type ProfileStatus = 'measured' | 'no-data' | 'out-of-coverage';
 
@@ -34,18 +33,6 @@ export interface SteepPortion {
   readonly startMetres: number;
   readonly endMetres: number;
   readonly maxSlopeDegrees: number;
-}
-
-const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
-
-/** Great-circle ground distance on the Mars sphere (haversine). Minimal version until #13. */
-export function groundDistanceMetres(from: MarsCoordinate, to: MarsCoordinate): number {
-  const dLat = toRadians(to.latitude - from.latitude);
-  const dLon = toRadians(to.longitude - from.longitude);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRadians(from.latitude)) * Math.cos(toRadians(to.latitude)) * Math.sin(dLon / 2) ** 2;
-  return 2 * MARS_RADIUS_METRES * Math.asin(Math.min(1, Math.sqrt(a)));
 }
 
 /**
