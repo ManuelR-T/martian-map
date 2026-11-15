@@ -6,6 +6,8 @@ requires-python = ">=3.12"
 dependencies = [
   "numpy==2.5.4",
   "pillow==13.0.0",
+  "pyogrio==0.11.1",
+  "shapely==2.1.2",
   "tifffile==2026.11.12",
 ]
 

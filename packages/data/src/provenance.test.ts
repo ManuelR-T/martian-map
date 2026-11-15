@@ -16,6 +16,7 @@ describe('scientific provenance', () => {
     ['basemap', 'calculated'],
     ['slope', 'calculated'],
     ['hillshade', 'simulated'],
+    ['geology', 'interpreted'],
   ] as const)('classifies %s independently from its availability', (kind: DatasetKind, expected) => {
     const dataset = manifest.datasets.find((candidate) => candidate.kind === kind)!;
     expect(datasetScientificStatus(dataset)).toBe(expected);

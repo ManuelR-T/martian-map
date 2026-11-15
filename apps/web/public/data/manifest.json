@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 3,
-  "generatedAt": "2026-11-14T22:03:52Z",
+  "schemaVersion": 4,
+  "generatedAt": "2026-11-15T09:35:25Z",
   "planet": {
     "name": "Mars",
     "radiusMeters": 3396190.0,
@@ -119,10 +119,11 @@
         },
         {
           "id": "geology",
-          "label": "Carte géologique",
-          "status": "unavailable",
-          "datasetIds": [],
-          "reason": "Non intégré à cette version du manifeste."
+          "label": "Carte géologique (interprétative)",
+          "status": "available",
+          "datasetIds": [
+            "jezero-geology-units"
+          ]
         }
       ]
     }
@@ -138,7 +139,7 @@
       "source": {
         "url": "https://trek.nasa.gov/tiles/Mars/EQ/Mars_MGS_MOLA_ClrShade_merge_global_463m/1.0.0/WMTSCapabilities.xml",
         "tileUrlTemplate": "https://trek.nasa.gov/tiles/Mars/EQ/Mars_MGS_MOLA_ClrShade_merge_global_463m/1.0.0/default/default028mm/{z}/{y}/{x}.jpg",
-        "retrievedAt": "2026-11-14T12:39:18Z",
+        "retrievedAt": "2026-11-15T09:35:25Z",
         "credit": "NASA / équipe scientifique MGS MOLA ; distribué par NASA Mars Trek",
         "terms": {
           "summary": "Contenu NASA réutilisable sans autorisation préalable pour un usage factuel sans suggestion de soutien ; NASA doit être citée comme source.",
@@ -182,6 +183,201 @@
     },
     {
       "id": "jezero-hirise-mosaic",
+      "wmts": {
+        "layer": "JEZ_hirise_soc_006_orthoMosaic_25cm_Eqc_latTs0_lon0_first_dd",
+        "style": "default",
+        "matrixSet": "default028mm",
+        "crs": "urn:ogc:def:crs:EPSG::104905",
+        "format": "image/png",
+        "extent": {
+          "west": 77.2229331,
+          "south": 18.3067994,
+          "east": 77.583964,
+          "north": 18.669315
+        },
+        "matrices": [
+          {
+            "id": "0",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 2,
+            "height": 1
+          },
+          {
+            "id": "1",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 4,
+            "height": 2
+          },
+          {
+            "id": "2",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 8,
+            "height": 4
+          },
+          {
+            "id": "3",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 16,
+            "height": 8
+          },
+          {
+            "id": "4",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 32,
+            "height": 16
+          },
+          {
+            "id": "5",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 64,
+            "height": 32
+          },
+          {
+            "id": "6",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 128,
+            "height": 64
+          },
+          {
+            "id": "7",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 256,
+            "height": 128
+          },
+          {
+            "id": "8",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 512,
+            "height": 256
+          },
+          {
+            "id": "9",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 1024,
+            "height": 512
+          },
+          {
+            "id": "10",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 2048,
+            "height": 1024
+          },
+          {
+            "id": "11",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 4096,
+            "height": 2048
+          },
+          {
+            "id": "12",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 8192,
+            "height": 4096
+          },
+          {
+            "id": "13",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 16384,
+            "height": 8192
+          },
+          {
+            "id": "14",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 32768,
+            "height": 16384
+          },
+          {
+            "id": "15",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 65536,
+            "height": 32768
+          },
+          {
+            "id": "16",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 131072,
+            "height": 65536
+          },
+          {
+            "id": "17",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 262144,
+            "height": 131072
+          }
+        ]
+      },
       "regionId": "jezero",
       "title": "Mosaïque HiRISE de Jezero (secteur du front du delta)",
       "kind": "imagery",
@@ -190,7 +386,7 @@
       "source": {
         "url": "https://trek.nasa.gov/tiles/Mars/EQ/JEZ_hirise_soc_006_orthoMosaic_25cm_Eqc_latTs0_lon0_first_dd/1.0.0/WMTSCapabilities.xml",
         "tileUrlTemplate": "https://trek.nasa.gov/tiles/Mars/EQ/JEZ_hirise_soc_006_orthoMosaic_25cm_Eqc_latTs0_lon0_first_dd/1.0.0/default/default028mm/{z}/{y}/{x}.png",
-        "retrievedAt": "2026-11-14T12:39:18Z",
+        "retrievedAt": "2026-11-15T09:35:25Z",
         "credit": "NASA/JPL-Caltech/University of Arizona ; distribué par NASA Mars Trek",
         "terms": {
           "summary": "Conditions propres à ce produit non vérifiées ; appliquer au minimum la citation de la source et confirmer avant toute redistribution.",
@@ -827,202 +1023,7 @@
           "sha256": "491acc228a2831a22ac4b19370305b95eb1f210d2aff7425ab0a347173d56e8e",
           "mediaType": "image/png"
         }
-      ],
-      "wmts": {
-        "layer": "JEZ_hirise_soc_006_orthoMosaic_25cm_Eqc_latTs0_lon0_first_dd",
-        "style": "default",
-        "matrixSet": "default028mm",
-        "crs": "urn:ogc:def:crs:EPSG::104905",
-        "format": "image/png",
-        "extent": {
-          "west": 77.2229331,
-          "south": 18.3067994,
-          "east": 77.583964,
-          "north": 18.669315
-        },
-        "matrices": [
-          {
-            "id": "0",
-            "origin": [
-              -180.0,
-              90.0
-            ],
-            "tileSize": 256,
-            "width": 2,
-            "height": 1
-          },
-          {
-            "id": "1",
-            "origin": [
-              -180.0,
-              90.0
-            ],
-            "tileSize": 256,
-            "width": 4,
-            "height": 2
-          },
-          {
-            "id": "2",
-            "origin": [
-              -180.0,
-              90.0
-            ],
-            "tileSize": 256,
-            "width": 8,
-            "height": 4
-          },
-          {
-            "id": "3",
-            "origin": [
-              -180.0,
-              90.0
-            ],
-            "tileSize": 256,
-            "width": 16,
-            "height": 8
-          },
-          {
-            "id": "4",
-            "origin": [
-              -180.0,
-              90.0
-            ],
-            "tileSize": 256,
-            "width": 32,
-            "height": 16
-          },
-          {
-            "id": "5",
-            "origin": [
-              -180.0,
-              90.0
-            ],
-            "tileSize": 256,
-            "width": 64,
-            "height": 32
-          },
-          {
-            "id": "6",
-            "origin": [
-              -180.0,
-              90.0
-            ],
-            "tileSize": 256,
-            "width": 128,
-            "height": 64
-          },
-          {
-            "id": "7",
-            "origin": [
-              -180.0,
-              90.0
-            ],
-            "tileSize": 256,
-            "width": 256,
-            "height": 128
-          },
-          {
-            "id": "8",
-            "origin": [
-              -180.0,
-              90.0
-            ],
-            "tileSize": 256,
-            "width": 512,
-            "height": 256
-          },
-          {
-            "id": "9",
-            "origin": [
-              -180.0,
-              90.0
-            ],
-            "tileSize": 256,
-            "width": 1024,
-            "height": 512
-          },
-          {
-            "id": "10",
-            "origin": [
-              -180.0,
-              90.0
-            ],
-            "tileSize": 256,
-            "width": 2048,
-            "height": 1024
-          },
-          {
-            "id": "11",
-            "origin": [
-              -180.0,
-              90.0
-            ],
-            "tileSize": 256,
-            "width": 4096,
-            "height": 2048
-          },
-          {
-            "id": "12",
-            "origin": [
-              -180.0,
-              90.0
-            ],
-            "tileSize": 256,
-            "width": 8192,
-            "height": 4096
-          },
-          {
-            "id": "13",
-            "origin": [
-              -180.0,
-              90.0
-            ],
-            "tileSize": 256,
-            "width": 16384,
-            "height": 8192
-          },
-          {
-            "id": "14",
-            "origin": [
-              -180.0,
-              90.0
-            ],
-            "tileSize": 256,
-            "width": 32768,
-            "height": 16384
-          },
-          {
-            "id": "15",
-            "origin": [
-              -180.0,
-              90.0
-            ],
-            "tileSize": 256,
-            "width": 65536,
-            "height": 32768
-          },
-          {
-            "id": "16",
-            "origin": [
-              -180.0,
-              90.0
-            ],
-            "tileSize": 256,
-            "width": 131072,
-            "height": 65536
-          },
-          {
-            "id": "17",
-            "origin": [
-              -180.0,
-              90.0
-            ],
-            "tileSize": 256,
-            "width": 262144,
-            "height": 131072
-          }
-        ]
-      }
+      ]
     },
     {
       "id": "jezero-themis-night-ir",
@@ -1034,7 +1035,7 @@
       "source": {
         "url": "https://trek.nasa.gov/tiles/Mars/EQ/THEMIS_NightIR_ControlledMosaics_100m_v2_oct2018/1.0.0/WMTSCapabilities.xml",
         "tileUrlTemplate": "https://trek.nasa.gov/tiles/Mars/EQ/THEMIS_NightIR_ControlledMosaics_100m_v2_oct2018/1.0.0/default/default028mm/{z}/{y}/{x}.png",
-        "retrievedAt": "2026-11-14T16:38:59Z",
+        "retrievedAt": "2026-11-15T09:35:25Z",
         "credit": "NASA/JPL-Caltech/Arizona State University ; mosaïque USGS ; distribué par NASA Mars Trek",
         "terms": {
           "summary": "Conditions propres à ce produit non vérifiées ; appliquer au minimum la citation de la source et confirmer avant toute redistribution.",
@@ -1132,7 +1133,7 @@
       "delivery": "local",
       "source": {
         "url": "https://planetarymaps.usgs.gov/mosaic/mars2020_trn/HiRISE/JEZ_hirise_soc_006_DTM_MOLAtopography_DeltaGeoid_1m_Eqc_latTs0_lon0_blend40.tif",
-        "retrievedAt": "2026-11-14T12:39:18Z",
+        "retrievedAt": "2026-11-15T09:35:25Z",
         "credit": "USGS Astrogeology Science Center ; NASA/JPL-Caltech/University of Arizona, Mars 2020 Terrain Relative Navigation HiRISE DTM Mosaic",
         "terms": {
           "summary": "Fiche USGS Astropedia : aucune contrainte d'accès ; citer les auteurs (Fergason et al., 2020).",
@@ -1221,7 +1222,7 @@
       "delivery": "local",
       "source": {
         "url": "https://planetarymaps.usgs.gov/mosaic/mars2020_trn/HiRISE/JEZ_hirise_soc_006_DTM_MOLAtopography_DeltaGeoid_1m_Eqc_latTs0_lon0_blend40.tif",
-        "retrievedAt": "2026-11-14T12:39:18Z",
+        "retrievedAt": "2026-11-15T09:35:25Z",
         "credit": "USGS Astrogeology Science Center ; NASA/JPL-Caltech/University of Arizona, Mars 2020 Terrain Relative Navigation HiRISE DTM Mosaic",
         "terms": {
           "summary": "Fiche USGS Astropedia : aucune contrainte d'accès ; citer les auteurs (Fergason et al., 2020).",
@@ -1310,7 +1311,7 @@
       "delivery": "local",
       "source": {
         "url": "https://planetarymaps.usgs.gov/mosaic/mars2020_trn/HiRISE/JEZ_hirise_soc_006_DTM_MOLAtopography_DeltaGeoid_1m_Eqc_latTs0_lon0_blend40.tif",
-        "retrievedAt": "2026-11-14T12:39:18Z",
+        "retrievedAt": "2026-11-15T09:35:25Z",
         "credit": "USGS Astrogeology Science Center ; NASA/JPL-Caltech/University of Arizona, Mars 2020 Terrain Relative Navigation HiRISE DTM Mosaic",
         "terms": {
           "summary": "Fiche USGS Astropedia : aucune contrainte d'accès ; citer les auteurs (Fergason et al., 2020).",
@@ -1372,7 +1373,7 @@
       "delivery": "local",
       "source": {
         "url": "https://planetarymaps.usgs.gov/mosaic/mars2020_trn/CTX/JEZ_ctx_B_soc_008_DTM_MOLAtopography_DeltaGeoid_20m_Eqc_latTs0_lon0.tif",
-        "retrievedAt": "2026-11-14T12:39:18Z",
+        "retrievedAt": "2026-11-15T09:35:25Z",
         "credit": "USGS Astrogeology Science Center ; NASA/JPL, Mars 2020 Terrain Relative Navigation CTX DTM",
         "terms": {
           "summary": "Fiche USGS Astropedia : aucune contrainte d'accès ; citer les auteurs (Fergason et al., 2020).",
@@ -1457,7 +1458,7 @@
       "delivery": "local",
       "source": {
         "url": "https://planetarymaps.usgs.gov/mosaic/mars2020_trn/CTX/JEZ_ctx_B_soc_008_DTM_MOLAtopography_DeltaGeoid_20m_Eqc_latTs0_lon0.tif",
-        "retrievedAt": "2026-11-14T12:39:18Z",
+        "retrievedAt": "2026-11-15T09:35:25Z",
         "credit": "USGS Astrogeology Science Center ; NASA/JPL, Mars 2020 Terrain Relative Navigation CTX DTM",
         "terms": {
           "summary": "Fiche USGS Astropedia : aucune contrainte d'accès ; citer les auteurs (Fergason et al., 2020).",
@@ -1542,7 +1543,7 @@
       "delivery": "local",
       "source": {
         "url": "https://planetarymaps.usgs.gov/mosaic/mars2020_trn/CTX/JEZ_ctx_B_soc_008_DTM_MOLAtopography_DeltaGeoid_20m_Eqc_latTs0_lon0.tif",
-        "retrievedAt": "2026-11-14T12:39:18Z",
+        "retrievedAt": "2026-11-15T09:35:25Z",
         "credit": "USGS Astrogeology Science Center ; NASA/JPL, Mars 2020 Terrain Relative Navigation CTX DTM",
         "terms": {
           "summary": "Fiche USGS Astropedia : aucune contrainte d'accès ; citer les auteurs (Fergason et al., 2020).",
@@ -1604,7 +1605,7 @@
       "delivery": "local",
       "source": {
         "url": "https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_SAMPLE_v3.json",
-        "retrievedAt": "2026-11-14T12:39:18Z",
+        "retrievedAt": "2026-11-15T09:35:25Z",
         "credit": "NASA/JPL-Caltech, Mars 2020 Perseverance, carte des prélèvements (mars.nasa.gov)",
         "terms": {
           "summary": "Contenu NASA réutilisable sans autorisation préalable pour un usage factuel sans suggestion de soutien ; NASA doit être citée comme source.",
@@ -1662,7 +1663,7 @@
       "delivery": "local",
       "source": {
         "url": "https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json",
-        "retrievedAt": "2026-11-14T16:26:51Z",
+        "retrievedAt": "2026-11-15T09:35:25Z",
         "credit": "NASA/JPL-Caltech",
         "terms": {
           "summary": "Contenu NASA réutilisable sans autorisation préalable pour un usage factuel sans suggestion de soutien ; NASA doit être citée comme source.",
@@ -1726,7 +1727,7 @@
       "delivery": "local",
       "source": {
         "url": "https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_traverse.json",
-        "retrievedAt": "2026-11-14T16:26:51Z",
+        "retrievedAt": "2026-11-15T09:35:25Z",
         "credit": "NASA/JPL-Caltech",
         "terms": {
           "summary": "Contenu NASA réutilisable sans autorisation préalable pour un usage factuel sans suggestion de soutien ; NASA doit être citée comme source.",
@@ -1785,7 +1786,7 @@
       "source": {
         "url": "https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_calibrated_env/sol_0420_0539/sol_0500/WE__0500___________CAL_ATS_________________P01.CSV",
         "labelUrl": "https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_calibrated_env/sol_0420_0539/sol_0500/WE__0500___________CAL_ATS_________________P01.xml",
-        "retrievedAt": "2026-11-14T22:03:52Z",
+        "retrievedAt": "2026-11-15T09:35:25Z",
         "credit": "NASA/JPL-Caltech, CAB (CSIC-INTA), instrument MEDA de Perseverance ; archive PDS Atmospheres Node",
         "terms": {
           "summary": "Conditions propres à ce produit non vérifiées ; appliquer au minimum la citation de la source et confirmer avant toute redistribution.",
@@ -1846,7 +1847,7 @@
       "source": {
         "url": "https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_derived_env/sol_0420_0539/sol_0500/WE__0500___________DER_PS__________________P01.CSV",
         "labelUrl": "https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_derived_env/sol_0420_0539/sol_0500/WE__0500___________DER_PS__________________P01.xml",
-        "retrievedAt": "2026-11-14T22:03:52Z",
+        "retrievedAt": "2026-11-15T09:35:25Z",
         "credit": "NASA/JPL-Caltech, CAB (CSIC-INTA), instrument MEDA de Perseverance ; archive PDS Atmospheres Node",
         "terms": {
           "summary": "Conditions propres à ce produit non vérifiées ; appliquer au minimum la citation de la source et confirmer avant toute redistribution.",
@@ -1896,6 +1897,155 @@
           "mediaType": "application/json"
         }
       ]
+    },
+    {
+      "id": "jezero-geology-units",
+      "regionId": "jezero",
+      "title": "Unités géologiques de Jezero (carte USGS SIM 3464, secteur du front du delta)",
+      "kind": "geology",
+      "instrument": "Cartographie géologique interprétative sur mosaïque CTX semi-contrôlée (Mars Reconnaissance Orbiter)",
+      "delivery": "local",
+      "source": {
+        "url": "https://pubs.usgs.gov/sim/3464/sim3464_database.zip",
+        "retrievedAt": "2026-11-15T09:35:25Z",
+        "credit": "Sun, V., et Stack, K., 2020, Geologic map of Jezero crater and the Nili Planum region, Mars : U.S. Geological Survey Scientific Investigations Map 3464, échelle 1:75 000",
+        "terms": {
+          "summary": "Métadonnées USGS : aucune contrainte d'accès ni d'usage ; citer Sun et Stack (2020).",
+          "url": "https://pubs.usgs.gov/sim/3464/sim3464_metadata.txt",
+          "verified": true
+        },
+        "fingerprint": {
+          "target": "Octets de la géodatabase Nili.gdb dans l'archive",
+          "sha256": "5002532a38dfc06dd9daf3068d0c43de86cc42e1eb1dcb9b0918ec1f2c1b81ba",
+          "bytes": 22581924
+        }
+      },
+      "acquisition": {
+        "date": null,
+        "sol": null,
+        "note": "Carte publiée en 2020, dessinée avant la mosaïque CTX contrôlée de juillet 2020."
+      },
+      "units": {},
+      "crs": "urn:ogc:def:crs:EPSG::104905",
+      "extent": {
+        "west": 77.395,
+        "south": 18.445,
+        "east": 77.412,
+        "north": 18.465
+      },
+      "resolution": null,
+      "noData": {
+        "kind": "not-applicable"
+      },
+      "status": "available",
+      "version": "SIM 3464, couche GeoUnits_v1",
+      "limitations": [
+        "Carte interprétative à l'échelle 1:75 000 : unités et contacts sont une lecture des auteurs, pas une mesure.",
+        "Décalage aléatoire de 100 à 200 m par rapport à la mosaïque CTX contrôlée de Mars 2020 (README USGS) ; aucun recalage appliqué.",
+        "Un site n'est rattaché à une unité que si aucune autre unité n'est à moins de 200 m de lui.",
+        "Couleurs choisies par l'application, pas celles de la feuille USGS."
+      ],
+      "files": [
+        {
+          "path": "jezero/geology/units.geojson",
+          "bytes": 11641,
+          "sha256": "55cbea43d3cdf7b4d011c8babc53e9b70de5ef916d9503bac60e0d49157c8956",
+          "mediaType": "application/geo+json"
+        }
+      ],
+      "geology": {
+        "authors": "Vivian Sun, Kathryn Stack",
+        "published": "2020",
+        "scale": 75000,
+        "interpretive": true,
+        "recordUrl": "https://pubs.usgs.gov/publication/sim3464",
+        "registration": {
+          "method": "none",
+          "offsetMetres": {
+            "min": 100.0,
+            "max": 200.0
+          },
+          "sourceUrl": "https://pubs.usgs.gov/sim/3464/sim3464_readme.txt"
+        },
+        "units": [
+          {
+            "symbol": "Aeb",
+            "name": "Eolian bedform unit",
+            "period": "Amazonien",
+            "colour": "#e6d7a3",
+            "sectorShare": 0.012
+          },
+          {
+            "symbol": "NHjf2",
+            "name": "Jezero fan 2 unit",
+            "period": "Noachien–Hespérien",
+            "colour": "#d99a3d",
+            "sectorShare": 0.628
+          },
+          {
+            "symbol": "Njf",
+            "name": "Jezero floor unit",
+            "period": "Noachien",
+            "colour": "#5f9ec4",
+            "sectorShare": 0.274
+          },
+          {
+            "symbol": "Nue",
+            "name": "Upper etched unit",
+            "period": "Noachien",
+            "colour": "#b072b8",
+            "sectorShare": 0.086
+          }
+        ],
+        "sites": [
+          {
+            "siteId": "skinner-ridge",
+            "candidates": [
+              {
+                "symbol": "NHjf2",
+                "distanceMetres": 0.0
+              },
+              {
+                "symbol": "Njf",
+                "distanceMetres": 189.6
+              }
+            ],
+            "assignedSymbol": null
+          },
+          {
+            "siteId": "wildcat-ridge",
+            "candidates": [
+              {
+                "symbol": "NHjf2",
+                "distanceMetres": 0.0
+              },
+              {
+                "symbol": "Njf",
+                "distanceMetres": 173.1
+              }
+            ],
+            "assignedSymbol": null
+          },
+          {
+            "siteId": "amalik",
+            "candidates": [
+              {
+                "symbol": "NHjf2",
+                "distanceMetres": 0.0
+              },
+              {
+                "symbol": "Njf",
+                "distanceMetres": 86.6
+              },
+              {
+                "symbol": "Nue",
+                "distanceMetres": 167.4
+              }
+            ],
+            "assignedSymbol": null
+          }
+        ]
+      }
     }
   ],
   "sites": [

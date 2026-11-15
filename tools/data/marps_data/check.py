@@ -15,7 +15,7 @@ from PIL import Image
 from . import geo, meda, spec
 
 STATUSES = {"available", "partial", "unavailable"}
-KINDS = {"basemap", "imagery", "elevation", "slope", "hillshade", "sites", "rover-waypoints", "rover-traverse", "weather", "thermal"}
+KINDS = {"basemap", "imagery", "elevation", "slope", "hillshade", "sites", "rover-waypoints", "rover-traverse", "weather", "thermal", "geology"}
 DELIVERIES = {"local", "remote"}
 NODATA_KINDS = {"not-applicable", "alpha-channel", "nan", "invalid-samples"}
 # Mars spans about -8.2 km (Hellas) to +21.2 km (Olympus Mons) around the MOLA datum.
@@ -343,6 +343,54 @@ def check_sites(root: Path, manifest: dict, d: dict) -> list[str]:
     return errors
 
 
+def check_geology(root: Path, manifest: dict, d: dict) -> list[str]:
+    """Interpretive units: credited, offset declared, polygons inside the extent, no unit forced onto a site."""
+    label = f"dataset {d.get('id')}"
+    info = d.get("geology")
+    if not isinstance(info, dict):
+        return [f"{label}: geology metadata is missing"]
+    errors = [f"{label}: missing geology.{k}" for k in missing(info, ("authors", "published", "scale", "recordUrl"))]
+    if info.get("interpretive") is not True:
+        errors.append(f"{label}: a geologic map must be declared interpretive")
+    offset = (info.get("registration") or {}).get("offsetMetres") or {}
+    if not (isinstance(offset.get("max"), (int, float)) and offset["max"] > 0):
+        errors.append(f"{label}: registration.offsetMetres.max must be a positive uncertainty")
+        return errors
+    legend = {u.get("symbol"): u for u in info.get("units", [])}
+    for symbol, unit in legend.items():
+        if missing(unit, ("symbol", "name", "period")) or not str(unit.get("colour", "")).startswith("#"):
+            errors.append(f"{label}: unit {symbol} needs a name, a period and a colour")
+
+    collection = json.loads((root / d["files"][0]["path"]).read_text("utf-8"))
+    drawn = set()
+    for feature in collection.get("features", []):
+        symbol = (feature.get("properties") or {}).get("symbol")
+        drawn.add(symbol)
+        if symbol not in legend:
+            errors.append(f"{label}: unit {symbol} is drawn but missing from the legend")
+        geometry = feature.get("geometry") or {}
+        points = [p for polygon in geometry.get("coordinates", []) for ring in polygon for p in ring]
+        if geometry.get("type") != "MultiPolygon" or not points:
+            errors.append(f"{label}: unit {symbol} must be a non-empty MultiPolygon")
+        elif not all(len(p) == 2 and all(math.isfinite(v) for v in p) and geo.contains_point(d["extent"], *p) for p in points):
+            errors.append(f"{label}: unit {symbol} has coordinates outside the dataset extent")
+    errors += [f"{label}: legend unit {s} has a sector share but no polygon" for s, u in legend.items() if u.get("sectorShare") and s not in drawn]
+
+    entries = {s.get("siteId"): s for s in info.get("sites", [])}
+    for site in (s for s in manifest["sites"] if s.get("regionId") == d.get("regionId")):
+        entry = entries.get(site["id"])
+        if entry is None:
+            errors.append(f"{label}: site {site['id']} has no geologic context")
+            continue
+        candidates = entry.get("candidates") or []
+        if any(c.get("symbol") not in legend or not 0 <= c.get("distanceMetres", -1) <= offset["max"] for c in candidates):
+            errors.append(f"{label}: site {site['id']} lists a candidate outside the legend or the uncertainty")
+        assigned = entry.get("assignedSymbol")
+        if assigned is not None and (len(candidates) != 1 or candidates[0].get("symbol") != assigned):
+            errors.append(f"{label}: site {site['id']} is assigned {assigned} although other units are within the uncertainty")
+    return errors
+
+
 def check_capabilities(manifest: dict, datasets: dict[str, dict]) -> list[str]:
     errors = []
     for region in manifest["regions"]:
@@ -426,6 +474,8 @@ def validate(root: Path) -> list[str]:
             errors += check_sites(root, manifest, d)
         elif d.get("kind") == "weather":
             errors += check_weather(root, region, d)
+        elif d.get("kind") == "geology":
+            errors += check_geology(root, manifest, d)
     return errors + check_capabilities(manifest, datasets)
 
 

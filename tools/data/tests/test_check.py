@@ -77,7 +77,7 @@ def test_site_outside_the_sector_is_rejected(data_copy):
 
 def test_unavailable_capability_needs_a_reason_and_no_dataset(data_copy):
     def change(m):
-        cap = capability(m, "geology")
+        cap = capability(m, "weather-wind")
         cap["reason"] = ""
         cap["datasetIds"] = ["mola-colorized-relief"]
 
@@ -256,3 +256,36 @@ def test_frozen_capabilities_are_those_the_preparation_writes():
     manifest = json.loads((spec.DATA_DIR / "manifest.json").read_text("utf-8"))
     rebuilt = prepare.build_manifest(manifest["datasets"], manifest["sites"], manifest["generatedAt"])
     assert rebuilt["regions"] == manifest["regions"]
+
+
+def edit_geology(root, change):
+    edit_manifest(root, lambda m: change(dataset(m, "jezero-geology-units")["geology"]))
+
+
+def test_a_site_cannot_be_given_a_unit_while_others_are_within_the_offset(data_copy):
+    def change(info):
+        info["sites"][0]["assignedSymbol"] = info["sites"][0]["candidates"][0]["symbol"]
+
+    edit_geology(data_copy, change)
+    assert any("although other units are within the uncertainty" in e for e in check.validate(data_copy))
+
+
+def test_every_site_needs_its_geologic_context(data_copy):
+    edit_geology(data_copy, lambda info: info["sites"].pop())
+    assert any("has no geologic context" in e for e in check.validate(data_copy))
+
+
+def test_a_geologic_map_must_stay_interpretive_and_declare_its_offset(data_copy):
+    def change(info):
+        info["interpretive"] = False
+        info["registration"]["offsetMetres"]["max"] = 0
+
+    edit_geology(data_copy, change)
+    errors = check.validate(data_copy)
+    assert any("declared interpretive" in e for e in errors)
+    assert any("positive uncertainty" in e for e in errors)
+
+
+def test_a_drawn_unit_must_be_in_the_legend(data_copy):
+    edit_geology(data_copy, lambda info: info["units"].pop(0))
+    assert any("drawn but missing from the legend" in e for e in check.validate(data_copy))
