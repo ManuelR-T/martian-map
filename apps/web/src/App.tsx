@@ -4,6 +4,7 @@ import { MapDrawer } from './panels/MapDrawer';
 import { BrandMark, DataState } from '@marps/ui';
 import { BudgetPanel } from './panels/BudgetPanel';
 import { MapStage } from './panels/MapStage';
+import { MapViewSelector } from './panels/MapViewSelector';
 import { SiteDetailsPanel } from './panels/SiteDetailsPanel';
 import { PlannerMap } from './features/map/PlannerMap';
 import { OfflineStatus } from './offline/OfflineStatus';
@@ -70,7 +71,10 @@ export function App() {
           </p>
         </div>
         <nav aria-label="Pages" className="flex flex-wrap items-center max-sm:order-1 max-sm:w-full">
-          <a href="#/" className={headerLink} aria-current={!showsPage ? 'page' : undefined}>Planification</a>
+          <div className="planning-navigation">
+            <a href="#/" className={headerLink} aria-current={!showsPage ? 'page' : undefined}>Planification</a>
+            {!showsPage && <MapViewSelector />}
+          </div>
           <a href={SOURCES_HASH} className={headerLink} aria-current={showsSources ? 'page' : undefined}>Sources et limites</a>
           <a href={DESIGN_SYSTEM_HASH} className={headerLink} aria-current={showsDesignSystem ? 'page' : undefined}>Système de design</a>
         </nav>

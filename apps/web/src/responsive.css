@@ -5,7 +5,7 @@
 .planner-app button, .planner-app a, .planner-app summary { touch-action: manipulation; }
 summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 
-.map-drawer-rails { position: absolute; z-index: 10; inset: 5rem 0; pointer-events: none; }
+.map-drawer-rails { position: absolute; z-index: 10; inset: 1rem 0; pointer-events: none; }
 .map-drawer-rail { position: absolute; top: 0; bottom: 0; display: flex; flex-direction: column; gap: .5rem; width: min(25rem, calc(100vw - 3.75rem)); overflow-y: auto; overscroll-behavior: contain; container-type: size; pointer-events: none; }
 .map-drawer-rail[hidden] { display: none; }
 .map-drawer-rail-left { left: 0; }
@@ -29,6 +29,8 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .map-drawer[data-state=open] .map-drawer-content { clip-path: inset(0 round 6px); opacity: 1; visibility: visible; pointer-events: auto; transition-delay: 0s; }
 .map-drawer-content [data-slot=panel] { border: 0; }
 .map-drawer-content [data-slot=panel]::before { display: none; }
+/* Les coins décoratifs restent dans le cadre pour éviter un débordement de 1 px. */
+.map-drawer-content [data-slot=panel]::after { inset: 0; }
 .map-drawer-content [data-slot=panel] > header { padding-inline: 3.25rem; min-height: 44px; }
 .map-drawer-content [data-slot=panel] > div { transition: opacity 120ms ease, translate 180ms ease; }
 .map-drawer[data-state=closed] .map-drawer-content [data-slot=panel] > div { opacity: 0; translate: 0 -4px; }
@@ -45,10 +47,7 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
   .planner-app > header > svg, .planner-app > header > div p { display: none; }
   .planner-app > header h1 { font-size: 1rem; line-height: 1.25; }
   .planner-app > header button { min-height: 44px; min-width: 44px; }
-  .map-view-description { display: none; }
-  .map-view-switch [role=radio] { min-height: 44px; min-width: 44px; padding-inline: .5rem; }
-  .map-view-switch [role=radio] svg { display: none; }
-  .map-drawer-rails { top: 4.5rem; bottom: 4.5rem; }
+  .map-drawer-rails { top: .75rem; bottom: 4.5rem; }
 }
 @media (pointer: coarse) {
   .planner-app button, .planner-app summary { min-height: 44px; min-width: 44px; }
@@ -62,4 +61,19 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
   .map-drawer { width: min(25rem, calc(100vw - 3.75rem)); }
   .map-drawer-left { align-self: flex-start; }
   .map-drawer-right { align-self: flex-end; }
+}
+
+.planning-navigation { display: inline-flex; align-items: center; max-width: 100%; }
+.planning-map-selector { margin-right: .75rem; transform-origin: left center; animation: planning-selector-reveal 240ms var(--ease-instrument) both; }
+.planning-map-selector [role=radio] { min-height: 44px; height: 44px; padding-inline: .625rem; }
+@keyframes planning-selector-reveal {
+  from { opacity: 0; translate: -10px 0; clip-path: inset(0 100% 0 0); }
+  to { opacity: 1; translate: 0 0; clip-path: inset(0); }
+}
+@media (max-width: 640px) {
+  .planning-map-selector { margin-right: 0; }
+  .planning-map-selector svg { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .planning-map-selector { animation: none; }
 }
