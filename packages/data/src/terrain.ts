@@ -1,4 +1,4 @@
-import type { MarsCoordinate } from '@marps/mission-core';
+import type { GridCell, GridPoint, MarsCoordinate } from '@marps/mission-core';
 import type { DataManifest, DataStatus, DatasetDescriptor, RasterGrid } from './contracts';
 import { DATA_BASE_URL } from './coverage';
 
@@ -9,10 +9,7 @@ export interface TerrainGrid {
   readonly values: Float32Array;
 }
 
-export interface GridCell {
-  readonly row: number;
-  readonly column: number;
-}
+export type { GridCell };
 
 const usable: Record<DataStatus, number> = { unavailable: 0, partial: 1, available: 2 };
 
@@ -55,6 +52,24 @@ export function cellAt(raster: RasterGrid, coordinate: MarsCoordinate): GridCell
   const column = Math.floor((x - raster.origin.x) / raster.pixelSizeMetres);
   const row = Math.floor((raster.origin.y - y) / raster.pixelSizeMetres);
   return row >= 0 && row < raster.height && column >= 0 && column < raster.width ? { row, column } : null;
+}
+
+/** Position of a coordinate on the grid, in cells from its north-west corner; may fall outside it. */
+export function gridPointAt(raster: RasterGrid, coordinate: MarsCoordinate): GridPoint {
+  const metresPerDegree = (raster.projection.radiusMetres * Math.PI) / 180;
+  return {
+    x: (coordinate.longitude * metresPerDegree - raster.origin.x) / raster.pixelSizeMetres,
+    y: (raster.origin.y - coordinate.latitude * metresPerDegree) / raster.pixelSizeMetres,
+  };
+}
+
+/** Coordinate of a grid position: the inverse of `gridPointAt`. */
+export function coordinateAt(raster: RasterGrid, point: GridPoint): MarsCoordinate {
+  const metresPerDegree = (raster.projection.radiusMetres * Math.PI) / 180;
+  return {
+    longitude: (raster.origin.x + point.x * raster.pixelSizeMetres) / metresPerDegree,
+    latitude: (raster.origin.y - point.y * raster.pixelSizeMetres) / metresPerDegree,
+  };
 }
 
 /**

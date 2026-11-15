@@ -12,6 +12,7 @@ import { missionGeometry } from '@marps/mission-core';
 import { usePlannerDispatch, usePlannerState } from '../../state/PlannerProvider';
 import { selectCurrentMission } from '../../state/planner';
 import type { Extent } from '@marps/data';
+import { RouteProposals } from './RouteProposals';
 
 /** Edit one leg at a time so camp and visits cannot drift away from the itinerary. */
 export function MissionRouteEditor({ map, sector, host }: { map: Map | null; sector: Extent; host: HTMLElement | null }) {
@@ -79,6 +80,7 @@ export function MissionRouteEditor({ map, sector, host }: { map: Map | null; sec
         <Button size="sm" variant="outline" disabled={!mission.routeLegs} onClick={() => { setMode(null); dispatch({ type: 'routeReset' }); }}>{localize('Rétablir les segments directs')}</Button>
       </div>
       {mode && <p role="status">{localize(mode === 'draw' ? 'Dessin en cours' : 'Déplacer un point ou insérer un sommet sur le segment.')}</p>}
+      <RouteProposals map={map} names={names} />
     </>}
   </section>, host)}
   </>;

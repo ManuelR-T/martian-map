@@ -115,6 +115,7 @@ export function isMission(value: unknown): value is Mission {
 }
 export type MissionAction =
   | { type: 'routeLegChanged'; index: number; vertices: readonly MarsCoordinate[] }
+  | { type: 'routeLegsReplaced'; legs: readonly (readonly MarsCoordinate[])[] }
   | { type: 'routeReset' }
   | { type: 'missionRenamed'; name: string }
   | { type: 'missionTypeChanged'; missionType: MissionType }
@@ -132,6 +133,7 @@ export function missionReducer(m: Mission, action: MissionAction): Mission {
   let next = m;
   switch (action.type) {
     case 'routeReset': next = { ...m, routeLegs: undefined }; break;
+    case 'routeLegsReplaced': next = { ...m, routeLegs: action.legs }; break;
     case 'routeLegChanged': {
       if (!m.camp || !m.steps.length || !Number.isInteger(action.index) || action.index < 0 || action.index > m.steps.length) return m;
       const legs = m.routeLegs ? [...m.routeLegs] : Array.from({ length: m.steps.length + 1 }, () => [] as readonly MarsCoordinate[]);
