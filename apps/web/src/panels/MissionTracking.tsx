@@ -39,7 +39,7 @@ export function MissionTracking() {
     </StepList>
     <Button variant="outline" onClick={async () => {
       const pending = activities.filter(a => !a.completed).length;
-      if (pending && !await confirmAction(localize("Terminer la sortie ? Il reste {{v0}} activité{{v1}} non cochée{{v2}}.", { v0: pending, v1: pending > 1 ? 's' : '', v2: pending > 1 ? 's' : '' }), { confirmLabel: localize("Terminer la sortie") })) return;
+      if (pending && !await confirmAction(localize("Terminer la sortie ? Il reste {{count}} activité non cochée.", { count: pending }), { confirmLabel: localize("Terminer la sortie") })) return;
       dispatch({ type: 'missionEnded' });
     }}>{localize("Terminer la sortie")}</Button>
   </div>;

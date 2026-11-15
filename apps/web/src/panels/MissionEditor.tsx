@@ -20,6 +20,8 @@ const form = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); re
 const text = (data: FormData, key: string) => String(data.get(key) ?? '');
 const number = (data: FormData, key: string) => Number(data.get(key));
 const uid = () => crypto.randomUUID();
+// The suggested name stays the French source in state, so changing the objective can still replace it.
+const automaticName = (name: string) => name === 'Nouvelle mission' || Object.values<string>(missionTypes).includes(name);
 type Action = 'new' | 'template';
 type Tab = 'prepare' | 'camps' | 'saved';
 
@@ -130,7 +132,7 @@ export function MissionEditor({ className, collapsible = true, routeHostRef }: {
         <h3 className="label-caps">{localize("Historique")}</h3>
         {history.length === 0 && <p>{localize("Aucune sortie dans l’historique.")}</p>}
         {history.map(entry => <details key={entry.id} className="border p-3">
-          <summary className="cursor-pointer py-2 font-semibold">{localize(entry.mission.name)} {localize("·")} {entry.id === runningMission?.id ? 'Suivi actuel' : localize("Sortie précédente")}</summary>
+          <summary className="cursor-pointer py-2 font-semibold">{localize(entry.mission.name)} {localize("·")} {localize(entry.id === runningMission?.id ? "Suivi actuel" : "Sortie précédente")}</summary>
           <p>{localize("Dernier suivi enregistré :")} {new Date(entry.updatedAt).toLocaleString(locale())}</p>
           <p>{localize(entry.mission.camp?.name)} {localize("·")} {localize(entry.mission.steps.length)} {localize("étapes")}</p>
           <ol className="list-inside list-decimal">{entry.mission.steps.map(s => <li key={s.id}>{localize(s.name)} {localize("·")} {localize(s.activities.filter(a => a.completed).length)}{localize("/")}{localize(s.activities.length)} {localize("activités faites")}</li>)}</ol>
@@ -139,7 +141,7 @@ export function MissionEditor({ className, collapsible = true, routeHostRef }: {
       </section>
     </div>}
     {tab === 'prepare' && <fieldset disabled={busy} className="grid min-w-0 gap-3">
-      <p className="font-semibold">{action === 'template' ? localize("Modèle réutilisable") : 'Nouvelle mission'} {localize("· Étape")} {localize(stage)} {localize("sur 3")}</p>
+      <p className="font-semibold">{action === 'template' ? localize("Modèle réutilisable") : localize("Nouvelle mission")} {localize("· Étape")} {localize(stage)} {localize("sur 3")}</p>
       <Button className="justify-self-start" variant="outline" onClick={async () => {
         if (await confirmAction(localize("Réinitialiser la préparation ? Les missions enregistrées et le suivi seront conservés."), { confirmLabel: localize("Réinitialiser"), destructive: true })) open(createEmptyMission(DETAILED_REGION_ID, uid()), 'new');
       }}>{localize("Réinitialiser la préparation")}</Button>
@@ -161,11 +163,11 @@ export function MissionEditor({ className, collapsible = true, routeHostRef }: {
           if (name === missionTypes[mission.missionType ?? 'reconnaissance'] || name === 'Nouvelle mission') setName(missionTypes[type]);
           dispatch({ type: 'missionTypeChanged', missionType: type });
         }}>{Object.entries(missionTypes).map(([value, label]) => <option key={value} value={value}>{localize(label)}</option>)}</select></label>
-        <label>{localize("Nom proposé, modifiable")}<input className={field} value={name} onChange={event => { setName(event.target.value); dispatch({ type: 'missionRenamed', name: event.target.value.trim() }); }} required maxLength={120} pattern=".*\S.*" /></label>
+        <label>{localize("Nom proposé, modifiable")}<input className={field} value={automaticName(name) ? localize(name) : name} onChange={event => { setName(event.target.value); dispatch({ type: 'missionRenamed', name: event.target.value.trim() }); }} required maxLength={120} pattern=".*\S.*" /></label>
         <Button type="submit">{localize("Continuer : camp et parcours")}</Button>
       </form>}
       {stage === 2 && <>
-        <label>{localize("Camp de départ et de retour")}{action === 'template' && ' (facultatif)'}<select className={field} value={mission.camp?.id ?? ''} onChange={event => {
+        <label>{localize("Camp de départ et de retour")}{action === 'template' && localize(" (facultatif)")}<select className={field} value={mission.camp?.id ?? ''} onChange={event => {
           const camp = camps.find(c => c.id === event.target.value); if (camp) dispatch({ type: 'campPlaced', camp }); else dispatch({ type: 'campCleared' });
         }}><option value="">{localize("Choisir un camp enregistré…")}</option>{mission.camp && !camps.some(c => c.id === mission.camp?.id) && <option value={mission.camp.id}>{localize(mission.camp.name)} {localize("(copie enregistrée)")}</option>}{camps.filter(c => c.regionId === mission.regionId).map(c => <option key={c.id} value={c.id}>{localize(c.name)}</option>)}</select></label>
         {camps.length === 0 && <p>{localize("Aucun camp enregistré.")}</p>}

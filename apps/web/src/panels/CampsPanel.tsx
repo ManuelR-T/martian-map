@@ -37,7 +37,7 @@ export function CampsManager() {
       {action === 'search' && <>
         <Button className="justify-self-start" disabled={busy} onClick={() => { setAction('create'); setSelected(null); setStatus(''); }}>{localize("Nouveau camp")}</Button>
         <label>{localize("Rechercher par nom")}<input className={baseField} type="search" value={query} onChange={event => setQuery(event.target.value)} /></label>
-        <p>{localize(filtered.length)} {localize("camp")}{filtered.length > 1 ? 's' : ''} {localize("enregistré")}{filtered.length > 1 ? 's' : ''}</p>
+        <p>{localize("{{count}} camp enregistré", { count: filtered.length })}</p>
         {filtered.length === 0 && <p>{localize("Aucun camp trouvé.")}</p>}
         <ul className="grid list-none gap-2 p-0">{filtered.map(camp => <li key={camp.id} className="grid gap-2 border p-3">
           <p className="font-semibold">{localize(camp.name)}</p><p>{localize(camp.regionId)} {localize("·")} {formatCoordinate(camp.position)}</p>

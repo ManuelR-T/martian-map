@@ -8,7 +8,7 @@ import { formatGroundDistance as distance } from '../format';
 import type { RadiationAlertState } from '../state/planner';
 
 const minutes = (seconds: number) => `${Math.ceil(seconds / 60)} min`;
-const plural = (n: number) => localize("{{v0}} activité{{v1}}", { v0: n, v1: n > 1 ? 's' : '' });
+const plural = (count: number) => localize("{{count}} activité", { count });
 const link = (href: string, label: string) => <a className="underline" href={href} target="_blank" rel="noreferrer">{localize(label)}</a>;
 
 /** Collapsed context: Jezero has no ionizing-radiation measurement, so the alert can only be an exercise. */
