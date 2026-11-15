@@ -920,5 +920,15 @@
   "Déplacer un point ou insérer un sommet sur le segment.": "Déplacer un point ou insérer un sommet sur le segment.",
   "Démonstration : visiter les trois sites": "Démonstration : visiter les trois sites",
   "Parcours hypothétique de la mission, retour au camp inclus": "Parcours hypothétique de la mission, retour au camp inclus",
-  "Camp et étapes : simulation. Parcours hypothétique, retour inclus, sans validation du terrain.": "Camp et étapes : simulation. Parcours hypothétique, retour inclus, sans validation du terrain."
+  "Camp et étapes : simulation. Parcours hypothétique, retour inclus, sans validation du terrain.": "Camp et étapes : simulation. Parcours hypothétique, retour inclus, sans validation du terrain.",
+  "Tracé du parcours": "Tracé du parcours",
+  "Choisissez un camp et ajoutez une étape pour dessiner votre parcours sur la carte.": "Choisissez un camp et ajoutez une étape pour dessiner votre parcours sur la carte.",
+  "Trajet à dessiner": "Trajet à dessiner",
+  "Dessiner sur la carte": "Dessiner sur la carte",
+  "Ajuster le trajet": "Ajuster le trajet",
+  "Rétablir les segments directs": "Rétablir les segments directs",
+  "Cliquez sur la carte pour placer les points du trajet. Double-cliquez pour terminer.": "Cliquez sur la carte pour placer les points du trajet. Double-cliquez pour terminer.",
+  "Déplacez un point du trajet ou ajoutez un sommet en faisant glisser le segment.": "Déplacez un point du trajet ou ajoutez un sommet en faisant glisser le segment.",
+  "Dessin du trajet": "Dessin du trajet",
+  "Modification du trajet": "Modification du trajet"
 }

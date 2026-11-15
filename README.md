@@ -537,10 +537,14 @@ Translations live in `apps/web/src/locales/fr.json` and `apps/web/src/locales/en
 
 ## Hypothetical mission route (#12)
 
-In the Jezero sector panel, select an outbound leg or **Return to camp**.
+In **Mission → Prepare → Camp and route**, the **Route drawing** section sits
+beside the itinerary. Select a leg by its departure and arrival, including the
+return to camp.
 **Draw** records intermediate points (double-click to finish); **Modify** lets
 you drag or insert vertices. Camp and visit endpoints remain fixed. Escape or
-Cancel discards the current gesture. The return leg is stored separately and
+Cancel discards the current gesture. While editing, a banner on the map repeats
+the selected leg and the gesture instructions, with a cancel action. Leaving the
+route preparation step cancels the editing interaction. The return leg is stored separately and
 included once in the geometry and distance calculations. Routes are hypothetical,
 not computed safe paths. Outside-sector vertices produce a coverage warning;
 missing terrain samples remain explicit gaps in the profile.
@@ -553,7 +557,7 @@ saves continue to use direct segments. Tracking is read-only. The terrain profil
 now samples the current mission rather than a separate demonstration route.
 
 For a demonstration, choose a simulated camp in the mission wizard, then use
-**Demo: visit the three sites** in the sector panel while the itinerary is empty.
+**Demo: visit the three sites** in the route section while the itinerary is empty.
 The three catalogue sites are visited in catalogue order, followed by return to
 the selected camp. Edit each connecting leg as desired; this scenario makes no
 claim of traversability. Drawing and dragging still require manual browser and

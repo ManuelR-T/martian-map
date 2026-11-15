@@ -920,5 +920,15 @@
   "Déplacer un point ou insérer un sommet sur le segment.": "Move a point or insert a vertex on the leg.",
   "Démonstration : visiter les trois sites": "Demo: visit the three sites",
   "Parcours hypothétique de la mission, retour au camp inclus": "Hypothetical mission route, including return to camp",
-  "Camp et étapes : simulation. Parcours hypothétique, retour inclus, sans validation du terrain.": "Camp and stops: simulation. Hypothetical route, including return, without terrain validation."
+  "Camp et étapes : simulation. Parcours hypothétique, retour inclus, sans validation du terrain.": "Camp and stops: simulation. Hypothetical route, including return, without terrain validation.",
+  "Tracé du parcours": "Route drawing",
+  "Choisissez un camp et ajoutez une étape pour dessiner votre parcours sur la carte.": "Choose a camp and add a stop to draw your route on the map.",
+  "Trajet à dessiner": "Leg to draw",
+  "Dessiner sur la carte": "Draw on the map",
+  "Ajuster le trajet": "Adjust the leg",
+  "Rétablir les segments directs": "Reset to direct segments",
+  "Cliquez sur la carte pour placer les points du trajet. Double-cliquez pour terminer.": "Click the map to place route points. Double-click to finish.",
+  "Déplacez un point du trajet ou ajoutez un sommet en faisant glisser le segment.": "Move a route point or add a vertex by dragging the leg.",
+  "Dessin du trajet": "Drawing the leg",
+  "Modification du trajet": "Adjusting the leg"
 }

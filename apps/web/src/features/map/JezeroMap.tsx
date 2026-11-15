@@ -42,6 +42,7 @@ import { useGeologyLayer } from './useGeologyLayer';
 const messages = new Proxy(jezeroMessages.fr, { get: (target, key: string) => localize(target[key as keyof typeof target]) });
 
 interface Props {
+  routePanelHost?: HTMLElement | null;
   annotationsEnabled?: boolean;
   onAnnotationsToggle?: () => void;
   panelHost: HTMLElement | null;
@@ -60,7 +61,7 @@ interface Props {
   overlay?: (map: Map | null) => ReactNode;
 }
 const bounds = (extent: Extent) => [extent.west, extent.south, extent.east, extent.north];
-export function JezeroMap({ annotationsEnabled = false, onAnnotationsToggle = () => {}, panelHost, dataset, sector, radius, sites, selected, onSelect, datasets, roverEnabled, onRoverToggle, overlay, themisDataset, geologyDataset }: Props) {
+export function JezeroMap({ routePanelHost = null, annotationsEnabled = false, onAnnotationsToggle = () => {}, panelHost, dataset, sector, radius, sites, selected, onSelect, datasets, roverEnabled, onRoverToggle, overlay, themisDataset, geologyDataset }: Props) {
   const planner = usePlannerState();
   const mission = selectCurrentMission(planner);
   const [annotationHits, setAnnotationHits] = useState<readonly string[] | null>(null);
@@ -213,6 +214,7 @@ export function JezeroMap({ annotationsEnabled = false, onAnnotationsToggle = ()
         {failed && <Button size="sm" variant="outline" onClick={() => { setFailed(false); mapRef.current?.getLayers().forEach(layer => { if (layer instanceof TileLayer) layer.getSource()?.refresh(); }); }}>{localize(messages.retry)}</Button>}
       </div>}
     </div>
+    {planner.workspace === 'base' && routePanelHost && <MissionRouteEditor host={routePanelHost} map={overlayMap} sector={sector} />}
     <MapPanelDock host={panelHost}>
     <Panel title={localize(messages.panelTitle)} floating className="jezero-status text-sm" contentClassName="overflow-y-auto">
       <p role="status">{localize(outside ? messages.outside : messages.sector)} {localize(offline ? messages.offline : messages.online)} {localize(failed && messages.failure)}</p>
@@ -220,7 +222,6 @@ export function JezeroMap({ annotationsEnabled = false, onAnnotationsToggle = ()
       <Button size="sm" onClick={() => mapRef.current?.getView().fit(bounds(sector), { size: mapRef.current.getSize(), padding: [90, 40, 160, 40] })}>{localize(messages.return)}</Button>
       {failed && <Button size="sm" variant="outline" onClick={() => { setFailed(false); mapRef.current?.getLayers().forEach(layer => { if (layer instanceof TileLayer) layer.getSource()?.refresh(); }); }}>{localize(messages.retry)}</Button>}
 
-      <MissionRouteEditor map={overlayMap} sector={sector} />
       {/* One list, one control: every layer is shown or hidden with the same switch. */}
       <div className="mt-2 border-t pt-2" role="group" aria-label={localize(messages.layersTitle)}>
         <p className="text-xs font-semibold">{localize(messages.layersTitle)}</p>
