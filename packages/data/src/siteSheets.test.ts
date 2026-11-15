@@ -29,7 +29,7 @@ describe('site sheets', () => {
 
   it('never presents organic molecules as proof of life', () => {
     for (const sheet of siteSheets) {
-      const text = [sheet.objective, sheet.roverWork.text, sheet.photo.caption, ...sheet.tasks.map((task) => task.label)]
+      const text = [sheet.question, sheet.objective, sheet.roverWork.text, sheet.photo.caption, ...sheet.tasks.map((task) => task.label)]
         .join(' ')
         .toLowerCase();
       expect(text).not.toMatch(/preuve|prouv|démontr|confirm|certain|\bvie\b/);

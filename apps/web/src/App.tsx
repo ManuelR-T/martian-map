@@ -8,6 +8,8 @@ import { OfflineStatus } from './offline/OfflineStatus';
 import './responsive.css';
 import { usePlannerDispatch, usePlannerState } from './state/PlannerProvider';
 import { StepsPanel } from './panels/StepsPanel';
+import { ProfilePanel } from './terrain/ProfilePanel';
+import { RouteProfileProvider } from './terrain/RouteProfileProvider';
 
 const DesignSystemPage = lazy(() => import('./design-system/DesignSystemPage'));
 
@@ -98,6 +100,8 @@ export function App() {
           </Suspense>
         </main>
       ) : (
+        // Profile and map share one relief load, the threshold and the point touched on the profile.
+        <RouteProfileProvider>
         <main
           id={CONTENT_ID}
           tabIndex={-1}
@@ -109,6 +113,7 @@ export function App() {
             #7 et #8 passeront ici la carte OpenLayers de la vue active.
           */}
           <MapStage map={<PlannerMap panelHost={mapPanelHost} />} className="planner-map-stage relative flex h-[62dvh] min-h-[24rem] flex-col items-center justify-between gap-3 p-3 xl:pointer-events-none xl:static xl:col-start-2 xl:row-start-1 xl:h-auto xl:min-h-0 xl:p-0" />
+          <ProfilePanel className={`planner-profile ${floatingPanel} relative z-10 shrink-0 max-xl:mx-2 max-xl:mb-2 xl:col-start-2 xl:row-start-1 xl:mb-14 xl:self-end`} />
           <div className="mission-panels relative z-10 flex min-h-0 flex-col gap-3 max-xl:px-3 xl:pointer-events-none xl:col-start-1 xl:row-start-1 xl:overflow-y-auto">
             <StepsPanel className={`${floatingPanel} mission-steps shrink-0`} />
             <div ref={setMapPanelHost} className="map-panel-dock pointer-events-auto shrink-0 empty:hidden" />
@@ -126,6 +131,7 @@ export function App() {
             <SiteDetailsPanel className={`${floatingPanel} [--power-delay:360ms]`} />
           </div>
         </main>
+        </RouteProfileProvider>
       )}
     </div>
   );

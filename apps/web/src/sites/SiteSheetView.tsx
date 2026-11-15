@@ -54,22 +54,26 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange, tra
   const photoUrl = `${import.meta.env.BASE_URL}${sheet.photo.path}`;
 
   return (
-    <div className="grid gap-1.5">
+    <div className="grid gap-1">
       <div className="flex gap-3">
         <button
           type="button"
           onClick={() => dialogRef.current?.showModal()}
-          className="relative w-28 shrink-0 border"
+          className="relative w-24 shrink-0 border"
           aria-label={`Agrandir la photo à repérer : ${sheet.photo.caption}`}
         >
           <img src={photoUrl} alt="" width={sheet.photo.width} height={sheet.photo.height} className="block h-auto w-full" />
           <Maximize2 aria-hidden="true" className="absolute right-1 bottom-1 size-5 bg-card/90 p-0.5" />
         </button>
         <div className="grid min-w-0 content-start gap-0.5">
-          <p className="label-caps text-muted-foreground">Objectif</p>
+          <p className="label-caps text-muted-foreground">À rapporter</p>
           <p className="text-sm leading-snug">{sheet.objective}</p>
         </div>
       </div>
+      <p className="text-xs text-muted-foreground">
+        <span className="font-semibold text-foreground">Pourquoi : </span>
+        {sheet.question}
+      </p>
       <p className="text-xs text-muted-foreground">
         <span className="font-semibold text-foreground">Déjà fait par le rover : </span>
         {sheet.roverWork.text}

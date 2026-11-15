@@ -33,4 +33,6 @@ export * from './coverage';
 export * from './siteSheets';
 export * from './terrain';
 export * from './rover';
+export * from './profileSampler';
+
 export * from './camps';

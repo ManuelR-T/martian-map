@@ -20,8 +20,9 @@ export function SiteDetailsPanel({ className }: { className?: string }) {
     <Panel
       title="Fiche de site"
       collapsible
+      floating
       className={className}
-      contentClassName="overflow-y-auto p-3"
+      contentClassName="overflow-y-auto px-3 py-2"
     >
       <PlanningGate loadingTitle="Chargement des fiches" coverageTitle="Pas de fiche hors du secteur détaillé">
         <div className="grid gap-1.5">
