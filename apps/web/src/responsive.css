@@ -9,6 +9,7 @@
   .planner-map-stage { position: relative; display: flex; flex: 1; width: 100%; height: auto; min-height: 0; padding: .5rem; pointer-events: auto; }
   [data-mobile-page=map] .mission-panels { display: none; }
   [data-mobile-page=mission] .planner-map-stage { display: none; }
+  [data-mobile-page=mission] .planner-profile { display: none; }
   .mission-panels { flex-shrink: 0; max-height: none; overflow: visible; padding: .5rem; pointer-events: auto; }
   .mission-panels [data-slot=panel] > header button { min-height: 44px; }
   .mission-panels button, .compact-settings a { min-height: 44px; }

@@ -61,6 +61,20 @@ const textPairs: readonly (readonly [string, string])[] = [
   ['muted-foreground', 'mars-surface'],
 ];
 
+/** Texte principal : WCAG AAA (7:1), pour rester lisible derrière une visière ou sur un écran délavé. */
+const primaryTextPairs: readonly (readonly [string, string])[] = [
+  ['foreground', 'background'],
+  ['foreground', 'card'],
+  ['foreground', 'muted'],
+  ['card-foreground', 'card'],
+  ['accent-foreground', 'accent'],
+  ['primary-foreground', 'primary'],
+  ['header-foreground', 'header'],
+  ['danger', 'danger-surface'],
+  ['warning', 'warning-surface'],
+  ['success', 'success-surface'],
+];
+
 /** Bordures de contrôles, focus et signaux graphiques : WCAG 1.4.11 (3:1). */
 const graphicPairs: readonly (readonly [string, string])[] = [
   ['input', 'card'],
@@ -102,6 +116,10 @@ describe.each([
 
   it.each(textPairs)('%s sur %s reste lisible (≥ 4,5:1)', (foreground, background) => {
     expect(ratio(foreground, background)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it.each(primaryTextPairs)('%s sur %s dépasse le contraste renforcé (≥ 7:1)', (foreground, background) => {
+    expect(ratio(foreground, background)).toBeGreaterThanOrEqual(7);
   });
 
   it.each(graphicPairs)('%s sur %s reste perceptible (≥ 3:1)', (foreground, background) => {
