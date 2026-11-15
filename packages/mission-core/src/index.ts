@@ -31,3 +31,4 @@ export type {
   SlopeSegment,
   SteepPortion,
 } from './terrain';
+export { marsSolarTime } from './marsTime';

@@ -27,5 +27,5 @@ export function PlannerMap({ panelHost, onSiteSelected }: { panelHost: HTMLEleme
   // The night infrared layer exists only on the detailed map, never on the global one.
   const themis = findThemisNightDataset({ regions: state.catalog.data.coverage ?? [], datasets: state.catalog.data.datasets }, dataset.regionId);
   if (!global && sector && state.catalog.data.planet) return <JezeroMap panelHost={panelHost} roverEnabled={roverEnabled} onRoverToggle={() => setRoverEnabled(value => !value)} datasets={state.catalog.data.datasets} dataset={dataset} sector={sector} radius={state.catalog.data.planet.radiusMeters} sites={state.catalog.data.sites} selected={state.selectedSiteId} onSelect={selectSite} overlay={terrainOverlay} themisDataset={themis} />;
-  return <GlobalMarsMap key={dataset.id} dataset={dataset} global={global} onSelectRegion={openRegion} />;
+  return <GlobalMarsMap panelHost={panelHost} key={dataset.id} dataset={dataset} global={global} onSelectRegion={openRegion} />;
 }

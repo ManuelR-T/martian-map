@@ -471,3 +471,30 @@ identifié de catalogue NASA de camps humains martiens enregistrés. Le rapport
 étudie un scénario à Jezero sans valider ces camps. Les
 [données Perseverance](https://science.nasa.gov/mission/mars-2020-perseverance/)
 concernent l’exploration robotique réelle et restent séparées des simulations.
+
+## Atlas mondial de Mars
+
+Dans la vue **Mars entière → Calques**, l’atlas ajoute un fond couleur HRSC,
+la géologie USGS et l’inertie thermique TES. Cliquez sur Mars, ou déplacez la
+carte au clavier puis choisissez **Lire au centre de la carte**, pour lire
+les coordonnées, l’unité géologique si la couche est activée, l’heure solaire
+moyenne/vraie et la saison `Ls`. La date UTC est réglable (2000–2026, plage de
+conversion temporelle vérifiée). Ces calculs sont indépendants du suivi de
+mission et des heures des mesures MEDA.
+
+Le fond couleur livré est l’aperçu HRSC à environ **16,7 km/pixel**, distinct du
+produit original à 2 km/pixel. Les 1 311 polygones de SIM 3292 proviennent de la
+copie Esri StoryMaps, simplifiée à 0,08° ; leurs descriptions restent en anglais.
+TES est une couche qualitative à 8 pixels/degré, limitée à 60°S–60°N : aucune
+valeur de température ni d’inertie n’est déduite de ses couleurs au clic.
+Le repère Jezero reste accessible au-dessus des couches.
+
+Les fichiers sont figés séparément dans `apps/web/public/atlas` (~7,2 Mo), avec
+leur propre manifeste (sources, transformations, empreintes), pour que
+`data:prepare` ne les supprime pas. Le build et l’installation hors ligne les
+incluent automatiquement. Les sources sont également consultables sur la page
+**Sources**. La Mars Climate Database est proposée par lien vers son interface
+externe ; aucun champ climatique MCD n’est intégré. La planification détaillée
+reste limitée à Jezero.
+
+Préparation et limites d’acquisition : [note de l’atlas](docs/atlas-mondial.md).

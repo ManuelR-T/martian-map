@@ -69,7 +69,7 @@ export function App() {
   const showsPage = showsDesignSystem || showsSources;
   const global = view === 'global';
   // Les volets masqués en vue globale ne comptent pas.
-  const visible = (key: DrawerKey) => key === 'steps' || !global;
+  const visible = (key: DrawerKey) => key === 'steps' || key === 'layers' || !global;
   const railState = (side: 'left' | 'right') => {
     const keys = drawerKeys.filter((key) => drawerSides[key] === side && visible(key));
     const opened = keys.filter((key) => openDrawers[key]).length;
@@ -154,13 +154,15 @@ export function App() {
               <MapDrawer label={workspace === 'base' ? 'Mission' : 'Suivi de mission'} shortLabel={workspace === 'base' ? 'Mission' : 'Suivi'} icon={Route} {...drawer('steps')}>
                 <StepsPanel className={floatingPanel} collapsible={false} />
               </MapDrawer>
-              <div hidden={global} className="map-drawer-group">
+              <div className="map-drawer-group">
                 <MapDrawer label="Calques" shortLabel="Calques" icon={Layers} {...drawer('layers')}>
                   <div ref={setMapPanelHost} className="map-panel-dock" />
                 </MapDrawer>
-                <MapDrawer label="Profil du parcours" shortLabel="Profil" icon={ChartNoAxesCombined} {...drawer('profile')}>
-                  <ProfilePanel className={floatingPanel} collapsible={false} />
-                </MapDrawer>
+                <div hidden={global}>
+                  <MapDrawer label="Profil du parcours" shortLabel="Profil" icon={ChartNoAxesCombined} {...drawer('profile')}>
+                    <ProfilePanel className={floatingPanel} collapsible={false} />
+                  </MapDrawer>
+                </div>
               </div>
             </div>
             <div className="map-drawer-rail map-drawer-rail-right" hidden={global} {...railState('right')}>
