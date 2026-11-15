@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { Button, Panel } from '@marps/ui';
+import { Button, Panel, SegmentedControl } from '@marps/ui';
 import { createEmptyMission, missionTypes, validParameters, type MissionType, type ActivityType, type Camp, type Mission, type MissionActivity, type MissionStep } from '@marps/mission-core';
 import { usePlannerDispatch, usePlannerState } from '../state/PlannerProvider';
 import { MissionDatabase, type MissionHistoryEntry } from '../storage/missionDatabase';
 import { missionMatchesCatalog } from '../state/planner';
 import { PlanningGate } from './PlanningGate';
-import { ActionPanels } from './ActionPanels';
+import { CampsManager } from './CampsPanel';
 import { MissionStepsEditor } from './MissionStepsEditor';
 import { baseField as field, baseRecordsChanged } from './baseControls';
 
@@ -14,7 +14,8 @@ const form = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); re
 const text = (data: FormData, key: string) => String(data.get(key) ?? '');
 const number = (data: FormData, key: string) => Number(data.get(key));
 const uid = () => crypto.randomUUID();
-type Action = 'new' | 'template' | 'saved' | 'templates' | 'history';
+type Action = 'new' | 'template';
+type Tab = 'prepare' | 'camps' | 'saved';
 
 export function MissionEditor({ className }: { className?: string }) {
   const { mission, catalog, runningMission, trackingReady, trackingError } = usePlannerState();
@@ -25,6 +26,7 @@ export function MissionEditor({ className }: { className?: string }) {
   const [templates, setTemplates] = useState<Mission[]>([]);
   const [history, setHistory] = useState<MissionHistoryEntry[]>([]);
   const [action, setAction] = useState<Action>('new');
+  const [tab, setTab] = useState<Tab>('prepare');
   const [stage, setStage] = useState(1);
   const [status, setStatus] = useState('');
   const [busy, setBusy] = useState(false);
@@ -48,21 +50,20 @@ export function MissionEditor({ className }: { className?: string }) {
     try { await operation(); } catch (error) { setStatus(error instanceof Error ? error.message : 'Échec de la sauvegarde locale.'); }
     finally { setBusy(false); }
   };
-  const editing = action === 'new' || action === 'template';
-  const canLeave = () => !editing || (!parametersDirty && JSON.stringify(mission) === JSON.stringify(baseline) && name === baseline.name)
+  const canLeave = () => (!parametersDirty && JSON.stringify(mission) === JSON.stringify(baseline) && name === baseline.name)
     || window.confirm('Abandonner les modifications non enregistrées ?');
   const open = (value: Mission, next: 'new' | 'template') => {
     if (!missionMatchesCatalog(value, catalog)) { setStatus('Cette préparation contient un camp ou un parcours hors du secteur Jezero, ou un site incompatible avec le catalogue.'); return; }
     dispatch({ type: 'missionOpened', mission: value }); setName(value.name); setBaseline(value);
     setParameterDraft({ available: String(value.parameters.availableSeconds / 60), speed: String(value.parameters.speedMetresPerSecond), reserve: String(value.parameters.reserveSeconds / 60) });
-    setAction(next); setStage(1); setParametersDirty(false); setPersisted(null); setStatus('');
+    setAction(next); setStage(1); setParametersDirty(false); setPersisted(null); setStatus(''); setTab('prepare');
   };
-  const changeAction = (next: Action) => {
-    if (next === action || !canLeave()) return;
-    setStatus(''); setPersisted(null);
-    if (next === 'new' || next === 'template') open(createEmptyMission(mission.regionId, uid()), next);
-    else { setAction(next); void run(refresh); }
-  };
+  // A fresh draft replaces the open one, so it asks first when the open one has unsaved changes.
+  const openBlank = (next: Action) => { if (canLeave()) open(createEmptyMission(mission.regionId, uid()), next); };
+  const openFrom = (value: Mission, next: Action) => { if (canLeave()) open(value, next); };
+  const fromTemplate = (value: Mission): Mission => ({ ...value, id: uid(), siteWork: {}, steps: value.steps.map(s => ({ ...s, activities: s.activities.map(a => ({ ...a, completed: false })) })) });
+  // No tab change during a save or a delete: overlapping runs would re-enable buttons mid-save.
+  const changeTab = (next: Tab) => { if (busy) return; setTab(next); setStatus(''); if (next === 'saved') void run(refresh); };
   const sites = catalog.status === 'ready' ? catalog.data.sites.filter(s => s.regionId === mission.regionId) : [];
   const extent = catalog.status === 'ready' ? catalog.data.coverage?.find(r => r.id === mission.regionId)?.extent : undefined;
   const suggestedActivities = (): MissionActivity[] => [{ id: uid(), type: mission.missionType === 'sampling' ? 'sampling' : mission.missionType === 'photography' ? 'photo' : 'observation', durationMinutes: 10, completed: false }];
@@ -72,44 +73,65 @@ export function MissionEditor({ className }: { className?: string }) {
   };
   const startSaved = (value: Mission) => {
     if (!missionMatchesCatalog(value, catalog)) { setStatus('Cette préparation contient un camp ou un parcours hors du secteur Jezero, ou un site incompatible avec le catalogue.'); return; }
+    if (!canLeave()) return;
     if (runningMission && !window.confirm('Remplacer le suivi précédent par cette nouvelle sortie ? Son historique sera conservé.')) return;
+    // Open it in the editor too: « Préparer » stays one click away and must show this mission, never a mix with the old draft.
+    open(value, 'new');
     dispatch({ type: 'savedMissionStarted', mission: value, id: uid() });
   };
   const content = (
     <div className="grid gap-3 text-sm">
     <p role="status">{status}</p>
     {trackingError && <div role="alert"><p>{trackingError}</p><Button variant="outline" onClick={() => dispatch({ type: 'trackingRequested' })}>Réessayer le chargement du suivi</Button></div>}
-    {(action === 'saved' || action === 'templates') && <div className="grid gap-2">
-      {(action === 'saved' ? saved : templates).length === 0 && <p>{action === 'saved' ? 'Aucune mission enregistrée.' : 'Aucun modèle enregistré.'}</p>}
-      {(action === 'saved' ? saved : templates).map(value => <div key={value.id} className="grid gap-2 border p-3">
-        <p className="font-semibold">{value.name}</p><p>{value.steps.length} étapes · {value.camp?.name ?? 'Camp à choisir'}</p>
-        {action === 'templates' && <Button disabled={busy} onClick={() => open({ ...value, id: uid(), siteWork: {}, steps: value.steps.map(s => ({ ...s, activities: s.activities.map(a => ({ ...a, completed: false })) })) }, 'new')}>Créer une mission avec ce modèle</Button>}
-        {action === 'saved' && <Button disabled={busy || !trackingReady || !value.camp || !value.steps.length} onClick={() => startSaved(value)}>Démarrer cette mission</Button>}
-        <Button variant="outline" disabled={busy} onClick={() => open(value, action === 'templates' ? 'template' : 'new')}>Modifier {action === 'templates' ? 'le modèle' : 'la mission'}</Button>
-        <Button variant="outline" disabled={busy} onClick={() => {
-          if (!window.confirm(`Supprimer « ${value.name} » ? L’historique des sorties sera conservé.`)) return;
-          void run(async () => { if (action === 'templates') await database.deleteTemplate(value.id); else await database.deleteMission(value.id); await refresh(); setStatus('Suppression effectuée.'); });
-        }}>Supprimer</Button>
-      </div>)}
+    {tab === 'saved' && <div className="grid gap-4">
+      <section className="grid gap-2" aria-label="Missions">
+        <h3 className="label-caps">Missions</h3>
+        {saved.length === 0 && <p>Aucune mission enregistrée.</p>}
+        {saved.map(value => <div key={value.id} className="grid gap-2 border p-3">
+          <p className="font-semibold">{value.name}</p><p>{value.steps.length} étapes · {value.camp?.name ?? 'Camp à choisir'}</p>
+          <Button disabled={busy || !trackingReady || !value.camp || !value.steps.length} onClick={() => startSaved(value)}>Démarrer cette mission</Button>
+          <Button variant="outline" disabled={busy} onClick={() => openFrom(value, 'new')}>Modifier la mission</Button>
+          <Button variant="outline" disabled={busy} onClick={() => {
+            if (!window.confirm(`Supprimer « ${value.name} » ? L’historique des sorties sera conservé.`)) return;
+            void run(async () => { await database.deleteMission(value.id); await refresh(); setStatus('Suppression effectuée.'); });
+          }}>Supprimer</Button>
+        </div>)}
+      </section>
+      <section className="grid gap-2" aria-label="Modèles">
+        <h3 className="label-caps">Modèles</h3>
+        <Button className="justify-self-start" variant="outline" disabled={busy} onClick={() => openBlank('template')}>Nouveau modèle</Button>
+        {templates.length === 0 && <p>Aucun modèle enregistré.</p>}
+        {templates.map(value => <div key={value.id} className="grid gap-2 border p-3">
+          <p className="font-semibold">{value.name}</p><p>{value.steps.length} étapes · {value.camp?.name ?? 'Camp à choisir'}</p>
+          <Button disabled={busy} onClick={() => openFrom(fromTemplate(value), 'new')}>Créer une mission avec ce modèle</Button>
+          <Button variant="outline" disabled={busy} onClick={() => openFrom(value, 'template')}>Modifier le modèle</Button>
+          <Button variant="outline" disabled={busy} onClick={() => {
+            if (!window.confirm(`Supprimer « ${value.name} » ? L’historique des sorties sera conservé.`)) return;
+            void run(async () => { await database.deleteTemplate(value.id); await refresh(); setStatus('Suppression effectuée.'); });
+          }}>Supprimer</Button>
+        </div>)}
+      </section>
+      <section className="grid gap-2" aria-label="Historique">
+        <h3 className="label-caps">Historique</h3>
+        {history.length === 0 && <p>Aucune sortie dans l’historique.</p>}
+        {history.map(entry => <details key={entry.id} className="border p-3">
+          <summary className="cursor-pointer py-2 font-semibold">{entry.mission.name} · {entry.id === runningMission?.id ? 'Suivi actuel' : 'Sortie précédente'}</summary>
+          <p>Dernier suivi enregistré : {new Date(entry.updatedAt).toLocaleString('fr-FR')}</p>
+          <p>{entry.mission.camp?.name} · {entry.mission.steps.length} étapes</p>
+          <ol className="list-inside list-decimal">{entry.mission.steps.map(s => <li key={s.id}>{s.name} · {s.activities.filter(a => a.completed).length}/{s.activities.length} activités faites</li>)}</ol>
+          {entry.id === runningMission?.id && <Button className="mt-2" onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'mission' })}>Reprendre le suivi</Button>}
+        </details>)}
+      </section>
     </div>}
-    {action === 'history' && <div className="grid gap-2">
-      {history.length === 0 && <p>Aucune sortie dans l’historique. Les missions démarrées y seront conservées automatiquement.</p>}
-      {history.map(entry => <details key={entry.id} className="border p-3">
-        <summary className="cursor-pointer py-2 font-semibold">{entry.mission.name} · {entry.id === runningMission?.id ? 'Suivi actuel' : 'Sortie précédente'}</summary>
-        <p>Dernier suivi enregistré : {new Date(entry.updatedAt).toLocaleString('fr-FR')}</p>
-        <p>{entry.mission.camp?.name} · {entry.mission.steps.length} étapes</p>
-        <ol className="list-inside list-decimal">{entry.mission.steps.map(s => <li key={s.id}>{s.name} · {s.activities.filter(a => a.completed).length}/{s.activities.length} activités faites</li>)}</ol>
-        {entry.id === runningMission?.id && <Button className="mt-2" onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'mission' })}>Reprendre le suivi</Button>}
-      </details>)}
-    </div>}
-    {editing && <fieldset disabled={busy} className="grid min-w-0 gap-3">
+    {tab === 'prepare' && <fieldset disabled={busy} className="grid min-w-0 gap-3">
       <p className="font-semibold">{action === 'template' ? 'Modèle réutilisable' : 'Nouvelle mission'} · Étape {stage} sur 3</p>
+      {action === 'template' && <Button className="justify-self-start" variant="outline" onClick={() => openBlank('new')}>Préparer une mission à la place</Button>}
       <ol className="grid gap-1 border-l-2 border-mars pl-3 text-xs" aria-label="Progression de la préparation">
         {['Objectif et nom', 'Camp et parcours', 'Vérification et enregistrement'].map((label, i) => <li key={label} aria-current={stage === i + 1 ? 'step' : undefined} className={stage === i + 1 ? 'font-semibold' : 'text-muted-foreground'}>{i + 1}. {label}</li>)}
       </ol>
       {stage === 1 && <form className="grid gap-3" onSubmit={event => { event.preventDefault(); if (!name.trim()) return; dispatch({ type: 'missionRenamed', name: name.trim() }); setStage(2); }}>
         {action === 'new' && templates.length > 0 && <label>Partir d’un modèle (facultatif)<select className={field} value="" onChange={event => {
-          const value = templates.find(t => t.id === event.target.value); if (value) open({ ...value, id: uid(), siteWork: {}, steps: value.steps.map(s => ({ ...s, activities: s.activities.map(a => ({ ...a, completed: false })) })) }, 'new');
+          const value = templates.find(t => t.id === event.target.value); if (value) openFrom(fromTemplate(value), 'new');
         }}><option value="">Choisir un modèle…</option>{templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>}
         <label>Quel est l’objectif ?<select className={field} value={mission.missionType ?? 'reconnaissance'} onChange={event => {
           const type = event.target.value as MissionType;
@@ -123,7 +145,8 @@ export function MissionEditor({ className }: { className?: string }) {
         <label>Camp de départ et de retour{action === 'template' && ' (facultatif)'}<select className={field} value={mission.camp?.id ?? ''} onChange={event => {
           const camp = camps.find(c => c.id === event.target.value); if (camp) dispatch({ type: 'campPlaced', camp }); else dispatch({ type: 'campCleared' });
         }}><option value="">Choisir un camp enregistré…</option>{mission.camp && !camps.some(c => c.id === mission.camp?.id) && <option value={mission.camp.id}>{mission.camp.name} (copie enregistrée)</option>}{camps.filter(c => c.regionId === mission.regionId).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
-        {camps.length === 0 && <p>Enregistrez d’abord un camp dans l’encadré Camps, puis revenez ici.</p>}
+        {camps.length === 0 && <p>Aucun camp enregistré.</p>}
+        <Button className="justify-self-start" variant="outline" onClick={() => changeTab('camps')}>Créer un camp</Button>
         <label>Ajouter une étape du catalogue<select className={field} value="" onChange={event => {
           const site = sites.find(s => s.id === event.target.value); if (site) dispatch({ type: 'stepAdded', step: { id: uid(), name: site.name, position: site.coordinate, siteId: site.id, activities: suggestedActivities() } });
         }}><option value="">Choisir un site…</option>{sites.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
@@ -159,30 +182,26 @@ export function MissionEditor({ className }: { className?: string }) {
         <Button type="submit">{action === 'template' ? 'Enregistrer le modèle' : 'Enregistrer la mission'}</Button>
       </form>}
       {stage > 1 && <Button variant="outline" onClick={() => { setStage(stage - 1); setPersisted(null); }}>Retour à l’étape précédente</Button>}
-      {persisted && !parametersDirty && <Button variant="outline" onClick={() => { if (canLeave()) open(createEmptyMission(mission.regionId, uid()), action === 'template' ? 'template' : 'new'); }}>{action === 'template' ? 'Créer un autre modèle' : 'Préparer une autre mission'}</Button>}
+      {persisted && !parametersDirty && <Button variant="outline" onClick={() => openBlank(action)}>{action === 'template' ? 'Créer un autre modèle' : 'Préparer une autre mission'}</Button>}
       {persisted && JSON.stringify(persisted) === JSON.stringify(mission) && !parametersDirty && action === 'new' && <Button disabled={!trackingReady} onClick={start}>Démarrer cette mission</Button>}
     </fieldset>}
+    {/* Kept mounted, so a camp being typed survives a tab change. */}
+    <div hidden={tab !== 'camps'}><CampsManager /></div>
     </div>
   );
-  return <>
-    <Panel title="Préparation de mission" description="Créer, préparer ou retrouver une mission" collapsible className={className} contentClassName="overflow-y-auto p-0">
-      <PlanningGate loadingTitle="Chargement des missions" coverageTitle="Ouvrez Jezero pour préparer une mission" offerRegion>
-        <ActionPanels<Action> label="Actions de préparation de mission" value={action} disabled={busy} onChange={changeAction} options={[
-          { value: 'new', label: 'Nouvelle mission' },
+  return <Panel title="Mission" description="Préparer et retrouver vos sorties" collapsible className={className} contentClassName="overflow-y-auto">
+    <PlanningGate loadingTitle="Chargement des missions" coverageTitle="Ouvrez Jezero pour préparer une mission" offerRegion>
+      <div className="grid min-w-0 grid-cols-1 gap-3">
+        {/* The 19rem column fits three tabs only if they share its width and wrap on two lines. The check mark is hidden: it made the active tab overflow; the fill marks it. */}
+        <SegmentedControl<Tab> className="w-full [&>button]:flex-auto [&>button]:min-w-min [&>button]:px-1 [&>button]:tracking-normal [&>button]:text-[0.7rem] [&>button]:h-auto [&>button]:min-h-10 [&>button]:py-1 [&>button]:whitespace-normal [&>button]:leading-tight [&_svg]:hidden" label="Sections de la mission" value={tab} onValueChange={changeTab} options={[
+          { value: 'prepare', label: 'Nouvelle mission' },
+          { value: 'camps', label: 'Camps' },
           { value: 'saved', label: 'Missions enregistrées' },
-          { value: 'history', label: 'Historique' },
-        ]}>{content}</ActionPanels>
-      </PlanningGate>
-    </Panel>
-    <Panel title="Modèles de mission" description="Préparations réutilisables pour vos sorties" collapsible className={className} contentClassName="overflow-y-auto p-0">
-      <PlanningGate loadingTitle="Chargement des modèles" coverageTitle="Ouvrez Jezero pour préparer un modèle">
-        <ActionPanels<Action> label="Actions sur les modèles de mission" value={action} disabled={busy} onChange={changeAction} options={[
-          { value: 'template', label: 'Nouveau modèle' },
-          { value: 'templates', label: 'Modèles enregistrés' },
-        ]}>{content}</ActionPanels>
-      </PlanningGate>
-    </Panel>
-  </>;
+        ]} />
+        {content}
+      </div>
+    </PlanningGate>
+  </Panel>;
 }
 export function ActivityEditor({ step }: { step: MissionStep }) {
   const dispatch = usePlannerDispatch();

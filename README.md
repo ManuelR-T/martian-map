@@ -356,11 +356,11 @@ la carte et les composants Panel, Button et StepList sont conservés.
 
 ### À la base : missions, modèles et camps
 
-**Préparation de mission** propose des panneaux repliables internes pour créer
-une mission, ouvrir une mission enregistrée ou consulter l’historique.
-**Modèles de mission** est un panneau repliable distinct, au même niveau que
-Préparation de mission et Camps. Il regroupe Nouveau modèle et Modèles
-enregistrés. Une nouvelle mission peut toujours partir d’un modèle existant.
+Un seul panneau **Mission** a trois onglets : **Préparer** (l’assistant, pour
+une mission ou un modèle), **Camps** (le catalogue des camps) et **Missions**
+(missions enregistrées, modèles et historique). Une mission enregistrée se
+démarre directement depuis l’onglet Missions. Une nouvelle mission peut
+toujours partir d’un modèle existant.
 La création suit trois étapes :
 
 1. Objectif et nom : choisir reconnaissance, observation, photographie ou
@@ -373,11 +373,10 @@ La création suit trois étapes :
 3. Vérification : consulter le récapitulatif, régler durée disponible, vitesse et
    réserve, puis enregistrer. Le démarrage est proposé après enregistrement.
 
-**Camps** possède ses propres panneaux repliables : rechercher parmi les camps
-existants ou enregistrer un nouveau camp. Les résultats donnent accès aux
-modifications et à la suppression. Enregistrer un camp ne sélectionne ni ne
-modifie le camp d’une mission en préparation. La mission ne propose aucun
-formulaire de création de camp. Les missions conservent une copie du camp choisi,
+L’onglet **Camps** permet de rechercher parmi les camps existants ou d’en
+enregistrer un nouveau, puis de les modifier ou de les supprimer. À l’étape 2,
+le bouton « Créer un camp » ouvre cet onglet. Enregistrer un camp ne sélectionne
+ni ne modifie le camp d’une mission en préparation. Les missions conservent une copie du camp choisi,
 y compris si le catalogue est modifié par la suite.
 
 Les actions destructrices demandent confirmation. Un message signale les erreurs

@@ -41,6 +41,14 @@ export function PlannerProvider({ children, load = loadCatalog }: PlannerProvide
     });
     return () => { active = false; };
   }, [database, state.runningMission]);
+  // A walk that ends (running mission back to null) leaves the saved tracking; replacing it by another walk does not.
+  const previousRunning = useRef<Mission | null>(null);
+  useEffect(() => {
+    const previous = previousRunning.current;
+    previousRunning.current = state.runningMission;
+    if (!previous || state.runningMission) return;
+    database.endActiveMission().catch(() => dispatch({ type: 'trackingStatusChanged', message: 'Échec de la clôture locale de la sortie.' }));
+  }, [database, state.runningMission]);
 
   useEffect(() => {
     let active = true;
