@@ -1,13 +1,18 @@
 import type { MissionRegion } from '@marps/mission-core';
 import { loadManifest } from './coverage';
-import type { DataManifest, DatasetDescriptor, SiteDescriptor } from './contracts';
+import type { DataManifest, DatasetDescriptor, RegionCoverage, SiteDescriptor } from './contracts';
 
 export type RegionDefinition = MissionRegion;
 
-/** Navigation metadata only. Scientific coverage comes from the manifest, never from this list. */
-export const regions = [
-  { id: 'jezero', name: 'Jezero', center: { longitude: 77.58, latitude: 18.44 } },
-] as const satisfies readonly RegionDefinition[];
+/**
+ * Navigation entries for the detailed regions the manifest declares, centred on their extent.
+ * What each region offers comes from its capabilities, never from this list.
+ */
+export function detailedRegions(coverage: readonly RegionCoverage[]): RegionDefinition[] {
+  return coverage.filter(region => region.kind === 'detailed').map(({ id, name, extent }) => ({
+    id, name, center: { longitude: (extent.west + extent.east) / 2, latitude: (extent.south + extent.north) / 2 },
+  }));
+}
 
 export interface Catalog {
   readonly planet?: DataManifest['planet'];
@@ -26,7 +31,7 @@ export interface Catalog {
  */
 export async function loadCatalog(): Promise<Catalog> {
   const manifest = await loadManifest();
-  return { manifest, planet: manifest.planet, coverage: manifest.regions, regions, datasets: manifest.datasets, sites: manifest.sites };
+  return { manifest, planet: manifest.planet, coverage: manifest.regions, regions: detailedRegions(manifest.regions), datasets: manifest.datasets, sites: manifest.sites };
 }
 
 export * from './contracts';

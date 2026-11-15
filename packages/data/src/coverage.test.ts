@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { capabilityStatus, loadCatalog, loadManifest, regions, type DataManifest, type DataStatus } from './index';
+import { capabilityStatus, loadCatalog, loadManifest, type DataManifest, type DataStatus } from './index';
 
 const committed = JSON.parse(
   readFileSync(new URL('../../../apps/web/public/data/manifest.json', import.meta.url), 'utf8'),
@@ -57,6 +57,19 @@ describe('committed manifest', () => {
     expect(capabilityStatus(committed, 'jezero', 'weather-wind')).toBe('unavailable');
   });
 
+  it('declares other detailed regions without assuming Jezero data', () => {
+    const others = committed.regions.filter((region) => region.kind === 'detailed' && region.id !== 'jezero');
+    expect(others.map((region) => region.id)).toEqual(['gale', 'utopia', 'elysium']);
+    for (const region of others) {
+      expect(committed.datasets.some((dataset) => dataset.regionId === region.id)).toBe(false);
+      expect(committed.sites.some((site) => site.regionId === region.id)).toBe(false);
+      for (const capability of region.capabilities) {
+        expect(capability.reason).toBeTruthy();
+        expect(capabilityStatus(committed, region.id, capability.id)).toBe('unavailable');
+      }
+    }
+  });
+
   it('lists the three stops inside the Jezero sector', () => {
     const jezero = committed.regions.find((region) => region.id === 'jezero');
     expect(committed.sites.map((site) => site.name)).toEqual(['Skinner Ridge', 'Wildcat Ridge', 'Amalik']);
@@ -91,7 +104,9 @@ describe('loadCatalog', () => {
   it('serves the datasets of the frozen manifest with the navigation regions', async () => {
     vi.stubGlobal('fetch', async () => new Response(JSON.stringify(committed)));
     const catalog = await loadCatalog();
-    expect(catalog.regions).toEqual(regions);
+    expect(catalog.regions.map((region) => region.id)).toEqual(['jezero', 'gale', 'utopia', 'elysium']);
+    const { west, south, east, north } = committed.regions.find((region) => region.id === 'jezero')!.extent;
+    expect(catalog.regions[0]!.center).toEqual({ longitude: (west + east) / 2, latitude: (south + north) / 2 });
     expect(catalog.datasets.map((dataset) => dataset.id)).toEqual(committed.datasets.map((dataset) => dataset.id));
     expect(catalog.sites.map((site) => site.id)).toEqual(['skinner-ridge', 'wildcat-ridge', 'amalik']);
   });

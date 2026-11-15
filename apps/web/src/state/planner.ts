@@ -5,7 +5,7 @@ import { createEmptyMission, missionReducer, isMission, type MissionAction, type
 import { siteWorkOf, siteWorkReducer, type SiteWorkAction } from '../sites/siteWork';
 import { withDataReferences } from '../storage/missionDraft';
 
-/** Région détaillée du MVP ; la carte globale ne sert qu'à s'orienter. */
+/** Région des nouvelles missions : la seule dont les données permettent de planifier. */
 export const DETAILED_REGION_ID = 'jezero';
 
 export type MapView = 'global' | 'region';
@@ -26,6 +26,8 @@ export interface PlannerState {
   readonly draftStatus: string;
   readonly draftError: string | null;
   readonly view: MapView;
+  /** Région détaillée affichée par la vue `region` ; ses capacités disent ce qu'elle offre. */
+  readonly regionId: string;
   readonly catalog: Resource<Catalog>;
   /** Incrémenté à chaque (re)chargement demandé ; déclenche l'effet de chargement. */
   readonly catalogRequest: number;
@@ -46,6 +48,7 @@ export type PlannerAction =
   | { readonly type: 'activityToggled'; readonly stepId: string; readonly activityId: string }
 
   | { readonly type: 'viewChanged'; readonly view: MapView }
+  | { readonly type: 'regionOpened'; readonly regionId: string }
   | { readonly type: 'catalogRequested' }
   | { readonly type: 'catalogLoaded'; readonly request: number; readonly catalog: Catalog }
   | { readonly type: 'catalogFailed'; readonly request: number; readonly message: string }
@@ -64,6 +67,7 @@ export const initialPlannerState: PlannerState = {
   draftStatus: '',
   draftError: null,
   view: 'global',
+  regionId: DETAILED_REGION_ID,
   catalog: { status: 'loading' },
   catalogRequest: 0,
   mission: createEmptyMission(DETAILED_REGION_ID),
@@ -75,7 +79,9 @@ export function plannerReducer(state: PlannerState, action: PlannerAction): Plan
     case 'draftStatusChanged':
       return { ...state, draftStatus: action.message };
     case 'workspaceChanged':
-      return { ...state, workspace: action.workspace, view: action.workspace === 'mission' ? 'region' : state.view, selectedSiteId: null };
+      return action.workspace === 'mission'
+        ? { ...state, workspace: action.workspace, view: 'region', regionId: (state.runningMission ?? state.mission).regionId, selectedSiteId: null }
+        : { ...state, workspace: action.workspace, selectedSiteId: null };
     case 'trackingRequested':
       return { ...state, trackingReady: false, trackingError: null, trackingRequest: state.trackingRequest + 1 };
     case 'trackingFailed':
@@ -99,7 +105,7 @@ export function plannerReducer(state: PlannerState, action: PlannerAction): Plan
       const runningMission: Mission = { ...withDataReferences(state.mission, state.catalog.data), id: action.id,
         steps: state.mission.steps.map(step => ({ ...step, activities: step.activities.map(a => ({ ...a, completed: false })) })),
         siteWork: Object.fromEntries(Object.entries(state.mission.siteWork).map(([id, work]) => [id, { ...work, doneTaskIds: [] }])) };
-      return { ...state, workspace: 'mission', runningMission, selectedSiteId: null };
+      return { ...state, workspace: 'mission', runningMission, regionId: runningMission.regionId, selectedSiteId: null };
     }
     case 'activityToggled': {
       if (state.workspace !== 'mission' || !state.runningMission) return state;
@@ -109,6 +115,8 @@ export function plannerReducer(state: PlannerState, action: PlannerAction): Plan
     }
     case 'viewChanged':
       return state.view === action.view ? state : { ...state, view: action.view };
+    case 'regionOpened':
+      return state.view === 'region' && state.regionId === action.regionId ? state : { ...state, view: 'region', regionId: action.regionId, selectedSiteId: null };
     case 'catalogRequested':
       return { ...state, catalog: { status: 'loading' }, catalogRequest: state.catalogRequest + 1 };
     case 'catalogLoaded':
@@ -138,9 +146,19 @@ export function plannerReducer(state: PlannerState, action: PlannerAction): Plan
   }
 }
 
-export function selectDetailedRegion(state: PlannerState): RegionDefinition | null {
+function findRegion(state: PlannerState, regionId: string): RegionDefinition | null {
   if (state.catalog.status !== 'ready') return null;
-  return state.catalog.data.regions.find((region) => region.id === DETAILED_REGION_ID) ?? null;
+  return state.catalog.data.regions.find((region) => region.id === regionId) ?? null;
+}
+
+/** Région détaillée affichée (ou rouverte) par la vue `region`. */
+export function selectRegion(state: PlannerState): RegionDefinition | null {
+  return findRegion(state, state.regionId);
+}
+
+/** Région de la mission préparée ou suivie : la seule où la planification est proposée. */
+export function selectMissionRegion(state: PlannerState): RegionDefinition | null {
+  return findRegion(state, selectCurrentMission(state).regionId);
 }
 
 /** Ce qu'un emplacement de l'interface doit afficher avant son contenu. */
@@ -152,10 +170,10 @@ export function selectMapStatus(state: PlannerState): SlotStatus {
   return state.catalog.data.datasets.length === 0 ? 'empty' : 'ready';
 }
 
-/** Étapes, budget et fiches ne sont proposés que dans le secteur détaillé. */
+/** Étapes, budget et fiches ne sont proposés que dans le secteur de la mission. */
 export function selectPlanningStatus(state: PlannerState): Exclude<SlotStatus, 'empty'> {
   if (state.catalog.status !== 'ready') return state.catalog.status;
-  return state.view === 'global' ? 'insufficient-coverage' : 'ready';
+  return state.view === 'global' || state.regionId !== selectCurrentMission(state).regionId ? 'insufficient-coverage' : 'ready';
 }
 
 const emptyTrackingMission = createEmptyMission(DETAILED_REGION_ID);
@@ -177,7 +195,7 @@ export function selectMapDataset(state: PlannerState): DatasetDescriptor | null 
   if (state.catalog.status !== 'ready') return null;
   const global = state.view === 'global';
   return state.catalog.data.datasets.find((dataset) =>
-    dataset.regionId === (global ? 'global' : state.mission.regionId)
+    dataset.regionId === (global ? 'global' : state.regionId)
     && dataset.kind === (global ? 'basemap' : 'imagery')
     && dataset.status !== 'unavailable'
     && (global || (dataset.delivery === 'local' && dataset.tileset))) ?? null;

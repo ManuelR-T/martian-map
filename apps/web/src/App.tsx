@@ -20,6 +20,7 @@ import './responsive.css';
 import { SourcesPage } from './panels/Provenance';
 import { StepsPanel } from './panels/StepsPanel';
 import { usePlannerDispatch, usePlannerState } from './state/PlannerProvider';
+import { selectPlanningStatus } from './state/planner';
 
 const DesignSystemPage = lazy(() => import('./design-system/DesignSystemPage'));
 
@@ -52,7 +53,8 @@ export function App() {
   const { i18n } = useTranslation();
   // Le volet Mission s'ouvre d'emblée pour montrer par où commencer ; sur petit écran, la carte d'abord.
   const [openDrawers, setOpenDrawers] = useState(() => ({ ...allClosed, steps: !narrow('(max-width: 800px)') }));
-  const { view, workspace } = usePlannerState();
+  const state = usePlannerState();
+  const { workspace } = state;
   const dispatch = usePlannerDispatch();
   const [mapPanelHost, setMapPanelHost] = useState<HTMLDivElement | null>(null);
   /**
@@ -72,8 +74,9 @@ export function App() {
   const showsDesignSystem = hash === DESIGN_SYSTEM_HASH;
   const showsSources = hash === SOURCES_HASH;
   const showsPage = showsDesignSystem || showsSources;
-  const global = view === 'global';
-  // Les volets masqués en vue globale ne comptent pas.
+  // Hors du secteur de la mission (vue globale ou région sans données vérifiées), seuls Mission et Calques restent.
+  const global = state.view === 'global' || selectPlanningStatus(state) === 'insufficient-coverage';
+  // Les volets masqués ne comptent pas.
   const visible = (key: DrawerKey) => key === 'steps' || key === 'layers' || !global;
   const railState = (side: 'left' | 'right') => {
     const keys = drawerKeys.filter((key) => drawerSides[key] === side && visible(key));
@@ -108,7 +111,7 @@ export function App() {
             <h1 className="heading-display text-2xl leading-none font-extrabold tracking-[0.06em] uppercase [font-stretch:125%]">
               Marps</h1>
             <p className="mt-1 truncate text-sm leading-tight text-header-foreground/75 max-md:hidden">
-              {localize("Préparer une sortie scientifique à Jezero")} </p>
+              {localize("Préparer une sortie scientifique sur Mars")} </p>
           </div>
         </a>
         <nav aria-label={localize("Navigation")} className="flex shrink-0 items-center">

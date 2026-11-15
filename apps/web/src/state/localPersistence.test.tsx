@@ -7,7 +7,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { IDBFactory } from 'fake-indexeddb';
 import { createEmptyMission, type Mission } from '@marps/mission-core';
-import { exampleCamps, regions, type Catalog, type DataManifest } from '@marps/data';
+import { detailedRegions, exampleCamps, type Catalog, type DataManifest } from '@marps/data';
 import { PlannerProvider, usePlannerDispatch, usePlannerState } from './PlannerProvider';
 import type { PlannerAction, PlannerState } from './planner';
 import { MissionDatabase } from '../storage/missionDatabase';
@@ -15,7 +15,7 @@ import { loadMissionDraft, MISSION_DRAFT_KEY, saveMissionDraft } from '../storag
 import { StepsPanel } from '../panels/StepsPanel';
 
 const manifest = JSON.parse(readFileSync(resolve(fileURLToPath(import.meta.url), '../../../public/data/manifest.json'), 'utf8')) as DataManifest;
-const catalog: Catalog = { manifest, regions, sites: manifest.sites, datasets: manifest.datasets, coverage: manifest.regions };
+const catalog: Catalog = { manifest, regions: detailedRegions(manifest.regions), sites: manifest.sites, datasets: manifest.datasets, coverage: manifest.regions };
 const site = manifest.sites[0]!;
 const prepared: Mission = { ...createEmptyMission('jezero', 'prepared'), name: 'Sortie locale', camp: exampleCamps[0]!,
   steps: [{ id: 'stop', name: site.name, position: site.coordinate, siteId: site.id,

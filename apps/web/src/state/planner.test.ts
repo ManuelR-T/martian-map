@@ -4,9 +4,10 @@ import type { Catalog, DatasetDescriptor } from '@marps/data';
 import {
   initialPlannerState,
   plannerReducer,
-  selectDetailedRegion,
+  selectMapDataset,
   selectMapStatus,
   selectPlanningStatus,
+  selectRegion,
   type PlannerState,
 } from './planner';
 
@@ -50,14 +51,14 @@ describe('état de planification', () => {
     expect(initialPlannerState.selectedSiteId).toBeNull();
     expect(selectMapStatus(initialPlannerState)).toBe('loading');
     expect(selectPlanningStatus(initialPlannerState)).toBe('loading');
-    expect(selectDetailedRegion(initialPlannerState)).toBeNull();
+    expect(selectRegion(initialPlannerState)).toBeNull();
   });
 
   it('signale un catalogue sans jeu de données comme une absence de données, pas comme une erreur', () => {
     const state = loaded(emptyCatalog);
     expect(selectMapStatus(state)).toBe('empty');
     expect(selectPlanningStatus(state)).toBe('insufficient-coverage');
-    expect(selectDetailedRegion(state)).toEqual(jezero);
+    expect(selectRegion(state)).toEqual(jezero);
   });
 
   it('rend la carte disponible dès qu’un jeu de données existe', () => {
@@ -89,6 +90,22 @@ describe('état de planification', () => {
 
     const back = plannerReducer(global, { type: 'viewChanged', view: 'region' });
     expect(selectPlanningStatus(back)).toBe('ready');
+  });
+
+  it("ouvre une autre région sans données pour s'orienter, sans toucher à la mission de Jezero", () => {
+    const gale = { id: 'gale', name: 'Gale', center: { longitude: 137.4, latitude: -4.6 } };
+    const state = plannerReducer(loaded({ ...catalogWithDataset, regions: [jezero, gale] }), { type: 'regionOpened', regionId: 'jezero' });
+    const edited = plannerReducer(state, { type: 'missionRenamed', name: 'Sortie' });
+    const opened = plannerReducer(edited, { type: 'regionOpened', regionId: 'gale' });
+    expect(opened).toMatchObject({ view: 'region', regionId: 'gale' });
+    expect(selectRegion(opened)).toEqual(gale);
+    expect(selectMapDataset(opened)).toBeNull();
+    expect(selectPlanningStatus(opened)).toBe('insufficient-coverage');
+    expect(plannerReducer(opened, { type: 'missionRenamed', name: 'Autre' })).toBe(opened);
+    expect(plannerReducer(opened, { type: 'regionOpened', regionId: 'gale' })).toBe(opened);
+    const back = plannerReducer(opened, { type: 'regionOpened', regionId: 'jezero' });
+    expect(selectPlanningStatus(back)).toBe('ready');
+    expect(back.mission).toBe(edited.mission);
   });
 
   it('conserve la même référence quand une action ne change rien', () => {
