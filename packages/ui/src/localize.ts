@@ -13,7 +13,8 @@ export function localize<T>(value: T, options?: Record<string, unknown>): T | st
   const previous = messages.get(value);
   const source = previous?.source ?? value;
   const interpolation = options ?? previous?.options;
-  const values = interpolation && Object.fromEntries(Object.entries(interpolation).map(([key, item]) => [key, localize(item)]));
+  // i18next only picks a plural form when `count` stays a number.
+  const values = interpolation && Object.fromEntries(Object.entries(interpolation).map(([key, item]) => [key, key === 'count' ? item : localize(item)]));
   const translated = i18next.t(source, { ...values, ns: 'translation', defaultValue: source });
   if (translated !== source) messages.set(translated, { source, options: interpolation });
   return translated as T;

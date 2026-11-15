@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import ts from 'typescript';
 import { localize, ProvenanceBadge } from '@marps/ui';
 import { findSiteSheet } from '@marps/data';
+import { missionTypes } from '@marps/mission-core';
 import i18n, { detectLanguage, LANGUAGE_KEY, setLanguage } from './i18n';
 import { LanguageSelector } from './LanguageSelector';
 import { formatCoordinate, formatLmst, formatMonthYear } from './format';
@@ -63,6 +64,28 @@ it('localizes coordinates, dates, times, scientific sheets and accessibility lab
   expect(localize(0.5)).toBe('0,5');
 });
 
+it('pluralizes counts, reads time ranges and names objectives and tasks in both languages', () => {
+  setLanguage('en');
+  expect(localize('{{count}} activité', { count: 1 })).toBe('1 activity');
+  expect(localize('{{count}} activité', { count: 3 })).toBe('3 activities');
+  expect(localize('Terminer la sortie ? Il reste {{count}} activité non cochée.', { count: 2 })).toBe('End the outing? 2 activities are still unchecked.');
+  expect(localize('{{count}} camp enregistré', { count: 1 })).toBe('1 saved camp');
+  const many = localize('{{count}} camp enregistré', { count: 2 });
+  expect(many).toBe('2 saved camps');
+  expect(localize('Mesuré de {{v0}} à {{v1}}.', { v0: formatLmst('12:00:04'), v1: formatLmst('12:20:31') })).toBe('Measured from 12:00 to 12:20.');
+  expect(localize(missionTypes.observation)).toBe('Scientific observation');
+  expect(localize(missionTypes.reconnaissance)).toBe('Terrain reconnaissance');
+  expect(localize(findSiteSheet('amalik')!.tasks.map(task => task.label))).toEqual(['Describe the rock', 'Context photo', 'Close-up photos', 'Sampling']);
+  expect(localize('capteur ATS1, sur le mât à 1,45 m du sol')).toBe('ATS1 sensor, on the mast 1.45 m above the ground');
+  setLanguage('fr');
+  expect(localize('{{count}} activité', { count: 1 })).toBe('1 activité');
+  expect(localize('{{count}} activité', { count: 3 })).toBe('3 activités');
+  expect(localize('Terminer la sortie ? Il reste {{count}} activité non cochée.', { count: 1 })).toBe('Terminer la sortie ? Il reste 1 activité non cochée.');
+  expect(localize(many)).toBe('2 camps enregistrés');
+  expect(localize('Mesuré de {{v0}} à {{v1}}.', { v0: '12:00', v1: '12:20' })).toBe('Mesuré de 12:00 à 12:20.');
+  expect(localize(missionTypes.observation)).toBe('Observation scientifique');
+});
+
 it('requires matching, nonempty bilingual entries with identical interpolation variables', () => {
   expect(Object.keys(en).sort()).toEqual(Object.keys(fr).sort());
   for (const [key, value] of Object.entries(fr)) {
@@ -86,7 +109,8 @@ it('requires translations for French source text, including prepared data and si
         if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
           const text = node.text;
           if (/[éèêàçùôîÉÀœ]/.test(text) && !/^https?:|^\.\.?\//.test(text)) {
-            expect(catalog[text], `${path}: ${text}`).toBeDefined();
+            // A pluralized message exists only under its `_one` / `_other` keys.
+            expect(catalog[text] ?? catalog[`${text}_one`], `${path}: ${text}`).toBeDefined();
           }
         }
         ts.forEachChild(node, visit);
