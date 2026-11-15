@@ -80,3 +80,7 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .map-drawer-group[hidden] { display: none; }
 .workspace-navigation [aria-pressed=true] { background: var(--accent); color: var(--primary); box-shadow: inset 0 -2px var(--primary); }
 .map-panel-dock:empty { min-height: 44px; }
+
+/* Le défilement reste disponible sans afficher les barres des rails. */
+.map-drawer-rail, .map-drawer-rails { scrollbar-width: none; }
+.map-drawer-rail::-webkit-scrollbar, .map-drawer-rails::-webkit-scrollbar { display: none; }
