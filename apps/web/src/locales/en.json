@@ -1047,5 +1047,7 @@
   "Terminer la sortie ? Il reste {{count}} activité non cochée._one": "End the outing? {{count}} activity is still unchecked.",
   "Terminer la sortie ? Il reste {{count}} activité non cochée._other": "End the outing? {{count}} activities are still unchecked.",
   "{{count}} camp enregistré_one": "{{count}} saved camp",
-  "{{count}} camp enregistré_other": "{{count}} saved camps"
+  "{{count}} camp enregistré_other": "{{count}} saved camps",
+  "Agrandir : {{v0}}": "Expand: {{v0}}",
+  "Réduire : {{v0}}": "Shrink: {{v0}}"
 }

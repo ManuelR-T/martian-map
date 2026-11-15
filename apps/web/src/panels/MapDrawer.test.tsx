@@ -41,8 +41,15 @@ it('opens cards independently, keeps edits when closed and restores focus on Esc
     expect(input.value).toBe('90');
     expect(budget.hasAttribute('inert')).toBe(false);
     expect(triggers[0]!.hidden).toBe(true);
-    // One way to close, always the cross: no second button doing the same thing.
-    expect(budget.querySelectorAll('button')).toHaveLength(1);
+    const resize = budget.querySelector<HTMLButtonElement>('.map-drawer-resize')!;
+    await act(async () => resize.click());
+    expect(resize.getAttribute('aria-pressed')).toBe('true');
+    expect(budget.parentElement?.dataset.expanded).toBe('true');
+    expect(container.querySelectorAll<HTMLElement>('.map-drawer')[1]!.dataset.expanded).toBe('false');
+    expect(input.value).toBe('90');
+    await act(async () => resize.click());
+    expect(resize.getAttribute('aria-pressed')).toBe('false');
+    expect(budget.parentElement?.dataset.expanded).toBe('false');
     const cross = budget.querySelector<HTMLButtonElement>('.map-drawer-close')!;
     await act(async () => cross.click());
     expect(triggers[0]!.hidden).toBe(false);

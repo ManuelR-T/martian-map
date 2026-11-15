@@ -1047,5 +1047,7 @@
   "Terminer la sortie ? Il reste {{count}} activité non cochée._one": "Terminer la sortie ? Il reste {{count}} activité non cochée.",
   "Terminer la sortie ? Il reste {{count}} activité non cochée._other": "Terminer la sortie ? Il reste {{count}} activités non cochées.",
   "{{count}} camp enregistré_one": "{{count}} camp enregistré",
-  "{{count}} camp enregistré_other": "{{count}} camps enregistrés"
+  "{{count}} camp enregistré_other": "{{count}} camps enregistrés",
+  "Agrandir : {{v0}}": "Agrandir : {{v0}}",
+  "Réduire : {{v0}}": "Réduire : {{v0}}"
 }
