@@ -34,3 +34,5 @@ export type {
   SteepPortion,
 } from './terrain';
 export { marsSolarTime } from './marsTime';
+
+export * from './oxygen';

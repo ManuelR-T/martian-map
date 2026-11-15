@@ -189,13 +189,13 @@ export function MissionEditor({ className, collapsible = true }: { className?: s
       {stage === 3 && <form className="grid gap-3" onChange={event => {
         setParametersDirty(true); setPersisted(null);
         const data = new FormData(event.currentTarget);
-        const parameters = { availableSeconds: number(data, 'available') * 60, reserveSeconds: number(data, 'reserve') * 60, speedMetresPerSecond: number(data, 'speed') };
+        const parameters = { ...mission.parameters, availableSeconds: number(data, 'available') * 60, reserveSeconds: number(data, 'reserve') * 60, speedMetresPerSecond: number(data, 'speed') };
         const valid = event.currentTarget.checkValidity() && validParameters(parameters);
         dispatch({ type: 'parameterDraftValidityChanged', valid });
         if (valid) dispatch({ type: 'parametersChanged', parameters });
       }} onSubmit={event => {
         const data = form(event);
-        const parameters = { availableSeconds: number(data, 'available') * 60, reserveSeconds: number(data, 'reserve') * 60, speedMetresPerSecond: number(data, 'speed') };
+        const parameters = { ...mission.parameters, availableSeconds: number(data, 'available') * 60, reserveSeconds: number(data, 'reserve') * 60, speedMetresPerSecond: number(data, 'speed') };
         if (!validParameters(parameters)) { setStatus(localize("Durées finies et positives ou nulles, vitesse strictement positive ; la réserve ne doit pas dépasser la durée disponible.")); return; }
         if (catalog.status !== 'ready') return;
         const value = withDataReferences({ ...mission, id: mission.id === 'draft' ? uid() : mission.id, name: name.trim(), parameters }, catalog.data);

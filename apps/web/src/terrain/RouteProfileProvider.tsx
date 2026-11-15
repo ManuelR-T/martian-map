@@ -98,3 +98,5 @@ export function useRouteProfile(): RouteProfile {
   if (!value) throw new Error('useRouteProfile must be used inside RouteProfileProvider.');
   return value;
 }
+
+export function useOptionalRouteProfile() { return useContext(RouteProfileContext); }

@@ -1,3 +1,4 @@
+import { OxygenBudget } from './OxygenBudget';
 import { CircleDashed } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { calculateMissionBudget } from '@marps/mission-core';
@@ -50,6 +51,7 @@ export function BudgetPanel({ className, collapsible = true }: BudgetPanelProps)
                 : budget.missing.includes('camp') ? localize('Budget non calculé : ajoutez un camp.') : localize('Budget non calculé : ajoutez au moins une étape.')}
           </p>
         )}
+        <OxygenBudget />
       </PlanningGate>
     </Panel>
   );

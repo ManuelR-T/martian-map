@@ -181,3 +181,30 @@ it('switches budget labels, numeric formatting and overrun alerts between French
   await act(async () => setLanguage('fr'));
   expect(breakdown().querySelector('[role="alert"]')?.textContent).toContain('Dépassement de 17,7 min');
 });
+
+it('active le modèle O₂, exige le relief ou le plat explicite et conserve les paramètres après modification du temps et restauration', async () => {
+  await mount();
+  const oxygen = () => container.querySelector('section[aria-label="Estimation d’oxygène"]')!;
+  const toggle = async (text: string) => {
+    const label = [...oxygen().querySelectorAll('label')].find(l => l.textContent?.includes(text))!;
+    await act(async () => label.querySelector<HTMLInputElement>('input')!.click());
+  };
+  await toggle('Activer le modèle');
+  expect(oxygen().textContent).toContain('O₂ indisponible');
+  await toggle('Supposer explicitement');
+  expect(oxygen().textContent).toContain('Besoin total, retour compris');
+  expect(oxygen().textContent).toContain('Hypothèse active : terrain plat');
+  const saved = loadMissionDraft()!;
+  expect(saved.parameters.oxygen?.assumeFlatTerrain).toBe(true);
+  await act(async () => { container.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
+  await click('Continuer : vérifier la mission');
+  await input('speed', '0.7');
+  expect(loadMissionDraft()!.parameters.oxygen).toEqual(saved.parameters.oxygen);
+  const total = oxygen().textContent;
+  await send({ type: 'activityAdded', stepId: 'skinner-ridge', activity: { id: 'extra', type: 'photo', durationMinutes: 500, completed: false } });
+  expect(oxygen().textContent).not.toBe(total);
+  expect(oxygen().querySelector('[role="alert"]')).not.toBeNull();
+  await act(async () => setLanguage('en'));
+  expect(container.textContent).toContain('Oxygen estimate');
+  expect(container.textContent).toContain('all defaults');
+});

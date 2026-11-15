@@ -32,7 +32,13 @@ export function saveMissionDraft(mission: Mission, storage: Pick<Storage, 'setIt
   const steps = mission.steps.map(s => ({ id: s.id, name: s.name, position: position(s.position), siteId: s.siteId,
     activities: s.activities.map(({ id, type, durationMinutes, completed }) => ({ id, type, durationMinutes, completed })) }));
   const { availableSeconds, speedMetresPerSecond, reserveSeconds } = mission.parameters;
-  const parameters = { availableSeconds, speedMetresPerSecond, reserveSeconds };
+  const source = mission.parameters.oxygen;
+  const oxygen = source && Object.fromEntries(([
+    'modelVersion', 'stockGrams', 'reserveGrams', 'loadKg', 'referenceGramsPerMinute',
+    'activityGramsPerMinute', 'referenceSpeedMetresPerSecond', 'speedCoefficient',
+    'uphillCoefficient', 'downhillCoefficient', 'loadCoefficientPerKg', 'assumeFlatTerrain',
+  ] as const).map(key => [key, source[key]]));
+  const parameters = { availableSeconds, speedMetresPerSecond, reserveSeconds, oxygen };
   const { simulation, route, terrainValidated } = mission.assumptions;
   const assumptions = { simulation, route, terrainValidated };
   const siteWork = Object.fromEntries(Object.entries(mission.siteWork).map(([id, { allottedMinutes, doneTaskIds }]) => [id, { allottedMinutes, doneTaskIds }]));
