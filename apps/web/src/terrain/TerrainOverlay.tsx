@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../i18n';
 import { useEffect, useId, useMemo, useState } from 'react';
 import type Map from 'ol/Map';
 import TileLayer from 'ol/layer/Tile';
@@ -74,12 +76,11 @@ export function TerrainOverlay({ map }: { map: Map | null }) {
     <div className="grid gap-2 text-xs">
       {hillshade && (
         <>
-          <LayerSwitch label="Relief ombré" icon={<Mountain aria-hidden="true" />} checked={shaded} onChange={setShaded} />
+          <LayerSwitch label={localize("Relief ombré")} icon={<Mountain aria-hidden="true" />} checked={shaded} onChange={setShaded} />
           {shaded && (
             <>
               <label htmlFor={opacityId} className="flex items-center gap-2">
-                Opacité
-                <input
+                {localize("Opacité")} <input
                   id={opacityId}
                   type="range"
                   min={0.2}
@@ -89,40 +90,35 @@ export function TerrainOverlay({ map }: { map: Map | null }) {
                   onChange={(event) => setOpacity(Number(event.target.value))}
                   className="min-h-11 flex-1 accent-primary"
                 />
-                <span className="w-11 shrink-0 text-right tabular-nums">{Math.round(opacity * 100)} %</span>
+                <span className="w-11 shrink-0 text-right tabular-nums">{Math.round(opacity * 100)} {localize("%")}</span>
               </label>
               <p className="flex items-center gap-2">
                 <span aria-hidden="true" className="h-3 w-10 shrink-0 border bg-linear-to-r from-black to-white" />
-                Sombre : versant à l'ombre. Clair : versant éclairé.
-              </p>
+                {localize("Sombre : versant à l'ombre. Clair : versant éclairé.")} </p>
               <p className="text-muted-foreground">
                 {hillshade.resolution ? `${hillshade.resolution.value} m par pixel · ` : ''}
-                Éclairage fictif venant du nord-ouest, aide visuelle et non mesure.
-              </p>
+                {localize("Éclairage fictif venant du nord-ouest, aide visuelle et non mesure.")} </p>
               <a href={hillshade.source.url} className="text-muted-foreground underline">
-                {hillshade.source.credit}
+                {localize(hillshade.source.credit)}
               </a>
             </>
           )}
         </>
       )}
       {stops.length >= 2 && (
-        <ul className="grid gap-1" aria-label="Légende du parcours">
+        <ul className="grid gap-1" aria-label={localize("Légende du parcours")}>
           <li className="flex items-center gap-2">
             <svg viewBox="0 0 40 12" className="w-10 shrink-0" aria-hidden="true"><path d="M0 6H40" stroke="#151b25" strokeWidth="6" /><path d="M0 6H40" stroke={ROUTE_COLOUR} strokeWidth="3" /></svg>
-            Parcours de démonstration
-          </li>
+            {localize("Parcours de démonstration")} </li>
           {profile && (
             <li className="flex items-center gap-2">
               <svg viewBox="0 0 40 12" className="w-10 shrink-0" aria-hidden="true"><path d="M0 6H40" stroke="#151b25" strokeWidth="8" /><path d="M0 6H40" stroke={STEEP_COLOUR} strokeWidth="5" /></svg>
-              Pente au-delà de {threshold}°
-            </li>
+              {localize("Pente au-delà de")} {localize(threshold)}{localize("°")} </li>
           )}
           {profile && (
             <li className="flex items-center gap-2">
               <svg viewBox="0 0 40 20" className="w-10 shrink-0" aria-hidden="true"><path d="M20 2L28 10L20 18L12 10Z" fill="#fff" stroke="#151b25" strokeWidth="3" /></svg>
-              Point touché sur le profil
-            </li>
+              {localize("Point touché sur le profil")} </li>
           )}
         </ul>
       )}

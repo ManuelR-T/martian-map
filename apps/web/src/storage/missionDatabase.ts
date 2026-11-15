@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../i18n';
 import { exampleCamps } from '@marps/data';
 import { isMission, validCamp, type Camp, type Mission } from '@marps/mission-core';
 
@@ -23,7 +25,7 @@ export class MissionDatabase {
       };
       request.onsuccess = () => { request.result.onversionchange = () => { request.result.close(); this.connection = undefined; }; resolve(request.result); };
       request.onerror = () => { this.connection = undefined; reject(request.error); };
-      request.onblocked = () => { this.connection = undefined; reject(new Error('Fermez les autres onglets pour ouvrir la base locale.')); };
+      request.onblocked = () => { this.connection = undefined; reject(new Error(localize("Fermez les autres onglets pour ouvrir la base locale."))); };
     }).catch(error => { this.connection = undefined; throw error; });
     return this.connection;
   }
@@ -34,13 +36,13 @@ export class MissionDatabase {
       const request = operation(tx.objectStore(store));
       tx.oncomplete = () => resolve(request.result);
       tx.onerror = () => reject(tx.error ?? request.error);
-      tx.onabort = () => reject(tx.error ?? new Error('Écriture locale annulée.'));
+      tx.onabort = () => reject(tx.error ?? new Error(localize("Écriture locale annulée.")));
     });
   }
   async activeMission(): Promise<Mission | null> {
     const value: unknown = await this.run('tracking', 'readonly', store => store.get('active'));
     if (value === undefined) return null;
-    if (!isMission(value)) throw new Error('Suivi sauvegardé incompatible ou endommagé.');
+    if (!isMission(value)) throw new Error(localize("Suivi sauvegardé incompatible ou endommagé."));
     return value;
   }
   async saveActiveMission(mission: Mission): Promise<void> {
@@ -52,7 +54,7 @@ export class MissionDatabase {
       tx.objectStore('history').put({ id: mission.id, mission, updatedAt: new Date().toISOString() });
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);
-      tx.onabort = () => reject(tx.error ?? new Error('Sauvegarde du suivi annulée.'));
+      tx.onabort = () => reject(tx.error ?? new Error(localize("Sauvegarde du suivi annulée.")));
     });
   }
   /** Ends the walk: the history keeps its last saved state, and a reload no longer restores it. */
@@ -65,16 +67,16 @@ export class MissionDatabase {
   }
   async missions(): Promise<Mission[]> {
     const values: unknown[] = await this.run('missions', 'readonly', store => store.getAll());
-    if (!values.every(isMission)) throw new Error('Une mission sauvegardée est incompatible ou endommagée.');
+    if (!values.every(isMission)) throw new Error(localize("Une mission sauvegardée est incompatible ou endommagée."));
     return values;
   }
   async templates(): Promise<Mission[]> {
     const values: unknown[] = await this.run('templates', 'readonly', store => store.getAll());
-    if (!values.every(isMission)) throw new Error('Un modèle est incompatible ou endommagé.');
+    if (!values.every(isMission)) throw new Error(localize("Un modèle est incompatible ou endommagé."));
     return values;
   }
   async saveTemplate(mission: Mission): Promise<void> {
-    if (!isMission(mission)) throw new Error('Modèle invalide.');
+    if (!isMission(mission)) throw new Error(localize("Modèle invalide."));
     await this.run('templates', 'readwrite', store => store.put(mission));
   }
   async deleteTemplate(id: string): Promise<void> {

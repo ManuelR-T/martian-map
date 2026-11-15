@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../i18n';
 import { useState } from 'react';
 import type { MissionStep } from '@marps/mission-core';
 import { Button, DataState, StepList, StepListItem } from '@marps/ui';
@@ -18,17 +20,17 @@ export function MissionStepsEditor() {
   };
   return <>
         <p role="status" className="flex flex-wrap items-center justify-between gap-2 border border-dashed p-2 empty:hidden">{restorable && <>
-          <span>Étape « {restorable.step.name} » supprimée.</span>
-          <Button size="sm" variant="outline" onClick={restore}>Annuler la suppression</Button>
+          <span>{localize("Étape «")} {localize(restorable.step.name)} {localize("» supprimée.")}</span>
+          <Button size="sm" variant="outline" onClick={restore}>{localize("Annuler la suppression")}</Button>
         </>}</p>
         {mission.steps.length === 0 ? (
           <DataState
             kind="empty"
-            title="Aucune étape"
-            description="La mission ne contient encore aucune étape. Elles s'afficheront ici dans l'ordre de visite."
+            title={localize("Aucune étape")}
+            description={localize("La mission ne contient encore aucune étape. Elles s'afficheront ici dans l'ordre de visite.")}
           />
         ) : (
-          <StepList label="Étapes de la mission">
+          <StepList label={localize("Étapes de la mission")}>
             {mission.camp && <StepListItem kind="camp" title={mission.camp.name} description={formatCoordinate(mission.camp.position)} />}
             {mission.steps.map((step, index) => (
               <StepListItem
@@ -37,9 +39,9 @@ export function MissionStepsEditor() {
                 title={step.name}
                 description={<><span className="tabular-nums">{formatCoordinate(step.position)}</span>
                   <div className="mt-2 flex flex-wrap gap-1">
-                    <Button variant="outline" disabled={index === 0} aria-label={`Monter ${step.name}`} onClick={() => dispatch({ type: 'stepMoved', id: step.id, to: index - 1 })}>↑</Button>
-                    <Button variant="outline" disabled={index === mission.steps.length - 1} aria-label={`Descendre ${step.name}`} onClick={() => dispatch({ type: 'stepMoved', id: step.id, to: index + 1 })}>↓</Button>
-                    <Button variant="danger" aria-label={`Supprimer ${step.name}`} onClick={() => { setRemoved({ step, index }); dispatch({ type: 'stepRemoved', id: step.id }); }}>Supprimer</Button>
+                    <Button variant="outline" disabled={index === 0} aria-label={`Monter ${step.name}`} onClick={() => dispatch({ type: 'stepMoved', id: step.id, to: index - 1 })}>{localize("↑")}</Button>
+                    <Button variant="outline" disabled={index === mission.steps.length - 1} aria-label={`Descendre ${step.name}`} onClick={() => dispatch({ type: 'stepMoved', id: step.id, to: index + 1 })}>{localize("↓")}</Button>
+                    <Button variant="danger" aria-label={localize("Supprimer {{v0}}", { v0: step.name })} onClick={() => { setRemoved({ step, index }); dispatch({ type: 'stepRemoved', id: step.id }); }}>{localize("Supprimer")}</Button>
                   </div>
                   <ActivityEditor step={step} />
                 </>}

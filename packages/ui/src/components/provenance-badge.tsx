@@ -1,3 +1,4 @@
+import { localize } from '../localize';
 import type { ComponentProps } from 'react';
 import { Calculator, CircleHelp, FlaskConical, Ruler, type LucideIcon } from 'lucide-react';
 
@@ -35,7 +36,7 @@ export function ProvenanceBadge({ status, className, ...props }: ProvenanceBadge
   return (
     <Badge variant="outline" data-status={status} className={cn(definition.className, className)} {...props}>
       <Icon aria-hidden="true" />
-      {definition.label}
+      {localize(definition.label)}
     </Badge>
   );
 }

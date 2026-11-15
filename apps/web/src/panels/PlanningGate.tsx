@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../i18n';
 import type { ReactNode } from 'react';
 import { RotateCw } from 'lucide-react';
 import { Button, DataState, Skeleton } from '@marps/ui';
@@ -9,8 +11,7 @@ export function RetryCatalogButton() {
   return (
     <Button type="button" variant="outline" size="sm" onClick={() => dispatch({ type: 'catalogRequested' })}>
       <RotateCw aria-hidden="true" />
-      Réessayer
-    </Button>
+      {localize("Réessayer")} </Button>
   );
 }
 
@@ -37,7 +38,7 @@ export function PlanningGate({ loadingTitle, coverageTitle, offerRegion = false,
 
   if (status === 'loading') {
     return (
-      <DataState kind="loading" announce={false} title={loadingTitle}>
+      <DataState kind="loading" announce={false} title={localize(loadingTitle)}>
         <div className="mt-2 grid w-full gap-2">
           <Skeleton className="h-3.5 w-4/5" />
           <Skeleton className="h-3.5 w-3/5" />
@@ -51,8 +52,8 @@ export function PlanningGate({ loadingTitle, coverageTitle, offerRegion = false,
       <DataState
         kind="error"
         announce={false}
-        title="Données indisponibles"
-        description="Le catalogue de données n'a pas pu être chargé."
+        title={localize("Données indisponibles")}
+        description={localize("Le catalogue de données n'a pas pu être chargé.")}
         action={<RetryCatalogButton />}
       />
     );
@@ -63,12 +64,12 @@ export function PlanningGate({ loadingTitle, coverageTitle, offerRegion = false,
     return (
       <DataState
         kind="insufficient-coverage"
-        title={coverageTitle}
-        description={`La vue globale sert à s'orienter. La planification détaillée n'est proposée que dans le secteur de ${regionName}.`}
+        title={localize(coverageTitle)}
+        description={localize("La vue globale sert à s'orienter. La planification détaillée n'est proposée que dans le secteur de {{v0}}.", { v0: regionName })}
         action={
           offerRegion ? (
             <Button type="button" size="sm" onClick={() => dispatch({ type: 'viewChanged', view: 'region' })}>
-              Ouvrir {regionName}
+              {localize("Ouvrir")} {localize(regionName)}
             </Button>
           ) : undefined
         }

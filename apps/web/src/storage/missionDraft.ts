@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../i18n';
 import { isMission, type Mission } from '@marps/mission-core';
 import type { Catalog } from '@marps/data';
 
@@ -15,13 +17,13 @@ export function loadMissionDraft(storage: Pick<Storage, 'getItem'> = window.loca
   const raw = storage.getItem(MISSION_DRAFT_KEY);
   if (raw === null) return null;
   let value: unknown;
-  try { value = JSON.parse(raw); } catch { throw new Error('La préparation locale est endommagée.'); }
-  if (!isMission(value)) throw new Error('La préparation locale est incompatible ou endommagée.');
+  try { value = JSON.parse(raw); } catch { throw new Error(localize("La préparation locale est endommagée.")); }
+  if (!isMission(value)) throw new Error(localize("La préparation locale est incompatible ou endommagée."));
   return value;
 }
 
 export function saveMissionDraft(mission: Mission, storage: Pick<Storage, 'setItem'> = window.localStorage): void {
-  if (!isMission(mission)) throw new Error('Préparation invalide.');
+  if (!isMission(mission)) throw new Error(localize("Préparation invalide."));
   // Explicit schema projection: never copy runtime caches or extra raster properties.
   const { schemaVersion, id, name, missionType, regionId } = mission;
   const position = ({ longitude, latitude }: { longitude: number; latitude: number }) => ({ longitude, latitude });

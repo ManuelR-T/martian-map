@@ -1,3 +1,7 @@
+import { useTranslation } from 'react-i18next';
+import { LanguageSelector } from './LanguageSelector';
+import { localize } from '@marps/ui';
+import './i18n';
 import { lazy, Suspense, useCallback, useEffect, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { Route, Timer, MapPin, Layers, ChartNoAxesCombined, CloudSun, BookOpen } from 'lucide-react';
 import { MapDrawer } from './panels/MapDrawer';
@@ -45,6 +49,7 @@ const allClosed: Record<DrawerKey, boolean> = { steps: false, layers: false, pro
 const narrow = (query: string) => typeof window.matchMedia === 'function' && window.matchMedia(query).matches;
 
 export function App() {
+  const { i18n } = useTranslation();
   // Le volet Mission s'ouvre d'emblée pour montrer par où commencer ; sur petit écran, la carte d'abord.
   const [openDrawers, setOpenDrawers] = useState(() => ({ ...allClosed, steps: !narrow('(max-width: 800px)') }));
   const { view, workspace } = usePlannerState();
@@ -79,8 +84,8 @@ export function App() {
   const chooseWorkspace = (next: 'base' | 'mission') => { dispatch({ type: 'workspaceChanged', workspace: next }); setDrawer('steps', true); };
 
   useEffect(() => {
-    document.title = showsDesignSystem ? 'Marps – Système de design' : showsSources ? 'Marps – Sources et limites' : 'Marps';
-  }, [showsDesignSystem, showsSources]);
+    document.title = showsDesignSystem ? localize("Marps – Système de design") : showsSources ? localize("Marps – Sources et limites") : 'Marps';
+  }, [showsDesignSystem, showsSources, i18n.language]);
 
   return (
     <div className={showsPage ? 'flex min-h-dvh flex-col' : 'planner-app flex min-h-dvh flex-col xl:h-dvh'}>
@@ -95,45 +100,43 @@ export function App() {
           }}
           className="label-caps sr-only bg-card px-3 py-2 text-foreground focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50"
         >
-          Aller au contenu
-        </a>
+          {localize("Aller au contenu")} </a>
         {/* Le nom ramène à la planification : pas d'onglet « Planification » toujours actif. */}
-        <a href="#/" aria-label="Marps, planification" aria-current={!showsPage ? 'page' : undefined} className="mr-auto flex min-w-0 items-center gap-3">
+        <a href="#/" aria-label={localize("Marps, planification")} aria-current={!showsPage ? 'page' : undefined} className="mr-auto flex min-w-0 items-center gap-3">
           <BrandMark className="size-9 shrink-0" />
           <div className="min-w-0">
             <h1 className="heading-display text-2xl leading-none font-extrabold tracking-[0.06em] uppercase [font-stretch:125%]">
-              Marps
-            </h1>
+              Marps</h1>
             <p className="mt-1 truncate text-sm leading-tight text-header-foreground/75 max-md:hidden">
-              Préparer une sortie scientifique à Jezero
-            </p>
+              {localize("Préparer une sortie scientifique à Jezero")} </p>
           </div>
         </a>
-        <nav aria-label="Navigation" className="flex shrink-0 items-center">
-          {!showsPage && <div role="group" aria-label="Espaces de travail" className="workspace-navigation flex items-center">
-            <button type="button" aria-pressed={workspace === 'base'} className={headerLink} onClick={() => chooseWorkspace('base')}><span><span className="max-sm:hidden">À la </span>base</span></button>
-            <button type="button" aria-pressed={workspace === 'mission'} className={headerLink} onClick={() => chooseWorkspace('mission')}><span><span className="max-sm:hidden">En </span>mission</span></button>
+        <nav aria-label={localize("Navigation")} className="flex shrink-0 items-center">
+          {!showsPage && <div role="group" aria-label={localize("Espaces de travail")} className="workspace-navigation flex items-center">
+            <button type="button" aria-pressed={workspace === 'base'} className={headerLink} onClick={() => chooseWorkspace('base')}><span><span className="max-sm:hidden">{localize("À la")} </span>{localize("base")}</span></button>
+            <button type="button" aria-pressed={workspace === 'mission'} className={headerLink} onClick={() => chooseWorkspace('mission')}><span><span className="max-sm:hidden">{localize("En")} </span>{localize("mission")}</span></button>
           </div>}
-          <a href={SOURCES_HASH} className={`${headerLink} sm:ml-3`} aria-current={showsSources ? 'page' : undefined} aria-label="Sources et limites" title="Sources et limites">
+          <a href={SOURCES_HASH} className={`${headerLink} sm:ml-3`} aria-current={showsSources ? 'page' : undefined} aria-label={localize("Sources et limites")} title={localize("Sources et limites")}>
             <BookOpen aria-hidden="true" className="size-4" />
-            <span className="max-md:sr-only">Sources</span>
+            <span className="max-md:sr-only">{localize("Sources")}</span>
           </a>
         </nav>
+        <LanguageSelector />
         <OfflineStatus />
         {/* Filet d'horizon : il se trace du bleu à la braise à l'ouverture. */}
         <span aria-hidden="true" className="horizon-draw absolute inset-x-0 -bottom-0.5 h-0.5 bg-[image:var(--horizon)]" />
       </header>
 
       {showsSources ? (
-        <main id={CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
+        <main key={i18n.language} id={CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
           <SourcesPage />
         </main>
       ) : showsDesignSystem ? (
-        <main id={CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
+        <main key={i18n.language} id={CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
           <Suspense
             fallback={
               <div className="mx-auto max-w-3xl p-4">
-                <DataState kind="loading" title="Chargement du système de design" />
+                <DataState kind="loading" title={localize("Chargement du système de design")} />
               </div>
             }
           >
@@ -143,7 +146,7 @@ export function App() {
       ) : (
         <RouteProfileProvider>
         <main
-          id={CONTENT_ID}
+          key={i18n.language} id={CONTENT_ID}
           tabIndex={-1}
           className="planner-main relative min-h-0 flex-1 outline-none"
         >
@@ -155,24 +158,24 @@ export function App() {
                 <StepsPanel className={floatingPanel} collapsible={false} />
               </MapDrawer>
               <div className="map-drawer-group">
-                <MapDrawer label="Calques" shortLabel="Calques" icon={Layers} {...drawer('layers')}>
+                <MapDrawer label={localize("Calques")} shortLabel={localize("Calques")} icon={Layers} {...drawer('layers')}>
                   <div ref={setMapPanelHost} className="map-panel-dock" />
                 </MapDrawer>
                 <div hidden={global}>
-                  <MapDrawer label="Profil du parcours" shortLabel="Profil" icon={ChartNoAxesCombined} {...drawer('profile')}>
+                  <MapDrawer label={localize("Profil du parcours")} shortLabel={localize("Profil")} icon={ChartNoAxesCombined} {...drawer('profile')}>
                     <ProfilePanel className={floatingPanel} collapsible={false} />
                   </MapDrawer>
                 </div>
               </div>
             </div>
             <div className="map-drawer-rail map-drawer-rail-right" hidden={global} {...railState('right')}>
-              <MapDrawer label="Budget de temps" shortLabel="Budget" icon={Timer} {...drawer('budget')}>
+              <MapDrawer label={localize("Budget de temps")} shortLabel={localize("Budget")} icon={Timer} {...drawer('budget')}>
                 <BudgetPanel budget={null} className={floatingPanel} collapsible={false} />
               </MapDrawer>
-              <MapDrawer label="Fiche de site" shortLabel="Site" icon={MapPin} {...drawer('site')}>
+              <MapDrawer label={localize("Fiche de site")} shortLabel={localize("Site")} icon={MapPin} {...drawer('site')}>
                 <SiteDetailsPanel className={floatingPanel} collapsible={false} />
               </MapDrawer>
-              <MapDrawer label="Conditions au rover" shortLabel="Conditions" icon={CloudSun} {...drawer('conditions')}>
+              <MapDrawer label={localize("Conditions au rover")} shortLabel={localize("Conditions")} icon={CloudSun} {...drawer('conditions')}>
                 <ConditionsPanel className={floatingPanel} collapsible={false} />
               </MapDrawer>
             </div>

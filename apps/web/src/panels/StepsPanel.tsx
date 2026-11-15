@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../i18n';
 import { useState } from 'react';
 import { Panel } from '@marps/ui';
 import { MissionTracking } from './MissionTracking';
@@ -11,7 +13,7 @@ export function StepsPanel({ className, collapsible = true }: { className?: stri
   const [radiation, setRadiation] = useState<RadiationAlertState | null>(null);
   return <>
     <div className={workspace === 'base' ? 'flex min-h-0 shrink-0 flex-col gap-3' : 'hidden'}><MissionEditor className={className} collapsible={collapsible} /></div>
-    {workspace === 'mission' && <Panel title="Suivi de mission" description="Activités pendant la sortie"
+    {workspace === 'mission' && <Panel title={localize("Suivi de mission")} description={localize("Activités pendant la sortie")}
     collapsible={collapsible} floating className={className} contentClassName="overflow-y-auto">
     <PlanningGate loadingTitle="Chargement des missions" coverageTitle="Ouvrez Jezero pour suivre une mission" offerRegion>
       <MissionTracking radiation={radiation} onRadiationChange={setRadiation} />

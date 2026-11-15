@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../i18n';
 import type { ReactNode } from 'react';
 import { DataState } from '@marps/ui';
 import { usePlannerState } from '../state/PlannerProvider';
@@ -23,19 +25,19 @@ export function MapStage({ className, map }: MapStageProps) {
 
   let notice: ReactNode = null;
   if (status === 'loading') {
-    notice = <DataState kind="loading" align="center" floating title="Chargement de la carte" />;
+    notice = <DataState kind="loading" align="center" floating title={localize("Chargement de la carte")} />;
   } else if (status === 'error') {
     notice = (
       <DataState
         kind="error"
         align="center"
         floating
-        title="La carte n'a pas pu être chargée"
+        title={localize("La carte n'a pas pu être chargée")}
         description={
           <>
-            <p>Le catalogue de données est inaccessible. Vérifiez la connexion, puis réessayez.</p>
+            <p>{localize("Le catalogue de données est inaccessible. Vérifiez la connexion, puis réessayez.")}</p>
             {state.catalog.status === 'error' ? (
-              <p className="mt-1 break-words">Détail : {state.catalog.message}</p>
+              <p className="mt-1 break-words">{localize("Détail :")} {localize(state.catalog.message)}</p>
             ) : null}
           </>
         }
@@ -48,11 +50,11 @@ export function MapStage({ className, map }: MapStageProps) {
         kind="empty"
         align="center"
         floating
-        title="Aucun fond de carte disponible"
+        title={localize("Aucun fond de carte disponible")}
         description={
-          global
-            ? "Le fond de carte de Mars n'est pas encore intégré à cette version."
-            : `L'imagerie détaillée de ${regionName} n'est pas encore intégrée à cette version.`
+          localize(global
+            ? localize("Le fond de carte de Mars n'est pas encore intégré à cette version.")
+            : localize("L'imagerie détaillée de {{v0}} n'est pas encore intégrée à cette version.", { v0: regionName }))
         }
       />
     );
@@ -61,8 +63,7 @@ export function MapStage({ className, map }: MapStageProps) {
   return (
     <section aria-labelledby="carte-titre" className={className}>
       <h2 id="carte-titre" className="sr-only">
-        Carte
-      </h2>
+        {localize("Carte")} </h2>
 
       {/*
         Fond : en mobile il remplit ce bloc, sur grand écran il passe sous toute l'interface.
@@ -86,7 +87,7 @@ export function MapStage({ className, map }: MapStageProps) {
         )}
       </div>
 
-      {notice ? <div className="power-on pointer-events-auto relative z-10 w-full max-w-sm [--power-delay:480ms]">{notice}</div> : null}
+      {notice ? <div className="power-on pointer-events-auto relative z-10 w-full max-w-sm [--power-delay:480ms]">{localize(notice)}</div> : null}
 
 
     </section>

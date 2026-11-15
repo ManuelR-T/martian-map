@@ -1,73 +1,73 @@
-# Mission de démonstration (#17)
+# Demonstration mission (#17)
 
-Une sortie de 6 h autour de trois sites de Perseverance. Le plan tient, puis une activité ajoutée fait dépasser le budget, et une adaptation rétablit la marge. Pendant la sortie, une alerte radiation simulée ordonne le retour au camp. La mission se prépare dans la PR #50 (modes « À la base » et « En mission »). Les durées totales viennent de sorties réelles (Apollo et essais NASA BASALT). La répartition d'un arrêt en tâches est une hypothèse de l'équipe.
+A 6-hour outing around three Perseverance sites. The plan holds, then an added activity causes the budget to exceed the budget, and an adaptation restores the margin. During the exit, a simulated radiation alert orders the return to camp. The mission is prepared in PR #50 (“At Base” and “On Mission” modes). The total durations come from real missions (Apollo and NASA BASALT tests). The division of a stop into tasks is a hypothesis of the team.
 
-## Paramètres
+## Settings
 
-| Paramètre | Valeur | Pourquoi |
+| Parameter | Value | Why |
 | --- | --- | --- |
-| Temps de terrain | 360 min (6 h) | Apollo 17 prévoyait 7 h par sortie, du sas ouvert au sas refermé. On retire 1 h pour sortir et rentrer. C'est optimiste : Artemis III compte environ 1,5 à 2 h de temps annexe par sortie (préparation de la combinaison, sortie, installation, dépoussiérage, rentrée), dont jusqu'à 30 min de dépoussiérage avant de rentrer. |
-| Réserve | 60 min | Artemis III exige une réserve à chaque sortie, sans en donner la durée. 60 min est un choix de l'équipe. |
-| Vitesse de marche | 0,5 m/s (1,8 km/h) | Valeur par défaut de l'application. Hypothèse de l'équipe : aucune source ouverte ne donne une vitesse de marche en combinaison sur Mars. |
-| Camp | « Jezero Alpha — simulation », 77,400° E, 18,450° N | Camp fictif du catalogue de l'application. Chaque arrêt est à moins de 640 m du camp ; Artemis III limite à 2 km de l'atterrisseur. |
-| Durée d'un arrêt | 75 min | Apollo 17 prévoyait des arrêts de 30 à 66 min. BASALT faisait 2 à 3 arrêts par sortie de 4 h. 75 min reste dans cette fourchette. |
+| Field Time | 360 mins (6 hrs) | Apollo 17 planned 7 hours per exit, from open airlock to closed airlock. We take 1 hour off to leave and return. This is optimistic: Artemis III has around 1.5 to 2 hours of additional time per outing (suit preparation, exit, installation, dusting, re-entry), including up to 30 min of dusting before returning. |
+| Reserve | 60 mins | Artemis III requires a reserve for each outing, without giving the duration. 60 min is a team choice. |
+| Walking speed | 0.5 m/s (1.8 km/h) | Application default. The team's hypothesis: no open source gives a walking speed in a suit on Mars. |
+| Camp | “Jezero Alpha — simulation”, 77.400° E, 18.450° N | Fictitious camp from the application catalog. Each stop is less than 640 m from camp; Artemis III limits 2 km from the lander. |
+| Duration of a stop | 75 mins | Apollo 17 planned stops of 30 to 66 minutes. BASALT made 2 to 3 stops per 4-hour outing. 75 min remains in this range. |
 
-## Parcours
+## Course
 
-Segments droits sur la sphère martienne de rayon 3 396 190 m. Ce tracé est hypothétique : ce n'est pas un chemin vérifié sur le terrain.
+Straight segments on the Martian sphere with radius 3,396,190 m. This route is hypothetical: it is not a path verified in the field.
 
-| Trajet | Distance | Marche à 0,5 m/s |
+| Journey | Distance | Walks at 0.5 m/s |
 | --- | --- | --- |
-| Camp → Skinner Ridge | 633,1 m | 21,1 min |
-| Skinner Ridge → Wildcat Ridge | 23,7 m | 0,8 min |
-| Wildcat Ridge → Amalik | 531,4 m | 17,7 min |
-| Amalik → camp (retour) | 91,7 m | 3,1 min |
-| **Total** | **1 280,0 m** | **42,7 min** |
+| Camp → Skinner Ridge | 633.1 m | 21.1 mins |
+| Skinner Ridge → Wildcat Ridge | 23.7m | 0.8 mins |
+| Wildcat Ridge → Amalik | 531.4 m | 17.7 mins |
+| Amalik → camp (return) | 91.7m | 3.1 mins |
+| **Total** | **1,280.0 m** | **42.7 mins** |
 
-Le retour est affiché à part mais compté une seule fois dans la marche.
+The return is displayed separately but counted only once in the walk.
 
-## Déroulé
+## Unfolded
 
-Marge = temps de terrain − marche − arrêts − réserve.
+Margin = field time − on − stops − reserve.
 
-| Étape | Ce que fait l'équipage | Arrêts | Marge |
+| Step | What the crew does | Stops | Margin |
 | --- | --- | --- | --- |
-| 1. Vue globale, puis Jezero | Situer le secteur et voir où les données détaillées existent. | | |
-| 2. Camp et trois arrêts | « À la base », nouvelle mission « Prélèvement d'échantillons » : camp Jezero Alpha, puis Skinner Ridge, Wildcat Ridge et Amalik dans cet ordre. | 75 + 75 + 75 = 225 min | 360 − 42,7 − 225 − 60 = **+32 min** |
-| 3. Activité supplémentaire | Ajouter un 2e prélèvement à Amalik, la roche argileuse jugée la plus apte à garder des molécules organiques : +50 min, la durée de la phase de prélèvement de BASALT. | 75 + 75 + 125 = 275 min | 360 − 42,7 − 275 − 60 = **−18 min**, alerte de dépassement |
-| 4. Adaptation | Réduire Skinner Ridge à 30 min : retirer le prélèvement, garder l'observation et les photos. Le rover y a déjà fait 2 carottes, et le site est à 24 m de Wildcat Ridge. | 30 + 75 + 125 = 230 min | 360 − 42,7 − 230 − 60 = **+27 min** |
-| 5. Sortie | Enregistrer, puis « Démarrer cette mission ». En mode « En mission », cocher les activités de Skinner Ridge. | | |
-| 6. Alerte radiation | « Simuler une alerte radiation » à Wildcat Ridge : retour de 610 m en 21 min à 0,5 m/s. Abandonnées : Wildcat Ridge (3 activités) et Amalik (4 activités). | | |
+| 1. Global view, then Jezero | Locate the area and see where detailed data exists. | | |
+| 2. Camp and three stops | “At Base”, new mission “Sample Collection”: Camp Jezero Alpha, then Skinner Ridge, Wildcat Ridge and Amalik in that order. | 75 + 75 + 75 = 225 mins | 360 − 42.7 − 225 − 60 = **+32 min** |
+| 3. Additional activity | Add a 2nd sample from Amalik, the clayey rock considered most capable of retaining organic molecules: +50 min, the duration of the BASALT sampling phase. | 75 + 75 + 125 = 275 mins | 360 − 42.7 − 275 − 60 = **−18 min**, overrun alert |
+| 4. Adaptation | Reduce Skinner Ridge to 30 min: remove sample, keep observation and photos. The rover has already made 2 cores there, and the site is 24 m from Wildcat Ridge. | 30 + 75 + 125 = 230 mins | 360 − 42.7 − 230 − 60 = **+27 min** |
+| 5. Exit | Save, then “Start this mission”. In “On Mission” mode, check off Skinner Ridge activities. | | |
+| 6. Delisting alert | “Simulate a radiation alert” at Wildcat Ridge: return from 610 m in 21 min at 0.5 m/s. Abandoned: Wildcat Ridge (3 activities) and Amalik (4 activities). | | |
 
-Valeurs exactes : marche 42,67 min, marges +32,33, −17,67 et +27,33 min. Les marges seront affichées par l'application quand le budget de temps (#14) sera mergé ; d'ici là, elles viennent de ce calcul.
+Exact values: walk 42.67 min, margins +32.33, −17.67 and +27.33 min. The margins will be displayed by the application when the time budget (#14) is merged; until then, they come from this calculation.
 
-## Pourquoi ce scénario est réaliste
+## Why this scenario is realistic
 
-- **Les tâches durent plus longtemps que prévu.** Sur Apollo 14, elles ont pris 23 % de plus que le plan et la première sortie a dépassé d'environ 30 min. L'équipage a rattrapé en réduisant ses déplacements. Il jugeait souhaitable une marge de 25 à 30 % sur chaque tâche.
-- **Sur le terrain, c'est plus lent qu'à l'entraînement.** Les tâches ont pris environ 40 % de plus sur Apollo 15 et 70 % de plus sur Apollo 16. Un seul carottage double a pris 6,7 à 7,2 min sur Apollo 15.
-- **Adapter, c'est choisir quoi sauter.** Pour Artemis III, les objectifs ont une priorité fixée à l'avance. Ici, on sacrifie le prélèvement que le rover a déjà fait, pas l'objectif nouveau.
+- **Tasks are taking longer than expected.** On Apollo 14, they took 23% longer than planned and the first exit exceeded by about 30 min. The crew caught up by reducing their travel. He considered a margin of 25 to 30% on each task desirable.
+- **In the field, it's slower than in training.** Tasks took about 40% longer on Apollo 15 and 70% longer on Apollo 16. A single double core took 6.7-7.2 min on Apollo 15.
+- **Adapting means choosing what to skip.** For Artemis III, the objectives have a priority set in advance. Here, we sacrifice the sampling that the rover has already made, not the new objective.
 
-## Hypothèses de l'équipe
+## Team hypotheses
 
-- La répartition d'un arrêt de 75 min en tâches. Seules les durées totales d'arrêt sont sourcées.
-- Le temps de terrain de 360 min, avec 1 h pour sortir et rentrer (optimiste face aux 1,5 à 2 h d'Artemis III), la réserve de 60 min, la vitesse de 2 km/h et la position du camp.
-- Les 50 min du 2e prélèvement : c'est une phase entière de BASALT, pas une mesure faite sur ce site.
-- Les sources lunaires et les essais sur Terre sont transposés à Mars par analogie.
+- The distribution of a 75 min stop into tasks. Only total downtimes are sourced.
+- The field time of 360 min, with 1 hour to exit and return (optimistic compared to the 1.5 to 2 hours of Artemis III), the reserve of 60 min, the speed of 2 km/h and the position of the camp.
+- The 50 min of the 2nd sampling: this is an entire phase of BASALT, not a measurement taken on this site.
+- Lunar sources and tests on Earth are transposed to Mars by analogy.
 
-**Dans l'application (PR #50) :**
-- À l'étape 3 de la préparation, saisir 360 min de durée disponible et 60 min de réserve. La vitesse reste à 0,5 m/s.
-- Chaque arrêt compte 75 min d'activités : observation 10 min, photo 20 min, prélèvement 45 min. Le 2e prélèvement d'Amalik dure 50 min. Skinner Ridge réduit garde l'observation et la photo (30 min).
-- Préparer et enregistrer la mission avant la présentation. En direct, on ajoute seulement le 2e prélèvement, puis on adapte Skinner Ridge.
+**In the application (PR #50):**
+- In step 3 of preparation, enter 360 min of available time and 60 min of reserve. The speed remains at 0.5 m/s.
+- Each stop has 75 minutes of activities: observation 10 minutes, photo 20 minutes, sampling 45 minutes. The 2nd Amalik sample lasts 50 min. Reduced Skinner Ridge guard observation and photo (30 min).
+- Prepare and record the mission before the presentation. Live, we only add the 2nd sample, then we adapt Skinner Ridge.
 
 ## Sources
 
-| Source | Ce qu'on en tire | Emplacement |
+| Source | What we get from it | Location |
 | --- | --- | --- |
-| [Procédures de surface d'Apollo 17, volume 1](https://pds-geosciences.wustl.edu/Lunar/urn-nasa-pds-apollodoc/document_a17/mission/a17_final_lunar_surface_procedures_vol1_nominal.pdf) | 7 h par sortie ; arrêts prévus de 30 à 66 min | PDF p. 19 ; arrêts p. 107, 168, 176, 229, 241 et 249 |
-| [Article BASALT, Astrobiology 2019](https://pmc.ncbi.nlm.nih.gov/articles/PMC6442258/) | Sortie de 4 h ; 2 à 3 arrêts ; phases : repérage 10 min, recherche 1 h, examen 1 h, prélèvement 50 min | Section 1.2 |
-| [Marquez, Apollo 14](https://ntrs.nasa.gov/api/citations/20100036754/downloads/20100036754.pdf) | +23 % sur les tâches ; dépassement de 30 min ; marge de 25 à 30 % souhaitée | PDF p. 5, 7 et 9 |
-| [Apollo 15 Time and Motion Study](https://ntrs.nasa.gov/api/citations/19730008096/downloads/19730008096.pdf) | +40 % par rapport à l'entraînement ; carottage double en 6,7 à 7,2 min | PDF p. 7 ; tableau 5, PDF p. 35 |
-| [Apollo 16 Time and Motion Study](https://ntrs.nasa.gov/api/citations/19730008098/downloads/19730008098.pdf) | +70 % par rapport à l'entraînement | PDF p. 7 |
-| [Tenets of Lunar EVAs for Artemis III](https://ntrs.nasa.gov/citations/20230008183) | Réserve exigée à chaque sortie ; 2 km au plus de l'atterrisseur ; objectifs classés par priorité ; 1,5 à 2 h de temps annexe par sortie, dont 30 min au plus de dépoussiérage | Points 1, 4, 5, 6 et 7 |
-| [Points de prélèvement NASA](https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_SAMPLE_v3.json) | Coordonnées des trois arrêts | `outcrop_name` |
-| [Catalogue NASA des échantillons](https://science.nasa.gov/mission/mars-2020-perseverance/mars-rock-samples/) | 2 carottes déjà prises par le rover à Skinner Ridge (Swift Run et Skyland) | Échantillons de 2022 |
+| [Apollo 17 Surface Procedures, Volume 1](https://pds-geosciences.wustl.edu/Lunar/urn-nasa-pds-apollodoc/document_a17/mission/a17_final_lunar_surface_procedures_vol1_nominal.pdf) | 7 hours per outing; stops planned from 30 to 66 min | PDF p. 19; stops p. 107, 168, 176, 229, 241 and 249 |
+| [Article BASALT, Astrobiology 2019](https://pmc.ncbi.nlm.nih.gov/articles/PMC6442258/) | 4 hour outing; 2 to 3 stops; phases: identification 10 min, research 1 hour, examination 1 hour, sampling 50 min | Section 1.2 |
+| [Marquez, Apollo 14](https://ntrs.nasa.gov/api/citations/20100036754/downloads/20100036754.pdf) | +23% on tasks; exceeded 30 min; margin of 25 to 30% desired | PDF p. 5, 7 and 9 |
+| [Apollo 15 Time and Motion Study](https://ntrs.nasa.gov/api/citations/19730008096/downloads/19730008096.pdf) | +40% compared to training; double coring in 6.7 to 7.2 min | PDF p. 7; table 5, PDF p. 35 |
+| [Apollo 16 Time and Motion Study](https://ntrs.nasa.gov/api/citations/19730008098/downloads/19730008098.pdf) | +70% compared to training | PDF p. 7 |
+| [Tenets of Lunar EVAs for Artemis III](https://ntrs.nasa.gov/citations/20230008183) | Reserve required for each outing; 2 km at most from the lander; objectives classified by priority; 1.5 to 2 hours of additional time per outing, including a maximum of 30 minutes of dusting | Points 1, 4, 5, 6 and 7 |
+| [Sampling points NASA](https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_SAMPLE_v3.json) | Contact details of the three stops | `outcrop_name` |
+| [NASA Sample Catalog](https://science.nasa.gov/mission/mars-2020-perseverance/mars-rock-samples/) | 2 cores already taken by the rover at Skinner Ridge (Swift Run and Skyland) | 2022 Samples |

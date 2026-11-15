@@ -1,3 +1,6 @@
+import { locale } from '../../i18n';
+import { localize } from '@marps/ui';
+import '../../i18n';
 import { useEffect, useRef, useState } from 'react';
 import type Map from 'ol/Map';
 import ImageLayer from 'ol/layer/Image';
@@ -24,13 +27,13 @@ const sources = [
 
 export function GlobalAtlasReferences() {
   return <div className="space-y-3 text-sm">{sources.map(source => <div key={source.url}>
-    <a className="inline-flex min-h-11 items-center underline" href={source.url}>{source.title}</a>
-    <p>{source.note}</p>
+    <a className="inline-flex min-h-11 items-center underline" href={source.url}>{localize(source.title)}</a>
+    <p>{localize(source.note)}</p>
   </div>)}
-    <a className="inline-flex min-h-11 items-center underline" href="https://services.arcgis.com/nzS0F0zdNLvs7nc8/ArcGIS/rest/services/Mars_Geology_feature_layer/FeatureServer/0">Distribution des polygones géologiques · Esri StoryMaps</a>
-    <a className="inline-flex min-h-11 items-center underline" href="https://www-mars.lmd.jussieu.fr/mcd_python/">Explorer le climat simulé en ligne · MCD</a>
-    <p>Fichiers locaux figés le 15 novembre 2026, disponibles après préparation hors ligne. Les couches mondiales n’étendent pas la planification détaillée hors Jezero.</p>
-    <a className="inline-flex min-h-11 items-center underline" href={`${import.meta.env.BASE_URL}atlas/manifest.json`}>Provenance et empreintes des fichiers de l’atlas</a>
+    <a className="inline-flex min-h-11 items-center underline" href="https://services.arcgis.com/nzS0F0zdNLvs7nc8/ArcGIS/rest/services/Mars_Geology_feature_layer/FeatureServer/0">{localize("Distribution des polygones géologiques · Esri StoryMaps")}</a>
+    <a className="inline-flex min-h-11 items-center underline" href="https://www-mars.lmd.jussieu.fr/mcd_python/">{localize("Explorer le climat simulé en ligne · MCD")}</a>
+    <p>{localize("Fichiers locaux figés le 15 novembre 2026, disponibles après préparation hors ligne. Les couches mondiales n’étendent pas la planification détaillée hors Jezero.")}</p>
+    <a className="inline-flex min-h-11 items-center underline" href={`${import.meta.env.BASE_URL}atlas/manifest.json`}>{localize("Provenance et empreintes des fichiers de l’atlas")}</a>
   </div>;
 }
 
@@ -64,7 +67,7 @@ export function GlobalAtlas({ map }: { map: Map | null }) {
       return new ImageLayer({ source, visible: false, zIndex: id === 'hrsc' ? 1 : 2 });
     };
     const hrsc = image('hrsc', 'hrsc.jpg', atlas.hrsc.extent, 'ESA/DLR/FU Berlin — HRSC');
-    const tes = image('tes', 'tes.png', atlas.tes.extent, 'NASA MGS/TES — Christensen et al. (2001), ASU');
+    const tes = image('tes', 'tes.png', atlas.tes.extent, localize("NASA MGS/TES — Christensen et al. (2001), ASU"));
     const source = new VectorSource({ wrapX: false });
     const geo = new VectorLayer({ source, visible: false, zIndex: 3 });
     map.addLayer(hrsc); map.addLayer(tes); map.addLayer(geo);
@@ -119,33 +122,33 @@ export function GlobalAtlas({ map }: { map: Map | null }) {
   let time: ReturnType<typeof marsSolarTime> | null = null;
   try { time = marsSolarTime(Date.parse(`${utc}Z`), point[0]!); } catch { /* Outside verified UTC conversion. */ }
   const visible = [base === 'hrsc' ? 'hrsc' : '', thermal ? 'tes' : '', geology ? 'geology' : ''].filter(Boolean);
-  return <Panel title="Atlas de Mars" floating className="text-sm" collapsible={false}>
-    <fieldset className="space-y-2"><legend className="font-semibold">Fond mondial</legend>
-      <label className="flex min-h-11 items-center gap-2"><input type="radio" name="atlas-base" checked={base === 'mola'} onChange={() => setBase('mola')} />Relief MOLA</label>
-      <label className="flex min-h-11 items-center gap-2"><input type="radio" name="atlas-base" checked={base === 'hrsc'} onChange={() => setBase('hrsc')} />Couleur HRSC</label>
-      {base === 'hrsc' && <p className="text-xs">Aperçu couleur : environ 16,7 km/pixel. ESA/DLR/FU Berlin.</p>}
+  return <Panel title={localize("Atlas de Mars")} floating className="text-sm" collapsible={false}>
+    <fieldset className="space-y-2"><legend className="font-semibold">{localize("Fond mondial")}</legend>
+      <label className="flex min-h-11 items-center gap-2"><input type="radio" name="atlas-base" checked={base === 'mola'} onChange={() => setBase('mola')} />{localize("Relief MOLA")}</label>
+      <label className="flex min-h-11 items-center gap-2"><input type="radio" name="atlas-base" checked={base === 'hrsc'} onChange={() => setBase('hrsc')} />{localize("Couleur HRSC")}</label>
+      {base === 'hrsc' && <p className="text-xs">{localize("Aperçu couleur : environ 16,7 km/pixel. ESA/DLR/FU Berlin.")}</p>}
     </fieldset>
-    <LayerSwitch label="Géologie USGS" checked={geology} onChange={setGeology} />
-    {geology && <p className="text-xs">Unités simplifiées au 1:20 000 000. Cliquez sur un terrain pour lire son unité ; description originale en anglais.</p>}
-    <LayerSwitch label="Inertie thermique TES" checked={thermal} onChange={setThermal} />
+    <LayerSwitch label={localize("Géologie USGS")} checked={geology} onChange={setGeology} />
+    {geology && <p className="text-xs">{localize("Unités simplifiées au 1:20 000 000. Cliquez sur un terrain pour lire son unité ; description originale en anglais.")}</p>}
+    <LayerSwitch label={localize("Inertie thermique TES")} checked={thermal} onChange={setThermal} />
     {thermal && <div className="space-y-2 text-xs">
-      <p>Propriété thermique dérivée · 7,5 km/pixel · 60°S–60°N. Hors bande : aucune donnée TES.</p>
+      <p>{localize("Propriété thermique dérivée · 7,5 km/pixel · 60°S–60°N. Hors bande : aucune donnée TES.")}</p>
       <div aria-hidden="true" className="h-3" style={{ background: 'linear-gradient(to right, #7000c0, blue, cyan, #00dc00, yellow, red, pink, white)' }} />
-      <p>Violet : faible inertie → blanc : forte inertie. Lecture qualitative ; aucune température ni valeur numérique au clic.</p>
-      <label className="grid gap-2">Opacité TES : {Math.round(opacity * 100)} %<input className="min-h-11 w-full" type="range" min="0" max="100" value={Math.round(opacity * 100)} onChange={event => setOpacity(Number(event.target.value) / 100)} /></label>
+      <p>{localize("Violet : faible inertie → blanc : forte inertie. Lecture qualitative ; aucune température ni valeur numérique au clic.")}</p>
+      <label className="grid gap-2">{localize("Opacité TES :")} {Math.round(opacity * 100)} {localize("%")}<input className="min-h-11 w-full" type="range" min="0" max="100" value={Math.round(opacity * 100)} onChange={event => setOpacity(Number(event.target.value) / 100)} /></label>
     </div>}
-    {visible.map(id => statuses[id] && <p role="status" key={id}>{id === 'tes' ? 'TES' : id === 'hrsc' ? 'HRSC' : 'Géologie'} : {statuses[id] === 'ready' ? 'données locales chargées' : statuses[id] === 'loading' ? 'chargement…' : 'indisponible, le fond MOLA reste accessible'}</p>)}
-    {visible.some(id => statuses[id] === 'error') && <Button size="sm" variant="outline" onClick={() => setAttempt(value => value + 1)}>Réessayer les couches</Button>}
+    {visible.map(id => statuses[id] && <p role="status" key={id}>{id === 'tes' ? 'TES' : id === 'hrsc' ? 'HRSC' : localize("Géologie")} {localize(":")} {statuses[id] === 'ready' ? localize("données locales chargées") : statuses[id] === 'loading' ? localize("chargement…") : localize("indisponible, le fond MOLA reste accessible")}</p>)}
+    {visible.some(id => statuses[id] === 'error') && <Button size="sm" variant="outline" onClick={() => setAttempt(value => value + 1)}>{localize("Réessayer les couches")}</Button>}
     <div className="mt-3 space-y-2 border-t pt-3">
-      <h3 className="font-semibold">Point exploré</h3>
-      <p>{point[0]!.toFixed(2)}° E · {point[1]!.toFixed(2)}° N</p>
-      <p className="text-xs">Cliquez sur Mars ou déplacez la carte puis lisez son centre.</p>
-      <Button size="sm" variant="outline" onClick={() => readAtCenter.current()}>Lire au centre de la carte</Button>
-      {geology && <p aria-live="polite">{unit ? <><strong>{unit.code}</strong> · {unit.description}</> : 'Aucune unité sélectionnée. Cliquez sur une zone après chargement.'}</p>}
-      <label className="grid gap-2">Date et heure terrestres (UTC)<input className="min-h-11 min-w-0 w-full border bg-background p-2" type="datetime-local" min="2000-01-01T00:00" max="2026-12-31T23:59" value={utc} onChange={event => setUtc(event.target.value)} /></label>
-      {time ? <dl><dt>Heure solaire moyenne (LMST)</dt><dd>{clock(time.meanHours)}</dd><dt>Heure solaire vraie (LTST)</dt><dd>{clock(time.trueHours)}</dd><dt>Saison martienne (Ls)</dt><dd>{time.solarLongitude.toFixed(1)}°</dd></dl> : <p role="status">Heure solaire indisponible : choisir une date entre 2000 et 2026.</p>}
-      <p className="text-xs">Calcul Mars24 pour la date choisie, indépendant de l’heure de la mission et des mesures MEDA.</p>
+      <h3 className="font-semibold">{localize("Point exploré")}</h3>
+      <p>{localize(point[0]!.toLocaleString(locale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}{localize("° E ·")} {localize(point[1]!.toLocaleString(locale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}{localize("° N")}</p>
+      <p className="text-xs">{localize("Cliquez sur Mars ou déplacez la carte puis lisez son centre.")}</p>
+      <Button size="sm" variant="outline" onClick={() => readAtCenter.current()}>{localize("Lire au centre de la carte")}</Button>
+      {geology && <p aria-live="polite">{unit ? <><strong>{localize(unit.code)}</strong> {localize("·")} {localize(unit.description)}</> : localize("Aucune unité sélectionnée. Cliquez sur une zone après chargement.")}</p>}
+      <label className="grid gap-2">{localize("Date et heure terrestres (UTC)")}<input className="min-h-11 min-w-0 w-full border bg-background p-2" type="datetime-local" min="2000-01-01T00:00" max="2026-12-31T23:59" value={utc} onChange={event => setUtc(event.target.value)} /></label>
+      {time ? <dl><dt>{localize("Heure solaire moyenne (LMST)")}</dt><dd>{clock(time.meanHours)}</dd><dt>{localize("Heure solaire vraie (LTST)")}</dt><dd>{clock(time.trueHours)}</dd><dt>{localize("Saison martienne (Ls)")}</dt><dd>{time.solarLongitude.toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })}{localize("°")}</dd></dl> : <p role="status">{localize("Heure solaire indisponible : choisir une date entre 2000 et 2026.")}</p>}
+      <p className="text-xs">{localize("Calcul Mars24 pour la date choisie, indépendant de l’heure de la mission et des mesures MEDA.")}</p>
     </div>
-    <details className="mt-3 border-t"><summary className="min-h-11 cursor-pointer py-3 font-semibold">Sources et climat mondial</summary><GlobalAtlasReferences /></details>
+    <details className="mt-3 border-t"><summary className="min-h-11 cursor-pointer py-3 font-semibold">{localize("Sources et climat mondial")}</summary><GlobalAtlasReferences /></details>
   </Panel>;
 }

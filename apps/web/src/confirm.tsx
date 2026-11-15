@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import './i18n';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@marps/ui';
 
@@ -37,16 +39,16 @@ export function ConfirmHost() {
   return (
     <dialog
       ref={dialog}
-      aria-label="Confirmation"
+      aria-label={localize("Confirmation")}
       // Échap ou fermeture par le navigateur : la question est refusée.
       onClose={() => answer(false)}
       className="confirm-dialog m-auto w-[min(26rem,calc(100vw-2rem))] border bg-card p-0 text-card-foreground backdrop:bg-black/60"
     >
       <div className="grid gap-4 p-5">
-        <p className="text-base">{request.message}</p>
+        <p className="text-base">{localize(request.message)}</p>
         <div className="flex flex-wrap justify-end gap-2">
-          <Button type="button" variant="outline" autoFocus onClick={() => answer(false)}>{request.cancelLabel ?? 'Annuler'}</Button>
-          <Button type="button" variant={request.destructive ? 'destructive' : 'default'} onClick={() => answer(true)}>{request.confirmLabel ?? 'Confirmer'}</Button>
+          <Button type="button" variant="outline" autoFocus onClick={() => answer(false)}>{localize(request.cancelLabel ?? localize("Annuler"))}</Button>
+          <Button type="button" variant={request.destructive ? 'destructive' : 'default'} onClick={() => answer(true)}>{localize(request.confirmLabel ?? 'Confirmer')}</Button>
         </div>
       </div>
     </dialog>

@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../i18n';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { elevationSampler, loadGrid, terrainDataset, type DatasetDescriptor, type TerrainGrid } from '@marps/data';
 import { sampleProfile, steepPortions, type ProfilePoint, type SteepPortion } from '@marps/mission-core';
@@ -88,7 +90,7 @@ export function RouteProfileProvider({ children }: { children: ReactNode }) {
     () => ({ dem, stops, relief, threshold, setThreshold, focusMetres, setFocusMetres }),
     [dem, stops, relief, threshold, focusMetres],
   );
-  return <RouteProfileContext.Provider value={value}>{children}</RouteProfileContext.Provider>;
+  return <RouteProfileContext.Provider value={value}>{localize(children)}</RouteProfileContext.Provider>;
 }
 
 export function useRouteProfile(): RouteProfile {

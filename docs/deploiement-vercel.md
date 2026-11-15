@@ -1,76 +1,76 @@
-# Déploiement statique Vercel
+# Vercel static deployment
 
-## État
+## State
 
-La configuration du dépôt est prête dans `vercel.json`. La publication et la
-connexion Git restent à effectuer : l'accès Vercel disponible pendant la
-préparation a renvoyé `403 Not authorized`.
+The repository configuration is ready in `vercel.json`. The publication and
+Git connection remains to be made: Vercel access available during the
+preparation returned `403 Not authorized`.
 
-- URL de production : **non attribuée**, à remplacer ici par le domaine affiché
-  dans Vercel après le premier déploiement réussi depuis `main`.
-- Previews des PR : non vérifiées tant que l'intégration Git n'est pas connectée.
-- Recette navigateur déployé et WMTS : en attente. Le socle actuel ne contient
-  ni carte, ni requête WMTS, ni routeur ; ne pas déclarer ces contrôles réussis.
+- Production URL: **unassigned**, replace here with the domain displayed
+in Vercel after the first successful deployment from `main`.
+- PR previews: not checked until Git integration is connected.
+- Deployed browser and WMTS recipe: pending. The current base does not contain
+no card, no WMTS request, no router; do not declare these checks successful.
 
-## Importer le dépôt
+## Import repository
 
-Dans [New Project](https://vercel.com/new), connecter le compte GitHub autorisé à
-lire `ManuelR-T/martian-map`, puis importer ce dépôt.
+In [New Project](https://vercel.com/new), connect the authorized GitHub account to
+read `ManuelR-T/martian-map`, then import this repository.
 
-| Réglage | Valeur |
+| Setting | Value |
 | --- | --- |
-| Root Directory | Racine du dépôt (`.`), pas `apps/web` |
-| Framework Preset | Vite |
-| Node.js Version | 24.x, compatible avec `engines` |
+| Root Directory | Repository root (`.`), not `apps/web` |
+| Framework Preset | Quick |
+| Node.js Version | 24.x, compatible with `engines` |
 | Install Command | `pnpm install --frozen-lockfile` |
-| Build Command | `pnpm --filter @marps/web... build` |
+| BuildCommand | `pnpm --filter @marps/web... build` |
 | Output Directory | `apps/web/dist` |
-| Variables d'environnement | `ENABLE_EXPERIMENTAL_COREPACK=1` (Production et Preview) |
+| Environment Variables | `ENABLE_EXPERIMENTAL_COREPACK=1` (Production and Preview) |
 | Production Branch | `main` |
 
-Les trois commandes/répertoires sont versionnés dans `vercel.json`. Le filtre
-pnpm avec `...` inclut les dépendances internes de l'application : les packages
-partagés sont vérifiés avant le build Vite. `packageManager` fixe pnpm 9.15.4.
-Activer `ENABLE_EXPERIMENTAL_COREPACK=1` dans les environnements Production et
-Preview pour que Vercel respecte cette version exacte, plutôt que sa version
-pnpm 9.x par défaut. Cette variable configure le build, pas le bundle client.
-Vérifier ces versions dans les logs du premier build.
+All three commands/directories are versioned in `vercel.json`. The filter
+pnpm with `...` includes internal application dependencies: packages
+Shared files are checked before the Vite build. `packageManager` fixed pnpm 9.15.4.
+Enable `ENABLE_EXPERIMENTAL_COREPACK=1` in Production and
+Preview so that Vercel respects this exact version, rather than his version
+pnpm 9.x by default. This variable configures the build, not the client bundle.
+Check these versions in the logs of the first build.
 
-Dans les paramètres Git du projet, vérifier la connexion au dépôt et la branche
-de production `main`. L'intégration Vercel pour GitHub crée les déploiements de
-preview pour les branches et PR ; elle publie les pushes de `main` en production.
-Ouvrir une PR, vérifier le statut Vercel et visiter son URL de preview. Après
-fusion, vérifier que le déploiement de production correspond au SHA de `main`,
-puis reporter son domaine stable dans la section État. Les contrôles GitHub
-Actions restent distincts : configurer leur obligation dans les règles de
-branche si l'on veut bloquer une fusion en cas d'échec.
+In the project's Git settings, check the repository connection and branch
+production `main`. The Vercel integration for GitHub creates deployments of
+preview for branches and PR; she publishes the pushes of `main` in production.
+Open a PR, check the Vercel status and visit its preview URL. After
+merge, verify that the production deployment matches the SHA of `main`,
+then report its stable domain in the Status section. GitHub controls
+Actions remain distinct: configure their obligation in the rules of
+branch if you want to block a merge in case of failure.
 
-Aucun token Vercel n'est nécessaire dans GitHub Actions avec cette intégration.
-Ne pas ajouter de secret dans `VITE_*` : ces variables sont publiques dans le
-bundle. `.vercel/` et les fichiers `.env*` locaux sont ignorés par Git.
+No Vercel token is needed in GitHub Actions with this integration.
+Do not add a secret in `VITE_*`: these variables are public in the
+bundle. `.vercel/` and local `.env*` files are ignored by Git.
 
-## Assets et données
+## Assets and data
 
-Vite sert l'application à la racine du domaine (`base` par défaut `/`) ; les
-références JS/CSS générées pointent vers `/assets/`. Les exports TypeScript des
-packages partagés sont transformés et intégrés au bundle.
+Vite serves the application at the root of the domain (`base` by default `/`); THE
+Generated JS/CSS references point to `/assets/`. TypeScript exports of
+Shared packages are transformed and integrated into the bundle.
 
-Le catalogue `@marps/data` est actuellement vide. `data/research/` contient les
-sources de recherche et **n'est pas publié**. Pour intégrer un fichier statique,
-le placer dans `apps/web/public/data/` (publié sous `/data/`) ou l'importer depuis
-le code pour que Vite le traite. Ne pas faire référence à un chemin de fichier
-local du dépôt depuis le navigateur. Vérifier chaque URL de données une fois
-son intégration effectuée ; ne pas copier tout le dossier de recherche.
+Catalog `@marps/data` is currently empty. `data/research/` contains the
+research sources and **is not published**. To integrate a static file,
+place it in `apps/web/public/data/` (published as `/data/`) or import it from
+the code for Vite to process. Do not reference a file path
+repository local from the browser. Check each data URL once
+its integration carried out; do not copy the entire search folder.
 
-Il n'y a pas de routeur actuellement : seule `/` doit charger l'application.
-Aucune réécriture globale n'est configurée. Si un routeur utilisant History API
-est ajouté, ajouter les réécritures des routes applicatives vers `/index.html`
-en préservant les erreurs 404 des assets et données manquants, puis vérifier
-l'accès direct et le rechargement de chaque route.
+There is currently no router: only `/` should load the application.
+No global rewrite is configured. If a router using History API
+is added, add the rewrites of the application routes to `/index.html`
+preserving 404 errors from missing assets and data, then checking
+direct access and reloading of each road.
 
-## Démonstration locale reproductible
+## Reproducible local demonstration
 
-Avec Node 24.14.0 et pnpm 9.15.4, depuis la racine :
+With Node 24.14.0 and pnpm 9.15.4, from the root:
 
 ```sh
 pnpm install --frozen-lockfile
@@ -78,65 +78,65 @@ pnpm --filter @marps/web... build
 pnpm --filter @marps/web preview --host 127.0.0.1 --port 4173 --strictPort
 ```
 
-Visiter `http://127.0.0.1:4173/`, puis recharger. Le texte Jezero, le calcul de
-60 secondes et le panneau stylé confirment les imports des trois packages
-partagés. Cette commande sert le bundle construit ; le serveur Vite preview
-est uniquement destiné à la vérification locale.
+Visit `http://127.0.0.1:4173/`, then reload. The Jezero text, the calculation of
+60 seconds and the styled panel confirm the imports of the three packages
+shared. This command serves the built bundle; the Vite preview server
+is for local verification only.
 
-## Recette sur chaque environnement déployé
+## Recipe on each deployed environment
 
-1. Ouvrir directement `/` dans une nouvelle session, puis recharger. Vérifier
-   l'affichage du socle et l'absence d'erreur dans la console.
-2. Dans Réseau, désactiver le cache puis recharger : HTML, JS et CSS doivent
-   répondre 200 avec leurs bons types MIME, sans référence à localhost.
-3. Lorsque des données seront intégrées, vérifier leurs URL et leur contenu,
-   les attributions et l'absence d'erreur 404 ou de réponse HTML à la place du JSON.
-4. Lorsque la carte WMTS sera intégrée, vérifier depuis la preview **et** la
-   production les capacités et les tuiles sur le domaine NASA utilisé : HTTPS,
-   CORS autorisant la lecture depuis le site, codes HTTP et images attendues.
-   Un simple téléchargement depuis le terminal ne valide pas CORS.
-5. Bloquer le domaine de tuiles dans les outils du navigateur et recharger :
-   vérifier qu'un message visible explique l'échec réseau et permet de réessayer.
-   Ce comportement devra être implémenté avec la carte, absente du socle actuel.
-6. Vérifier qu'aucun secret n'a été ajouté au code, aux fichiers publics ou aux
-   variables `VITE_*` du projet.
+1. Open `/` directly in a new session, then reload. Check
+the display of the base and the absence of errors in the console.
+2. In Network, deactivate the cache then reload: HTML, JS and CSS must
+respond 200 with their correct MIME types, without reference to localhost.
+3. When data will be integrated, check their URLs and content,
+attributions and the absence of 404 errors or HTML responses instead of JSON.
+4. When the WMTS card is integrated, check from the preview **and** the
+production capabilities and tiles on the NASA domain used: HTTPS,
+CORS authorizing reading from the site, HTTP codes and expected images.
+A simple download from the terminal does not validate CORS.
+5. Block tile domain in browser tools and reload:
+verify that a visible message explains the network failure and allows you to try again.
+This behavior must be implemented with the card, which is absent from the current base.
+6. Verify that no secrets have been added to code, public files, or
+`VITE_*` variables of the project.
 
-Consigner l'URL, le SHA, la date, le navigateur et les résultats dans la section
-État ; laisser les contrôles absents en attente.
+Log URL, SHA, date, browser and results in section
+State ; leave missing controls pending.
 
-## Retour à une version précédente
+## Return to a previous version
 
-Dans le projet Vercel, ouvrir **Deployments**, choisir un déploiement de
-production antérieur connu comme fonctionnel et utiliser **Instant Rollback**
-(si disponible pour le compte). Vérifier le domaine de production, recharger
-sans cache et refaire la recette ci-dessus. Le rollback réaffecte le domaine
-au déploiement existant ; il ne corrige pas la branche Git.
+In the Vercel project, open **Deployments**, choose a deployment
+Previous production known as working and using **Instant Rollback**
+(if available for the account). Check production domain, reload
+without cache and repeat the recipe above. Rollback reassigns the domain
+to existing deployment; it doesn't patch the Git branch.
 
-Pour conserver la correction dans Git, ouvrir ensuite une PR qui annule le
-commit fautif, faire passer la CI puis fusionner dans `main`. Si le rollback
-n'est pas disponible, cette PR et son nouveau déploiement constituent la
-procédure de repli. Ne pas supprimer les anciens déploiements fonctionnels.
+To keep the correction in Git, then open a PR which undoes the
+faulty commit, pass the CI then merge into `main`. If the rollback
+is not available, this PR and its new deployment constitute the
+fallback procedure. Do not delete old working deployments.
 
-## Références
+## References
 
 - [Configuration vercel.json](https://vercel.com/docs/project-configuration/vercel-json)
-- [Intégration GitHub et previews](https://vercel.com/docs/git/vercel-for-github)
-- [Retour à un déploiement précédent](https://vercel.com/docs/deployments/rollback-production-deployment)
-- [Déploiement statique Vite](https://vite.dev/guide/static-deploy.html)
+- [GitHub integration and previews](https://vercel.com/docs/git/vercel-for-github)
+- [Revert to a previous deployment](https://vercel.com/docs/deployments/rollback-production-deployment)
+- [Vite](https://vite.dev/guide/static-deploy.html) static deployment
 
-## Dépannage : versions incompatibles
+## Troubleshooting: incompatible versions
 
-Si les logs affichent `ERR_PNPM_UNSUPPORTED_ENGINE`, par exemple pnpm 9.15.9
-au lieu de 9.15.4 et Node 26 au lieu de 24 :
+If the logs show `ERR_PNPM_UNSUPPORTED_ENGINE`, for example pnpm 9.15.9
+instead of 9.15.4 and Node 26 instead of 24:
 
-1. Régler Root Directory sur la racine du dépôt, pas `apps/web`.
-2. Dans Settings → Build and Deployment, choisir Node.js 24.x.
-3. Ajouter `ENABLE_EXPERIMENTAL_COREPACK=1` dans les variables du projet
-   pour Production et Preview.
-4. Vérifier les commandes du tableau ci-dessus puis redéployer sans réutiliser
-   le cache de build. Le déploiement doit utiliser un commit contenant
-   `vercel.json` à la racine.
+1. Set Root Directory to the root of the repository, not `apps/web`.
+2. In Settings → Build and Deployment, choose Node.js 24.x.
+3. Add `ENABLE_EXPERIMENTAL_COREPACK=1` in project variables
+for Production and Preview.
+4. Check the commands in the table above then redeploy without reusing
+the build cache. The deployment must use a commit containing
+`vercel.json` at the root.
 
-Ne pas désactiver `engine-strict` pour contourner ces erreurs.
+Do not disable `engine-strict` to work around these errors.
 
-Référence : [Corepack sur Vercel](https://vercel.com/docs/builds/configure-a-build).
+Reference: [Corepack on Vercel](https://vercel.com/docs/builds/configure-a-build).
