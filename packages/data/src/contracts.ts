@@ -1,7 +1,7 @@
 import type { MarsCoordinate } from '@marps/mission-core';
 
 /** Manifest format produced by tools/data; bump with `SCHEMA_VERSION` in tools/data/marps_data/spec.py. */
-export const MANIFEST_SCHEMA_VERSION = 3;
+export const MANIFEST_SCHEMA_VERSION = 4;
 
 /** Lon/lat box in planetocentric degrees, longitude positive east. */
 export interface Extent {
@@ -16,8 +16,9 @@ export type DataStatus = 'available' | 'partial' | 'unavailable';
 /**
  * `slope` and `hillshade` are computed from the `elevation` dataset named by `derivedFrom`.
  * `thermal` is an overlay of relative contrasts, never the imagery basemap nor temperatures.
+ * `geology` is an interpretive map: its units are the authors' reading, described by `geology`.
  */
-export type DatasetKind = 'basemap' | 'imagery' | 'elevation' | 'slope' | 'hillshade' | 'sites' | 'rover-waypoints' | 'rover-traverse' | 'thermal' | 'weather';
+export type DatasetKind = 'basemap' | 'imagery' | 'elevation' | 'slope' | 'hillshade' | 'sites' | 'rover-waypoints' | 'rover-traverse' | 'thermal' | 'weather' | 'geology';
 /** `local` files are frozen under the data root; `remote` is streamed and not available offline. */
 export type DatasetDelivery = 'local' | 'remote';
 export type RegionKind = 'orientation' | 'detailed';
@@ -138,6 +139,44 @@ export interface ImageryWmts {
   readonly matrices: readonly { readonly id: string; readonly origin: readonly number[]; readonly tileSize: number; readonly width: number; readonly height: number }[];
 }
 
+export interface GeologicUnit {
+  /** As published, for example `NHjf2`; its first capitals give the period. */
+  readonly symbol: string;
+  /** Unit name as published by the authors (English). */
+  readonly name: string;
+  readonly period: string;
+  /** Display colour chosen by the app, not the map sheet's. */
+  readonly colour: string;
+  /** Fraction of the region extent covered by the unit, 0 when it is only a site candidate. */
+  readonly sectorShare: number;
+}
+
+/** Units within the registration uncertainty of a site, nearest first. */
+export interface SiteGeology {
+  readonly siteId: string;
+  readonly candidates: readonly { readonly symbol: string; readonly distanceMetres: number }[];
+  /** Set only when a single unit lies within the uncertainty; null means ambiguous, never a guess. */
+  readonly assignedSymbol: string | null;
+}
+
+export interface GeologicMap {
+  readonly authors: string;
+  /** Publication year. */
+  readonly published: string;
+  /** Denominator of the publication scale, for example 75000 for 1:75,000. */
+  readonly scale: number;
+  readonly interpretive: true;
+  readonly recordUrl: string;
+  /** `none`: the source offset is random, so no single shift corrects it; `offsetMetres.max` is the uncertainty. */
+  readonly registration: {
+    readonly method: 'none';
+    readonly offsetMetres: { readonly min: number; readonly max: number };
+    readonly sourceUrl: string;
+  };
+  readonly units: readonly GeologicUnit[];
+  readonly sites: readonly SiteGeology[];
+}
+
 export interface DatasetDescriptor {
   readonly wmts?: ImageryWmts;
   readonly id: string;
@@ -168,6 +207,8 @@ export interface DatasetDescriptor {
   readonly verticalDatum?: string;
   /** Id of the elevation dataset a `slope` or `hillshade` was computed from. */
   readonly derivedFrom?: string;
+  /** Present for `geology`: credits, registration uncertainty, legend and site context. */
+  readonly geology?: GeologicMap;
 }
 
 export interface SiteDescriptor {

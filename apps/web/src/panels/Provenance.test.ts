@@ -75,7 +75,7 @@ describe('contextual provenance displays', () => {
     const region = manifest.regions.find((candidate) => candidate.id === 'jezero')!;
     const html = renderToStaticMarkup(createElement(RegionCapabilities, { region, manifest }));
     expect(html).toContain('Température et pression MEDA');
-    expect(html).toContain('Non intégré à cette version du manifeste.');
+    expect(html).toContain('Vent non publié après le sol 315 : capteur de vent endommagé.');
     const broken = { ...manifest, datasets: [] };
     const missing = renderToStaticMarkup(createElement(RegionCapabilities, { region, manifest: broken }));
     expect(missing).not.toContain('Disponible dans l’emprise déclarée.');

@@ -8,6 +8,7 @@ They are not required to install, start or build the frontend.
 - `marps_data/check.py`: validates frozen data offline.
 - `marps_data/geo.py`: shared grid arithmetic (WMTS tiles, DEM window).
 - `marps_data/terrain.py`: aggregation, slope and shaded relief calculated on altitudes.
+- `marps_data/geology.py`: partial read of the USGS SIM 3464 zip, MTM to lon/lat, clipping and site candidates (see `docs/geologie-jezero.md`).
 
 From the root of the repository, with [uv](https://docs.astral.sh/uv/) installed:
 
@@ -32,4 +33,4 @@ and `.cache/M20_traverse.json`. Ordinary builds/checks/tests never download them
 To refresh, explicitly download and review the changed source, update the hash,
 replace its cached input, and run `pnpm data:prepare` then `pnpm data:check`.
 Never accept changed geometry or metadata solely to bypass a hash failure.
-Schema 3 adds the rover dataset kinds; ship manifest and consumer together.
+Schema 3 adds the rover dataset kinds; schema 4 adds the `geology` kind. Ship manifest and consumer together.
