@@ -13,8 +13,11 @@ export interface Extent {
 
 /** `partial` means holes exist (NoData); `unavailable` means nothing usable. Never infer coverage from a basemap. */
 export type DataStatus = 'available' | 'partial' | 'unavailable';
-/** `slope` and `hillshade` are computed from the `elevation` dataset named by `derivedFrom`. */
-export type DatasetKind = 'basemap' | 'imagery' | 'elevation' | 'slope' | 'hillshade' | 'sites' | 'rover-waypoints' | 'rover-traverse';
+/**
+ * `slope` and `hillshade` are computed from the `elevation` dataset named by `derivedFrom`.
+ * `thermal` is an overlay of relative contrasts, never the imagery basemap nor temperatures.
+ */
+export type DatasetKind = 'basemap' | 'imagery' | 'elevation' | 'slope' | 'hillshade' | 'sites' | 'rover-waypoints' | 'rover-traverse' | 'thermal';
 /** `local` files are frozen under the data root; `remote` is streamed and not available offline. */
 export type DatasetDelivery = 'local' | 'remote';
 export type RegionKind = 'orientation' | 'detailed';

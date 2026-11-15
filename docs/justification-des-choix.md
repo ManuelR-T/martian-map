@@ -24,3 +24,22 @@ Chaque choix répond à un usage concret d'un astronaute en sortie sur Mars et s
 - La fiche tient sans défilement sur une tablette en paysage, avec des lignes de 44 px de haut : le coéquipier suit la sortie en direct, il ne doit pas chercher l'information. La photo s'agrandit d'un toucher.
 
 **Écarté volontairement :** le détail scientifique et les sources sur la fiche. Ils n'aident pas sur place ; les sources sont regroupées dans le panneau de provenance (#16). Les molécules organiques ne sont jamais présentées comme une preuve de vie : JPL précise qu'elles peuvent se former sans vie.
+
+## Infrarouge de nuit THEMIS (#22)
+
+| Élément | Usage pour l'astronaute | Source |
+| --- | --- | --- |
+| Couche « Infrarouge de nuit » sur la carte de Jezero | Avant la sortie, repérer sur le parcours les grandes zones de sol meuble et les affleurements rocheux. La nuit, poussière et sable fin se refroidissent vite et paraissent sombres ; roche et sols indurés restent clairs. | [USGS, mosaïques THEMIS contrôlées](https://stac.astrogeology.usgs.gov/docs/data/mars/themis_controlled_mosaics/) |
+| Légende « Sombre : sable, poussière » / « Clair : roche, sol dur » | Lire l'image d'un coup d'œil, sans chiffre. Pour les rovers MER, la NASA écartait les zones de faible inertie thermique, poussiéreuses et peu portantes. | [Mémo NASA Ames sur les sites MER](https://marsoweb.nas.nasa.gov/landingsites/mer2003/doc/original.html) |
+| « Contraste, pas une température. » | Ne pas prendre un gris pour une mesure. L'USGS décrit ces mosaïques comme des produits 8 bits qualitatifs, étirés et fondus pour l'affichage. | USGS, mosaïques THEMIS contrôlées |
+| « Mars Odyssey · THEMIS · 100 m/pixel » et « Mosaïque de 2018 » | Savoir que la donnée est ancienne et grossière : un pixel vaut un terrain de 100 m de côté, bien plus que les détails HiRISE. | [Capacités WMTS NASA Trek](https://trek.nasa.gov/tiles/Mars/EQ/THEMIS_NightIR_ControlledMosaics_100m_v2_oct2018/1.0.0/WMTSCapabilities.xml) |
+| Tuiles figées sur toute l'emprise HiRISE | La couche marche hors ligne dans l'habitat, partout où la carte HiRISE peut être affichée. | Choix de données de l'équipe (4 tuiles, environ 220 Ko) |
+
+**Choix de l'équipe, sans source NASA :**
+- Transposer à un astronaute à pied le critère de portance des rovers : aucune source NASA trouvée ne relie l'infrarouge de nuit à la préparation d'une sortie d'équipage. La couche reste un contexte, jamais un critère « on y va / on n'y va pas ».
+- Couche éteinte par défaut et opacité à 60 % : HiRISE reste l'image de référence, l'infrarouge s'ajoute à la demande et laisse voir le relief dessous.
+- Interrupteur et curseur de 44 px de haut, pour un usage au doigt sur tablette.
+- Interrupteur rangé dans la section « Couches » du panneau Secteur, sous la légende et à côté de l'historique de Perseverance : posé en flottant sur la carte, il passait sous la colonne Budget à partir de 1280 px et masquait le panneau Secteur ou le zoom sur tablette.
+- Ordre d'affichage : HiRISE, puis l'infrarouge de nuit, puis la trace du rover, puis les contours et les sites, pour que l'infrarouge ne cache jamais un repère.
+
+**Écarté volontairement :** toute valeur chiffrée (température, inertie thermique) et la couche sur la carte globale de Mars, qui sert seulement à s'orienter.

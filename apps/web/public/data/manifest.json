@@ -95,9 +95,10 @@
         {
           "id": "thermal-themis",
           "label": "Infrarouge nocturne THEMIS",
-          "status": "unavailable",
-          "datasetIds": [],
-          "reason": "Non intégré à cette version du manifeste."
+          "status": "available",
+          "datasetIds": [
+            "jezero-themis-night-ir"
+          ]
         },
         {
           "id": "weather-meda",
@@ -1012,6 +1013,105 @@
           }
         ]
       }
+    },
+    {
+      "id": "jezero-themis-night-ir",
+      "regionId": "jezero",
+      "title": "Infrarouge de nuit THEMIS (contexte thermique)",
+      "kind": "thermal",
+      "instrument": "Mars Odyssey, caméra THEMIS (mosaïque contrôlée de l'infrarouge de nuit)",
+      "delivery": "local",
+      "source": {
+        "url": "https://trek.nasa.gov/tiles/Mars/EQ/THEMIS_NightIR_ControlledMosaics_100m_v2_oct2018/1.0.0/WMTSCapabilities.xml",
+        "tileUrlTemplate": "https://trek.nasa.gov/tiles/Mars/EQ/THEMIS_NightIR_ControlledMosaics_100m_v2_oct2018/1.0.0/default/default028mm/{z}/{y}/{x}.png",
+        "retrievedAt": "2026-11-14T16:38:59Z",
+        "credit": "NASA/JPL-Caltech/Arizona State University ; mosaïque USGS ; distribué par NASA Mars Trek",
+        "terms": {
+          "summary": "Conditions propres à ce produit non vérifiées ; appliquer au minimum la citation de la source et confirmer avant toute redistribution.",
+          "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+          "verified": false
+        },
+        "fingerprint": {
+          "target": "WMTSCapabilities.xml",
+          "sha256": "33ca1797dbd3a6b05b729ff29aaf484e14be7bcac4f8e1243f0f294eb4b6e504",
+          "bytes": 7681
+        }
+      },
+      "acquisition": {
+        "date": null,
+        "sol": null,
+        "note": "Mosaïque historique publiée en octobre 2018, assemblée à partir de nombreuses nuits ; dates non relevées par tuile."
+      },
+      "units": {},
+      "crs": "urn:ogc:def:crs:EPSG::104905",
+      "extent": {
+        "west": 76.9921875,
+        "south": 18.28125,
+        "east": 77.6953125,
+        "north": 18.984375
+      },
+      "resolution": {
+        "value": 100.0,
+        "unit": "m/pixel"
+      },
+      "noData": {
+        "kind": "alpha-channel",
+        "transparentPixelCount": 0
+      },
+      "status": "available",
+      "version": "v2_oct2018",
+      "limitations": [
+        "Niveaux de gris étirés pour l'affichage (USGS : produit qualitatif) : ni température, ni inertie thermique chiffrée.",
+        "Sombre : matériaux fins (poussière, sable) ; clair : roche ou sol induré. Lecture qualitative.",
+        "Seul le niveau 9 (environ 81 m/pixel) est figé, sur l'emprise du produit HiRISE ; aucune tuile au-delà."
+      ],
+      "tileset": {
+        "matrixSet": "default028mm",
+        "tileSize": 256,
+        "urlTemplate": "jezero/themis/{z}/{y}/{x}.png",
+        "ranges": [
+          {
+            "z": 9,
+            "colMin": 731,
+            "colMax": 732,
+            "rowMin": 202,
+            "rowMax": 203
+          }
+        ],
+        "finestMetresPerPixel": 81.40140956264587
+      },
+      "files": [
+        {
+          "path": "jezero/themis/WMTSCapabilities.xml",
+          "bytes": 7681,
+          "sha256": "33ca1797dbd3a6b05b729ff29aaf484e14be7bcac4f8e1243f0f294eb4b6e504",
+          "mediaType": "application/xml"
+        },
+        {
+          "path": "jezero/themis/9/202/731.png",
+          "bytes": 55221,
+          "sha256": "57eae601ec46ba64a4159a4d4ed177c23653a9057afeb0f4f29e35219c5cb9db",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/themis/9/202/732.png",
+          "bytes": 56407,
+          "sha256": "d78d424b970ea474ccb8fb63541e83d6da2d7ace63abc19e7fc291ca022340a6",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/themis/9/203/731.png",
+          "bytes": 55527,
+          "sha256": "f0983499660aca5c0a28c19373ea97bdc868f944fe571acd18465324055ea8ce",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/themis/9/203/732.png",
+          "bytes": 52393,
+          "sha256": "442e0972bfa7812223c71bf170210c7215334da31832e5570174a147e2e42720",
+          "mediaType": "image/png"
+        }
+      ]
     },
     {
       "id": "jezero-hirise-dem",

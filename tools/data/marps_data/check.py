@@ -15,7 +15,7 @@ from PIL import Image
 from . import geo, spec
 
 STATUSES = {"available", "partial", "unavailable"}
-KINDS = {"basemap", "imagery", "elevation", "slope", "hillshade", "sites", "rover-waypoints", "rover-traverse"}
+KINDS = {"basemap", "imagery", "elevation", "slope", "hillshade", "sites", "thermal", "rover-waypoints", "rover-traverse"}
 DELIVERIES = {"local", "remote"}
 NODATA_KINDS = {"not-applicable", "alpha-channel", "nan"}
 # Mars spans about -8.2 km (Hellas) to +21.2 km (Olympus Mons) around the MOLA datum.
@@ -241,6 +241,36 @@ def check_imagery(root: Path, d: dict) -> list[str]:
     return errors
 
 
+def check_thermal_footprint(datasets: dict[str, dict], d: dict) -> list[str]:
+    """The night layer is drawn over HiRISE: its frozen tiles must cover every place the HiRISE product can show.
+
+    The app draws `tileset.ranges` only, so coverage is judged on those tiles, not on the declared extent.
+    """
+    label = f"dataset {d.get('id')}"
+    tileset = d.get("tileset") or {}
+    ranges = tileset.get("ranges") or []
+    if not ranges or not tileset.get("urlTemplate") or check_extent(d.get("extent"), ""):
+        return [f"{label}: thermal dataset needs tileset ranges and a valid extent"]
+    frozen = {f["path"] for f in d.get("files", [])}
+    errors = []
+    for r in ranges:
+        for row in range(r["rowMin"], r["rowMax"] + 1):
+            for col in range(r["colMin"], r["colMax"] + 1):
+                path = tileset["urlTemplate"].replace("{z}", str(r["z"])).replace("{y}", str(row)).replace("{x}", str(col))
+                if path not in frozen:
+                    errors.append(f"{label}: tile {path} is in tileset.ranges but not frozen")
+    finest = max(ranges, key=lambda r: r["z"])
+    drawn = geo.union(geo.tile_extent(finest["z"], finest["colMin"], finest["rowMin"]),
+                      geo.tile_extent(finest["z"], finest["colMax"], finest["rowMax"]))
+    if not (geo.contains(drawn, d["extent"]) and geo.contains(d["extent"], drawn)):
+        errors.append(f"{label}: extent differs from the tiles of tileset.ranges")
+    products = [i["wmts"]["extent"] for i in datasets.values()
+                if i.get("kind") == "imagery" and i.get("regionId") == d.get("regionId") and i.get("wmts")]
+    if any(not geo.contains(drawn, product) for product in products):
+        errors.append(f"{label}: thermal tiles do not cover the imagery product extent")
+    return errors
+
+
 def check_sites(root: Path, manifest: dict, d: dict) -> list[str]:
     label = f"dataset {d.get('id')}"
     region = next((r for r in manifest["regions"] if r["id"] == d["regionId"]), None)
@@ -344,6 +374,8 @@ def validate(root: Path) -> list[str]:
                     validate_feature(feature, "Point" if d["kind"] == "rover-waypoints" else "LineString")
             except (ValueError, KeyError, TypeError) as error:
                 errors.append(f"rover: {error}")
+        elif d.get("kind") == "thermal":
+            errors += check_imagery(root, d) + check_thermal_footprint(datasets, d)
         elif d.get("kind") == "sites":
             errors += check_sites(root, manifest, d)
     return errors + check_capabilities(manifest, datasets)

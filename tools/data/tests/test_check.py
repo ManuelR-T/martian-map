@@ -77,7 +77,7 @@ def test_site_outside_the_sector_is_rejected(data_copy):
 
 def test_unavailable_capability_needs_a_reason_and_no_dataset(data_copy):
     def change(m):
-        cap = capability(m, "thermal-themis")
+        cap = capability(m, "weather-meda")
         cap["reason"] = ""
         cap["datasetIds"] = ["mola-colorized-relief"]
 
@@ -150,3 +150,35 @@ def test_slope_cannot_exist_where_elevation_is_missing(data_copy):
 def test_hillshade_must_match_its_grid(data_copy):
     edit_manifest(data_copy, lambda m: dataset(m, "jezero-ctx-hillshade").update(derivedFrom="jezero-hirise-dem"))
     assert any("jezero-ctx-hillshade: extent differs from jezero-hirise-dem" in e for e in check.validate(data_copy))
+
+
+def test_night_infrared_extent_must_match_its_tiles(data_copy):
+    # Extent shrunk to tile 9/203/732 while four tiles stay declared: the extent no longer describes what is drawn.
+    edit_manifest(data_copy, lambda m: dataset(m, "jezero-themis-night-ir")["extent"].update(west=77.34375, east=77.6953125, south=18.28125, north=18.6328125))
+    assert "dataset jezero-themis-night-ir: extent differs from the tiles of tileset.ranges" in check.validate(data_copy)
+
+
+def test_night_infrared_tiles_must_cover_everything_hirise_can_show(data_copy):
+    # Keep only column 731 (76.99–77.34° E): HiRISE reaches 77.58° E, so its east would show no night layer.
+    def change(m):
+        themis = dataset(m, "jezero-themis-night-ir")
+        themis["tileset"]["ranges"][0]["colMax"] = 731
+        themis["files"] = [f for f in themis["files"] if not f["path"].endswith("/732.png")]
+
+    edit_manifest(data_copy, change)
+    assert "dataset jezero-themis-night-ir: thermal tiles do not cover the imagery product extent" in check.validate(data_copy)
+
+
+def test_every_night_infrared_tile_drawn_must_be_frozen(data_copy):
+    edit_manifest(data_copy, lambda m: dataset(m, "jezero-themis-night-ir")["files"].pop())
+    assert any("is in tileset.ranges but not frozen" in e for e in check.validate(data_copy))
+
+
+def test_a_night_infrared_tile_without_coverage_is_rejected(data_copy):
+    tile = data_copy / "jezero/themis/9/203/732.png"
+    Image.new("LA", (geo.TILE_SIZE, geo.TILE_SIZE), (0, 0)).save(tile)
+    content = tile.read_bytes()
+    edit_manifest(data_copy, lambda m: next(f for f in dataset(m, "jezero-themis-night-ir")["files"] if f["path"].endswith("9/203/732.png")).update(bytes=len(content), sha256=prepare.sha256(content)))
+    errors = check.validate(data_copy)
+    assert "dataset jezero-themis-night-ir: jezero/themis/9/203/732.png is fully transparent (no coverage)" in errors
+    assert "dataset jezero-themis-night-ir: status must be 'partial' exactly when transparent pixels exist" in errors

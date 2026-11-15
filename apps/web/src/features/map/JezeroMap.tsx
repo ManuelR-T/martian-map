@@ -23,6 +23,8 @@ import { loadRoverHistory, type RoverHistory } from '@marps/data';
 import { createRoverLayers } from './roverLayer';
 import { RoverHistoryControl, roverMessages } from './RoverHistoryControl';
 import { jezeroMessages } from './jezeroMessages';
+import { ThemisNightControl } from './ThemisNightControl';
+import { useThemisNightLayer } from './useThemisNightLayer';
 const messages = jezeroMessages.fr;
 
 interface Props {
@@ -35,9 +37,13 @@ interface Props {
   sites: readonly SiteDescriptor[];
   selected: string | null;
   onSelect: (id: string) => void;
+  themisDataset?: DatasetDescriptor;
 }
 const bounds = (extent: Extent) => [extent.west, extent.south, extent.east, extent.north];
-export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, datasets, roverEnabled, onRoverToggle }: Props) {
+export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, datasets, roverEnabled, onRoverToggle, themisDataset }: Props) {
+  const themis = useThemisNightLayer(themisDataset);
+  // Kept across map rebuilds: the switch and the drawn layer always agree.
+  const themisLayer = themis.layer;
   const [history, setHistory] = useState<RoverHistory | null>(null);
   const [historyFailed, setHistoryFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -104,8 +110,10 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, 
     });
     const map = new Map({ controls: defaultControls({ attribution: false }), target: target.current!, maxTilesLoading: 8, layers: [
       new TileLayer({ source: createRegionSource(dataset) }), new TileLayer({ source }),
-      new VectorLayer({ source: new VectorSource({ features: [boundary(product.extent, '#ffcc66', []), boundary(sector, '#50c8ff', [10, 5])], wrapX: false }) }),
-      new VectorLayer({ source: new VectorSource({ features: prepared, wrapX: false }), style: feature => {
+      // Order: imagery < night infrared < rover traverse (zIndex 2) < outlines and sites (zIndex 3).
+      ...(themisLayer ? [themisLayer] : []),
+      new VectorLayer({ zIndex: 3, source: new VectorSource({ features: [boundary(product.extent, '#ffcc66', []), boundary(sector, '#50c8ff', [10, 5])], wrapX: false }) }),
+      new VectorLayer({ zIndex: 3, source: new VectorSource({ features: prepared, wrapX: false }), style: feature => {
         if (feature.get('level') !== Math.round(view.getZoom() ?? 12)) return;
         return new Style({ stroke: new Stroke({ color: '#fff', width: 2, lineDash: [2, 6] }) });
       } }),
@@ -144,7 +152,7 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, 
     window.addEventListener('online', connectivity); window.addEventListener('offline', connectivity);
     const observer = new ResizeObserver(() => map.updateSize()); observer.observe(target.current!);
     return () => { pending.forEach(cancel => cancel()); observer.disconnect(); window.removeEventListener('online', connectivity); window.removeEventListener('offline', connectivity); map.dispose(); mapRef.current = null; };
-  }, [dataset, sector, radius, sites, onSelect]);
+  }, [dataset, sector, radius, sites, onSelect, themisLayer]);
   useEffect(() => {
     historyRef.current = history;
     const map = mapRef.current;
@@ -153,7 +161,7 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, 
     layer.setVisible(roverEnabled);
     map.addLayer(layer);
     return () => { map.removeLayer(layer); };
-  }, [history, roverSelected, roverEnabled, dataset, sector, radius, sites, onSelect]);
+  }, [history, roverSelected, roverEnabled, dataset, sector, radius, sites, onSelect, themisLayer]);
   return <div className="mars-map-container jezero-map">
     {roverEnabled && <p className="rover-warning border bg-card p-2 text-xs font-semibold">{roverMessages.fr.warning}</p>}
     <div ref={target} className="mars-map" tabIndex={0} aria-label={messages.label} />
@@ -162,7 +170,6 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, 
 
       <Button size="sm" onClick={() => mapRef.current?.getView().fit(bounds(sector), { size: mapRef.current.getSize(), padding: [90, 40, 160, 40] })}>{messages.return}</Button>
       {failed && <Button size="sm" variant="outline" onClick={() => { setFailed(false); mapRef.current?.getLayers().forEach(layer => { if (layer instanceof TileLayer) layer.getSource()?.refresh(); }); }}>{messages.retry}</Button>}
-      <RoverHistoryControl enabled={roverEnabled} onToggle={onRoverToggle} history={history} candidates={roverCandidates} failed={historyFailed} retry={() => { setHistoryFailed(false); setAttempt(value => value + 1); }} selected={roverSelected} onSelect={index => { setRoverSelected(index); if (index === null) setRoverCandidates(null); }} />
       <div className="jezero-legend mt-2 border-t pt-2 text-xs" role="group" aria-label={messages.legendTitle}>
         <p className="font-semibold">{messages.legendTitle}</p>
         <ul className="mt-1 grid gap-1">
@@ -175,6 +182,11 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, 
         </ul>
       </div>
 
+      <div className="mt-2 border-t pt-2" role="group" aria-label={messages.layersTitle}>
+        <p className="text-xs font-semibold">{messages.layersTitle}</p>
+        {themisDataset && <ThemisNightControl dataset={themisDataset} settings={themis.settings} onChange={themis.setSettings} className="border-0 bg-transparent p-0" />}
+        <RoverHistoryControl enabled={roverEnabled} onToggle={onRoverToggle} history={history} candidates={roverCandidates} failed={historyFailed} retry={() => { setHistoryFailed(false); setAttempt(value => value + 1); }} selected={roverSelected} onSelect={index => { setRoverSelected(index); if (index === null) setRoverCandidates(null); }} />
+      </div>
     </Panel>
     {choice && <SiteChoicePopover choice={choice} onSelect={onSelect} onClose={() => { setChoice(null); target.current?.focus({ preventScroll: true }); }} />}
     <div className="mars-scale border bg-card p-4 text-xs" aria-label={messages.scale}>
