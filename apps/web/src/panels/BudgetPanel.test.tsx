@@ -181,3 +181,50 @@ it('switches budget labels, numeric formatting and overrun alerts between French
   await act(async () => setLanguage('fr'));
   expect(breakdown().querySelector('[role="alert"]')?.textContent).toContain('Dépassement de 17,7 min');
 });
+
+it('estime par défaut sans interrupteur, exige le relief ou le plat explicite et conserve les paramètres', async () => {
+  await mount();
+  const oxygen = () => container.querySelector('section[aria-label="Estimation d’oxygène"]')!;
+  const toggle = async (text: string) => {
+    const label = [...oxygen().querySelectorAll('label')].find(l => l.textContent?.includes(text))!;
+    await act(async () => label.querySelector<HTMLInputElement>('input')!.click());
+  };
+  expect(oxygen().textContent).not.toContain('Activer le modèle');
+  expect(oxygen().querySelectorAll('input[type=number]')).toHaveLength(10);
+  expect(oxygen().textContent).toContain('O₂ indisponible');
+  expect(oxygen().textContent).not.toContain('Besoin total, retour compris');
+  await toggle('Supposer explicitement');
+  expect(oxygen().textContent).toContain('Besoin total, retour compris');
+  expect(oxygen().textContent).toContain('Hypothèse active : terrain plat');
+  expect(oxygen().textContent).toContain('Estimation incertaine');
+  const settings = oxygen().querySelector('section[aria-label="Paramètres et données O₂"]')!;
+  expect(settings.closest('details')).toBeNull();
+  expect(oxygen().querySelector('dl')!.compareDocumentPosition(settings) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  const saved = loadMissionDraft()!;
+  expect(saved.parameters.oxygen?.assumeFlatTerrain).toBe(true);
+  await act(async () => { container.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
+  await click('Continuer : vérifier la mission');
+  await input('speed', '0.7');
+  expect(loadMissionDraft()!.parameters.oxygen).toEqual(saved.parameters.oxygen);
+  const total = oxygen().textContent;
+  await send({ type: 'activityAdded', stepId: 'skinner-ridge', activity: { id: 'extra', type: 'photo', durationMinutes: 500, completed: false } });
+  expect(oxygen().textContent).not.toBe(total);
+  expect(oxygen().querySelector('[role="alert"]')).not.toBeNull();
+  await act(async () => setLanguage('en'));
+  expect(container.textContent).toContain('Oxygen estimate');
+  expect(container.textContent).toContain('all defaults');
+});
+
+
+it('isole une saisie O₂ invalide de la mission suivante sans enregistrer les valeurs invalides', async () => {
+  await mount();
+  const field = () => container.querySelector<HTMLInputElement>('input[name="oxygen-stockGrams"]')!;
+  await input('oxygen-stockGrams', '');
+  expect(container.textContent).toContain('O₂ non calculable');
+  expect(field().value).toBe('');
+  expect(loadMissionDraft()!.parameters.oxygen).toBeUndefined();
+  await send({ type: 'missionOpened', mission: { ...demo, id: 'other-legacy-mission' } });
+  expect(field().value).toBe('1000');
+  expect(container.textContent).toContain('O₂ indisponible');
+  expect(container.textContent).not.toContain('O₂ non calculable');
+});

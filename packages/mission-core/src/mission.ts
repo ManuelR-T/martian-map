@@ -1,3 +1,4 @@
+import { DEFAULT_OXYGEN_PARAMETERS, validOxygenParameters, type OxygenParameters } from './oxygen';
 import type { MarsCoordinate } from './index';
 
 export interface MissionRegion {
@@ -47,6 +48,8 @@ export interface MissionStep {
   readonly activities: readonly MissionActivity[];
 }
 export interface MissionParameters {
+  /** Optional extension of the v1 scenario; older saves remain valid. */
+  readonly oxygen?: OxygenParameters;
   readonly availableSeconds: number;
   readonly speedMetresPerSecond: number;
   readonly reserveSeconds: number;
@@ -74,7 +77,7 @@ export interface Mission {
 }
 export function createEmptyMission(regionId: string, id = 'draft'): Mission {
   return { schemaVersion: 1, id, name: missionTypes.reconnaissance, missionType: 'reconnaissance', regionId, camp: null, steps: [],
-    parameters: { availableSeconds: 14400, speedMetresPerSecond: 0.5, reserveSeconds: 1800 },
+    parameters: { availableSeconds: 14400, speedMetresPerSecond: 0.5, reserveSeconds: 1800, oxygen: { ...DEFAULT_OXYGEN_PARAMETERS } },
     assumptions: { simulation: true, route: 'straight-segments', terrainValidated: false }, siteWork: {} };
 }
 export function validPosition(p: MarsCoordinate): boolean {
@@ -83,7 +86,8 @@ export function validPosition(p: MarsCoordinate): boolean {
 }
 export function validParameters(p: MissionParameters): boolean {
   return [p.availableSeconds, p.speedMetresPerSecond, p.reserveSeconds].every(n => Number.isFinite(n) && n >= 0)
-    && p.speedMetresPerSecond > 0 && p.reserveSeconds <= p.availableSeconds;
+    && p.speedMetresPerSecond > 0 && p.reserveSeconds <= p.availableSeconds
+    && (p.oxygen === undefined || validOxygenParameters(p.oxygen));
 }
 const nonempty = (s: string) => typeof s === 'string' && s.trim().length > 0;
 export function validCamp(c: Camp): boolean {
