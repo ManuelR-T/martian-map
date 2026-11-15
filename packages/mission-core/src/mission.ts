@@ -1,3 +1,4 @@
+import { validOxygenParameters, type OxygenParameters } from './oxygen';
 import type { MarsCoordinate } from './index';
 
 export interface MissionRegion {
@@ -47,6 +48,8 @@ export interface MissionStep {
   readonly activities: readonly MissionActivity[];
 }
 export interface MissionParameters {
+  /** Optional extension of the v1 scenario; older saves remain valid. */
+  readonly oxygen?: OxygenParameters;
   readonly availableSeconds: number;
   readonly speedMetresPerSecond: number;
   readonly reserveSeconds: number;
@@ -83,7 +86,8 @@ export function validPosition(p: MarsCoordinate): boolean {
 }
 export function validParameters(p: MissionParameters): boolean {
   return [p.availableSeconds, p.speedMetresPerSecond, p.reserveSeconds].every(n => Number.isFinite(n) && n >= 0)
-    && p.speedMetresPerSecond > 0 && p.reserveSeconds <= p.availableSeconds;
+    && p.speedMetresPerSecond > 0 && p.reserveSeconds <= p.availableSeconds
+    && (p.oxygen === undefined || validOxygenParameters(p.oxygen));
 }
 const nonempty = (s: string) => typeof s === 'string' && s.trim().length > 0;
 export function validCamp(c: Camp): boolean {
