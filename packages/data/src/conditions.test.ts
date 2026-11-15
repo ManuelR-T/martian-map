@@ -7,6 +7,7 @@ import {
   loadMedaConditions,
   preparedSols,
   temperatureCurve,
+  windStatus,
   type DataManifest,
   type MedaConditions,
 } from './index';
@@ -113,5 +114,23 @@ describe('loadMedaConditions', () => {
   it('reports an unreachable file', async () => {
     const failing = (() => Promise.resolve(new Response('', { status: 404 }))) as typeof fetch;
     await expect(loadMedaConditions(manifest.datasets, '/data/', failing)).rejects.toThrow(/HTTP 404/);
+  });
+});
+
+describe('MEDA wind', () => {
+  it('is unpublished on sol 500, with the reason and its source from the manifest', () => {
+    expect(windStatus(manifest.regions)).toEqual({
+      reason: 'Vent non publié après le sol 315 : capteur de vent endommagé.',
+      reasonUrl: 'https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/document/meda_release_notes.txt',
+    });
+  });
+
+  it('stays unpublished when the manifest says nothing about wind', () => {
+    expect(windStatus(undefined)).toEqual({ reason: 'Vent non publié.' });
+    const withoutWind = manifest.regions.map((region) => ({
+      ...region,
+      capabilities: region.capabilities.filter((capability) => capability.id !== 'weather-wind'),
+    }));
+    expect(windStatus(withoutWind)).toEqual({ reason: 'Vent non publié.' });
   });
 });

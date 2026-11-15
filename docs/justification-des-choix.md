@@ -44,7 +44,15 @@ Chaque choix répond à un usage concret d'un astronaute en sortie sur Mars et s
 - Le panneau dans la colonne de droite, sous la fiche de site : à gauche, sous les étapes, la carte place déjà son panneau « Secteur » (#20). La colonne défile pour qu'aucun panneau ne soit écrasé.
 - Choisir l'heure en touchant ou en balayant la courbe : une heure n'y fait que 11 à 17 px de large, trop peu pour viser du doigt. Le menu des heures reste disponible.
 
-**Écarté volontairement :** toute limite de température pour l'astronaute (aucune n'est validée), l'incertitude de pression (colonne vide, unité fausse dans le label) et le vent (absent du sol 500, ticket #27).
+**Écarté volontairement :** toute limite de température pour l'astronaute (aucune n'est validée), l'incertitude de pression (colonne vide, unité fausse dans le label).
+
+## Vent au rover (#27)
+
+| Élément | Usage pour l'astronaute | Source |
+| --- | --- | --- |
+| « Vent non publié après le sol 315 : capteur de vent endommagé. » | Savoir que le vent n'est pas connu, plutôt que de croire à un temps calme. Le sol 500 affiché n'a que des comptages bruts, sans vitesse ni direction. | [Notes de version MEDA](https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/document/meda_release_notes.txt), dossiers PDS du sol 500 |
+
+**Écarté volontairement :** le vent d'un sol plus ancien. Le rover était alors à 1,8 km au moins du secteur, et la température et la pression viendraient d'un autre jour. Tout danger de marche tiré du vent : aucun modèle de scénario ne le définit.
 
 ## Profil et pentes du parcours (#15)
 

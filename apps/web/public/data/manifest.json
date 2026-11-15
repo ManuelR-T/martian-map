@@ -109,6 +109,14 @@
           ]
         },
         {
+          "id": "weather-wind",
+          "label": "Vent MEDA",
+          "status": "unavailable",
+          "datasetIds": [],
+          "reason": "Vent non publié après le sol 315 : capteur de vent endommagé.",
+          "reasonUrl": "https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/document/meda_release_notes.txt"
+        },
+        {
           "id": "geology",
           "label": "Carte géologique",
           "status": "unavailable",

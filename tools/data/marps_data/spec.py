@@ -190,6 +190,12 @@ MEDA_PRODUCTS = (
     ),
 )
 
+# Wind (#27): no CAL_WS or DER_WS file exists after sol 315. The release notes say the
+# sensor was damaged by harsh weather and recalibration is ongoing; the preparation
+# stops if a wind file appears for a prepared sol, so this never hides a new release.
+MEDA_RELEASE_NOTES_URL = f"{MEDA_BUNDLE}/document/meda_release_notes.txt"
+MEDA_WIND_REASON = "Vent non publié après le sol 315 : capteur de vent endommagé."
+
 MEDA_LIMITATIONS = (
     "Mesure passée au rover, pas une prévision ni une mesure le long du parcours.",
     "Aucune limite pour l'astronaute n'en est déduite.",

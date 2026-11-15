@@ -6,8 +6,10 @@ import {
   loadMedaConditions,
   preparedSols,
   temperatureCurve,
+  windStatus,
   type DatasetDescriptor,
   type MedaConditions,
+  type WindStatus,
 } from '@marps/data';
 import { DataState, Panel, ProvenanceBadge } from '@marps/ui';
 import { TemperatureCurve } from '../conditions/TemperatureCurve';
@@ -45,9 +47,10 @@ interface ConditionsViewProps {
   /** Sols préparés, au moins un. */
   sols: readonly number[];
   firstSol: number;
+  wind: WindStatus;
 }
 
-function ConditionsView({ conditions, sols, firstSol }: ConditionsViewProps) {
+function ConditionsView({ conditions, sols, firstSol, wind }: ConditionsViewProps) {
   const [sol, setSol] = useState(firstSol);
   const [hour, setHour] = useState(() => nearestMeasuredHour(availableHours(conditions, firstSol), DEFAULT_HOUR));
   const solId = useId();
@@ -119,6 +122,15 @@ function ConditionsView({ conditions, sols, firstSol }: ConditionsViewProps) {
         <p className="text-muted-foreground">
           Pression {now.pressure ? formatPascals(now.pressure.pascals) : 'indisponible'}
         </p>
+        <p className="text-muted-foreground">
+          {wind.reasonUrl ? (
+            <a href={wind.reasonUrl} className="underline">
+              {wind.reason}
+            </a>
+          ) : (
+            wind.reason
+          )}
+        </p>
         <p className="flex items-start gap-1.5 font-semibold text-warning">
           <TriangleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
           Mesure passée{series ? ` (${formatMonthYear(series.startUtc)})` : ''}, pas une prévision.
@@ -159,7 +171,13 @@ export function ConditionsPanel({ className }: { className?: string }) {
           <DataState kind="error" title="Mesures MEDA inaccessibles" description="Vérifiez la connexion, puis rechargez." />
         ) : conditions.data && sols[0] !== undefined ? (
           // La clé repart du premier sol si un rechargement change la liste des sols préparés.
-          <ConditionsView key={sols.join()} conditions={conditions.data} sols={sols} firstSol={sols[0]} />
+          <ConditionsView
+            key={sols.join()}
+            conditions={conditions.data}
+            sols={sols}
+            firstSol={sols[0]}
+            wind={windStatus(catalog.status === 'ready' ? catalog.data.coverage : undefined)}
+          />
         ) : (
           <DataState kind="empty" title="Aucune mesure préparée" description="Ce secteur n'a pas de mesure MEDA." />
         )}

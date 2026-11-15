@@ -192,3 +192,36 @@ def test_rover_position_outside_the_sector_is_rejected(data_copy):
     rewrite_series(data_copy, "jezero-meda-pressure", lambda s: s["location"].update(longitude=77.5))
     edit_manifest(data_copy, lambda m: dataset(m, "jezero-meda-pressure")["extent"].update(west=77.5, east=77.5))
     assert any("outside the jezero sector" in e for e in check.validate(data_copy))
+
+
+def test_wind_is_declared_unpublished_with_its_source():
+    manifest = json.loads((spec.DATA_DIR / "manifest.json").read_text("utf-8"))
+    wind = capability(manifest, "weather-wind")
+    assert (wind["status"], wind["datasetIds"], wind["reasonUrl"]) == ("unavailable", [], spec.MEDA_RELEASE_NOTES_URL)
+    assert "sol 315" in wind["reason"]
+
+
+@pytest.mark.parametrize("level", ["CAL", "DER"])
+def test_preparation_stops_when_a_prepared_sol_gets_a_wind_file(level):
+    collection = {"CAL": "data_calibrated_env", "DER": "data_derived_env"}[level]
+    without_wind = b'<table><a href="WE__0500___________CAL_ATS_________________P01.CSV">x</a></table>'
+    with_wind = f'<table><a href="WE__0500___________{level}_WS__________________P01.CSV">x</a></table>'.encode()
+    fetcher = lambda url: with_wind if f"/{collection}/" in url else without_wind  # noqa: E731
+    with pytest.raises(RuntimeError, match="sol 500 now has wind files"):
+        prepare.assert_no_wind(500, fetcher)
+
+
+def test_a_capability_reason_link_must_be_https(data_copy):
+    # The panel turns it into a link: a javascript: URL would run on click.
+    def poison(manifest):
+        capability(manifest, "weather-wind")["reasonUrl"] = "javascript:alert(1)"
+
+    edit_manifest(data_copy, poison)
+    assert any("reasonUrl must be an https link" in e for e in check.validate(data_copy))
+
+
+def test_frozen_capabilities_are_those_the_preparation_writes():
+    # The next `data:prepare` must keep wind declared unpublished, not drop it.
+    manifest = json.loads((spec.DATA_DIR / "manifest.json").read_text("utf-8"))
+    rebuilt = prepare.build_manifest(manifest["datasets"], manifest["sites"], manifest["generatedAt"])
+    assert rebuilt["regions"] == manifest["regions"]
