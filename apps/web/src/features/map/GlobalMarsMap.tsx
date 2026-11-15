@@ -20,7 +20,7 @@ import { fromExtent } from 'ol/geom/Polygon';
 import { Circle, Fill, Stroke, Style } from 'ol/style';
 import { mapLabel, SECTOR_COLOUR } from './mapText';
 import { detailedRegions, type DatasetDescriptor, type RegionCoverage } from '@marps/data';
-import { Button } from '@marps/ui';
+import { Button, Panel } from '@marps/ui';
 import { createGlobalMarsSource, marsProjection, resolutions } from './marsWmts';
 import './global-mars-map.css';
 
@@ -127,14 +127,13 @@ export function GlobalMarsMap({ panelHost, dataset, regions, focus, onSelectRegi
     </div>
     {!focus && <MapPanelDock host={panelHost}><GlobalAtlas map={atlasMap} /></MapPanelDock>}
     {focus && <MapPanelDock host={panelHost}>
-      <section aria-labelledby="region-capabilities" className="text-sm">
-        <h3 id="region-capabilities" className="mb-2 font-semibold">{localize("Données de {{v0}}", { v0: focus.name })}</h3>
+      <Panel title={localize("Données de {{v0}}", { v0: focus.name })} floating className="text-sm" collapsible={false}>
         {sharedReason && <p className="mb-2 text-muted-foreground">{localize(sharedReason)}</p>}
         <ul className="space-y-2">{focus.capabilities.map(capability => <li key={capability.id}>
           <p><span className="font-medium">{localize(capability.label)}</span> · {localize(statusLabels[capability.status])}</p>
           {!sharedReason && capability.reason && <p className="text-muted-foreground">{localize(capability.reason)}</p>}
         </li>)}</ul>
-      </section>
+      </Panel>
     </MapPanelDock>}
     <MapInformation>
       <div className="flex flex-wrap items-center gap-2">
