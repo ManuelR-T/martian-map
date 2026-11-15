@@ -2,8 +2,9 @@ import { Button, DataState, StepList, StepListItem } from '@marps/ui';
 import { usePlannerDispatch, usePlannerState } from '../state/PlannerProvider';
 import { activityLabels } from './MissionEditor';
 import { formatCoordinate } from '../format';
+import { RadiationAlert, type RadiationAlertState } from './RadiationAlert';
 
-export function MissionTracking() {
+export function MissionTracking({ radiation, onRadiationChange }: { radiation: RadiationAlertState | null; onRadiationChange: (next: RadiationAlertState | null) => void }) {
   const { runningMission: mission, trackingStatus, trackingReady, trackingError } = usePlannerState();
   const dispatch = usePlannerDispatch();
   if (trackingError) return <DataState kind="error" title="Suivi local indisponible" description={trackingError} action={<Button onClick={() => dispatch({ type: 'trackingRequested' })}>Réessayer le chargement du suivi</Button>} />;
@@ -15,6 +16,7 @@ export function MissionTracking() {
     <p className="font-semibold">{mission.name}</p>
     <p role="status" className="text-xs">{trackingStatus}</p>
     <p className="text-sm">{activities.filter(a => a.completed).length} / {activities.length} activités terminées</p>
+    <RadiationAlert mission={mission} state={radiation} onChange={onRadiationChange} />
     <StepList label="Parcours de la sortie en cours">
       {mission.camp && <StepListItem kind="camp" title={mission.camp.name} description={formatCoordinate(mission.camp.position)} />}
       {mission.steps.map((step, index) => <StepListItem key={step.id} position={index + 1} title={step.name}
