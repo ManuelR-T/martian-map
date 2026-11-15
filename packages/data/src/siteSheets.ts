@@ -90,16 +90,19 @@ export interface SiteSheet {
   readonly objectiveSourceIds: readonly ScienceSourceId[];
 }
 
-/** Time the crew may allot to a stop; team assumption, no NASA source gives human stop times here. */
-export const STOP_MINUTES_CHOICES: readonly number[] = Array.from({ length: 12 }, (_, index) => (index + 1) * 5);
+/**
+ * Time the crew may allot to a stop, 5 min to 3 h. Apollo 17 planned stops of 30 to 66 min, so a stop with an
+ * extra sample can exceed one hour; the exact values remain a team assumption.
+ */
+export const STOP_MINUTES_CHOICES: readonly number[] = Array.from({ length: 36 }, (_, index) => (index + 1) * 5);
 
 // Apollo geologic documentation: describe, photograph, then collect with before and locator photos.
 // The order and wording are the team's.
 const DOCUMENTATION_TASKS: readonly SiteTask[] = [
-  { id: 'describe', label: 'Décrire la roche', detail: 'À voix haute : couleur, grain, couches.', minutes: 5 },
-  { id: 'context-photo', label: 'Photo de contexte', detail: "Vue large de l'affleurement.", minutes: 5 },
-  { id: 'close-up', label: 'Photos rapprochées', detail: 'Paire de photos de la zone abrasée.', minutes: 5 },
-  { id: 'sample', label: 'Prélèvement', detail: 'Photo avant, ensachage, photo de repérage.', minutes: 15 },
+  { id: 'describe', label: 'Décrire la roche', detail: 'À voix haute : couleur, grain, couches.', minutes: 10 },
+  { id: 'context-photo', label: 'Photo de contexte', detail: "Vue large de l'affleurement.", minutes: 10 },
+  { id: 'close-up', label: 'Photos rapprochées', detail: 'Paire de photos de la zone abrasée.', minutes: 10 },
+  { id: 'sample', label: 'Prélèvement', detail: 'Photo avant, ensachage, photo de repérage.', minutes: 45 },
 ];
 
 const PHOTO_BASE = 'https://science.nasa.gov/wp-content/uploads/2024/03/';
