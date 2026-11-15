@@ -59,6 +59,7 @@ describe('oxygen model v1', () => {
     }
   });
   it('rejects invalid reserve, version, speed, and overflow', () => {
+    expect(calculateMissionOxygen({ ...mission, parameters: null as unknown as Mission['parameters'] }).status).toBe('invalid-inputs');
     expect(validOxygenParameters({ ...defaults, reserveGrams: 1001 })).toBe(false);
     expect(validOxygenParameters({ ...defaults, modelVersion: 2 })).toBe(false);
     expect(validOxygenParameters({ ...defaults, referenceSpeedMetresPerSecond: 0 })).toBe(false);

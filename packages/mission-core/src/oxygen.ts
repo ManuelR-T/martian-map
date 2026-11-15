@@ -53,10 +53,10 @@ export type OxygenBudget = { readonly status: 'invalid-inputs' | 'missing-inputs
 /** Horizontal durations match the time model. Closed itinerary includes exactly one return. */
 export function calculateMissionOxygen(mission: Mission | null, terrain?: { sample: ElevationSampler; spacingMetres: number }): OxygenBudget {
   if (!mission) return { status: 'missing-inputs' };
-  const p = mission.parameters.oxygen ?? DEFAULT_OXYGEN_PARAMETERS;
-  if (!validOxygenParameters(p)) return { status: 'invalid-inputs' };
   const time = calculateMissionBudget(mission);
   if (time.status !== 'ready') return { status: time.status };
+  const p = mission.parameters.oxygen ?? DEFAULT_OXYGEN_PARAMETERS;
+  if (!validOxygenParameters(p)) return { status: 'invalid-inputs' };
   if (!p.assumeFlatTerrain && (!terrain || !Number.isFinite(terrain.spacingMetres) || terrain.spacingMetres <= 0)) return { status: 'terrain-unavailable' };
   const route = [mission.camp!.position, ...mission.steps.map(s => s.position), mission.camp!.position];
   const legs: { returnToCamp: boolean; grams: number; minutes: number }[] = [];
