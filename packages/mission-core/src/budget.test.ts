@@ -100,3 +100,17 @@ describe('budget de mission en minutes', () => {
     expect(mission.steps[0]!.activities[0]!.completed).toBe(false);
   });
 });
+
+it('includes edited outbound and return legs in the budget exactly once', () => {
+  const outbound = missionReducer(mission, { type: 'routeLegChanged', index: 0,
+    vertices: [{ longitude: -oneKmLongitude, latitude: 0 }] });
+  const drawn = missionReducer(outbound, { type: 'routeLegChanged', index: 1,
+    vertices: [{ longitude: 2 * oneKmLongitude, latitude: 0 }] });
+  const result = budget(drawn);
+  expect(result.explorationMinutes).toBeCloseTo(3000 / 60, 10);
+  expect(result.returnMinutes).toBeCloseTo(3000 / 60, 10);
+  expect(result.walkingMinutes).toBeCloseTo(6000 / 60, 10);
+  expect(result.marginMinutes).toBeCloseTo(120 - 100 - 20 - 10, 10);
+  expect(result.overBudget).toBe(true);
+  expect(budget(missionReducer(drawn, { type: 'routeReset' }))).toEqual(budget(mission));
+});

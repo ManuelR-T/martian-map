@@ -69,3 +69,10 @@ it('distingue exploration et retour après déplacement et suppression des étap
   mission = missionReducer(mission, { type: 'stepRemoved', id: 'b' });
   expect(missionDistances(mission)).toEqual(one);
 });
+
+it('counts every drawn return segment exactly once', () => {
+  const mission = { ...createEmptyMission('jezero'), camp: { id: 'c', name: 'c', regionId: 'jezero', position: { longitude: 0, latitude: 0 }, provenance: 'simulation' as const, note: '', referenceUrl: null }, steps: [{ id: 's', name: 's', position: { longitude: 1, latitude: 0 }, siteId: null, activities: [] }], routeLegs: [[], [{ longitude: 2, latitude: 0 }]] };
+  const result = missionDistances(mission, 100)!;
+  expect(result.return.metres).toBeCloseTo(3 * Math.PI / 180 * 100);
+  expect(result.total.metres).toBeCloseTo(result.exploration.metres + result.return.metres);
+});

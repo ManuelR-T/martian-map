@@ -122,3 +122,14 @@
 .map-info-content { border-radius: 6px; border-top: 2px solid transparent; background: linear-gradient(var(--card), var(--card)) padding-box, var(--horizon) border-box; box-shadow: var(--elevation); }
 .map-panel-dock .jezero-status { position: static; width: 100%; max-width: none; max-height: none; }
 .map-alert { pointer-events: auto; }
+
+.route-edit-notice {
+  position: absolute;
+  z-index: 10;
+  top: 4.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(28rem, calc(100% - 2rem));
+  border-top: 2px solid var(--mars);
+  pointer-events: auto;
+}

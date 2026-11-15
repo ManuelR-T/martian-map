@@ -562,3 +562,31 @@ Preparation and acquisition limits: [atlas note](docs/atlas-mondial.md).
 Use the header selector to switch between French and English. The initial language follows the browser, with French as the fallback. The preference is saved on the device. Both translation catalogues ship with the application and work offline. Dates, numbers and coordinates follow the selected language.
 
 Translations live in `apps/web/src/locales/fr.json` and `apps/web/src/locales/en.json`. Keep their keys and interpolation variables aligned. The localization tests check catalogue parity and French source text coverage, including prepared scientific data and site sheets.
+
+## Hypothetical mission route (#12)
+
+In **Mission → Prepare → Camp and route**, the **Route drawing** section sits
+beside the itinerary. Select a leg by its departure and arrival, including the
+return to camp.
+**Draw** records intermediate points (double-click to finish); **Modify** lets
+you drag or insert vertices. Camp and visit endpoints remain fixed. Escape or
+Cancel discards the current gesture. While editing, a banner on the map repeats
+the selected leg and the gesture instructions, with a cancel action. Leaving the
+route preparation step cancels the editing interaction. The return leg is stored separately and
+included once in the geometry and distance calculations. Routes are hypothetical,
+not computed safe paths. Outside-sector vertices produce a coverage warning;
+missing terrain samples remain explicit gaps in the profile.
+
+Changing the camp, adding/removing visits or reordering them resets all legs to
+direct segments, as stated beside the controls. Empty missions and camp-only
+plans have no line; coincident visits retain their order and zero-length legs.
+Custom vertices persist with the mission, draft, templates and tracking; older
+saves continue to use direct segments. Tracking is read-only. The terrain profile
+now samples the current mission rather than a separate demonstration route.
+
+For a demonstration, choose a simulated camp in the mission wizard, then use
+**Demo: visit the three sites** in the route section while the itinerary is empty.
+The three catalogue sites are visited in catalogue order, followed by return to
+the selected camp. Edit each connecting leg as desired; this scenario makes no
+claim of traversability. Drawing and dragging still require manual browser and
+touch acceptance testing.

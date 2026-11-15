@@ -64,6 +64,8 @@ export interface Mission {
   readonly regionId: string;
   readonly camp: Camp | null;
   readonly steps: readonly MissionStep[];
+  /** Interior vertices per camp → steps → camp leg; endpoints always follow the stops. */
+  readonly routeLegs?: readonly (readonly MarsCoordinate[])[];
   readonly parameters: MissionParameters;
   readonly assumptions: MissionAssumptions;
   readonly siteWork: Readonly<Record<string, SiteProgress>>;
@@ -104,12 +106,16 @@ export function isMission(value: unknown): value is Mission {
       && Array.isArray(m.steps) && unique(m.steps.map(s => s.id)) && m.steps.every(s => nonempty(s.id)
         && nonempty(s.name) && validPosition(s.position) && (s.siteId === null || nonempty(s.siteId))
         && Array.isArray(s.activities) && unique(s.activities.map((a: MissionActivity) => a.id)) && s.activities.every(validActivity))
+      && (m.routeLegs === undefined || (Array.isArray(m.routeLegs) && !!m.camp && m.steps.length > 0
+        && m.routeLegs.length === m.steps.length + 1 && m.routeLegs.every(leg => Array.isArray(leg) && leg.every(validPosition))))
       && !!m.siteWork && typeof m.siteWork === 'object' && !Array.isArray(m.siteWork)
       && Object.values(m.siteWork).every(w => Number.isFinite(w.allottedMinutes) && w.allottedMinutes >= 0
         && Array.isArray(w.doneTaskIds) && w.doneTaskIds.every(nonempty));
   } catch { return false; }
 }
 export type MissionAction =
+  | { type: 'routeLegChanged'; index: number; vertices: readonly MarsCoordinate[] }
+  | { type: 'routeReset' }
   | { type: 'missionRenamed'; name: string }
   | { type: 'missionTypeChanged'; missionType: MissionType }
   | { type: 'campPlaced'; camp: Camp }
@@ -125,6 +131,12 @@ export type MissionAction =
 export function missionReducer(m: Mission, action: MissionAction): Mission {
   let next = m;
   switch (action.type) {
+    case 'routeReset': next = { ...m, routeLegs: undefined }; break;
+    case 'routeLegChanged': {
+      if (!m.camp || !m.steps.length || !Number.isInteger(action.index) || action.index < 0 || action.index > m.steps.length) return m;
+      const legs = m.routeLegs ? [...m.routeLegs] : Array.from({ length: m.steps.length + 1 }, () => [] as readonly MarsCoordinate[]);
+      legs[action.index] = action.vertices; next = { ...m, routeLegs: legs }; break;
+    }
     case 'missionTypeChanged': {
       if (!Object.hasOwn(missionTypes, action.missionType)) return m;
       const automatic = m.name === 'Nouvelle mission' || m.name === missionTypes[m.missionType ?? 'reconnaissance'];
@@ -148,10 +160,13 @@ export function missionReducer(m: Mission, action: MissionAction): Mission {
           : action.type === 'activityRemoved' ? s.activities.filter(a => a.id !== action.id)
             : s.activities.map(a => a.id === action.activity.id ? action.activity : a) }) }; break;
   }
+  if (['campPlaced', 'campCleared', 'stepAdded', 'stepRemoved', 'stepMoved'].includes(action.type)) next = { ...next, routeLegs: undefined };
   return isMission(next) ? next : m;
 }
 /** A schematic closed route, never a validated navigable path. */
 export function missionGeometry(m: Mission): MissionGeometry | null {
   if (!m.camp || !m.steps.length) return null;
-  return { type: 'LineString', coordinates: [m.camp.position, ...m.steps.map(s => s.position), m.camp.position].map(p => [p.longitude, p.latitude] as const) };
+  const stops = [m.camp.position, ...m.steps.map(s => s.position), m.camp.position];
+  const points = [stops[0]!, ...stops.slice(1).flatMap((stop, index) => [...(m.routeLegs?.[index] ?? []), stop])];
+  return { type: 'LineString', coordinates: points.map(p => [p.longitude, p.latitude] as const) };
 }

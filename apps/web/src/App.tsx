@@ -56,6 +56,7 @@ export function App() {
   const state = usePlannerState();
   const { workspace } = state;
   const dispatch = usePlannerDispatch();
+  const [routePanelHost, setRoutePanelHost] = useState<HTMLDivElement | null>(null);
   const [mapPanelHost, setMapPanelHost] = useState<HTMLDivElement | null>(null);
   // Tous les volets peuvent rester ouverts, quelle que soit la largeur de l'écran.
   const setDrawer = useCallback((key: DrawerKey, open: boolean) => {
@@ -145,12 +146,12 @@ export function App() {
           tabIndex={-1}
           className="planner-main relative min-h-0 flex-1 outline-none"
         >
-          <MapStage map={<PlannerMap panelHost={mapPanelHost} onSiteSelected={openSiteDetails} />} className="planner-map-stage relative flex h-full min-h-0 flex-col items-center justify-between p-3" />
+          <MapStage map={<PlannerMap routePanelHost={routePanelHost} panelHost={mapPanelHost} onSiteSelected={openSiteDetails} />} className="planner-map-stage relative flex h-full min-h-0 flex-col items-center justify-between p-3" />
           <div className="map-view-switch glass"><MapViewSelector /></div>
           <div className="map-drawer-rails">
             <div className="map-drawer-rail map-drawer-rail-left" {...railState('left')}>
               <MapDrawer label={workspace === 'base' ? 'Mission' : 'Suivi de mission'} shortLabel={workspace === 'base' ? 'Mission' : 'Suivi'} icon={Route} {...drawer('steps')}>
-                <StepsPanel className={floatingPanel} collapsible={false} />
+                <StepsPanel routeHostRef={setRoutePanelHost} className={floatingPanel} collapsible={false} />
               </MapDrawer>
               <div className="map-drawer-group">
                 <MapDrawer label={localize("Calques")} shortLabel={localize("Calques")} icon={Layers} {...drawer('layers')}>

@@ -23,7 +23,7 @@ const uid = () => crypto.randomUUID();
 type Action = 'new' | 'template';
 type Tab = 'prepare' | 'camps' | 'saved';
 
-export function MissionEditor({ className, collapsible = true }: { className?: string; collapsible?: boolean }) {
+export function MissionEditor({ className, collapsible = true, routeHostRef }: { className?: string; collapsible?: boolean; routeHostRef?: (host: HTMLDivElement | null) => void }) {
   const { mission, catalog, runningMission, trackingReady, trackingError, draftStatus, draftError } = usePlannerState();
   const dispatch = usePlannerDispatch();
   const [database] = useState(() => new MissionDatabase());
@@ -182,6 +182,7 @@ export function MissionEditor({ className, collapsible = true }: { className?: s
           </form>
         </details>
         <p className="text-xs text-muted-foreground">{localize("Chaque étape reçoit une activité selon l’objectif, avec une durée estimée de 10 min à ajuster.")}</p>
+        <div ref={routeHostRef} />
         <MissionStepsEditor />
         {action === 'new' && (!mission.camp || !mission.steps.length) && <p>{localize("Choisissez un camp et ajoutez au moins une étape pour continuer.")}</p>}
         <Button disabled={action === 'new' && (!mission.camp || !mission.steps.length)} onClick={() => setStage(3)}>{localize("Continuer : vérifier la mission")}</Button>
