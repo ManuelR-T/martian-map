@@ -1,6 +1,6 @@
 # Estimation d’oxygène (modèle v1)
 
-Le modèle est optionnel et désactivé par défaut. Il simule un scénario pédagogique,
+L’estimation est toujours proposée, avec les valeurs simulées du modèle par défaut. Il simule un scénario pédagogique,
 sans calibration humaine ni dimensionnement de scaphandre. Toutes les valeurs
 initiales sont **simulées**. Les archives du rover fournissent le relief, jamais
 une mesure de consommation humaine. Fuites et pertes du système sont exclues.
@@ -36,5 +36,5 @@ stock restant − réserve protégée. Une marge négative déclenche une alerte
 
 Les paramètres sont conservés dans l’extension optionnelle `parameters.oxygen`
 des missions de schéma v1, avec `modelVersion: 1`. Les anciennes sauvegardes restent
-valides et désactivent le calcul O₂. La sauvegarde locale conserve uniquement les
+valides et utilisent les paramètres O₂ par défaut si ceux-ci sont absents. La sauvegarde locale conserve uniquement les
 champs du modèle, sans grille ni cache de relief. Le budget de temps reste autonome.

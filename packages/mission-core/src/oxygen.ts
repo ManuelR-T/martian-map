@@ -44,7 +44,7 @@ export function oxygenFlow(p: OxygenParameters, speed: number, slopeDegrees: num
   const slopeFactor = 1 + p.uphillCoefficient * Math.max(0, grade) + p.downhillCoefficient * Math.max(0, -grade);
   return p.referenceGramsPerMinute * speedFactor * slopeFactor * (1 + p.loadCoefficientPerKg * p.loadKg);
 }
-export type OxygenBudget = { readonly status: 'disabled' | 'invalid-inputs' | 'missing-inputs' | 'terrain-unavailable' }
+export type OxygenBudget = { readonly status: 'invalid-inputs' | 'missing-inputs' | 'terrain-unavailable' }
   | { readonly status: 'ready'; readonly modelVersion: 1; readonly flatTerrain: boolean;
       readonly legs: readonly { readonly returnToCamp: boolean; readonly grams: number; readonly minutes: number }[];
       readonly activities: readonly { readonly stepId: string; readonly activityId: string; readonly grams: number }[];
@@ -52,8 +52,8 @@ export type OxygenBudget = { readonly status: 'disabled' | 'invalid-inputs' | 'm
 
 /** Horizontal durations match the time model. Closed itinerary includes exactly one return. */
 export function calculateMissionOxygen(mission: Mission | null, terrain?: { sample: ElevationSampler; spacingMetres: number }): OxygenBudget {
-  if (!mission?.parameters.oxygen) return { status: 'disabled' };
-  const p = mission.parameters.oxygen;
+  if (!mission) return { status: 'missing-inputs' };
+  const p = mission.parameters.oxygen ?? DEFAULT_OXYGEN_PARAMETERS;
   if (!validOxygenParameters(p)) return { status: 'invalid-inputs' };
   const time = calculateMissionBudget(mission);
   if (time.status !== 'ready') return { status: time.status };

@@ -26,7 +26,6 @@ export function BudgetPanel({ className, collapsible = true }: BudgetPanelProps)
       collapsible={collapsible}
       floating
       className={className}
-      contentClassName="overflow-y-auto"
     >
       <PlanningGate loadingTitle="Chargement du budget" coverageTitle="Pas de budget hors du secteur détaillé">
         {mission && <details className="mb-3 border-b text-sm"><summary className="min-h-11 cursor-pointer py-3 font-semibold">{localize('Paramètres de la sortie')}</summary><dl className="mb-3 grid gap-1 text-sm">
