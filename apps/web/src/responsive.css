@@ -86,7 +86,7 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 /* Le scroll pilote la perspective sans dépendre des timelines CSS. */
 @media (prefers-reduced-motion: no-preference) {
   .map-drawer-visual {
-    transform: perspective(1000px) rotateX(var(--drawer-tilt, 0deg)) scale(var(--drawer-scale, 1));
+    transform: perspective(var(--drawer-perspective, 1600px)) translateZ(var(--drawer-depth, 0px)) rotateX(var(--drawer-tilt, 0deg));
     transform-origin: center;
   }
 }

@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { Timer, MapPin } from 'lucide-react';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { MapDrawer } from './MapDrawer';
+import { drawerProjection } from './useDrawerPerspective';
 
 beforeEach(() => {
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
@@ -70,7 +71,7 @@ it('updates perspective when the rail scrolls without CSS scroll timelines', asy
     const visual = card.querySelector('.map-drawer-visual')!;
     expect(visual.contains(card.querySelector('.map-drawer-trigger'))).toBe(true);
     expect(visual.contains(card.querySelector('.map-drawer-content'))).toBe(true);
-    expect(parseFloat(card.style.getPropertyValue('--drawer-scale'))).toBeLessThan(1);
+    expect(parseFloat(card.style.getPropertyValue('--drawer-depth'))).toBeLessThan(0);
     expect(parseFloat(card.style.getPropertyValue('--drawer-tilt'))).toBeGreaterThan(0);
     top = 0;
     container.querySelector('.map-drawer-rail')!.dispatchEvent(new Event('scroll'));
@@ -79,5 +80,19 @@ it('updates perspective when the rail scrolls without CSS scroll timelines', asy
   } finally {
     await act(async () => root.unmount());
     geometry.mockRestore(); container.remove(); vi.unstubAllGlobals();
+  }
+});
+
+it('keeps both projected edges inside the rail even for very tall cards', () => {
+  for (const height of [44, 200, 800, 2000]) {
+    for (const position of [-1, -0.5, 0, 0.5, 1]) {
+      const { tilt, depth, perspective } = drawerProjection(position, height);
+      for (const edge of [-1, 1]) {
+        const z = depth + edge * height / 2 * Math.sin(tilt * Math.PI / 180);
+        const projectedWidth = perspective / (perspective - z);
+        expect(projectedWidth).toBeLessThanOrEqual(1);
+        expect(projectedWidth).toBeGreaterThan(0.97);
+      }
+    }
   }
 });

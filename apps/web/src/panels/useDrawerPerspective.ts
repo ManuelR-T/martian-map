@@ -1,5 +1,15 @@
 import { useEffect, type RefObject } from 'react';
 
+/** Recule la carte autant que son arête avance : aucune arête ne dépasse le rail. */
+export function drawerProjection(position: number, height: number) {
+  const tilt = Math.max(-1, Math.min(1, position)) * 5;
+  return {
+    tilt,
+    depth: -Math.sin(Math.abs(tilt) * Math.PI / 180) * height / 2,
+    perspective: Math.max(1600, height * 4),
+  };
+}
+
 /** Mesure le cadre non transformé pour éviter une boucle de rétroaction visuelle. */
 export function useDrawerPerspective(ref: RefObject<HTMLDivElement | null>, open: boolean) {
   useEffect(() => {
@@ -11,7 +21,8 @@ export function useDrawerPerspective(ref: RefObject<HTMLDivElement | null>, open
       frame = 0;
       if (motion.matches) {
         card.style.removeProperty('--drawer-tilt');
-        card.style.removeProperty('--drawer-scale');
+        card.style.removeProperty('--drawer-depth');
+        card.style.removeProperty('--drawer-perspective');
         return;
       }
       const rail = card.closest<HTMLElement>('.map-drawer-rail');
@@ -23,9 +34,10 @@ export function useDrawerPerspective(ref: RefObject<HTMLDivElement | null>, open
       if (!bounds.height) return;
       const distance = (rect.top + rect.height / 2 - bounds.top - bounds.height / 2)
         / ((bounds.height + rect.height) / 2);
-      const position = Math.max(-1, Math.min(1, distance));
-      card.style.setProperty('--drawer-tilt', `${position * 8}deg`);
-      card.style.setProperty('--drawer-scale', `${1 - Math.abs(position) * 0.025}`);
+      const projection = drawerProjection(distance, rect.height);
+      card.style.setProperty('--drawer-tilt', `${projection.tilt}deg`);
+      card.style.setProperty('--drawer-depth', `${projection.depth}px`);
+      card.style.setProperty('--drawer-perspective', `${projection.perspective}px`);
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
     document.addEventListener('scroll', schedule, true);
@@ -43,7 +55,8 @@ export function useDrawerPerspective(ref: RefObject<HTMLDivElement | null>, open
       motion.removeEventListener('change', schedule);
       observer.disconnect();
       card.style.removeProperty('--drawer-tilt');
-      card.style.removeProperty('--drawer-scale');
+      card.style.removeProperty('--drawer-depth');
+      card.style.removeProperty('--drawer-perspective');
     };
   }, [ref, open]);
 }
