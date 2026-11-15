@@ -6,10 +6,10 @@ export interface MissionHistoryEntry { readonly id: string; readonly mission: Mi
 
 export class MissionDatabase {
   private connection?: Promise<IDBDatabase>;
-  constructor(private readonly factory: IDBFactory = indexedDB) {}
+  constructor(private readonly factory?: IDBFactory) {}
   private open(): Promise<IDBDatabase> {
-    if (!this.connection) this.connection = new Promise((resolve, reject) => {
-      const request = this.factory.open('marps-missions', 3);
+    if (!this.connection) this.connection = new Promise<IDBDatabase>((resolve, reject) => {
+      const request = (this.factory ?? indexedDB).open('marps-missions', 3);
       request.onupgradeneeded = () => {
         const db = request.result;
         if (!db.objectStoreNames.contains('camps')) {
@@ -24,7 +24,7 @@ export class MissionDatabase {
       request.onsuccess = () => { request.result.onversionchange = () => { request.result.close(); this.connection = undefined; }; resolve(request.result); };
       request.onerror = () => { this.connection = undefined; reject(request.error); };
       request.onblocked = () => { this.connection = undefined; reject(new Error('Fermez les autres onglets pour ouvrir la base locale.')); };
-    });
+    }).catch(error => { this.connection = undefined; throw error; });
     return this.connection;
   }
   private async run<T>(store: string, mode: IDBTransactionMode, operation: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {

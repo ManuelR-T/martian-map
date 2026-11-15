@@ -463,6 +463,40 @@ Le repository `apps/web/src/storage/missionDatabase.ts` constitue le point à
 ni synchronisation multi-équipage, ni télémétrie. Effacer les données du
 navigateur efface cette base.
 
+### Sauvegarde et restauration locales (#18)
+
+La préparation en cours est aussi enregistrée automatiquement dans
+`localStorage`, sous la clé `marps-mission-draft`, avec le schéma de mission
+versionné. Elle retrouve son nom, son camp, son parcours, ses activités, ses
+paramètres valides et le travail des fiches après rechargement. L’assistant
+reprend à la première étape ; une saisie de formulaire encore invalide n’est
+pas enregistrée. Le bouton **Enregistrer la mission** conserve une copie dans
+le catalogue IndexedDB existant ; les modèles, sorties et historiques y restent
+séparés du brouillon. Modifier une préparation n’écrase pas cette copie avant
+un nouvel enregistrement explicite.
+
+Les nouvelles sauvegardes conservent dans `dataReferences` les identifiants,
+versions et empreintes SHA-256 des sources de la région. Les anciennes missions
+v1 sans ce champ restent lisibles ; les références déjà enregistrées sont
+conservées à la réouverture. Aucun raster ni cache de tuiles n’est sérialisé
+dans `localStorage` : les ressources cartographiques restent dans les caches
+de l’application.
+
+Une préparation corrompue, une version de schéma inconnue ou un site absent du
+catalogue produit un message explicite. La sauvegarde d’origine est conservée
+jusqu’à son remplacement confirmé. Le suivi est lui aussi contrôlé par rapport
+au catalogue avant restauration, sans remplacer un site manquant. Un refus du
+stockage ou un quota dépassé affiche une erreur ; une modification ultérieure
+réessaie l’écriture. L’absence d’IndexedDB ne fait pas planter l’interface et
+le chargement du suivi peut être relancé.
+
+**Modifier la mission** permet de la renommer avant de l’enregistrer à nouveau ;
+**Supprimer** retire sa copie du catalogue après confirmation.
+**Réinitialiser la préparation** crée un brouillon vide après confirmation et
+conserve les missions enregistrées, les modèles, le suivi et l’historique.
+Les tests couvrent la sérialisation, le rechargement, la corruption, les versions
+inconnues, les sites manquants, les refus de stockage et les quotas.
+
 Les camps d’exemple de `packages/data/src/camps.ts` sont fictifs et initialisés
 une seule fois. Leurs positions dans le secteur préparé ne confirment ni
 habitabilité, ni présence d’équipements, ni sélection NASA. La recherche n’a pas

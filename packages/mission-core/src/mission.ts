@@ -67,6 +67,8 @@ export interface Mission {
   readonly parameters: MissionParameters;
   readonly assumptions: MissionAssumptions;
   readonly siteWork: Readonly<Record<string, SiteProgress>>;
+  /** Compact source identities; absent on older v1 saves. No raster or tile content. */
+  readonly dataReferences?: readonly { readonly id: string; readonly version: string; readonly sha256: string }[];
 }
 export function createEmptyMission(regionId: string, id = 'draft'): Mission {
   return { schemaVersion: 1, id, name: missionTypes.reconnaissance, missionType: 'reconnaissance', regionId, camp: null, steps: [],
@@ -94,6 +96,8 @@ export function isMission(value: unknown): value is Mission {
   try {
     const m = value as Mission;
     return (m.missionType === undefined || Object.hasOwn(missionTypes, m.missionType)) && m.schemaVersion === 1 && nonempty(m.id) && nonempty(m.name) && nonempty(m.regionId)
+      && (m.dataReferences === undefined || (Array.isArray(m.dataReferences) && unique(m.dataReferences.map(d => d.id))
+        && m.dataReferences.every(d => nonempty(d.id) && nonempty(d.version) && typeof d.sha256 === 'string' && /^[a-f0-9]{64}$/i.test(d.sha256))))
       && (m.camp === null || (validCamp(m.camp) && m.camp.regionId === m.regionId))
       && validParameters(m.parameters) && m.assumptions.simulation === true
       && m.assumptions.route === 'straight-segments' && m.assumptions.terrainValidated === false
