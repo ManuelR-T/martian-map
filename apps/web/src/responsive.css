@@ -85,10 +85,20 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 /* La lentille reste fixe sur la fenêtre défilante : les cartes passent dedans. */
 .drawer-reel-filter { position: absolute; width: 0; height: 0; pointer-events: none; }
 @media (prefers-reduced-motion: no-preference) {
-  .map-drawer-rail-left { filter: url(#drawer-reel-left); }
-  .map-drawer-rail-right { filter: url(#drawer-reel-right); }
+  /* 8 px hors écran couvrent le déplacement maximal de 6 px de la lentille.
+     Le contenu est compensé pour garder textes et commandes à leur place. */
+  .map-drawer-rail { width: calc(min(25rem, calc(100vw - 3.75rem)) + 8px); filter: url(#drawer-reel-lens); }
+  .map-drawer-rail-left { left: -8px; }
+  .map-drawer-rail-right { right: -8px; }
+  .map-drawer-left .map-drawer-body { padding-left: 8px; }
+  .map-drawer-right .map-drawer-body { padding-right: 8px; }
+  .map-drawer-left .map-drawer-card-icon { left: 8px; }
+  .map-drawer-right .map-drawer-close { right: 8px; }
+  .map-drawer-left .map-drawer-trigger { padding-left: calc(.75rem + 8px); }
+  .map-drawer-right .map-drawer-trigger { padding-right: calc(.75rem + 8px); }
   @media (max-width: 800px) {
     .map-drawer-rail { filter: none; }
-    .map-drawer-rails { filter: url(#drawer-reel-shared); }
+    .map-drawer-rails { left: -8px; right: -8px; filter: url(#drawer-reel-lens); }
+    .map-drawer { width: calc(min(25rem, calc(100vw - 3.75rem)) + 8px); }
   }
 }
