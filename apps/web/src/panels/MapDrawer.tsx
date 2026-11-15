@@ -23,7 +23,7 @@ export function MapDrawer({ label, icon: Icon, side, open, onOpenChange, childre
     trigger.current?.focus();
   }
 
-  return <div className={`map-drawer map-drawer-${side}`}>
+  return <div className={`map-drawer map-drawer-${side}`} data-state={open ? 'open' : 'closed'}>
     <button
       ref={trigger}
       type="button"
@@ -42,7 +42,8 @@ export function MapDrawer({ label, icon: Icon, side, open, onOpenChange, childre
       role="region"
       aria-label={label}
       tabIndex={-1}
-      hidden={!open}
+      inert={!open}
+      aria-hidden={!open}
       className="map-drawer-content"
       onKeyDown={(event) => {
         if (event.key === 'Escape') { event.stopPropagation(); close(); }
