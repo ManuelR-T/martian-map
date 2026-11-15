@@ -191,9 +191,13 @@ it('active le modèle O₂, exige le relief ou le plat explicite et conserve les
   };
   await toggle('Activer le modèle');
   expect(oxygen().textContent).toContain('O₂ indisponible');
+  expect(oxygen().textContent).not.toContain('Besoin total, retour compris');
   await toggle('Supposer explicitement');
   expect(oxygen().textContent).toContain('Besoin total, retour compris');
   expect(oxygen().textContent).toContain('Hypothèse active : terrain plat');
+  expect(oxygen().textContent).toContain('Estimation incertaine');
+  const settings = [...oxygen().querySelectorAll('details')].find(d => d.querySelector('summary')?.textContent === 'Paramètres et données O₂')!;
+  expect(oxygen().querySelector('dl')!.compareDocumentPosition(settings) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   const saved = loadMissionDraft()!;
   expect(saved.parameters.oxygen?.assumeFlatTerrain).toBe(true);
   await act(async () => { container.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
