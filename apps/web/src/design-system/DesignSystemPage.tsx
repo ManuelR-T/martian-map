@@ -28,10 +28,11 @@ interface Swatch {
 }
 
 const swatches: readonly Swatch[] = [
-  { token: 'primary', name: 'Bleu crépuscule', usage: 'Actions principales, sélection, liens', className: 'bg-primary text-primary-foreground' },
+  { token: 'primary', name: 'Orange martien', usage: 'Actions principales, sélection, liens', className: 'bg-primary text-primary-foreground' },
+  { token: 'twilight', name: 'Bleu crépuscule', usage: 'Ambiance, lueurs et fonds bleu nuit', className: 'bg-twilight text-twilight-foreground' },
   { token: 'mars', name: 'Braise', usage: 'Repères d\'étape, parcours, marque', className: 'bg-mars text-mars-foreground' },
   { token: 'header', name: 'Nuit', usage: 'Bandeau de navigation', className: 'bg-header text-header-foreground' },
-  { token: 'background', name: 'Fond', usage: 'Fond de page : basalte la nuit, plein jour froid', className: 'bg-background text-foreground' },
+  { token: 'background', name: 'Fond', usage: 'Fond de page bleu nuit', className: 'bg-background text-foreground' },
   { token: 'card', name: 'Surface', usage: 'Panneaux et contrôles', className: 'bg-card text-card-foreground' },
   { token: 'muted', name: 'Atténué', usage: 'Zones secondaires, squelettes', className: 'bg-muted text-muted-foreground' },
   { token: 'accent', name: 'Accent', usage: 'Survol, élément sélectionné', className: 'bg-accent text-accent-foreground' },
@@ -119,7 +120,7 @@ export default function DesignSystemPage() {
           <h2 className="heading-display text-3xl font-extrabold [font-stretch:125%] sm:text-4xl">Heure bleue</h2>
           <p className="mt-5 max-w-xl text-lg text-foreground/90">
             Sur Mars, le ciel de jour est caramel et le coucher de soleil est bleu. Le système de design de Marps part
-            de cette inversion : le bleu du crépuscule porte les actions, la braise marque le terrain.
+            de cette inversion : le bleu du crépuscule habille les fonds, l’orange martien souligne les actions et les repères.
           </p>
         </div>
       </div>

@@ -28,7 +28,7 @@ function useHash(): string {
 }
 
 const headerLink =
-  'label-caps inline-flex h-11 items-center px-3 text-header-foreground/85 transition-colors hover:bg-accent hover:text-accent-foreground aria-[current=page]:bg-accent aria-[current=page]:text-accent-foreground';
+  'label-caps inline-flex h-11 items-center px-3 text-header-foreground/85 transition-colors hover:bg-accent hover:text-accent-foreground aria-[current=page]:bg-accent aria-[current=page]:text-primary aria-[current=page]:shadow-[inset_0_-2px_var(--primary)]';
 
 /** Contenu interactif des volets superposés à la carte. */
 const floatingPanel = 'pointer-events-auto';

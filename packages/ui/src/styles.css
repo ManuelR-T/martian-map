@@ -11,7 +11,7 @@
 /*
  * « Heure bleue ». Sur Mars, le ciel de jour est caramel et le coucher de
  * soleil est bleu : la palette part de cette inversion. Le bleu crépuscule
- * porte l'interface et les actions, la braise marque le terrain et les repères,
+ * porte l'ambiance ; la braise porte les actions, les sélections et les repères,
  * sur une nuit de basalte, avec une seule palette pour tous les écrans.
  * Chaque paire texte/fond est contrôlée par tokens.test.ts.
  */
@@ -26,8 +26,10 @@
   --card-foreground: #eef2f8;
   --popover: #121a2a;
   --popover-foreground: #eef2f8;
-  --primary: #8fbaff;
-  --primary-foreground: #06122b;
+  --primary: #ff8a4c;
+  --primary-foreground: #2a0f02;
+  --twilight: #8fbaff;
+  --twilight-foreground: #06122b;
   --secondary: #1a2233;
   --secondary-foreground: #dfe6f2;
   --muted: #151c2b;
@@ -68,7 +70,7 @@
  */
 :root,
 .dark {
-  --horizon: linear-gradient(90deg in oklab, var(--mars), var(--primary));
+  --horizon: linear-gradient(90deg in oklab, var(--mars), var(--twilight));
   --surface-glass: color-mix(in srgb, var(--card) 84%, transparent);
   --elevation: 0 1px 2px rgb(11 18 32 / 0.06), 0 18px 40px -18px rgb(11 18 32 / 0.32);
   --glow-primary: 0 10px 24px -12px color-mix(in srgb, var(--primary) 80%, transparent);
@@ -108,6 +110,8 @@
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
+  --color-twilight: var(--twilight);
+  --color-twilight-foreground: var(--twilight-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
@@ -160,7 +164,7 @@
     margin: 0;
     /* Lueur de crépuscule fixe en haut de page : à peine visible, elle donne sa profondeur au fond. */
     background:
-      radial-gradient(90% 55% at 50% 0%, color-mix(in oklab, var(--primary) 20%, transparent), transparent 85%) fixed,
+      radial-gradient(90% 55% at 50% 0%, color-mix(in oklab, var(--twilight) 20%, transparent), transparent 85%) fixed,
       var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);
@@ -273,9 +277,9 @@
   background:
     radial-gradient(
       85% 60% at 50% 100%,
-      color-mix(in oklab, var(--primary) 50%, transparent) 0%,
-      color-mix(in oklab, var(--primary) 20%, transparent) 32%,
-      color-mix(in oklab, var(--scene-terrain, var(--primary)) 14%, transparent) 62%,
+      color-mix(in oklab, var(--twilight) 50%, transparent) 0%,
+      color-mix(in oklab, var(--twilight) 20%, transparent) 32%,
+      color-mix(in oklab, var(--scene-terrain, var(--twilight)) 14%, transparent) 62%,
       transparent 100%
     ),
     var(--background);
@@ -286,22 +290,22 @@
   border-radius: 50%;
   background: radial-gradient(
     circle closest-side,
-    color-mix(in oklab, var(--scene-terrain, var(--primary)) 16%, var(--background)) 0%,
-    color-mix(in oklab, var(--scene-terrain, var(--primary)) 30%, var(--background)) 80%,
-    color-mix(in oklab, var(--scene-terrain, var(--primary)) 62%, var(--background)) 92%,
-    var(--scene-terrain, var(--primary)) 98%,
-    color-mix(in oklab, var(--scene-terrain, var(--primary)) 70%, white) 100%
+    color-mix(in oklab, var(--scene-terrain, var(--twilight)) 16%, var(--background)) 0%,
+    color-mix(in oklab, var(--scene-terrain, var(--twilight)) 30%, var(--background)) 80%,
+    color-mix(in oklab, var(--scene-terrain, var(--twilight)) 62%, var(--background)) 92%,
+    var(--scene-terrain, var(--twilight)) 98%,
+    color-mix(in oklab, var(--scene-terrain, var(--twilight)) 70%, white) 100%
   );
   box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--primary) 65%, transparent),
-    0 -2px 16px 0 color-mix(in srgb, var(--primary) 70%, transparent),
-    0 -10px 80px 4px color-mix(in srgb, var(--primary) 42%, transparent);
+    0 0 0 1px color-mix(in srgb, var(--twilight) 65%, transparent),
+    0 -2px 16px 0 color-mix(in srgb, var(--twilight) 70%, transparent),
+    0 -10px 80px 4px color-mix(in srgb, var(--twilight) 42%, transparent);
 }
 
 /* Quadrillage de l'emplacement carte : parallèles et méridiens, lignes maîtresses bleues, estompé vers les bords. */
 @utility graticule {
   --line: color-mix(in srgb, var(--foreground) 9%, transparent);
-  --line-major: color-mix(in srgb, var(--scene-terrain, var(--primary)) 38%, transparent);
+  --line-major: color-mix(in srgb, var(--scene-terrain, var(--twilight)) 38%, transparent);
 
   background-image:
     linear-gradient(to right, var(--line-major) 1px, transparent 1px),

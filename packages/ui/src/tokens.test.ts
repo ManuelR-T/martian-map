@@ -57,6 +57,7 @@ const textPairs: readonly (readonly [string, string])[] = [
   ['muted-foreground', 'danger-surface'],
   ['muted-foreground', 'warning-surface'],
   ['mars-foreground', 'mars'],
+  ['twilight-foreground', 'twilight'],
   ['foreground', 'mars-surface'],
   ['muted-foreground', 'mars-surface'],
 ];

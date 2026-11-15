@@ -86,8 +86,9 @@ apparence, appliquée dès le premier rendu, sans préférence locale.
   affiche un plutôt qu'un vide.
 - **Couleurs.** Les jetons de `packages/ui/src/styles.css` définissent une
   seule palette « Heure bleue », à la racine et dans la portée `dark`.
-  Le bleu crépuscule (`--primary`) porte l'interface et les actions ; la braise
-  (`--mars`) marque le terrain, les repères et le parcours, sur une nuit de basalte.
+  L’orange martien (`--primary`) porte les actions et les sélections ; le bleu
+  crépuscule (`--twilight`) conserve l’ambiance des fonds. La braise (`--mars`)
+  marque aussi les repères et le parcours, sur une nuit de basalte.
   `tokens.test.ts` échoue si le texte principal passe sous 7:1, un autre texte
   sous 4,5:1 ou une bordure de contrôle sous 3:1.
 - **Accessibilité.** Un état ne repose jamais sur la seule couleur : il porte
