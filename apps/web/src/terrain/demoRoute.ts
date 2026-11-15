@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../i18n';
 import type { SiteDescriptor } from '@marps/data';
 import type { MarsCoordinate } from '@marps/mission-core';
 
@@ -16,6 +18,6 @@ export function demoRoute(sites: readonly SiteDescriptor[]): RouteStop[] {
   if (!first || sites.length < 2) return [];
   return [
     ...sites.map((site) => ({ label: site.name, coordinate: site.coordinate })),
-    { label: 'Retour', coordinate: first.coordinate },
+    { label: localize("Retour"), coordinate: first.coordinate },
   ];
 }

@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../../i18n';
 import type { ReactNode } from 'react';
 import { cn } from '@marps/ui';
 
@@ -17,7 +19,7 @@ export function LayerSwitch({ label, icon, checked, onChange, className }: {
       onClick={() => onChange(!checked)}
       className={cn('flex min-h-11 w-full cursor-pointer items-center justify-between gap-3 text-left text-sm font-semibold', className)}
     >
-      <span className="flex items-center gap-2 [&_svg]:size-5 [&_svg]:shrink-0">{icon}{label}</span>
+      <span className="flex items-center gap-2 [&_svg]:size-5 [&_svg]:shrink-0">{localize(icon)}{localize(label)}</span>
       <span aria-hidden="true" className={cn('flex h-7 w-12 shrink-0 items-center rounded-full border-2 p-0.5 transition-colors',
         checked ? 'justify-end border-primary bg-primary' : 'justify-start border-input bg-muted')}>
         <span className="size-5 rounded-full bg-background shadow" />

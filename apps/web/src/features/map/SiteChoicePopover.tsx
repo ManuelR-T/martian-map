@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../../i18n';
 import { useLayoutEffect, useRef } from 'react';
 import type { SiteDescriptor } from '@marps/data';
 import { Button } from '@marps/ui';
@@ -27,13 +29,13 @@ export function SiteChoicePopover({ choice, onSelect, onClose }: {
     element.querySelector<HTMLButtonElement>('button')?.focus();
   }, [choice]);
   const messages = jezeroMessages.fr;
-  return <div ref={ref} popover="auto" role="dialog" aria-label={messages.chooseSite}
+  return <div ref={ref} popover="auto" role="dialog" aria-label={localize(messages.chooseSite)}
     className="site-choice-popover border bg-card p-4 text-foreground"
     onToggle={event => { if (event.newState === 'closed') onClose(); }}>
-    <p className="mb-2 font-semibold">{messages.chooseSite}</p>
+    <p className="mb-2 font-semibold">{localize(messages.chooseSite)}</p>
     <div className="grid gap-2">
-      {choice.sites.map(site => <Button key={site.id} variant="outline" onClick={() => { onSelect(site.id); onClose(); }}>{site.name}</Button>)}
-      <Button variant="ghost" onClick={onClose}>{messages.cancel}</Button>
+      {choice.sites.map(site => <Button key={site.id} variant="outline" onClick={() => { onSelect(site.id); onClose(); }}>{localize(site.name)}</Button>)}
+      <Button variant="ghost" onClick={onClose}>{localize(messages.cancel)}</Button>
     </div>
   </div>;
 }

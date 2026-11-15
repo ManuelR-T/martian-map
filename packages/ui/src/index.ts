@@ -22,3 +22,4 @@ export type { TabListProps, TabOption } from './components/tab-list';
 export { StepList, StepListItem } from './components/step-list';
 export type { StepKind, StepListItemProps, StepListProps } from './components/step-list';
 export { cn } from './lib/utils';
+export { localize } from './localize';

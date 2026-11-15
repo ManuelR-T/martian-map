@@ -1,3 +1,4 @@
+import { localize } from '../localize';
 import type { ReactNode } from 'react';
 import { Check } from 'lucide-react';
 import { RadioGroup } from 'radix-ui';
@@ -34,7 +35,7 @@ export function SegmentedControl<Value extends string>({
   return (
     <RadioGroup.Root
       data-slot="segmented-control"
-      aria-label={label}
+      aria-label={localize(label)}
       orientation="horizontal"
       value={value}
       onValueChange={(next) => {
@@ -58,7 +59,7 @@ export function SegmentedControl<Value extends string>({
             )}
           >
             {selected ? <Check aria-hidden="true" /> : option.icon}
-            {option.label}
+            {localize(option.label)}
           </RadioGroup.Item>
         );
       })}

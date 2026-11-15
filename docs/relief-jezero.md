@@ -1,157 +1,157 @@
-# Relief de Jezero : altitudes, pentes et relief ombré
+# Jezero relief: altitudes, slopes and shaded relief
 
-Vérification et préparation du 14 novembre 2026 (issue #10). Le relief du secteur
-de Jezero vient du **DEM HiRISE à 1 m, agrégé à 4 m** ; le **DEM CTX à 20 m** reste
-figé à côté comme jeu de repli. Les deux servent le profil d'altitude et les
-alertes de pente. Aucun des deux n'est une donnée de navigation.
+Verification and preparation of November 14, 2026 (issue #10). The relief of the sector
+from Jezero comes from **DEM HiRISE at 1 m, aggregated at 4 m**; the **DEM CTX at 20 m** remains
+frozen next to it as a fallback game. Both serve the altitude profile and the
+slope alerts. Neither is navigational data.
 
-## Ce qui a été vérifié
+## What was checked
 
-### DEM HiRISE : utilisable
+### DEM HiRISE: usable
 
-[Fiche USGS](https://astrogeology.usgs.gov/search/map/mars_2020_terrain_relative_navigation_hirise_dtm_mosaic) ·
+[USGS](https://astrogeology.usgs.gov/search/map/mars_2020_terrain_relative_navigation_hirise_dtm_mosaic) sheet ·
 [GeoTIFF](https://planetarymaps.usgs.gov/mosaic/mars2020_trn/HiRISE/JEZ_hirise_soc_006_DTM_MOLAtopography_DeltaGeoid_1m_Eqc_latTs0_lon0_blend40.tif)
 
-- **Produit.** Mosaïque « Mars 2020 Terrain Relative Navigation HiRISE DTM », version
-  `soc_006`, de la même série que l'imagerie HiRISE déjà figée. Ce n'est pas le DTM
-  isolé `PSP_002387_1985` de l'université d'Arizona cité dans l'issue : celui-ci
-  (320 Mo, 1 m/pixel, centre 18,49°N 77,41°E) est accessible mais n'a pas été
-  téléchargé, la mosaïque USGS étant déjà recalée sur le DEM CTX.
-- **Accès.** HTTP 200 après redirection vers le stockage USGS, sans compte ni clé.
-  Les requêtes `Range` sont servies (HTTP 206).
-- **Poids.** 1 839 545 409 octets : 21 400 colonnes × 21 488 lignes, float32 non
-  compressé, une ligne par bande. Le fichier n'est jamais téléchargé en entier.
-- **Emprise.** 77,2229–77,5840°E et 18,3068–18,6693°N. Elle contient le secteur.
-- **Traitement.** L'en-tête (262 144 octets) donne la position de chaque ligne ; une
-  seule requête lit les lignes 12 104 à 13 303, soit 102 720 000 octets, en 17 s
-  environ lors du contrôle. Le bloc est mis en cache et son SHA-256 est épinglé dans
-  `tools/data/marps_data/spec.py`.
-- **Lacunes.** Aucune : les 1 200 × 1 020 pixels lus pour le secteur sont finis et
-  aucun ne porte la valeur NoData déclarée (`-3.4028226550889045e+38`).
-- **Projection.** Identique au DEM CTX : équirectangulaire, sphère de rayon
-  3 396 190 m, méridien central et parallèle standard à 0°, pixel = surface.
+- **Product.** Mosaic “March 2020 Terrain Relative Navigation HiRISE DTM”, version
+`soc_006`, from the same series as the already frozen HiRISE imagery. It's not DTM
+isolated `PSP_002387_1985` from the University of Arizona cited in the issue: this one
+(320 MB, 1 m/pixel, center 18.49°N 77.41°E) is accessible but has not been
+downloaded, the USGS mosaic already being registered on the DEM CTX.
+- **Access.** HTTP 200 after redirection to USGS storage, without account or key.
+`Range` requests are served (HTTP 206).
+- **Weight.** 1,839,545,409 bytes: 21,400 columns × 21,488 rows, float32 no
+compressed, one line per tape. The file is never downloaded in full.
+- **Right of way.** 77.2229–77.5840°E and 18.3068–18.6693°N. It contains the sector.
+- **Processing.** The header (262,144 bytes) gives the position of each line; a
+single query reads lines 12,104 to 13,303, or 102,720,000 bytes, in 17 s
+approximately during the check. The block is cached and its SHA-256 is pinned in
+`tools/data/marps_data/spec.py`.
+- **Gaps.** None: the 1200 × 1020 pixels read for the sector are finite and
+none have the declared NoData value (`-3.4028226550889045e+38`).
+- **Projection.** Same as DEM CTX: equirectangular, sphere of radius
+3,396,190 m, central meridian and standard parallel at 0°, pixel = area.
 
-### DEM CTX 20 m : repli conservé
+### DEM CTX 20 m: fallback retained
 
-Le GeoTIFF déjà vérifié (9 662 387 octets, 1 596 × 1 512, float32) est découpé comme
-avant. Sa grille de 51 × 60 mailles est restée identique à l'octet près après la
-refonte de la préparation.
+The already verified GeoTIFF (9,662,387 bytes, 1,596 × 1,512, float32) is split as
+Before. Its 51 × 60 mesh grid remained identical to the nearest byte after the
+overhaul of the preparation.
 
-## Projection et transformation
+## Projection and transformation
 
-Les deux produits utilisent x = R·λ et y = R·φ (radians, R = 3 396 190 m). La maille
-(ligne, colonne) couvre x à partir de `origin.x + colonne × pas` et y en descendant
-depuis `origin.y − ligne × pas`. Le manifeste porte cette transformation dans
-`raster` : `origin`, `pixelSizeMetres`, `projection`, `width`, `height`.
+Both products use x = R·λ and y = R·φ (radians, R = 3,396,190 m). The mesh
+(row, column) covers x starting from `origin.x + colonne × pas` and y going down
+from `origin.y − ligne × pas`. The manifest carries this transformation in
+`raster`: `origin`, `pixelSizeMetres`, `projection`, `width`, `height`.
 
-| Grille | Mailles (colonnes × lignes) | Pas | Origine x, y (m) |
+| Grid | Meshes (columns × rows) | Not | Origin x, y (m) |
 | --- | --- | --- | --- |
-| HiRISE | 253 × 298 | 4 m | 4 587 562,0 ; 1 094 510,0 |
-| CTX | 51 × 60 | 20 m | 4 587 563,250853 ; 1 094 513,140188 |
+| HiRISE | 253 × 298 | 4m | 4,587,562.0; 1,094,510.0 |
+| CTX | 51 × 60 | 20m | 4,587,563.250853; 1,094,513.140188 |
 
-**Le pas n'est pas une distance au sol dans les deux directions.** Avec un parallèle
-standard à 0°, une maille mesure bien son pas du nord au sud, mais seulement
-pas × cos(latitude) d'est en ouest : 18,97 m au lieu de 20 m à Jezero (18,45°N).
-Les pentes tiennent compte de cet écart d'environ 5 %.
+**Pitch is not a distance from the ground in both directions.** With a parallel
+standard at 0°, a mesh measures its pitch from north to south, but only
+step × cos(latitude) from east to west: 18.97 m instead of 20 m at Jezero (18.45°N).
+The slopes take into account this difference of approximately 5%.
 
-## Datum vertical
+## Vertical data
 
-Le nom des deux fichiers indique `MOLAtopography_DeltaGeoid` : des altitudes de type
-topographie MOLA, au-dessus de l'aréoïde. Les fiches USGS ne donnent pas d'autre
-définition ; le manifeste le dit dans `verticalDatum`. Fergason et al. (2020)
-indiquent que la mosaïque CTX a été décalée de 183,3 m en vertical pour s'aligner
-sur HRSC, puis que la mosaïque HiRISE a été alignée sur la mosaïque CTX.
+The name of both files indicates `MOLAtopography_DeltaGeoid`: altitudes of type
+MOLA topography, above the areoid. The USGS sheets do not give any other
+definition ; the manifest says so in `verticalDatum`. Fergason et al. (2020)
+indicate that the CTX mosaic was offset 183.3 m vertically to align
+on HRSC, then the HiRISE mosaic has been aligned with the CTX mosaic.
 
-## Correspondance entre sites et mailles
+## Correspondence between sites and meshes
 
-Les trois arrêts tombent sur une maille valide des deux grilles. `pnpm data:check`
-le contrôle, et les tests de `@marps/data` relisent les mêmes fichiers.
+The three stops fall on a valid mesh of the two grids. `pnpm data:check`
+the control, and the tests of `@marps/data` reread the same files.
 
-| Arrêt | Altitude HiRISE 4 m | Altitude CTX 20 m | Altitude du prélèvement (NASA) | Pente HiRISE | Pente CTX |
+| Stop | HiRISE altitude 4 m | Altitude CTX 20 m | Sampling altitude (NASA) | HiRISE Slope | Slope CTX |
 | --- | --- | --- | --- | --- | --- |
-| Skinner Ridge | −2 520,37 m | −2 516,72 m | −2 520,19 m | 20,1° | 8,3° |
-| Wildcat Ridge | −2 522,96 m | −2 519,85 m | −2 523,10 m | 8,3° | 10,3° |
-| Amalik | −2 526,59 m | −2 526,77 m | −2 526,53 m | 3,9° | 3,4° |
+| Skinner Ridge | −2,520.37 m | −2,516.72 m | −2,520.19 m | 20.1° | 8.3° |
+| Wildcat Ridge | −2,522.96 m | −2,519.85 m | −2,523.10 m | 8.3° | 10.3° |
+| Amalik | −2,526.59 m | −2,526.77 m | −2,526.53 m | 3.9° | 3.4° |
 
-Les altitudes HiRISE s'écartent de moins de 0,2 m de celles publiées avec les
-prélèvements du rover, qui viennent d'une autre source. C'est un indice de bon
-recalage sur trois points, pas une validation du datum : ne pas mélanger les deux
-séries dans un même profil.
+HiRISE altitudes deviate by less than 0.2 m from those published with the
+samples from the rover, which come from another source. This is an indicator of good
+adjustment on three points, not a validation of the datum: do not mix the two
+series in the same profile.
 
-Sur le secteur, la grille HiRISE ramenée à 20 m diffère de la grille CTX de 0,09 m
-en médiane, avec un écart quadratique de 3,2 m (5ᵉ et 95ᵉ centiles : −5,8 m et
-+4,6 m). Fergason et al. (2020) publient un écart médian d'environ 0,4 m entre les
-deux mosaïques, un recalage vertical de 3,8 m entre modèles CTX et un décalage
-horizontal moyen de 9,6 m des images CTX.
+On the sector, the HiRISE grid reduced to 20 m differs from the CTX grid by 0.09 m
+in median, with a quadratic deviation of 3.2 m (5ᵉ and 95ᵉ percentiles: −5.8 m and
++4.6 m). Fergason et al. (2020) publish a median difference of around 0.4 m between
+two mosaics, a vertical adjustment of 3.8 m between CTX models and an offset
+average horizontal of 9.6 m of CTX images.
 
-## Fichiers produits
+## Product files
 
-Tous sous `apps/web/public/data/jezero/dem/`, décrits dans le manifeste.
+All under `apps/web/public/data/jezero/dem/`, described in the manifest.
 
-| Jeu de données | Fichier | Contenu |
+| Dataset | File | Content |
 | --- | --- | --- |
-| `jezero-hirise-dem` | `hirise-4m.f32` (301 576 octets) | Altitudes en mètres |
-| `jezero-hirise-slope` | `hirise-4m-slope.f32` | Pentes en degrés |
-| `jezero-hirise-hillshade` | `hirise-4m-hillshade.png` | Relief ombré, 253 × 298 |
-| `jezero-ctx-dem` | `ctx-20m.f32` (12 240 octets) | Altitudes en mètres |
-| `jezero-ctx-slope` | `ctx-20m-slope.f32` | Pentes en degrés |
-| `jezero-ctx-hillshade` | `ctx-20m-hillshade.png` | Relief ombré, 51 × 60 |
+| `jezero-hirise-dem` | `hirise-4m.f32` (301,576 bytes) | Altitudes in meters |
+| `jezero-hirise-slope` | `hirise-4m-slope.f32` | Slopes in degrees |
+| `jezero-hirise-hillshade` | `hirise-4m-hillshade.png` | Shaded relief, 253 × 298 |
+| `jezero-ctx-dem` | `ctx-20m.f32` (12240 bytes) | Altitudes in meters |
+| `jezero-ctx-slope` | `ctx-20m-slope.f32` | Slopes in degrees |
+| `jezero-ctx-hillshade` | `ctx-20m-hillshade.png` | Shaded relief, 51 × 60 |
 
-- **Agrégation HiRISE.** Moyenne par blocs de 4 × 4 pixels, alignés sur l'origine du
-  fichier source. À 1 m, chaque grille pèserait 4,8 Mo ; à 4 m, 0,3 Mo. Un bloc
-  contenant un seul pixel sans donnée reste sans donnée.
-- **Pente.** Méthode de Horn sur 3 × 3 mailles : une pente moyenne sur une base de
-  8 m (HiRISE) ou de 40 m (CTX), pas la pente locale sous le pied. Sur le secteur :
-  médiane 4,6°, 95ᵉ centile 20,7° et maximum 60,1° en HiRISE ; 4,6°, 16,8° et 27,6°
-  en CTX. Le même escarpement paraît donc deux fois moins raide à 20 m.
-- **Relief ombré.** Éclairage fictif depuis le nord-ouest (azimut 315°, hauteur 45°),
-  sans exagération verticale. Image en niveaux de gris avec transparence, à étirer
-  sur l'emprise du jeu de données.
+- **HiRISE aggregation.** Average by blocks of 4 × 4 pixels, aligned to the origin of the
+source file. At 1 m, each grid would weigh 4.8 MB; at 4 m, 0.3 MB. One block
+containing a single pixel without data remains without data.
+- **Slope.** Horn method on 3 × 3 meshes: an average slope on a base of
+8 m (HiRISE) or 40 m (CTX), not the local slope underfoot. On the sector:
+median 4.6°, 95th percentile 20.7° and maximum 60.1° in HiRISE; 4.6°, 16.8° and 27.6°
+in CTX. The same escarpment therefore appears half as steep at 20 m.
+- **Shaded relief.** Fictitious lighting from the northwest (azimuth 315°, height 45°),
+without vertical exaggeration. Grayscale image with transparency, to be stretched
+on the extent of the dataset.
 
-### Bords, lacunes et échelles
+### Edges, gaps and scales
 
-- **Bords.** La préparation lit une maille de plus de chaque côté du secteur : les
-  mailles du bord ont de vrais voisins. Si la fenêtre sortait du fichier source, la
-  maille manquante resterait sans donnée et la pente du bord aussi.
-- **Lacunes.** Une altitude sans donnée est `NaN` dans la grille et `null` dans
-  `sampleGrid` ; elle n'est jamais 0. Une pente est `NaN` dès qu'une des neuf mailles
-  utilisées manque. Les pixels correspondants du relief ombré sont transparents. Le
-  jeu de données passe alors à `partial`.
-- **Échelles.** L'imagerie HiRISE figée descend à 0,64 m/pixel, le relief à 4 m ou
-  20 m. Le relief ombré ne montre pas les détails visibles sur l'image.
+- **Edges.** The preparation reads one more stitch on each side of the sector: the
+edge stitches have real neighbors. If the window exited the source file, the
+missing stitch would remain without data and the slope of the edge too.
+- **Gaps.** An altitude without data is `NaN` in the grid and `null` in
+`sampleGrid` ; it is never 0. A slope is `NaN` as soon as one of the nine meshes
+used missing. The corresponding pixels of the shaded relief are transparent. THE
+data set then changes to `partial`.
+- **Scales.** Frozen HiRISE imagery goes down to 0.64 m/pixel, relief to 4 m or
+20m. The shaded relief does not show the details visible in the image.
 
-## Limites à afficher
+## Limits to display
 
-- **La taille de maille est un pas d'échantillonnage, pas une précision.** Aucune
-  incertitude absolue de position ou d'altitude n'a été validée ici. Chaque grille
-  porte `raster.navigationGrade: false` ; `data:check` refuse toute autre valeur.
-- **Erreur d'échantillonnage.** Une valeur est la moyenne d'une maille. Entre deux
-  mailles voisines l'altitude change de 0,18 m en médiane et jusqu'à 8,6 m en HiRISE
-  4 m ; de 0,85 m en médiane et jusqu'à 12,5 m en CTX 20 m. Un bloc, une marche ou
-  une crevasse plus petits que la maille n'apparaissent pas.
-- **Pas de praticabilité.** Une pente faible ne dit rien de la portance du sol, des
-  blocs ou du sable. Un seuil de pente est un choix de scénario.
-- **Lecture au plus proche.** `sampleGrid` rend la valeur de la maille qui contient
-  le point, sans interpolation.
+- **Mesh size is a sampling step, not a precision.** None
+Absolute uncertainty of position or altitude has not been validated here. Each grid
+door `raster.navigationGrade: false`; `data:check` rejects any other value.
+- **Sampling error.** A value is the average of a mesh. Between two
+neighboring meshes the altitude changes by 0.18 m in median and up to 8.6 m in HiRISE
+4m; 0.85 m in median and up to 12.5 m in CTX 20 m. A block, a step or
+a crevice smaller than the mesh does not appear.
+- **No passability.** A slight slope says nothing about the bearing capacity of the ground,
+blocks or sand. A slope threshold is a scenario choice.
+- **Reading to the nearest.** `sampleGrid` returns the value of the mesh which contains
+the point, without interpolation.
 
-## Utilisation dans l'application
+## Use in the application
 
 ```ts
 import { loadGrid, loadManifest, sampleGrid, terrainDataset } from '@marps/data';
 
 const manifest = await loadManifest();
-const dataset = terrainDataset(manifest, 'jezero', 'elevation'); // HiRISE, sinon CTX
+const dataset = terrainDataset(manifest, 'jezero', 'elevation'); // HiRISE, otherwise CTX
 if (dataset) {
   const grid = await loadGrid(dataset);
-  const elevation = sampleGrid(grid, { longitude: 77.40617493, latitude: 18.45893136 }); // mètres ou null
+  const elevation = sampleGrid(grid, { longitude: 77.40617493, latitude: 18.45893136 }); // metres or null
 }
 ```
 
-`terrainDataset` préfère une grille complète à une grille trouée, puis la maille la
-plus fine. Utiliser la même grille sur tout un tracé.
+`terrainDataset` prefers a complete grid to a perforated grid, then the mesh
+finer. Use the same grid over an entire layout.
 
-## Référence
+## Reference
 
-Fergason, R. L. et al., 2020, *Mars 2020 Terrain Relative Navigation Flight Product
+Fergason, R. L. et al., 2020, *March 2020 Terrain Relative Navigation Flight Product
 Generation: Digital Terrain Model and Orthorectified Image Mosaics*, 51st Lunar and
 Planetary Science Conference, <https://www.hou.usra.edu/meetings/lpsc2020/pdf/2020.pdf>.

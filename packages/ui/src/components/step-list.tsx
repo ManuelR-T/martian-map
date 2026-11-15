@@ -1,3 +1,4 @@
+import { localize } from '../localize';
 import type { ComponentProps, ReactNode } from 'react';
 import { CornerDownLeft, Tent } from 'lucide-react';
 
@@ -18,7 +19,7 @@ export interface StepListProps extends ComponentProps<'ol'> {
 
 /** Liste ordonnée des étapes ; l'ordre de visite est celui du DOM. */
 export function StepList({ label, className, ...props }: StepListProps) {
-  return <ol data-slot="step-list" aria-label={label} className={cn('m-0 list-none p-0', className)} {...props} />;
+  return <ol data-slot="step-list" aria-label={localize(label)} className={cn('m-0 list-none p-0', className)} {...props} />;
 }
 
 export interface StepListItemProps extends Omit<ComponentProps<'li'>, 'title'> {
@@ -51,16 +52,16 @@ export function StepListItem({
     ) : kind === 'return' ? (
       <CornerDownLeft aria-hidden="true" className="size-4" />
     ) : (
-      <span aria-hidden="true">{position}</span>
+      <span aria-hidden="true">{localize(position)}</span>
     );
 
   const heading = (
     <>
       <span className="sr-only">
-        {kindLabels[kind]}
-        {kind === 'stop' && position !== undefined ? ` ${position}` : ''} :{' '}
+        {localize(kindLabels[kind])}
+        {localize(kind === 'stop' && position !== undefined ? ` ${position}` : '')} {localize(":")}{localize(' ')}
       </span>
-      {title}
+      {localize(title)}
     </>
   );
 
@@ -85,7 +86,7 @@ export function StepListItem({
             kind === 'return' && 'border-dashed',
           )}
         />
-        <span className={cn('relative', kind === 'stop' ? 'text-mars-foreground' : 'text-foreground')}>{marker}</span>
+        <span className={cn('relative', kind === 'stop' ? 'text-mars-foreground' : 'text-foreground')}>{localize(marker)}</span>
       </span>
       <div
         className={cn(
@@ -103,14 +104,14 @@ export function StepListItem({
               // La zone activable couvre toute la ligne de l'étape, pas seulement son nom.
               className="text-left font-semibold after:absolute after:inset-0 after:content-['']"
             >
-              {heading}
+              {localize(heading)}
             </button>
           ) : (
-            <p className="font-semibold">{heading}</p>
+            <p className="font-semibold">{localize(heading)}</p>
           )}
-          {description ? <div className="text-sm text-muted-foreground">{description}</div> : null}
+          {description ? <div className="text-sm text-muted-foreground">{localize(description)}</div> : null}
         </div>
-        {actions ? <div className="relative z-10 flex shrink-0 items-center gap-1">{actions}</div> : null}
+        {actions ? <div className="relative z-10 flex shrink-0 items-center gap-1">{localize(actions)}</div> : null}
       </div>
     </li>
   );

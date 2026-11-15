@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../i18n';
 import { scienceSources, siteSheets, type Catalog, type DatasetDescriptor, type RegionDefinition } from '@marps/data';
 import { createEmptyMission, missionReducer, isMission, type MissionAction, type Mission } from '@marps/mission-core';
 import { siteWorkOf, siteWorkReducer, type SiteWorkAction } from '../sites/siteWork';
@@ -114,7 +116,7 @@ export function plannerReducer(state: PlannerState, action: PlannerAction): Plan
       if (action.request !== state.catalogRequest) return state;
       return { ...state, catalog: { status: 'ready', data: action.catalog },
         draftError: state.draftError ?? (missionMatchesCatalog(state.mission, { status: 'ready', data: action.catalog }) ? null
-          : 'La préparation locale référence un site manquant ou un emplacement incompatible avec le catalogue. Réinitialisez la préparation pour continuer.') };
+          : localize("La préparation locale référence un site manquant ou un emplacement incompatible avec le catalogue. Réinitialisez la préparation pour continuer.")) };
     case 'catalogFailed':
       if (action.request !== state.catalogRequest) return state;
       return { ...state, catalog: { status: 'error', message: action.message } };

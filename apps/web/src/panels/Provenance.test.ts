@@ -17,7 +17,7 @@ describe('contextual provenance displays', () => {
     const html = renderToStaticMarkup(createElement(DatasetProvenance, { dataset }));
     for (const value of [dataset.instrument, dataset.version, dataset.source.url, dataset.source.retrievedAt]) expect(html).toContain(value);
     for (const field of ['Date / sol', 'Date inconnue', 'Sol inconnu', 'Unités', 'Résolution de la source', 'Emprise', 'Version']) expect(html).toContain(field);
-    for (const value of Object.values(dataset.extent)) expect(html).toContain(String(value));
+    for (const value of Object.values(dataset.extent)) expect(html).toContain(value.toLocaleString('fr', { maximumFractionDigits: 20 }));
     expect(html).toContain('data-status="calculated"');
     expect(html).toContain('Maille du relief');
     expect(html).toContain('4 m');

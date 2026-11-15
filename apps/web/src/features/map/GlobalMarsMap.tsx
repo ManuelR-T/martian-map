@@ -1,3 +1,6 @@
+import { locale } from '../../i18n';
+import { localize } from '@marps/ui';
+import '../../i18n';
 import { useEffect, useRef, useState } from 'react';
 import Map from 'ol/Map';
 import { defaults as defaultControls } from 'ol/control';
@@ -74,26 +77,26 @@ export function GlobalMarsMap({ panelHost, dataset, global, onSelectRegion }: Pr
     return () => { resize.disconnect(); window.removeEventListener('online', connectivity); window.removeEventListener('offline', connectivity); map.dispose(); mapRef.current = null; sourceRef.current = null; };
   }, [dataset, global, onSelectRegion]);
   return <div className="mars-map-container">
-    <div ref={target} className="mars-map" tabIndex={0} aria-label={global ? 'Carte globale de Mars. Flèches pour déplacer, plus et moins pour zoomer.' : 'Carte du secteur Jezero'} />
+    <div ref={target} className="mars-map" tabIndex={0} aria-label={localize(global ? localize("Carte globale de Mars. Flèches pour déplacer, plus et moins pour zoomer.") : localize("Carte du secteur Jezero"))} />
     <div className="map-notices">{(failed || offline) && <div role="status" className="map-alert border bg-card p-3 text-sm">
-      <p>{failed ? 'Certaines tuiles sont indisponibles.' : 'Hors ligne : seules les données téléchargées sont accessibles.'}</p>
-      {failed && <Button variant="outline" size="sm" onClick={() => { setFailed(false); sourceRef.current?.refresh(); }}>Réessayer les tuiles</Button>}
+      <p>{failed ? 'Certaines tuiles sont indisponibles.' : localize("Hors ligne : seules les données téléchargées sont accessibles.")}</p>
+      {failed && <Button variant="outline" size="sm" onClick={() => { setFailed(false); sourceRef.current?.refresh(); }}>{localize("Réessayer les tuiles")}</Button>}
     </div>}</div>
     {global && <MapPanelDock host={panelHost}><GlobalAtlas map={atlasMap} /></MapPanelDock>}
     <MapInformation>
       <div className="flex flex-wrap items-center gap-2">
       {global && <>
-        <Button size="sm" className="px-2" onClick={onSelectRegion}>Ouvrir Jezero</Button>
-        <Button size="sm" className="px-2" variant="outline" onClick={() => mapRef.current?.getView().fit([-180, -90, 180, 90], { size: mapRef.current.getSize(), duration: 250 })}>Mars entière</Button>
+        <Button size="sm" className="px-2" onClick={onSelectRegion}>{localize("Ouvrir Jezero")}</Button>
+        <Button size="sm" className="px-2" variant="outline" onClick={() => mapRef.current?.getView().fit([-180, -90, 180, 90], { size: mapRef.current.getSize(), duration: 250 })}>{localize("Mars entière")}</Button>
       </>}
       </div>
-      <p role="status">{failed ? 'Certaines tuiles sont indisponibles.' : offline ? 'Hors ligne : données locales et tuiles déjà téléchargées.' : global ? 'Carte disponible. Les détails globaux se chargent en ligne.' : 'Imagerie locale chargée.'} {global ? 'Glissez pour explorer Mars ; utilisez la molette ou + / − pour zoomer.' : 'Imagerie locale figée ; hors secteur, aucune couverture.'}</p>
-      {failed && <Button variant="outline" size="sm" onClick={() => { setFailed(false); sourceRef.current?.refresh(); }}>Réessayer les tuiles</Button>}
+      <p role="status">{localize(failed ? 'Certaines tuiles sont indisponibles.' : offline ? localize("Hors ligne : données locales et tuiles déjà téléchargées.") : global ? localize("Carte disponible. Les détails globaux se chargent en ligne.") : localize("Imagerie locale chargée."))} {localize(global ? localize("Glissez pour explorer Mars ; utilisez la molette ou + / − pour zoomer.") : localize("Imagerie locale figée ; hors secteur, aucune couverture."))}</p>
+      {failed && <Button variant="outline" size="sm" onClick={() => { setFailed(false); sourceRef.current?.refresh(); }}>{localize("Réessayer les tuiles")}</Button>}
       <div className="map-metadata">
-      <p className="mt-2">{dataset.title} · Échantillonnage nominal : {dataset.resolution?.value ?? 'inconnu'} m/pixel. {resolution !== null && `Vue : ${resolution.toFixed(6)}°/pixel.`} {global && 'Le fond de secours est moins détaillé. La planification est limitée à Jezero.'}</p>
-      <p>Couverture : {dataset.extent.west.toFixed(6)}° à {dataset.extent.east.toFixed(6)}° E ; {dataset.extent.south.toFixed(6)}° à {dataset.extent.north.toFixed(6)}° N.</p>
-      {global && <p>Repère Jezero approximatif : 77,58° E, 18,44° N. Le fond global est destiné à l’orientation.</p>}
-      <a className="underline" href={dataset.source.url}>Source : {dataset.source.credit}</a>
+      <p className="mt-2">{localize(dataset.title)} {localize("· Échantillonnage nominal :")} {localize(dataset.resolution?.value ?? localize("inconnu"))} {localize("m/pixel.")} {localize(resolution !== null && `${localize("Vue :")} ${resolution.toLocaleString(locale(), { minimumFractionDigits: 6, maximumFractionDigits: 6 })}°/pixel.`)} {localize(global && localize("Le fond de secours est moins détaillé. La planification est limitée à Jezero."))}</p>
+      <p>{localize("Couverture :")} {localize(dataset.extent.west.toLocaleString(locale(), { minimumFractionDigits: 6, maximumFractionDigits: 6 }))}{localize("° à")} {localize(dataset.extent.east.toLocaleString(locale(), { minimumFractionDigits: 6, maximumFractionDigits: 6 }))}{localize("° E ;")} {localize(dataset.extent.south.toLocaleString(locale(), { minimumFractionDigits: 6, maximumFractionDigits: 6 }))}{localize("° à")} {localize(dataset.extent.north.toLocaleString(locale(), { minimumFractionDigits: 6, maximumFractionDigits: 6 }))}{localize("° N.")}</p>
+      {global && <p>{localize("Repère Jezero approximatif : 77,58° E, 18,44° N. Le fond global est destiné à l’orientation.")}</p>}
+      <a className="underline" href={dataset.source.url}>{localize("Source :")} {localize(dataset.source.credit)}</a>
       </div>
     </MapInformation>
   </div>;

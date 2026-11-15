@@ -1,3 +1,6 @@
+import { locale } from '../../i18n';
+import { localize } from '@marps/ui';
+import '../../i18n';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Map from 'ol/Map';
 import { usePlannerState } from '../../state/PlannerProvider';
@@ -30,7 +33,7 @@ import { RoverHistoryControl, roverMessages } from './RoverHistoryControl';
 import { jezeroMessages } from './jezeroMessages';
 import { ThemisNightControl } from './ThemisNightControl';
 import { useThemisNightLayer } from './useThemisNightLayer';
-const messages = jezeroMessages.fr;
+const messages = new Proxy(jezeroMessages.fr, { get: (target, key: string) => localize(target[key as keyof typeof target]) });
 
 interface Props {
   panelHost: HTMLElement | null;
@@ -135,7 +138,7 @@ export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected,
       const center = view.getCenter()!;
       setOutside(!containsPosition(sector, center[0]!, center[1]!));
       const metres = marsHorizontalResolution(view.getResolution()!, center[1]!, radius) * 100;
-      setScale(`${metres >= 1000 ? `${(metres / 1000).toFixed(2)} km` : `${metres.toFixed(1)} m`} / 100 px`);
+      setScale(`${metres >= 1000 ? `${(metres / 1000).toLocaleString(locale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 })} km` : `${metres.toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} m`} / 100 px`);
     };
     map.on('moveend', update); update();
     map.on('movestart', () => setChoice(null));
@@ -180,55 +183,55 @@ export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected,
     return () => { map.removeLayer(layer); };
   }, [mission, dataset, sector, radius, sites, onSelect, themisLayer]);
   return <div className="mars-map-container jezero-map">
-    <div ref={target} className="mars-map" tabIndex={0} aria-label={messages.label} />
+    <div ref={target} className="mars-map" tabIndex={0} aria-label={localize(messages.label)} />
     <div className="map-notices">
-      {roverEnabled && <p className="rover-warning border bg-card p-2 text-xs font-semibold">{roverMessages.fr.warning}</p>}
+      {roverEnabled && <p className="rover-warning border bg-card p-2 text-xs font-semibold">{localize(roverMessages.fr.warning)}</p>}
       {(failed || offline) && <div role="status" className="map-alert border bg-card p-3 text-sm">
         <p>{failed ? messages.failure : messages.offline}</p>
-        {failed && <Button size="sm" variant="outline" onClick={() => { setFailed(false); mapRef.current?.getLayers().forEach(layer => { if (layer instanceof TileLayer) layer.getSource()?.refresh(); }); }}>{messages.retry}</Button>}
+        {failed && <Button size="sm" variant="outline" onClick={() => { setFailed(false); mapRef.current?.getLayers().forEach(layer => { if (layer instanceof TileLayer) layer.getSource()?.refresh(); }); }}>{localize(messages.retry)}</Button>}
       </div>}
     </div>
     <MapPanelDock host={panelHost}>
-    <Panel title={messages.panelTitle} floating className="jezero-status text-sm" contentClassName="overflow-y-auto">
-      <p role="status">{outside ? messages.outside : messages.sector} {offline ? messages.offline : messages.online} {failed && messages.failure}</p>
+    <Panel title={localize(messages.panelTitle)} floating className="jezero-status text-sm" contentClassName="overflow-y-auto">
+      <p role="status">{localize(outside ? messages.outside : messages.sector)} {localize(offline ? messages.offline : messages.online)} {localize(failed && messages.failure)}</p>
 
-      <Button size="sm" onClick={() => mapRef.current?.getView().fit(bounds(sector), { size: mapRef.current.getSize(), padding: [90, 40, 160, 40] })}>{messages.return}</Button>
-      {failed && <Button size="sm" variant="outline" onClick={() => { setFailed(false); mapRef.current?.getLayers().forEach(layer => { if (layer instanceof TileLayer) layer.getSource()?.refresh(); }); }}>{messages.retry}</Button>}
+      <Button size="sm" onClick={() => mapRef.current?.getView().fit(bounds(sector), { size: mapRef.current.getSize(), padding: [90, 40, 160, 40] })}>{localize(messages.return)}</Button>
+      {failed && <Button size="sm" variant="outline" onClick={() => { setFailed(false); mapRef.current?.getLayers().forEach(layer => { if (layer instanceof TileLayer) layer.getSource()?.refresh(); }); }}>{localize(messages.retry)}</Button>}
 
       {/* One list, one control: every layer is shown or hidden with the same switch. */}
-      <div className="mt-2 border-t pt-2" role="group" aria-label={messages.layersTitle}>
-        <p className="text-xs font-semibold">{messages.layersTitle}</p>
-        {overlay?.(overlayMap)}
+      <div className="mt-2 border-t pt-2" role="group" aria-label={localize(messages.layersTitle)}>
+        <p className="text-xs font-semibold">{localize(messages.layersTitle)}</p>
+        {localize(overlay?.(overlayMap))}
         {themisDataset && <ThemisNightControl dataset={themisDataset} settings={themis.settings} onChange={themis.setSettings} className="border-0 bg-transparent p-0" />}
         <RoverHistoryControl enabled={roverEnabled} onToggle={onRoverToggle} history={history} candidates={roverCandidates} failed={historyFailed} retry={() => { setHistoryFailed(false); setAttempt(value => value + 1); }} selected={roverSelected} onSelect={index => { setRoverSelected(index); if (index === null) setRoverCandidates(null); }} />
       </div>
 
       <details className="jezero-legend mt-2 border-t pt-2 text-xs">
-        <summary className="min-h-11 cursor-pointer py-3 font-semibold">{messages.legendTitle}</summary>
+        <summary className="min-h-11 cursor-pointer py-3 font-semibold">{localize(messages.legendTitle)}</summary>
         <ul className="mt-1 grid gap-1">
-          <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke={MISSION_COLOUR} strokeWidth="3" strokeDasharray="8 6" /></svg><span>{messages.missionRoute}</span></li>
-          <li><svg viewBox="0 0 40 24" aria-hidden="true"><circle cx="20" cy="12" r="9" fill="#151b25" stroke={MISSION_COLOUR} strokeWidth="2" /></svg><span>{messages.missionStop}</span></li>
-          <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke="#50c8ff" strokeWidth="2" strokeDasharray="10 5" /></svg><span>{messages.missionBoundary}</span></li>
-          <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke="#ffcc66" strokeWidth="2" /></svg><span>{messages.productBoundary}</span></li>
-          <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke="#fff" strokeWidth="2" strokeDasharray="2 6" /></svg><span>{messages.preparedBoundary}</span></li>
-          <li><svg viewBox="0 0 40 20" aria-hidden="true"><circle cx="20" cy="10" r="7" fill="#ffcc66" stroke="#151b25" strokeWidth="3" /></svg><span>{messages.scienceSite}</span></li>
-          <li><svg viewBox="0 0 40 24" aria-hidden="true"><circle cx="20" cy="12" r="10" fill="#fff" stroke="#151b25" strokeWidth="3" /></svg><span>{messages.selectedSite}</span></li>
-          <li><span className="jezero-missing-swatch" aria-hidden="true" /><span>{messages.missingImagery}</span></li>
+          <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke={MISSION_COLOUR} strokeWidth="3" strokeDasharray="8 6" /></svg><span>{localize(messages.missionRoute)}</span></li>
+          <li><svg viewBox="0 0 40 24" aria-hidden="true"><circle cx="20" cy="12" r="9" fill="#151b25" stroke={MISSION_COLOUR} strokeWidth="2" /></svg><span>{localize(messages.missionStop)}</span></li>
+          <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke="#50c8ff" strokeWidth="2" strokeDasharray="10 5" /></svg><span>{localize(messages.missionBoundary)}</span></li>
+          <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke="#ffcc66" strokeWidth="2" /></svg><span>{localize(messages.productBoundary)}</span></li>
+          <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke="#fff" strokeWidth="2" strokeDasharray="2 6" /></svg><span>{localize(messages.preparedBoundary)}</span></li>
+          <li><svg viewBox="0 0 40 20" aria-hidden="true"><circle cx="20" cy="10" r="7" fill="#ffcc66" stroke="#151b25" strokeWidth="3" /></svg><span>{localize(messages.scienceSite)}</span></li>
+          <li><svg viewBox="0 0 40 24" aria-hidden="true"><circle cx="20" cy="12" r="10" fill="#fff" stroke="#151b25" strokeWidth="3" /></svg><span>{localize(messages.selectedSite)}</span></li>
+          <li><span className="jezero-missing-swatch" aria-hidden="true" /><span>{localize(messages.missingImagery)}</span></li>
         </ul>
       </details>
     </Panel>
     </MapPanelDock>
     {choice && <SiteChoicePopover choice={choice} onSelect={onSelect} onClose={() => { setChoice(null); target.current?.focus({ preventScroll: true }); }} />}
-    <div className="mars-scale border bg-card p-4 text-xs" aria-label={messages.scale}>
+    <div className="mars-scale border bg-card p-4 text-xs" aria-label={localize(messages.scale)}>
       <div aria-hidden="true" className="mars-scale-bar" />
-      <p>{scale} · {messages.scale}</p>
+      <p>{localize(scale)} {localize("·")} {localize(messages.scale)}</p>
     </div>
     <MapInformation>
-      <p>Camp et étapes : simulation. Tirets orange du parcours : segments directs, sans validation du terrain.</p>
-      <p>{messages.legend}</p>
-      <p>{messages.coordinates} R = {radius} m.</p>
-      <p>{messages.cache}</p>
-      <a href={dataset.source.url} className="underline">{dataset.source.credit}</a>
+      <p>{localize("Camp et étapes : simulation. Tirets orange du parcours : segments directs, sans validation du terrain.")}</p>
+      <p>{localize(messages.legend)}</p>
+      <p>{localize(messages.coordinates)} {localize("R =")} {localize(radius)} {localize("m.")}</p>
+      <p>{localize(messages.cache)}</p>
+      <a href={dataset.source.url} className="underline">{localize(dataset.source.credit)}</a>
     </MapInformation>
   </div>;
 }
