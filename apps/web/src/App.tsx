@@ -1,3 +1,4 @@
+import { ReturnLimitProvider } from './mission/ReturnLimitProvider';
 import { useTranslation } from 'react-i18next';
 import { LanguageSelector } from './LanguageSelector';
 import { localize } from '@marps/ui';
@@ -146,6 +147,7 @@ export function App() {
           </Suspense>
         </main>
       ) : (
+        <ReturnLimitProvider>
         <main
           key={i18n.language} id={CONTENT_ID}
           tabIndex={-1}
@@ -170,7 +172,7 @@ export function App() {
               </div>
             </div>
             <div className="map-drawer-rail map-drawer-rail-right" hidden={global} {...railState('right')}>
-              <MapDrawer label={localize("Budget de temps")} shortLabel={localize("Budget")} icon={Timer} {...drawer('budget')}>
+              <MapDrawer label={localize("Budget de temps")} shortLabel={localize("Time")} icon={Timer} {...drawer('budget')}>
                 <BudgetPanel className={floatingPanel} collapsible={false} />
               </MapDrawer>
               <MapDrawer label={localize("Fiche de site")} shortLabel={localize("Site")} icon={MapPin} {...drawer('site')}>
@@ -183,6 +185,7 @@ export function App() {
           </div>
           <ConfirmHost />
         </main>
+        </ReturnLimitProvider>
       )}
     </div>}
     </RouteProfileProvider>
