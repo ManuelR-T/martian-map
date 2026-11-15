@@ -12,7 +12,7 @@ slope alerts. Neither is navigational data.
 [USGS](https://astrogeology.usgs.gov/search/map/mars_2020_terrain_relative_navigation_hirise_dtm_mosaic) sheet ·
 [GeoTIFF](https://planetarymaps.usgs.gov/mosaic/mars2020_trn/HiRISE/JEZ_hirise_soc_006_DTM_MOLAtopography_DeltaGeoid_1m_Eqc_latTs0_lon0_blend40.tif)
 
-- **Product.** Mosaic “March 2020 Terrain Relative Navigation HiRISE DTM”, version
+- **Product.** Mosaic “Mars 2020 Terrain Relative Navigation HiRISE DTM”, version
 `soc_006`, from the same series as the already frozen HiRISE imagery. It's not DTM
 isolated `PSP_002387_1985` from the University of Arizona cited in the issue: this one
 (320 MB, 1 m/pixel, center 18.49°N 77.41°E) is accessible but has not been
@@ -152,6 +152,6 @@ finer. Use the same grid over an entire layout.
 
 ## Reference
 
-Fergason, R. L. et al., 2020, *March 2020 Terrain Relative Navigation Flight Product
+Fergason, R. L. et al., 2020, *Mars 2020 Terrain Relative Navigation Flight Product
 Generation: Digital Terrain Model and Orthorectified Image Mosaics*, 51st Lunar and
 Planetary Science Conference, <https://www.hou.usra.edu/meetings/lpsc2020/pdf/2020.pdf>.

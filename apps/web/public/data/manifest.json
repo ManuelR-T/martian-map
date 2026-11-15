@@ -2188,7 +2188,7 @@
       "source": {
         "url": "https://github.com/ManuelR-T/martian-map/blob/dev/data/research/jezero-terrain-annotations.geojson",
         "retrievedAt": "2026-11-14T22:03:52Z",
-        "credit": "Marps curators; imagery NASA/JPL-Caltech/University of Arizona",
+        "credit": "Marps team, texts drafted with AI assistance (Claude Code, Codex, Antigravity); imagery NASA/JPL-Caltech/University of Arizona",
         "terms": {
           "summary": "Conditions propres à ce produit non vérifiées ; appliquer au minimum la citation de la source et confirmer avant toute redistribution.",
           "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",

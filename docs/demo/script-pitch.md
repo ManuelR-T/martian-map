@@ -13,7 +13,7 @@
 ## The pitch
 
 **1. The hook (0:00–0:30)**
-Screen: black, then Mars whole.
+Screen: black, then Whole Mars.
 > Sol 47, Jezero crater. Léa and Sam set off on foot towards a rock which could keep traces of ancient life.
 >If they have a problem, Houston will find out in 12 minutes. His response will take another 12 minutes.
 > Their only live help is Anna, in the habitat. And his card is Marps.
@@ -29,7 +29,7 @@ Screen: activate relief, infrared, rover track; hover over a red section of the 
 > I fly over a slope on the profile: Marps shows it on the ground.
 
 **4. The Dilemma (2:00–2:50)**
-Screen: “At the base”, the mission at +32 min; addition of the 2nd sample (−18); removal of the Skinner Ridge levy (+27).
+Screen: “At the base”, the mission at +32 min; addition of the 2nd sample (−18); removal of the Skinner Ridge sample (+27).
 > Six hours outside, one hour reserve: 32 minutes margin.
 > The team wants a 2nd sample from Amalik. The margin drops to minus 18.
 > At Skinner Ridge, the rover has already cored twice: we will only take photos there. Plus 27.

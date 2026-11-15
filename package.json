@@ -1,5 +1,6 @@
 {
   "name": "marps",
+  "description": "Mars field-outing planner for Jezero. AI disclosure: code, tests and docs were written with AI coding assistants (Claude Code, Codex, Antigravity) and reviewed by the team; terrain annotation texts were drafted with AI; no scientific data or image is AI-generated.",
   "private": true,
   "version": "0.0.0",
   "type": "module",
