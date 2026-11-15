@@ -1,10 +1,10 @@
-# Marswalk Planner: weather and dangers
+# Marps: weather and hazards
 
-Control of November 14, 2026. Proposed extension to the perimeter, without implementation of the interface.
+Checked on November 14, 2026. Inventory of the weather and hazard data behind the conditions panel, the slope alert and the simulated radiation alert.
 
-## Recommendation for 48 hours
+## What the app uses
 
-Add a MEDA historical conditions panel, a calculated slope alert and a scripted event that forces a review of the mission. Explicitly distinguish between “measured”, “calculated” and “simulated”.
+A MEDA historical conditions panel, a calculated slope alert and a scripted radiation event that forces a review of the mission. Each one says whether it is measured, calculated or simulated.
 
 | Feature | Data | Status and limit |
 | --- | --- | --- |
