@@ -1,0 +1,134 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "ripple-field",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.40767240524292,
+          18.456687927246094
+        ]
+      },
+      "properties": {
+        "regionId": "jezero",
+        "category": "dune",
+        "title": "Repeating ridges",
+        "observation": "Closely spaced, curved bright and dark ridges are visible.",
+        "inspectionReason": "Inspect ridge spacing and surface texture before interpreting possible wind-shaped material.",
+        "limitations": [
+          "Visual interpretation, not measured bearing capacity or an operational exclusion.",
+          "Point marks an approximate inspection location, not the extent of a hazard."
+        ],
+        "confidence": {
+          "level": "medium",
+          "reason": "Visible morphology supports this interpretation; shadows and image sampling leave material properties unknown."
+        },
+        "imageryDatasetId": "jezero-hirise-mosaic",
+        "imageryVersion": "soc_006",
+        "imagerySourceSha256": "6a67af4f3e79ed8bf5e625b60d4b9250533f38a8f61e98758410ff8ad9213693",
+        "evidenceFiles": [
+          "jezero/hirise/16/26048/93719.png"
+        ],
+        "curatedBy": "Marps \u2014 assisted visual inspection of frozen HiRISE imagery",
+        "curatedAt": "2026-11-15",
+        "registration": {
+          "checkedAt": "2026-11-15",
+          "method": "Frozen zoom-16 tile pixel to planetocentric longitude/latitude",
+          "note": "Composite pixel (1350, 800); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown.",
+          "positionalUncertaintyMetres": null
+        },
+        "evidenceSha256": {
+          "jezero/hirise/16/26048/93719.png": "2b90a92f20ab099c9b75a79496c0442a32fdfeae4f7a2a965e1b4caf68e9a2dc"
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "scarp-edge",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.39855289459229,
+          18.456687927246094
+        ]
+      },
+      "properties": {
+        "regionId": "jezero",
+        "category": "scarp",
+        "title": "Shadowed edge",
+        "observation": "A bright surface ends abruptly beside a dark band and irregular edge.",
+        "inspectionReason": "Inspect the apparent edge and shadow; imagery alone does not establish its height or stability.",
+        "limitations": [
+          "Visual interpretation, not measured bearing capacity or an operational exclusion.",
+          "Point marks an approximate inspection location, not the extent of a hazard."
+        ],
+        "confidence": {
+          "level": "medium",
+          "reason": "Visible morphology supports this interpretation; shadows and image sampling leave material properties unknown."
+        },
+        "imageryDatasetId": "jezero-hirise-mosaic",
+        "imageryVersion": "soc_006",
+        "imagerySourceSha256": "6a67af4f3e79ed8bf5e625b60d4b9250533f38a8f61e98758410ff8ad9213693",
+        "evidenceFiles": [
+          "jezero/hirise/16/26048/93715.png"
+        ],
+        "curatedBy": "Marps \u2014 assisted visual inspection of frozen HiRISE imagery",
+        "curatedAt": "2026-11-15",
+        "registration": {
+          "checkedAt": "2026-11-15",
+          "method": "Frozen zoom-16 tile pixel to planetocentric longitude/latitude",
+          "note": "Composite pixel (500, 800); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown.",
+          "positionalUncertaintyMetres": null
+        },
+        "evidenceSha256": {
+          "jezero/hirise/16/26048/93715.png": "47e0d16f74dd107a17d472d71deea17fde2e4d362f37e38d112d7e332fd2a5b3"
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "scattered-blocks",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.39694356918335,
+          18.45454216003418
+        ]
+      },
+      "properties": {
+        "regionId": "jezero",
+        "category": "block-field",
+        "title": "Scattered block-like objects",
+        "observation": "Discrete bright objects with adjacent dark patches occur below the larger edge.",
+        "inspectionReason": "Inspect the apparent blocks and intervening surface; size, stability and bearing capacity are not established.",
+        "limitations": [
+          "Visual interpretation, not measured bearing capacity or an operational exclusion.",
+          "Point marks an approximate inspection location, not the extent of a hazard."
+        ],
+        "confidence": {
+          "level": "medium",
+          "reason": "Visible morphology supports this interpretation; shadows and image sampling leave material properties unknown."
+        },
+        "imageryDatasetId": "jezero-hirise-mosaic",
+        "imageryVersion": "soc_006",
+        "imagerySourceSha256": "6a67af4f3e79ed8bf5e625b60d4b9250533f38a8f61e98758410ff8ad9213693",
+        "evidenceFiles": [
+          "jezero/hirise/16/26048/93715.png"
+        ],
+        "curatedBy": "Marps \u2014 assisted visual inspection of frozen HiRISE imagery",
+        "curatedAt": "2026-11-15",
+        "registration": {
+          "checkedAt": "2026-11-15",
+          "method": "Frozen zoom-16 tile pixel to planetocentric longitude/latitude",
+          "note": "Composite pixel (350, 1000); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown.",
+          "positionalUncertaintyMetres": null
+        },
+        "evidenceSha256": {
+          "jezero/hirise/16/26048/93715.png": "47e0d16f74dd107a17d472d71deea17fde2e4d362f37e38d112d7e332fd2a5b3"
+        }
+      }
+    }
+  ]
+}

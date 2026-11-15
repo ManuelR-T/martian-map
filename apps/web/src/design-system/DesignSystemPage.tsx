@@ -239,6 +239,7 @@ export default function DesignSystemPage() {
             <ProvenanceBadge status="measured" />
             <ProvenanceBadge status="calculated" />
             <ProvenanceBadge status="simulated" />
+            <ProvenanceBadge status="interpreted" />
             <ProvenanceBadge status="unknown" />
             <Badge variant="secondary">{localize("Étiquette neutre")}</Badge>
           </div>

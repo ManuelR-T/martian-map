@@ -18,7 +18,7 @@ export type DataStatus = 'available' | 'partial' | 'unavailable';
  * `thermal` is an overlay of relative contrasts, never the imagery basemap nor temperatures.
  * `geology` is an interpretive map: its units are the authors' reading, described by `geology`.
  */
-export type DatasetKind = 'basemap' | 'imagery' | 'elevation' | 'slope' | 'hillshade' | 'sites' | 'rover-waypoints' | 'rover-traverse' | 'thermal' | 'weather' | 'geology';
+export type DatasetKind = 'basemap' | 'imagery' | 'elevation' | 'slope' | 'hillshade' | 'sites' | 'rover-waypoints' | 'rover-traverse' | 'thermal' | 'weather' | 'geology' | 'terrain-annotations';
 /** `local` files are frozen under the data root; `remote` is streamed and not available offline. */
 export type DatasetDelivery = 'local' | 'remote';
 export type RegionKind = 'orientation' | 'detailed';

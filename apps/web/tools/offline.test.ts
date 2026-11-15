@@ -10,12 +10,14 @@ it('versions final HTML and public data, and excludes the previous worker', asyn
     await mkdir(join(directory, 'data'));
     await writeFile(join(directory, 'index.html'), '<html>first</html>');
     await writeFile(join(directory, 'data', 'map.jpg'), 'first image');
+    await writeFile(join(directory, 'data', 'terrain.geojson'), JSON.stringify({ type: 'FeatureCollection', features: [] }));
     await writeOfflineWorker(directory);
     const first = await readFile(join(directory, 'sw.js'), 'utf8');
     expect(first).toContain('data/map.jpg');
+    expect(first).toContain('data/terrain.geojson');
     await writeOfflineWorker(directory);
     expect(await readFile(join(directory, 'sw.js'), 'utf8')).toBe(first);
-    await writeFile(join(directory, 'data', 'map.jpg'), 'updated image');
+    await writeFile(join(directory, 'data', 'terrain.geojson'), JSON.stringify({ type: 'FeatureCollection', features: [{ id: 'updated' }] }));
     await writeOfflineWorker(directory);
     const updated = await readFile(join(directory, 'sw.js'), 'utf8');
     expect(updated).not.toBe(first);
@@ -37,6 +39,7 @@ it('serves precached app assets offline despite Vary: Origin and keeps navigatio
     const cache = { match: async (request: Request | string, options?: CacheQueryOptions) => {
       const url = typeof request === 'string' ? request : request.url;
       if (url.endsWith('/index.html')) return page.clone();
+      if (url.endsWith('/data/terrain.geojson') && options?.ignoreVary) return new Response('{"type":"FeatureCollection","features":[]}');
       if (url.endsWith('/assets/app.js') && options?.ignoreVary) return asset.clone();
       return undefined;
     } };
@@ -51,6 +54,7 @@ it('serves precached app assets offline despite Vary: Origin and keeps navigatio
       handlers.get('fetch')!({ request: { url, method: 'GET', mode }, respondWith: (result: Promise<Response>) => { response = result; } });
       return (await response)!.text();
     }
+    expect(JSON.parse(await request('https://example.test/app/data/terrain.geojson')).type).toBe('FeatureCollection');
     expect(await request('https://example.test/app/assets/app.js')).toBe('cached application');
     expect(await request('https://example.test/app/?mission=demo', 'navigate')).toBe('<html>offline app</html>');
     online = true;

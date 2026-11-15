@@ -7,6 +7,7 @@ const manifest = JSON.parse(readFileSync(new URL('../../../apps/web/public/data/
 describe('scientific provenance', () => {
   it.each([
     ['imagery', 'measured'],
+    ['terrain-annotations', 'interpreted'],
     ['rover-waypoints', 'measured'],
     ['rover-traverse', 'calculated'],
     ['thermal', 'measured'],
