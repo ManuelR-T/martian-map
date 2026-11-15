@@ -11,14 +11,16 @@ export interface PanelProps extends Omit<ComponentProps<'section'>, 'title'> {
   headingLevel?: 2 | 3;
   /** Classes du conteneur de contenu, par exemple pour retirer la marge d'une carte. */
   contentClassName?: string;
-  /** Le titre devient un bouton qui replie le contenu, pour dégager la carte sous un panneau flottant. */
+  /** Tout le bandeau de titre devient un bouton qui replie le contenu, pour dégager la carte sous un panneau flottant. */
   collapsible?: boolean;
   defaultOpen?: boolean;
+  /** Le panneau flotte sur la carte : surface de verre floutée et ombre portée. */
+  floating?: boolean;
 }
 
 /**
- * Zone titrée de l'interface, dessinée comme un panneau d'instrument : filet
- * supérieur couleur rouille, bandeau de titre en capitales, angles droits et aucune ombre.
+ * Zone titrée de l'interface, dessinée comme un instrument : filet d'horizon
+ * sur l'arête haute, équerres de viseur aux angles bas, titre en capitales.
  * Le titre nomme la région pour les lecteurs d'écran.
  */
 export function Panel({
@@ -30,6 +32,7 @@ export function Panel({
   contentClassName,
   collapsible = false,
   defaultOpen = true,
+  floating = false,
   children,
   ...props
 }: PanelProps) {
@@ -45,14 +48,16 @@ export function Panel({
       data-state={expanded ? 'open' : 'closed'}
       aria-labelledby={headingId}
       className={cn(
-        'flex min-h-0 flex-col border border-t-2 border-t-mars bg-card text-card-foreground',
+        'panel-frame relative flex min-h-0 flex-col border text-card-foreground',
+        floating ? 'glass' : 'bg-card',
         className,
       )}
       {...props}
     >
       <header
         className={cn(
-          'flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-muted px-4 py-2.5',
+          'relative flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 pt-3.5 pb-3',
+          collapsible && 'transition-colors hover:bg-accent/50',
           expanded && 'border-b',
         )}
       >
@@ -64,11 +69,12 @@ export function Panel({
                 aria-expanded={open}
                 aria-controls={contentId}
                 onClick={() => setOpen((current) => !current)}
-                className="label-caps flex w-full items-center gap-2 text-left"
+                // La zone activable couvre tout le bandeau : une cible large, atteignable avec des gants.
+                className="label-caps flex w-full items-center gap-2 text-left after:absolute after:inset-0 after:content-['']"
               >
                 <ChevronDown
                   aria-hidden="true"
-                  className={cn('size-4 shrink-0 transition-transform', !open && '-rotate-90')}
+                  className={cn('size-4 shrink-0 text-mars transition-transform duration-200', !open && '-rotate-90')}
                 />
                 {title}
               </button>
@@ -77,10 +83,10 @@ export function Panel({
             )}
           </Heading>
           {description && expanded ? (
-            <p className={cn('text-sm text-muted-foreground', collapsible && 'pl-6')}>{description}</p>
+            <p className={cn('mt-0.5 text-sm text-muted-foreground', collapsible && 'pl-6')}>{description}</p>
           ) : null}
         </div>
-        {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
+        {actions ? <div className="relative z-10 flex shrink-0 items-center gap-2">{actions}</div> : null}
       </header>
       <div id={contentId} hidden={!expanded} className={cn('min-h-0 flex-1 p-4', contentClassName)}>
         {children}

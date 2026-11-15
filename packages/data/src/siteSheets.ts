@@ -80,13 +80,16 @@ export interface SiteTask {
  */
 export interface SiteSheet {
   readonly siteId: string;
+  /** Why the stop matters: the open question the crew can adapt the plan to, without Earth. */
+  readonly question: string;
+  /** What the stop must bring back (a sample); tells the crew when the stop is done. */
   readonly objective: string;
   readonly roverWork: { readonly text: string; readonly sourceId: ScienceSourceId };
   readonly photo: SitePhoto;
   readonly tasks: readonly SiteTask[];
   /** Procedure the tasks follow; their durations remain a team assumption. */
   readonly tasksSourceId: ScienceSourceId;
-  /** Sources of the objective, kept for the provenance panel. */
+  /** Sources of the question and the objective, kept for the provenance panel. */
   readonly objectiveSourceIds: readonly ScienceSourceId[];
 }
 
@@ -110,9 +113,10 @@ const PHOTO_BASE = 'https://science.nasa.gov/wp-content/uploads/2024/03/';
 export const siteSheets: readonly SiteSheet[] = [
   {
     siteId: 'skinner-ridge',
-    objective: 'Documenter la roche du delta autour des forages.',
-    objectiveSourceIds: ['nasa-rock-samples'],
-    roverWork: { text: '2 carottes, 1 abrasion (2022).', sourceId: 'nasa-rock-samples' },
+    question: "Comment cette roche s'est-elle formée ?",
+    objective: 'Échantillon pris près des forages du rover.',
+    objectiveSourceIds: ['nasa-rock-samples', 'jpl-2022-09-15'],
+    roverWork: { text: '2 carottes et 1 abrasion.', sourceId: 'nasa-rock-samples' },
     photo: {
       path: 'images/sites/skinner-ridge-sol0495.jpg',
       caption: 'Trous de forage de Swift Run et Skyland, et zone abrasée.',
@@ -129,10 +133,11 @@ export const siteSheets: readonly SiteSheet[] = [
   {
     siteId: 'wildcat-ridge',
     // Organics are named, never their origin: the source says they can also form without life.
-    objective: 'Documenter la roche aux plus fortes détections organiques du rover (2022).',
+    question: 'Ces molécules viennent-elles du vivant ?',
+    objective: 'Échantillon de la roche aux plus fortes détections organiques.',
     objectiveSourceIds: ['jpl-2022-09-15'],
     roverWork: {
-      text: '2 carottes, 1 abrasion (2022).',
+      text: '2 carottes et 1 abrasion.',
       sourceId: 'nasa-rock-samples',
     },
     photo: {
@@ -150,9 +155,10 @@ export const siteSheets: readonly SiteSheet[] = [
   },
   {
     siteId: 'amalik',
-    objective: "Documenter la roche argileuse, jugée la plus apte à garder des organiques.",
+    question: 'Garde-t-elle des molécules organiques ?',
+    objective: 'Échantillon de la roche fine et argileuse.',
     objectiveSourceIds: ['jpl-2023-08-02'],
-    roverWork: { text: '2 carottes, 1 abrasion (2022).', sourceId: 'nasa-rock-samples' },
+    roverWork: { text: '2 carottes et 1 abrasion.', sourceId: 'nasa-rock-samples' },
     photo: {
       path: 'images/sites/amalik-sol0575.jpg',
       caption: 'Trou de forage de Shuyak, zone abrasée en bas à droite.',

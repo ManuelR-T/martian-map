@@ -41,7 +41,8 @@ export interface BudgetBreakdownProps extends ComponentProps<'div'> {
 /**
  * Restitue un budget de temps déjà calculé par le moteur de mission. Le
  * composant ne fait aucun calcul métier : il ne fait que répartir la largeur
- * de la barre selon les parts reçues.
+ * de la barre selon les parts reçues, et y situer la durée disponible quand
+ * leur somme la dépasse.
  */
 export function BudgetBreakdown({
   availableLabel,
@@ -59,56 +60,65 @@ export function BudgetBreakdown({
 
   return (
     <div data-slot="budget-breakdown" className={cn('grid gap-4', className)} {...props}>
+      {/* Le relevé : la marge est la valeur qui décide, elle porte les plus grands chiffres de l'interface. */}
       <div
         role={over ? 'alert' : 'status'}
         className={cn(
-          'flex items-start gap-3 border border-l-[3px] px-4 py-3',
+          'border border-l-4 px-4 py-3.5',
           over
-            ? 'border-danger-border bg-danger-surface text-danger'
-            : 'border-success-border bg-success-surface text-success',
+            ? 'border-danger-border bg-danger-surface text-danger shadow-[0_0_28px_-10px_var(--danger-border)]'
+            : 'border-success-border bg-success-surface text-success shadow-[0_0_28px_-10px_var(--success-border)]',
         )}
       >
-        <MarginIcon aria-hidden="true" className="mt-1 size-5 shrink-0" />
-        <div className="min-w-0">
-          <p className="label-caps">{margin.message}</p>
-          <p className="heading-display mt-0.5 text-2xl tabular-nums">
-            <span className="sr-only">{marginLabel} : </span>
-            {margin.value}
-          </p>
-        </div>
+        <p className="label-caps flex items-center gap-2">
+          <MarginIcon aria-hidden="true" className="size-5 shrink-0" />
+          {margin.message}
+        </p>
+        <p className="numeral-display mt-2 text-4xl">
+          <span className="sr-only">{marginLabel} : </span>
+          {margin.value}
+        </p>
       </div>
 
       {/* La barre double la liste ci-dessous ; elle est donc masquée aux lecteurs d'écran. */}
-      <div
-        aria-hidden="true"
-        className={cn(
-          'flex h-5 overflow-hidden border bg-muted text-primary',
-          over ? 'border-danger-border' : 'border-input',
-        )}
-      >
-        {lines.map((line, index) => (
+      <div aria-hidden="true" className="relative py-1">
+        <div
+          className={cn(
+            'flex h-6 overflow-hidden border bg-muted text-primary',
+            over ? 'border-danger-border' : 'border-input',
+          )}
+        >
+          {lines.map((line, index) => (
+            <span
+              key={line.id}
+              className={cn('h-full border-r border-card last:border-r-0', patternClasses[line.pattern])}
+              style={{ width: `${((shares[index] ?? 0) / scale) * 100}%` }}
+            />
+          ))}
+        </div>
+        {/* En dépassement, un trait situe la fin de la durée disponible dans la barre. */}
+        {scale > 1 ? (
           <span
-            key={line.id}
-            className={cn('h-full border-r border-card last:border-r-0', patternClasses[line.pattern])}
-            style={{ width: `${((shares[index] ?? 0) / scale) * 100}%` }}
+            className="absolute inset-y-0 w-1 -translate-x-1/2 border-x border-card bg-danger"
+            style={{ left: `${(1 / scale) * 100}%` }}
           />
-        ))}
+        ) : null}
       </div>
 
-      <dl className="m-0 grid gap-2 text-sm">
+      <dl className="m-0 grid gap-2.5 text-sm">
         {lines.map((line) => (
           <div key={line.id} className="flex items-center justify-between gap-3">
-            <dt className="flex min-w-0 items-center gap-2">
+            <dt className="flex min-w-0 items-center gap-2.5">
               <span
                 aria-hidden="true"
-                className={cn('size-3.5 shrink-0 border border-primary text-primary', patternClasses[line.pattern])}
+                className={cn('size-4 shrink-0 border border-primary text-primary', patternClasses[line.pattern])}
               />
               {line.label}
             </dt>
             <dd className="m-0 font-semibold tabular-nums">{line.value}</dd>
           </div>
         ))}
-        <div className="flex items-center justify-between gap-3 border-t pt-2">
+        <div className="flex items-center justify-between gap-3 border-t pt-2.5">
           <dt>{marginLabel}</dt>
           <dd className={cn('m-0 font-semibold tabular-nums', over && 'text-destructive')}>{margin.value}</dd>
         </div>

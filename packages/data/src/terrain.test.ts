@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   cellAt,
   decodeGrid,
+  hillshadeFor,
   loadGrid,
   sampleGrid,
   terrainDataset,
@@ -124,6 +125,18 @@ describe('terrainDataset', () => {
 
   it('offers no relief outside the detailed region', () => {
     expect(terrainDataset(committed, 'global', 'elevation')).toBeNull();
+  });
+
+  it('shades the map with the relief the profile reads, so the map and the profile never disagree', () => {
+    const elevation = (manifest: DataManifest) => terrainDataset(manifest, 'jezero', 'elevation')!;
+    expect(hillshadeFor(committed, elevation(committed))?.id).toBe('jezero-hirise-hillshade');
+    const fallback = withStatus('jezero-hirise-dem', 'partial');
+    expect(hillshadeFor(fallback, elevation(fallback))?.id).toBe('jezero-ctx-hillshade');
+  });
+
+  it('shows no shading rather than one that is unavailable', () => {
+    const manifest = withStatus('jezero-hirise-hillshade', 'unavailable');
+    expect(hillshadeFor(manifest, terrainDataset(manifest, 'jezero', 'elevation')!)).toBeNull();
   });
 });
 

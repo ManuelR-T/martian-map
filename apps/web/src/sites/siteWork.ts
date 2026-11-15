@@ -22,6 +22,7 @@ export function siteWorkReducer(state: SiteWorkState, action: SiteWorkAction): S
   const work = siteWorkOf(state, action.sheet);
   switch (action.type) {
     case 'siteTaskToggled': {
+      if (!action.sheet.tasks.some(task => task.id === action.taskId)) return state;
       const done = work.doneTaskIds.includes(action.taskId);
       const doneTaskIds = done
         ? work.doneTaskIds.filter((id) => id !== action.taskId)
@@ -29,6 +30,7 @@ export function siteWorkReducer(state: SiteWorkState, action: SiteWorkAction): S
       return { ...state, [action.sheet.siteId]: { ...work, doneTaskIds } };
     }
     case 'siteAllottedChanged':
+      if (!Number.isFinite(action.minutes) || action.minutes < 0) return state;
       return { ...state, [action.sheet.siteId]: { ...work, allottedMinutes: action.minutes } };
   }
 }

@@ -20,9 +20,9 @@ export interface SegmentedControlProps<Value extends string> {
 }
 
 /**
- * Sélecteur de mode à cases jointives, sous forme de groupe radio : les flèches
- * du clavier changent d'option et une option reste toujours active. La case
- * active est pleine et porte une coche.
+ * Sélecteur de mode, sous forme de groupe radio : les flèches du clavier
+ * changent d'option et une option reste toujours active. La case active est
+ * pleine, rayonne et porte une coche.
  */
 export function SegmentedControl<Value extends string>({
   label,
@@ -41,7 +41,7 @@ export function SegmentedControl<Value extends string>({
         const option = options.find((candidate) => candidate.value === next);
         if (option) onValueChange(option.value);
       }}
-      className={cn('inline-flex w-fit items-stretch border border-input bg-card', className)}
+      className={cn('inline-flex w-fit items-stretch gap-0.5 border border-input bg-card/70 p-0.5', className)}
     >
       {options.map((option) => {
         const selected = option.value === value;
@@ -51,9 +51,9 @@ export function SegmentedControl<Value extends string>({
             value={option.value}
             data-slot="segmented-control-item"
             className={cn(
-              'label-caps relative inline-flex h-8 min-w-0 shrink-0 items-center justify-center gap-1.5 border-l border-input px-3 whitespace-nowrap text-foreground transition-colors first:border-l-0 focus-visible:z-10',
+              'label-caps relative inline-flex h-10 min-w-0 shrink-0 items-center justify-center gap-1.5 px-3.5 whitespace-nowrap text-foreground transition-[color,background-color,box-shadow] duration-200 focus-visible:z-10',
               'hover:bg-accent hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-50',
-              'data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
+              'data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:shadow-glow',
               '[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
             )}
           >
