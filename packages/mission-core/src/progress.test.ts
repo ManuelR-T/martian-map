@@ -40,6 +40,7 @@ describe('progression manuelle de la sortie', () => {
     const second = missionProgress(mission([true], [false], [false]))!;
     expect(second.remainingMinutes).toBeCloseTo(budget.missionMinutes - outbound - 10 - budget.distances.segments[1]!.metres / speed, 6);
     expect(second.nextLegMetres).toBeCloseTo(budget.distances.segments[2]!.metres, 6);
+    expect(second.legsMetres.reduce((a, b) => a + b, 0)).toBeCloseTo(budget.distances.total.metres, 6);
     expect(second.travelledMetres).toBeCloseTo(budget.distances.segments[0]!.metres + budget.distances.segments[1]!.metres, 6);
   });
 

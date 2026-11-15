@@ -19,6 +19,8 @@ export interface MissionProgress {
   readonly activityIndex: number;
   /** Null when the camp follows the current step. */
   readonly nextStep: MissionStep | null;
+  /** Planned length of each leg: camp → step 1, step to step, last step → camp. */
+  readonly legsMetres: readonly number[];
   /** Planned route from the camp to the current step: where the route profile places it. */
   readonly travelledMetres: number;
   /** Planned route from the current step to the next one, or to the camp. */
@@ -45,18 +47,18 @@ export function missionProgress(mission: Mission | null): MissionProgress | null
     const points = [stops[k]!, ...(mission.routeLegs?.[k] ?? []), stops[k + 1]!];
     return points.slice(1).reduce((sum, to, index) => sum + groundDistanceMetres(points[index]!, to), 0);
   };
-  let travelledMetres = 0;
-  for (let k = 0; k <= stepIndex; k += 1) travelledMetres += legMetres(k);
-  let walkMetres = 0;
-  for (let k = stepIndex + 1; k <= mission.steps.length; k += 1) walkMetres += legMetres(k);
+  const legsMetres = stops.slice(1).map((_, k) => legMetres(k));
+  const sum = (legs: readonly number[]) => legs.reduce((total, metres) => total + metres, 0);
+  const travelledMetres = sum(legsMetres.slice(0, stepIndex + 1));
+  const walkMetres = sum(legsMetres.slice(stepIndex + 1));
   const activities = mission.steps.flatMap(s => s.activities);
   const pending = activities.filter(a => !a.completed);
   const activityIndex = step.activities.findIndex(a => !a.completed);
   return {
-    stepIndex, step, activityIndex, travelledMetres,
+    stepIndex, step, activityIndex, legsMetres, travelledMetres,
     activity: step.activities[activityIndex] ?? null,
     nextStep: mission.steps[stepIndex + 1] ?? null,
-    nextLegMetres: legMetres(stepIndex + 1),
+    nextLegMetres: legsMetres[stepIndex + 1]!,
     completedActivities: activities.length - pending.length,
     totalActivities: activities.length,
     finished: pending.length === 0,

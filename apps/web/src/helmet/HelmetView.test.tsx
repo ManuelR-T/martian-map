@@ -51,6 +51,8 @@ const click = async (label: string, scope?: HTMLElement) => {
   expect(button(label, scope), label).toBeTruthy();
   await act(async () => { button(label, scope)!.click(); });
 };
+const current = () => hud().querySelector('ul [aria-current=step]')?.textContent;
+const route = () => [...hud().querySelectorAll('ol > li')].map(node => node.getAttribute('aria-current') === 'step');
 const readout = (label: string) => [...hud().querySelectorAll('dl > div')].find(row => row.querySelector('dt')?.textContent === label)?.querySelector('dd')?.textContent;
 
 beforeEach(() => {
@@ -64,8 +66,12 @@ it('affiche l’arrêt, l’activité, la suite et le statut simulé de la sorti
   await mount();
   expect(hud().querySelector('h1')?.textContent).toBe('Skinner Ridge');
   expect(hud().textContent).toContain('Arrêt 1/2');
-  expect(hud().textContent).toContain('Activité 1/2');
-  expect(hud().textContent).toContain('Observation · 10 min');
+  expect(current()).toContain('Observation');
+  expect(current()).toContain('10 min');
+  expect(hud().querySelector('[role=timer]')?.textContent).toBe('0:00');
+  // Camp, two stops, camp: the first stop is the current one.
+  expect(route()).toEqual([false, true, false, false]);
+  expect(readout('Camp en direct')).toMatch(/ m$/);
   expect(readout('Ensuite')).toBe('Wildcat Ridge');
   expect(hud().textContent).toContain('Simulé · suivi manuel');
   expect(hud().textContent).toContain('Aucune localisation réelle');
@@ -77,7 +83,7 @@ it('avance à la main, d’une activité puis d’un arrêt à l’autre, et sai
   await mount();
   const start = readout('Reste prévu');
   await click('Activité faite');
-  expect(hud().textContent).toContain('Photo · 20 min');
+  expect(current()).toContain('Photo');
   expect(readout('Reste prévu')).not.toBe(start);
   await click('Activité faite');
   expect(hud().querySelector('h1')?.textContent).toBe('Wildcat Ridge');
@@ -86,11 +92,12 @@ it('avance à la main, d’une activité puis d’un arrêt à l’autre, et sai
   expect([...container.querySelectorAll<HTMLInputElement>('input[type=checkbox]')].map(box => box.checked)).toEqual([true, true, false, false]);
   await click('Annuler la dernière');
   expect(hud().querySelector('h1')?.textContent).toBe('Skinner Ridge');
-  expect(hud().textContent).toContain('Photo · 20 min');
+  expect(current()).toContain('Photo');
   for (let done = 0; done < 3; done += 1) await click('Activité faite');
   expect(hud().textContent).toContain('Retour au camp');
   expect(hud().textContent).toContain('4/4 activités faites');
   expect(button('Activité faite')).toBeUndefined();
+  expect(route()).toEqual([false, false, false, true]);
 });
 
 it('reprend la marge du budget principal et signale son dépassement', async () => {
@@ -122,7 +129,23 @@ it('bascule vers « En mission » quand la vue est ouverte depuis la base, pour 
   await mount();
   await send({ type: 'workspaceChanged', workspace: 'base' });
   await click('Activité faite');
-  expect(hud().textContent).toContain('Photo · 20 min');
+  expect(current()).toContain('Photo');
+});
+
+it('se pilote au clavier et coche les tâches de la fiche du site', async () => {
+  await mount();
+  const key = async (name: string) => { await act(async () => { document.body.dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true })); }); };
+  await key(' ');
+  expect(current()).toContain('Photo');
+  await key('Backspace');
+  expect(current()).toContain('Observation');
+  const task = () => [...hud().querySelectorAll<HTMLButtonElement>('section[aria-label="Fiche de site"] button')][0]!;
+  expect(task().textContent).toContain('Décrire la roche');
+  expect(task().getAttribute('aria-pressed')).toBe('false');
+  await act(async () => { task().click(); });
+  expect(task().getAttribute('aria-pressed')).toBe('true');
+  // Sheet tasks are not the budgeted activities: the stop does not advance.
+  expect(current()).toContain('Observation');
 });
 
 it('renvoie au planificateur sans sortie en cours, et se traduit', async () => {

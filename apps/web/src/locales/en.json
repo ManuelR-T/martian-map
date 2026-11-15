@@ -952,8 +952,6 @@
   "Planificateur": "Planner",
   "Simulé · suivi manuel": "Simulated · manual tracking",
   "Arrêt": "Stop",
-  "Activités terminées": "Activities complete",
-  "Activité": "Activity",
   "Activité faite": "Activity done",
   "Annuler la dernière": "Undo last",
   "Ensuite": "Next",
@@ -965,5 +963,13 @@
   "{{v0}} passage{{v1}} au-delà de {{v2}}° à venir, jusqu’à {{v3}}°": "{{v0}} steep section{{v1}} above {{v2}}° ahead, up to {{v3}}°",
   "Aucune alerte.": "No alerts.",
   "Pentes non vérifiées : relief indisponible.": "Slopes not checked: relief unavailable.",
-  "Aucune localisation réelle : l’arrêt en cours est le premier dont une activité reste à cocher. Durées et distances du plan, sans temps écoulé mesuré. Pentes selon le seuil choisi, une hypothèse ; aucune mesure de radiation à Jezero. Ce n’est pas une aide à la navigation.": "No real positioning: the current stop is the first one with an activity left to tick. Planned durations and distances, with no measured elapsed time. Slopes follow the chosen threshold, an assumption; there is no radiation measurement at Jezero. This is not a navigation aid."
+  "Aucune localisation réelle : l’arrêt en cours est le premier dont une activité reste à cocher. Durées et distances du plan ; le chrono compte sur cet écran et n’est pas enregistré. Pentes selon le seuil choisi, une hypothèse ; aucune mesure de radiation à Jezero. Ce n’est pas une aide à la navigation.": "No real positioning: the current stop is the first one with an activity left to tick. Planned durations and distances; the timer counts on this screen and is not saved. Slopes follow the chosen threshold, an assumption; there is no radiation measurement at Jezero. This is not a navigation aid.",
+  "Clavier : Espace pour « Activité faite », Retour arrière pour annuler.": "Keyboard: Space for “Activity done”, Backspace to undo.",
+  "Chrono de l’activité": "Activity timer",
+  "Derrière vous": "Behind you",
+  "Disponible {{v0}}": "Available {{v0}}",
+  "Plein écran": "Full screen",
+  "Temps et parcours": "Time and route",
+  "Camp en direct": "Straight to camp",
+  "Activités": "Activities"
 }
