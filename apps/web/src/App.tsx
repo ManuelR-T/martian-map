@@ -75,7 +75,7 @@ export function App() {
           <a href={DESIGN_SYSTEM_HASH} className={headerLink} aria-current={showsDesignSystem ? 'page' : undefined}>Système de design</a>
         </nav>
         <OfflineStatus />
-        {/* Filet d'horizon : il se trace de la braise au bleu à l'ouverture. */}
+        {/* Filet d'horizon : il se trace du bleu à la braise à l'ouverture. */}
         <span aria-hidden="true" className="horizon-draw absolute inset-x-0 -bottom-0.5 h-0.5 bg-[image:var(--horizon)]" />
       </header>
 
