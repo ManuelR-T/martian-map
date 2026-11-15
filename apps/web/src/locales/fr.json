@@ -908,5 +908,21 @@
   "Not measured bearing capacity or an operational exclusion.": "Pas une portance mesurée ni une exclusion opérationnelle.",
   "Composite pixel (1350, 800); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown.": "Pixel de la mosaïque (1350, 800) ; origine colonne 93714, ligne 26045. Précision absolue de positionnement inconnue.",
   "Composite pixel (500, 800); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown.": "Pixel de la mosaïque (500, 800) ; origine colonne 93714, ligne 26045. Précision absolue de positionnement inconnue.",
-  "Composite pixel (350, 1000); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown.": "Pixel de la mosaïque (350, 1000) ; origine colonne 93714, ligne 26045. Précision absolue de positionnement inconnue."
+  "Composite pixel (350, 1000); origin tile column 93714, row 26045. Absolute positioning accuracy is unknown.": "Pixel de la mosaïque (350, 1000) ; origine colonne 93714, ligne 26045. Précision absolue de positionnement inconnue.",
+  "Marche d’exploration": "Marche d’exploration",
+  "Observations et activités": "Observations et activités",
+  "Marge après réserve": "Marge après réserve",
+  "Dépassement de {{v0}}": "Dépassement de {{v0}}",
+  "Durée prévue hors réserve :": "Durée prévue hors réserve :",
+  "Marche totale (retour compris) :": "Marche totale (retour compris) :",
+  "Distance totale :": "Distance totale :",
+  "Retour :": "Retour :",
+  "Budget du plan complet : cocher une activité ne mesure pas le temps écoulé. Distances horizontales estimées et durées de scénario ; ce budget ne garantit pas un retour sûr.": "Budget du plan complet : cocher une activité ne mesure pas le temps écoulé. Distances horizontales estimées et durées de scénario ; ce budget ne garantit pas un retour sûr.",
+  "Budget non calculable": "Budget non calculable",
+  "Vérifiez les paramètres et les activités : durées finies positives ou nulles, vitesse strictement positive et réserve inférieure ou égale à la durée disponible.": "Vérifiez les paramètres et les activités : durées finies positives ou nulles, vitesse strictement positive et réserve inférieure ou égale à la durée disponible.",
+  "Aucune sortie en cours : préparez puis démarrez une mission.": "Aucune sortie en cours : préparez puis démarrez une mission.",
+  "Budget non calculé : ajoutez un camp et au moins une étape.": "Budget non calculé : ajoutez un camp et au moins une étape.",
+  "Budget non calculé : ajoutez un camp.": "Budget non calculé : ajoutez un camp.",
+  "Budget non calculé : ajoutez au moins une étape.": "Budget non calculé : ajoutez au moins une étape.",
+  "Le budget nécessite un camp, une étape, une vitesse et des durées valides. Le seuil de pente reste distinct du calcul de temps.": "Le budget nécessite un camp, une étape, une vitesse et des durées valides. Le seuil de pente reste distinct du calcul de temps."
 }

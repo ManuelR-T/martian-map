@@ -19,7 +19,7 @@ export interface BudgetLine {
   readonly label: string;
   /** Valeur déjà calculée et formatée avec son unité, par exemple « 42 min ». */
   readonly value: string;
-  /** Part de la durée disponible, entre 0 et 1, fournie par le moteur. */
+  /** Part de la durée disponible, positive ou nulle ; peut dépasser 1 en dépassement. */
   readonly share: number;
   readonly pattern: BudgetPattern;
 }

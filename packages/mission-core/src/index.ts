@@ -14,6 +14,7 @@ export function minutesToSeconds(minutes: number): number {
 
 export * from './mission';
 export * from './distance';
+export * from './budget';
 export * from './radiation';
 export {
   MARS_RADIUS_METRES,

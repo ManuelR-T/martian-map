@@ -101,8 +101,8 @@ export function StepListItem({
               type="button"
               aria-pressed={selected}
               onClick={onSelect}
-              // La zone activable couvre toute la ligne de l'étape, pas seulement son nom.
-              className="text-left font-semibold after:absolute after:inset-0 after:content-['']"
+              // Keep a touch-sized title without an overlay over embedded controls.
+              className="min-h-11 text-left font-semibold"
             >
               {localize(heading)}
             </button>

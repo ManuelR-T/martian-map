@@ -22,7 +22,7 @@ export function MissionAssumptions({ assumptions }: { assumptions: ReturnType<ty
           </div>
         ))}
       </dl>
-      <p>{localize("Aucun budget de mission disponible tant que ces entrées manquent.")}</p>
+      <p>{localize("Le budget nécessite un camp, une étape, une vitesse et des durées valides. Le seuil de pente reste distinct du calcul de temps.")}</p>
       {assumptions.stops.length > 0 && (
         <div className="mt-3 space-y-2">
           <p><ProvenanceBadge status="simulated" /> {localize("Durées d’observation choisies par l’équipe :")}</p>
