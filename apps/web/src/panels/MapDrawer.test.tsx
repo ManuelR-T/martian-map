@@ -35,6 +35,12 @@ it('opens cards independently, keeps edits when closed and restores focus on Esc
     await act(async () => triggers[0]!.click());
     expect(input.value).toBe('90');
     expect(budget.hasAttribute('inert')).toBe(false);
+    expect(triggers[0]!.hidden).toBe(true);
+    const icon = budget.querySelector<HTMLButtonElement>('.map-drawer-card-icon')!;
+    expect(icon).not.toBeNull();
+    await act(async () => icon.click());
+    expect(triggers[0]!.hidden).toBe(false);
+    expect(document.activeElement).toBe(triggers[0]);
   } finally {
     await act(async () => root.unmount()); container.remove(); vi.unstubAllGlobals();
   }

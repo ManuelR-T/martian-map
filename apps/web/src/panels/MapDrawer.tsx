@@ -13,14 +13,21 @@ export function MapDrawer({ label, icon: Icon, side, open, onOpenChange, childre
   const id = useId();
   const trigger = useRef<HTMLButtonElement>(null);
   const content = useRef<HTMLDivElement>(null);
+  const restoreFocus = useRef(false);
 
   useEffect(() => {
-    if (open) content.current?.focus();
+    if (open && content.current) {
+      content.current.scrollTop = 0;
+      content.current.focus();
+    } else if (restoreFocus.current) {
+      trigger.current?.focus();
+      restoreFocus.current = false;
+    }
   }, [open]);
 
   function close() {
+    restoreFocus.current = true;
     onOpenChange(false);
-    trigger.current?.focus();
   }
 
   return <div className={`map-drawer map-drawer-${side}`} data-state={open ? 'open' : 'closed'}>
@@ -28,6 +35,7 @@ export function MapDrawer({ label, icon: Icon, side, open, onOpenChange, childre
       ref={trigger}
       type="button"
       className="map-drawer-trigger glass"
+      hidden={open}
       aria-label={label}
       title={label}
       aria-expanded={open}
@@ -49,6 +57,9 @@ export function MapDrawer({ label, icon: Icon, side, open, onOpenChange, childre
         if (event.key === 'Escape') { event.stopPropagation(); close(); }
       }}
     >
+      <button type="button" className="map-drawer-card-icon" aria-label={`Replier : ${label}`} title={`Replier : ${label}`} onClick={close}>
+        <Icon aria-hidden="true" className="size-5" />
+      </button>
       <button type="button" className="map-drawer-close" aria-label={`Fermer : ${label}`} onClick={close}>
         <X aria-hidden="true" className="size-5" />
       </button>
