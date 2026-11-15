@@ -1093,5 +1093,11 @@
   "Téléchargement incomplet ou stockage indisponible. Réessayez en ligne.": "Téléchargement incomplet ou stockage indisponible. Réessayez en ligne.",
   "Préparer / vérifier Jezero": "Préparer / vérifier Jezero",
   "Les tuiles HiRISE supplémentaires sont conservées séparément dans la limite de 16 Mio ; les tuiles absentes nécessitent internet. L’imagerie hors secteur n’active ni relief ni planification.": "Les tuiles HiRISE supplémentaires sont conservées séparément dans la limite de 16 Mio ; les tuiles absentes nécessitent internet. L’imagerie hors secteur n’active ni relief ni planification.",
-  "L’exploration globale nécessite internet. Ouvrez Jezero pour utiliser le secteur préparé.": "L’exploration globale nécessite internet. Ouvrez Jezero pour utiliser le secteur préparé."
+  "L’exploration globale nécessite internet. Ouvrez Jezero pour utiliser le secteur préparé.": "L’exploration globale nécessite internet. Ouvrez Jezero pour utiliser le secteur préparé.",
+  "Suivi": "Suivi",
+  "Historique de Perseverance": "Historique de Perseverance",
+  "Suivi invalide.": "Suivi invalide.",
+  "Historique incompatible.": "Historique incompatible.",
+  "Camp invalide.": "Camp invalide.",
+  "Vue globale": "Vue globale"
 }

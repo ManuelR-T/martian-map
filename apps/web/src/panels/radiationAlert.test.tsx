@@ -107,7 +107,7 @@ it('shows the alert, the end confirmation and the preparation in English, then b
   await click('À la base');
   await click('Preparation');
   const name = () => container.querySelector<HTMLInputElement>('input[maxlength="120"]')!.value;
-  expect(name()).toBe('Terrain reconnaissance');
+  expect(name()).toBe('Field reconnaissance');
   expect(container.textContent).toContain('New mission · Step 1 of 3');
   expect([...container.querySelectorAll('option')].map(option => option.textContent)).toContain('Scientific observation');
   // Changing the objective still replaces the suggested name.
