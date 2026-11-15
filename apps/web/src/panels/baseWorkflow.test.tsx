@@ -10,6 +10,7 @@ import type { Catalog } from '@marps/data';
 import { PlannerProvider, usePlannerDispatch } from '../state/PlannerProvider';
 import { MissionDatabase } from '../storage/missionDatabase';
 import { StepsPanel } from './StepsPanel';
+import { loadMissionDraft } from '../storage/missionDraft';
 
 let root: Root;
 let container: HTMLDivElement;
@@ -28,6 +29,7 @@ const click = async (label: string) => {
   await act(async () => { button!.click(); });
 };
 beforeEach(async () => {
+  window.localStorage.clear();
   vi.stubGlobal('indexedDB', new IDBFactory()); vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);
   container = document.createElement('div'); document.body.append(container); root = createRoot(container);
   await act(async () => { root.render(<PlannerProvider load={async () => catalog}><Screen /></PlannerProvider>); });
@@ -161,4 +163,33 @@ it('demande avant de remplacer une préparation modifiée depuis l’onglet Miss
   await click('Préparation');
   expect(container.textContent).toContain('Nouvelle mission · Étape 2 sur 3');
   expect(container.querySelectorAll('select')[0]!.value).toBe('sim-jezero-alpha');
+});
+
+it('retrouve le nom, le camp, les étapes et les paramètres d’une préparation après rechargement avant enregistrement', async () => {
+  await act(async () => {
+    const input = container.querySelector<HTMLInputElement>('input')!;
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, 'Préparation à reprendre');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await act(async () => { container.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
+  await select(container.querySelectorAll('select')[0]!, 'sim-jezero-alpha');
+  await select(container.querySelectorAll('select')[1]!, 'site');
+  await click('Continuer : vérifier la mission');
+  await act(async () => {
+    const input = container.querySelector<HTMLInputElement>('input[name="available"]')!;
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, '90');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  expect(loadMissionDraft()?.parameters.availableSeconds).toBe(5400);
+  expect(await new MissionDatabase().missions()).toEqual([]);
+  await act(async () => root.unmount());
+  root = createRoot(container);
+  await act(async () => { root.render(<PlannerProvider load={async () => catalog}><Screen /></PlannerProvider>); await new MissionDatabase().activeMission(); });
+  await click('Jezero');
+  expect(container.querySelector<HTMLInputElement>('input')!.value).toBe('Préparation à reprendre');
+  await act(async () => { container.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
+  expect(container.querySelectorAll('select')[0]!.value).toBe('sim-jezero-alpha');
+  expect(container.textContent).toContain('Site test');
+  await click('Continuer : vérifier la mission');
+  expect(container.querySelector<HTMLInputElement>('input[name="available"]')!.value).toBe('90');
 });
