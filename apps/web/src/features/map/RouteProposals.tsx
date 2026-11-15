@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import type Map from 'ol/Map';
 import Feature from 'ol/Feature';
 import LineString from 'ol/geom/LineString';
@@ -7,7 +7,7 @@ import VectorSource from 'ol/source/Vector';
 import { Stroke, Style } from 'ol/style';
 import { Button, localize } from '@marps/ui';
 import { loadGrid, measureRoute, proposeRoute, terrainDataset, type RouteProposal, type TerrainGrid } from '@marps/data';
-import { missionGeometry, routeScenarios, type CellBlock, type MarsCoordinate, type RouteScenario } from '@marps/mission-core';
+import { missionGeometry, slopeScenario, type CellBlock, type MarsCoordinate, type RouteScenario } from '@marps/mission-core';
 import { locale } from '../../i18n';
 import { usePlannerDispatch, usePlannerState } from '../../state/PlannerProvider';
 import { selectCurrentMission } from '../../state/planner';
@@ -15,7 +15,9 @@ import { selectCurrentMission } from '../../state/planner';
 /** Green, so the proposal is not mistaken for the drawn route (orange dashes) or the profile route (blue). */
 export const PROPOSAL_COLOUR = '#3ddc84';
 
-const scenarioNames: Record<RouteScenario['id'], string> = { cautious: 'Prudent', balanced: 'Équilibré', bold: 'Audacieux' };
+const DEFAULT_LIMIT = '20';
+/** Past 60° the grid itself holds no cell: the input stops there rather than promise more. */
+const MAX_LIMIT = 60;
 
 const formatMetres = (metres: number) => `${Math.round(metres).toLocaleString(locale())} m`;
 
@@ -28,7 +30,7 @@ function blockReason(reason: CellBlock, scenario: RouteScenario) {
 function failureText(proposal: Exclude<RouteProposal, { status: 'found' }>, scenario: RouteScenario, names: readonly string[]) {
   const from = names[proposal.leg];
   const to = names[proposal.leg + 1];
-  if (proposal.status === 'no-path') return localize('Aucun chemin de « {{v0}} » à « {{v1}} » avec ces hypothèses.', { v0: from, v1: to });
+  if (proposal.status === 'no-path') return localize('Aucun chemin de « {{v0}} » à « {{v1}} » avec une pente maximale de {{v2}}°.', { v0: from, v1: to, v2: scenario.maxSlopeDegrees });
   return proposal.status === 'invalid-start'
     ? localize('Départ « {{v0}} » inutilisable : {{v1}}.', { v0: from, v1: blockReason(proposal.reason, scenario) })
     : localize('Arrivée « {{v0}} » inutilisable : {{v1}}.', { v0: to, v1: blockReason(proposal.reason, scenario) });
@@ -41,9 +43,10 @@ interface Loaded {
 }
 
 /**
- * Experimental routes of #29: one per scenario, compared with the route the crew drew,
- * previewed on the map, and written back as the mission's own legs when applied. The
- * budget and the profile then read that geometry as they read any drawn route.
+ * Experimental route of #29: the shortest walk that stays under the slope the crew accepts,
+ * compared with the route the crew drew, previewed on the map, and written back as the
+ * mission's own legs when applied. The budget and the profile then read that geometry as
+ * they read any drawn route.
  */
 export function RouteProposals({ map, names }: { map: Map | null; names: readonly string[] }) {
   const planner = usePlannerState();
@@ -53,7 +56,11 @@ export function RouteProposals({ map, names }: { map: Map | null; names: readonl
   const dataset = planner.catalog.status === 'ready' ? terrainDataset(planner.catalog.data, mission.regionId, 'slope') : null;
   const [requested, setRequested] = useState(false);
   const [loaded, setLoaded] = useState<Loaded | null>(null);
-  const [choice, setChoice] = useState<RouteScenario['id'] | null>(null);
+  // Kept as typed, so a half-written number is not rewritten under the cursor.
+  const [limitText, setLimitText] = useState(DEFAULT_LIMIT);
+  const limitId = useId();
+  const limit = Number(limitText);
+  const validLimit = limitText.trim() !== '' && Number.isFinite(limit) && limit > 0 && limit <= MAX_LIMIT;
 
   useEffect(() => {
     if (!requested || !dataset || loaded?.datasetId === dataset.id) return;
@@ -78,19 +85,16 @@ export function RouteProposals({ map, names }: { map: Map | null; names: readonl
     () => missionGeometry(mission)?.coordinates.map(([longitude, latitude]) => ({ longitude, latitude })) ?? [],
     [mission],
   );
+  const scenario = useMemo(() => (validLimit ? slopeScenario(limit) : null), [validLimit, limit]);
   // The grids of the sector are small (at most 253 × 298 cells): the search takes milliseconds, no worker needed.
-  const proposals = useMemo(
-    () =>
-      grid &&
-      routeScenarios.map((scenario) => {
-        const proposal = proposeRoute(grid, stops, scenario);
-        const route = proposal.status === 'found' ? [stops[0]!, ...proposal.legs.flatMap((leg, index) => [...leg, stops[index + 1]!])] : null;
-        return { scenario, proposal, route, measure: route && measureRoute(grid, route, scenario) };
-      }),
-    [grid, stops],
-  );
-  const selected = proposals?.find((row) => row.scenario.id === choice && row.route) ?? proposals?.find((row) => row.route) ?? null;
-  const preview = selected?.route ?? null;
+  const result = useMemo(() => {
+    if (!grid || !scenario) return null;
+    const proposal = proposeRoute(grid, stops, scenario);
+    if (proposal.status !== 'found') return { proposal, route: null, proposed: null, own: measureRoute(grid, drawn, scenario) };
+    const route = [stops[0]!, ...proposal.legs.flatMap((leg, index) => [...leg, stops[index + 1]!])];
+    return { proposal, route, proposed: measureRoute(grid, route, scenario), own: measureRoute(grid, drawn, scenario) };
+  }, [grid, scenario, stops, drawn]);
+  const preview = result?.route ?? null;
 
   useEffect(() => {
     if (!map || !preview) return;
@@ -116,67 +120,67 @@ export function RouteProposals({ map, names }: { map: Map | null; names: readonl
         <Button size="sm" onClick={() => setRequested(true)}>{localize('Proposer un chemin')}</Button>
       ) : !current ? (
         <p role="status">{localize('Chargement des pentes…')}</p>
-      ) : !grid || !proposals ? (
+      ) : !grid ? (
         <div role="alert" className="grid gap-2">
           <p>{localize('Grille de pentes inaccessible : aucun chemin proposé.')}</p>
           <Button size="sm" variant="outline" onClick={() => setLoaded(null)}>{localize('Réessayer')}</Button>
         </div>
       ) : (
         <>
-          <ul className="grid gap-2">
-            {proposals.map(({ scenario, proposal, measure }) => {
-              const own = measureRoute(grid, drawn, scenario);
-              return (
-                <li key={scenario.id} className="grid gap-1 border bg-card p-2">
-                  <label className="flex min-h-11 items-center gap-2 font-semibold">
-                    <input
-                      type="radio"
-                      name="route-scenario"
-                      checked={selected?.scenario.id === scenario.id}
-                      disabled={!measure}
-                      onChange={() => setChoice(scenario.id)}
-                    />
-                    {localize(scenarioNames[scenario.id])}
-                    <span className="font-normal text-muted-foreground">
-                      {localize('pente jusqu’à {{v0}}°, 1 m à {{v0}}° compte {{v1}} m à plat', { v0: scenario.maxSlopeDegrees, v1: 1 + scenario.slopeWeight })}
-                    </span>
-                  </label>
-                  {proposal.status !== 'found' ? (
-                    <p role="alert">{failureText(proposal, scenario, names)}</p>
-                  ) : measure && (
-                    <dl className="grid grid-cols-[auto_1fr] gap-x-3 tabular-nums">
-                      <dt>{localize('Chemin proposé')}</dt>
-                      <dd>{localize('{{v0}}, coût {{v1}} à plat', { v0: formatMetres(measure.metres), v1: formatMetres(measure.costMetres) })}</dd>
-                      <dt>{localize('Tracé actuel')}</dt>
-                      <dd>
-                        {own.blockedMetres > 0.5
-                          ? localize('{{v0}}, dont {{v1}} sur terrain fermé pour ce scénario : coût non comparable', { v0: formatMetres(own.metres), v1: formatMetres(own.blockedMetres) })
-                          : localize('{{v0}}, coût {{v1}} à plat', { v0: formatMetres(own.metres), v1: formatMetres(own.costMetres) })}
-                      </dd>
-                    </dl>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-          {selected ? (
+          <label htmlFor={limitId} className="flex flex-wrap items-center gap-2 font-semibold">
+            {localize('Pente maximale acceptée')}
+            <input
+              id={limitId}
+              type="number"
+              inputMode="decimal"
+              min={1}
+              max={MAX_LIMIT}
+              step={1}
+              value={limitText}
+              onChange={(event) => setLimitText(event.target.value)}
+              aria-invalid={!validLimit}
+              aria-describedby={`${limitId}-hint`}
+              className="h-11 w-24 border border-input bg-card px-2 tabular-nums"
+            />
+            {localize('°')}
+          </label>
+          <p id={`${limitId}-hint`} className={validLimit ? 'text-muted-foreground' : undefined} role={validLimit ? undefined : 'alert'}>
+            {validLimit
+              ? localize('Le chemin évite toute cellule plus pentue et préfère les pentes douces.')
+              : localize('Saisissez une pente entre 1° et {{v0}}°.', { v0: MAX_LIMIT })}
+          </p>
+          {result && scenario && (result.proposal.status !== 'found' || !result.proposed ? (
+            <div role="alert" className="grid gap-1 border border-destructive/60 bg-card p-2">
+              <p className="font-semibold">{localize('Aucune solution à {{v0}}°.', { v0: scenario.maxSlopeDegrees })}</p>
+              {result.proposal.status !== 'found' && <p>{failureText(result.proposal, scenario, names)}</p>}
+              <p>{localize('Essayez une pente maximale plus élevée.')}</p>
+            </div>
+          ) : (
             <>
+              <dl className="grid grid-cols-[auto_1fr] gap-x-3 border bg-card p-2 tabular-nums">
+                <dt>{localize('Chemin proposé')}</dt>
+                <dd>{localize('{{v0}}, coût {{v1}} à plat', { v0: formatMetres(result.proposed.metres), v1: formatMetres(result.proposed.costMetres) })}</dd>
+                <dt>{localize('Tracé actuel')}</dt>
+                <dd>
+                  {result.own.blockedMetres > 0.5
+                    ? localize('{{v0}}, dont {{v1}} sur terrain fermé à {{v2}}° : coût non comparable', { v0: formatMetres(result.own.metres), v1: formatMetres(result.own.blockedMetres), v2: scenario.maxSlopeDegrees })
+                    : localize('{{v0}}, coût {{v1}} à plat', { v0: formatMetres(result.own.metres), v1: formatMetres(result.own.costMetres) })}
+                </dd>
+              </dl>
               <p className="flex items-center gap-2">
                 <svg viewBox="0 0 40 12" className="w-10 shrink-0" aria-hidden="true"><path d="M0 6H40" stroke="#151b25" strokeWidth="6" /><path d="M0 6H40" stroke={PROPOSAL_COLOUR} strokeWidth="3" /></svg>
-                {localize('Sur la carte : chemin proposé « {{v0}} ».', { v0: scenarioNames[selected.scenario.id] })}
+                {localize('Sur la carte : chemin proposé.')}
               </p>
-              <Button size="sm" onClick={() => selected.proposal.status === 'found' && dispatch({ type: 'routeLegsReplaced', legs: selected.proposal.legs })}>
+              <Button size="sm" onClick={() => dispatch({ type: 'routeLegsReplaced', legs: result.proposal.legs })}>
                 {localize('Appliquer ce chemin au parcours')}
               </Button>
             </>
-          ) : (
-            <p role="alert">{localize('Aucun scénario ne donne de chemin pour ce parcours.')}</p>
-          )}
+          ))}
           <details>
             <summary className="min-h-11 cursor-pointer py-3 font-semibold">{localize('Hypothèses et limites')}</summary>
             <ul className="grid list-disc gap-1 pl-5">
               <li>{localize('Grille : {{v0}}, cellules de {{v1}} m. Le chemin ne sort jamais de cette grille.', { v0: grid.dataset.title, v1: grid.raster.pixelSizeMetres })}</li>
-              <li>{localize('Coût : chaque mètre compte 1 + poids × pente / pente limite mètres à plat. Les poids et les pentes limites sont des hypothèses de scénario, pas des limites de combinaison.')}</li>
+              <li>{localize('Coût : chaque mètre compte 1 + 2 × pente / pente maximale mètres à plat. Le poids 2 est une hypothèse de modèle, pas une limite de combinaison.')}</li>
               <li>{localize("Terrain fermé : pente au-delà de la limite, cellule sans mesure, tout ce qui est hors de la grille. Le chemin ne coupe pas le coin d'une cellule fermée.")}</li>
               <li>{localize('La pente lue est celle du terrain dans la cellule, quelle que soit la direction de marche.')}</li>
               <li>{localize('Le relief ne montre ni chaque rocher ni la portance du sol : ce chemin reste hypothétique.')}</li>

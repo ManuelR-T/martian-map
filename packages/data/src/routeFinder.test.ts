@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { routeScenarios, type MarsCoordinate, type RouteScenario } from '@marps/mission-core';
+import { slopeScenario, type MarsCoordinate, type RouteScenario } from '@marps/mission-core';
 import {
   cellAt,
   coordinateAt,
@@ -40,7 +40,7 @@ function tinyGrid(rows: readonly (readonly number[])[], kind: DatasetDescriptor[
   };
   return { dataset: { id: 'tiny', kind, raster } as unknown as DatasetDescriptor, raster, values: Float32Array.from(rows.flat()) };
 }
-const scenario: RouteScenario = { id: 'balanced', maxSlopeDegrees: 20, slopeWeight: 2 };
+const scenario: RouteScenario = slopeScenario(20);
 const X = 90;
 
 describe('grid positions', () => {
@@ -99,7 +99,7 @@ describe('experimental route on the frozen Jezero slopes', () => {
 
   it.each(['jezero-hirise-slope', 'jezero-ctx-slope'])('on %s, either proposes an open route no costlier than the straight legs, or says why not', (id) => {
     const grid = committedGrid(id);
-    const outcomes = routeScenarios.map((candidate) => {
+    const outcomes = [15, 20, 25, 30].map(slopeScenario).map((candidate) => {
       const proposal = proposeRoute(grid, stops, candidate);
       if (proposal.status !== 'found') return proposal.status;
       const route = [stops[0]!, ...proposal.legs.flatMap((leg, index) => [...leg, stops[index + 1]!])];
@@ -110,14 +110,14 @@ describe('experimental route on the frozen Jezero slopes', () => {
       if (direct.blockedMetres === 0) expect(proposed.costMetres).toBeLessThanOrEqual(direct.costMetres + 1e-6);
       return 'found';
     });
-    // The loosest scenario reaches every site of the sector on both grids.
+    // A 30° limit reaches every site of the sector on both grids.
     expect(outcomes.at(-1)).toBe('found');
   });
 
   it('answers fast enough to run on the main thread', () => {
     const grid = committedGrid('jezero-hirise-slope');
     const started = performance.now();
-    for (const candidate of routeScenarios) proposeRoute(grid, stops, candidate);
+    for (const limit of [15, 20, 25]) proposeRoute(grid, stops, slopeScenario(limit));
     expect(performance.now() - started).toBeLessThan(500);
   });
 });
