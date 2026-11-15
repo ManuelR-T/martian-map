@@ -17,6 +17,8 @@ export { ProvenanceBadge } from './components/provenance-badge';
 export type { ProvenanceBadgeProps, ProvenanceStatus } from './components/provenance-badge';
 export { SegmentedControl } from './components/segmented-control';
 export type { SegmentedControlProps, SegmentedOption } from './components/segmented-control';
+export { TabList } from './components/tab-list';
+export type { TabListProps, TabOption } from './components/tab-list';
 export { StepList, StepListItem } from './components/step-list';
 export type { StepKind, StepListItemProps, StepListProps } from './components/step-list';
 export { cn } from './lib/utils';

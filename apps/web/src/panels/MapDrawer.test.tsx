@@ -36,9 +36,10 @@ it('opens cards independently, keeps edits when closed and restores focus on Esc
     expect(input.value).toBe('90');
     expect(budget.hasAttribute('inert')).toBe(false);
     expect(triggers[0]!.hidden).toBe(true);
-    const icon = budget.querySelector<HTMLButtonElement>('.map-drawer-card-icon')!;
-    expect(icon).not.toBeNull();
-    await act(async () => icon.click());
+    // One way to close, always the cross: no second button doing the same thing.
+    expect(budget.querySelectorAll('button')).toHaveLength(1);
+    const cross = budget.querySelector<HTMLButtonElement>('.map-drawer-close')!;
+    await act(async () => cross.click());
     expect(triggers[0]!.hidden).toBe(false);
     expect(document.activeElement).toBe(triggers[0]);
   } finally {

@@ -18,6 +18,9 @@ const buttonVariants = cva(
           "border-destructive bg-destructive text-destructive-foreground hover:border-[color-mix(in_oklab,var(--destructive),var(--foreground)_22%)] hover:bg-[color-mix(in_oklab,var(--destructive),var(--foreground)_22%)]",
         outline:
           "border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground hover:shadow-glow",
+        // Suppression : contour rouge, sans le poids d'une action principale.
+        danger:
+          "border-destructive bg-transparent text-destructive hover:bg-destructive hover:text-destructive-foreground",
         secondary:
           "border-input bg-secondary text-secondary-foreground hover:bg-accent hover:text-accent-foreground",
         ghost: "hover:bg-accent hover:text-accent-foreground",

@@ -18,8 +18,8 @@ const render = (themisDataset: DatasetDescriptor | undefined) => renderToStaticM
   <PlannerProvider><JezeroMap panelHost={null} datasets={manifest.datasets} roverEnabled={false} onRoverToggle={() => {}} dataset={hirise} sector={sector} radius={manifest.planet.radiusMeters} sites={manifest.sites}
     selected={null} onSelect={() => {}} themisDataset={themisDataset} /></PlannerProvider>);
 
-it('offers the night infrared switch in the Couches section of the Jezero panel, next to the rover history, off at first', () => {
-  expect(render(findThemisNightDataset(manifest, 'jezero'))).toMatch(/aria-label="Couches".*<button[^>]*role="switch"[^>]*aria-checked="false"[^>]*>.*Infrarouge de nuit.*Historique de Perseverance/);
+it('offers the night infrared switch in the layer list of the Jezero panel, next to the rover history, off at first', () => {
+  expect(render(findThemisNightDataset(manifest, 'jezero'))).toMatch(/aria-label="Calques à afficher".*<button[^>]*role="switch"[^>]*aria-checked="false"[^>]*>.*Infrarouge de nuit.*<button[^>]*role="switch"[^>]*aria-checked="false"[^>]*>.*Historique de Perseverance/);
 });
 
 it('shows no night infrared switch when the manifest declares no extract', () => {

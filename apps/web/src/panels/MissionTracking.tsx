@@ -2,6 +2,7 @@ import { Button, DataState, StepList, StepListItem } from '@marps/ui';
 import { usePlannerDispatch, usePlannerState } from '../state/PlannerProvider';
 import { activityLabels } from './MissionEditor';
 import { formatCoordinate } from '../format';
+import { confirmAction } from '../confirm';
 import { RadiationAlert, type RadiationAlertState } from './RadiationAlert';
 
 export function MissionTracking({ radiation, onRadiationChange }: { radiation: RadiationAlertState | null; onRadiationChange: (next: RadiationAlertState | null) => void }) {
@@ -31,9 +32,9 @@ export function MissionTracking({ radiation, onRadiationChange }: { radiation: R
         </div>} />)}
       {mission.camp && <StepListItem kind="return" title={mission.camp.name} />}
     </StepList>
-    <Button variant="outline" onClick={() => {
+    <Button variant="outline" onClick={async () => {
       const pending = activities.filter(a => !a.completed).length;
-      if (pending && !window.confirm(`Terminer la sortie ? Il reste ${pending} activité${pending > 1 ? 's' : ''} non cochée${pending > 1 ? 's' : ''}.`)) return;
+      if (pending && !await confirmAction(`Terminer la sortie ? Il reste ${pending} activité${pending > 1 ? 's' : ''} non cochée${pending > 1 ? 's' : ''}.`, { confirmLabel: 'Terminer la sortie' })) return;
       dispatch({ type: 'missionEnded' });
     }}>Terminer la sortie</Button>
   </div>;
