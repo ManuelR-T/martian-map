@@ -16,7 +16,6 @@
 @media (min-width: 80rem) and (min-height: 601px) {
   .map-information { left: calc(50% - 1rem); transform: translateX(-50%); width: min(32rem, calc(100% - 43rem)); }
 }
-.mars-map .ol-attribution { width: 46px; height: 46px; }
 .mars-map .ol-attribution ul {
   position: absolute;
   bottom: 0;
@@ -40,3 +39,58 @@
 .map-info-toggle::-webkit-details-marker { display: none; }
 .map-information:not([open]) .map-info-toggle { width: 44px; height: 44px; justify-content: center; }
 .map-information:not([open]) .map-info-label { display: none; }
+
+/* Commandes de carte : même surface et même signature que les volets. */
+.mars-map .ol-control { background: transparent; border-radius: 6px; }
+.mars-map .ol-zoom { display: flex; flex-direction: column; gap: .375rem; }
+.mars-map .ol-attribution { width: 44px; height: 44px; background: transparent; }
+.mars-map .ol-control button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-glass);
+  backdrop-filter: blur(12px);
+  color: var(--primary);
+  font-family: inherit;
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1;
+  box-shadow: var(--elevation), 0 0 14px -7px var(--mars);
+  transition: background-color 180ms, color 180ms, box-shadow 180ms;
+}
+.mars-map .ol-control button::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 3px;
+  right: 3px;
+  height: 2px;
+  border-radius: 6px;
+  background: var(--horizon);
+  pointer-events: none;
+}
+.mars-map .ol-attribution button { font-size: 1rem; font-weight: 600; }
+.mars-map .ol-control button:hover { background: var(--accent); color: var(--mars); box-shadow: var(--glow-primary); outline: none; }
+.mars-map .ol-control button:focus { outline: none; }
+.mars-map .ol-control button:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.mars-map .ol-attribution:not(.ol-collapsed) button { background: var(--accent); color: var(--mars); }
+.mars-map .ol-attribution ul {
+  padding: .75rem;
+  border-radius: 6px;
+  background: linear-gradient(var(--card), var(--card)) padding-box, var(--horizon) border-box;
+  border-top: 2px solid transparent;
+  box-shadow: var(--elevation);
+  font-size: .8125rem;
+  line-height: 1.5;
+}
+.mars-map .ol-attribution a { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
+.mars-map .ol-attribution a:hover { color: var(--mars); }
+@media (prefers-reduced-motion: reduce) {
+  .mars-map .ol-control button { transition: none; }
+}
