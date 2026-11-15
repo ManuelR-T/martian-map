@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calculateMissionBudget, calculateMissionOxygen, createEmptyMission, DEFAULT_OXYGEN_PARAMETERS, isMission, MARS_RADIUS_METRES, missionReducer, radiationReturn, type Mission, type MissionEvent } from './index';
+import { calculateMissionBudget, calculateMissionOxygen, createEmptyMission, DEFAULT_OXYGEN_PARAMETERS, isMission, MARS_RADIUS_METRES, missionReducer, missionProgress, radiationReturn, type Mission, type MissionEvent } from './index';
 const m: Mission = { ...createEmptyMission('test'),
   camp: { id: 'c', name: 'Camp', regionId: 'test', position: { longitude: 0, latitude: 0 }, provenance: 'simulation', note: '', referenceUrl: null },
   steps: [{ id: 's', name: 'Stop', siteId: null, position: { longitude: 600 / MARS_RADIUS_METRES * 180 / Math.PI, latitude: 0 }, activities: [{ id: 'a', type: 'sampling', durationMinutes: 10, completed: false }] }],
@@ -54,6 +54,14 @@ describe('explicit simulated mission events', () => {
     expect(missionReducer(active, { type: 'activityRemoved', stepId: 's', id: 'a' }).events).toEqual([slow]);
     expect(missionReducer(active, { type: 'campPlaced', camp: { ...m.camp!, name: 'Other' } }).events).toEqual([delay]);
     expect(missionReducer(active, { type: 'stepRemoved', id: 's' }).events).toEqual([]);
+  });
+  it('keeps helmet remaining time consistent with delays and selected-leg speeds', () => {
+    const active = add(add(m, delay), slow);
+    // Already at the first stop: outbound walking is excluded from the remainder.
+    expect(missionProgress(active)!.remainingMinutes).toBeCloseTo(40);
+    const checked = missionReducer(active, { type: 'activityChanged', stepId: 's', activity: { ...m.steps[0]!.activities[0]!, completed: true } });
+    expect(missionProgress(checked)!.remainingMinutes).toBeCloseTo(20);
+    expect(budget(checked)).toEqual(budget(active));
   });
   it('serializes version 1 scenarios and rejects invalid or ambiguous targets and factors', () => {
     expect(isMission(JSON.parse(JSON.stringify(add(add(m, delay), slow))))).toBe(true);

@@ -35,3 +35,7 @@ aucune position réelle ou durée déjà écoulée.
 
 L’alerte et son contexte scientifique existants restent explicitement simulés ;
 les événements de #19 n’ajoutent aucune donnée radiative observée à Jezero.
+
+La vue casque partage les événements avec le planificateur : ses durées d’activité,
+le reste prévu, la marche suivante et le retour direct utilisent les mêmes effets.
+L’alerte radiative reste partagée et se recalcule depuis son étape de départ figée.
