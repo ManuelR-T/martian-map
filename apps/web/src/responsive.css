@@ -95,3 +95,16 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 /* Le défilement reste disponible sans afficher les barres des rails. */
 .map-drawer-rail, .map-drawer-rails { scrollbar-width: none; }
 .map-drawer-rail::-webkit-scrollbar, .map-drawer-rails::-webkit-scrollbar { display: none; }
+
+/* Agrandissement individuel hors mobile : 30 % en 16:9, jusqu'à 45 %
+   en format plus vertical. Les cartes voisines gardent leur largeur. */
+.map-drawer-resize { display: none; }
+@media (min-width: 801px) {
+  .map-drawer-rail { width: clamp(30vw, 53.333333vh, 45vw); }
+  .map-drawer { width: min(25rem, 100%); }
+  .map-drawer-right { align-self: flex-end; }
+  .map-drawer[data-expanded=true] { width: 100%; }
+  .map-drawer-resize { position: absolute; top: 0; right: 44px; z-index: 3; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; cursor: pointer; color: var(--muted-foreground); }
+  .map-drawer-resize:hover { background: var(--accent); color: var(--accent-foreground); }
+  .map-drawer-content [data-slot=panel] > header { padding-right: 6rem; }
+}

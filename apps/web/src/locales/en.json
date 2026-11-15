@@ -1039,6 +1039,8 @@
   "Terminer la sortie ? Il reste {{count}} activité non cochée._other": "End the outing? {{count}} activities are still unchecked.",
   "{{count}} camp enregistré_one": "{{count}} saved camp",
   "{{count}} camp enregistré_other": "{{count}} saved camps",
+  "Agrandir : {{v0}}": "Expand: {{v0}}",
+  "Réduire : {{v0}}": "Shrink: {{v0}}",
   "Terminer la sortie ? Il reste {{v0}} activité{{v1}} non cochée{{v2}}.": "End the outing? {{v0}} task{{v1}} still without check mark{{v2}}.",
   "{{v0}} activité{{v1}}": "{{v0}} task{{v1}}",
   "Return limit under mission assumptions": "Return limit under mission assumptions",

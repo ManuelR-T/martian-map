@@ -1,7 +1,7 @@
 import { localize } from '@marps/ui';
 import '../i18n';
-import { useEffect, useId, useRef, type ReactNode } from 'react';
-import { X, type LucideIcon } from 'lucide-react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { Maximize2, Minimize2, X, type LucideIcon } from 'lucide-react';
 
 /** Volet non modal : la carte reste utilisable pendant la consultation. */
 export function MapDrawer({ label, shortLabel, icon: Icon, side, open, onOpenChange, children }: {
@@ -15,6 +15,8 @@ export function MapDrawer({ label, shortLabel, icon: Icon, side, open, onOpenCha
   children: ReactNode;
 }) {
   const id = useId();
+  const [expanded, setExpanded] = useState(false);
+  const resizeLabel = localize(expanded ? "Réduire : {{v0}}" : "Agrandir : {{v0}}", { v0: label });
   const trigger = useRef<HTMLButtonElement>(null);
   const content = useRef<HTMLDivElement>(null);
   const restoreFocus = useRef(false);
@@ -33,7 +35,7 @@ export function MapDrawer({ label, shortLabel, icon: Icon, side, open, onOpenCha
     onOpenChange(false);
   }
 
-  return <div className={`map-drawer map-drawer-${side}`} data-state={open ? 'open' : 'closed'}>
+  return <div className={`map-drawer map-drawer-${side}`} data-state={open ? 'open' : 'closed'} data-expanded={expanded}>
     <button
       ref={trigger}
       type="button"
@@ -63,6 +65,9 @@ export function MapDrawer({ label, shortLabel, icon: Icon, side, open, onOpenCha
     >
       {/* Le repère et la croix accompagnent la carte dans le rail. */}
       <span aria-hidden="true" className="map-drawer-card-icon"><Icon className="size-5" /></span>
+      <button type="button" className="map-drawer-resize" aria-label={resizeLabel} title={resizeLabel} aria-pressed={expanded} aria-controls={id} onClick={() => setExpanded(value => !value)}>
+        {expanded ? <Minimize2 aria-hidden="true" className="size-4" /> : <Maximize2 aria-hidden="true" className="size-4" />}
+      </button>
       <button type="button" className="map-drawer-close" aria-label={localize("Fermer : {{v0}}", { v0: label })} title={localize("Fermer : {{v0}}", { v0: label })} onClick={close}>
         <X aria-hidden="true" className="size-5" />
       </button>

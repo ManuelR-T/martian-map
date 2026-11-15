@@ -1039,6 +1039,8 @@
   "Terminer la sortie ? Il reste {{count}} activité non cochée._other": "Terminer la sortie ? Il reste {{count}} activités non cochées.",
   "{{count}} camp enregistré_one": "{{count}} camp enregistré",
   "{{count}} camp enregistré_other": "{{count}} camps enregistrés",
+  "Agrandir : {{v0}}": "Agrandir : {{v0}}",
+  "Réduire : {{v0}}": "Réduire : {{v0}}",
   "Terminer la sortie ? Il reste {{v0}} activité{{v1}} non cochée{{v2}}.": "Terminer la sortie ? Il reste {{v0}} activité{{v1}} non cochée{{v2}}.",
   "{{v0}} activité{{v1}}": "{{v0}} activité{{v1}}",
   "Return limit under mission assumptions": "limite de retour selon les hypothèses",
