@@ -27,6 +27,8 @@ SITE_NAMES = ("Skinner Ridge", "Wildcat Ridge", "Amalik")
 
 TREK = "https://trek.nasa.gov/tiles/Mars/EQ"
 MOLA_LAYER = "Mars_MGS_MOLA_ClrShade_merge_global_463m"
+# Offline fallback of the global map: the two level-0 tiles (west and east halves) of the MOLA basemap.
+MOLA_FALLBACK_TILES = {"west": (0, 0, 0), "east": (0, 1, 0)}  # name: zoom, column, row
 HIRISE_LAYER = "JEZ_hirise_soc_006_orthoMosaic_25cm_Eqc_latTs0_lon0_first_dd"
 MOLA_CAPABILITIES_URL = f"{TREK}/{MOLA_LAYER}/1.0.0/WMTSCapabilities.xml"
 MOLA_TILE_TEMPLATE = f"{TREK}/{MOLA_LAYER}/1.0.0/default/default028mm/{{z}}/{{y}}/{{x}}.jpg"
