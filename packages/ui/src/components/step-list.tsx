@@ -101,16 +101,15 @@ export function StepListItem({
               type="button"
               aria-pressed={selected}
               onClick={onSelect}
-              // La zone activable couvre toute la ligne de l'étape, pas seulement son nom.
-              className="text-left font-semibold after:absolute after:inset-0 after:content-['']"
+              // Keep a touch-sized title without an overlay over embedded controls.
+              className="min-h-11 text-left font-semibold"
             >
               {localize(heading)}
             </button>
           ) : (
             <p className="font-semibold">{localize(heading)}</p>
           )}
-          {/* Keep embedded controls above the title's stretched click target. */}
-          {description ? <div className="relative z-10 text-sm text-muted-foreground">{localize(description)}</div> : null}
+          {description ? <div className="text-sm text-muted-foreground">{localize(description)}</div> : null}
         </div>
         {actions ? <div className="relative z-10 flex shrink-0 items-center gap-1">{localize(actions)}</div> : null}
       </div>

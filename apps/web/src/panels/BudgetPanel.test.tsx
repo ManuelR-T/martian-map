@@ -6,7 +6,7 @@ import { act, useEffect, type Dispatch } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { IDBFactory } from 'fake-indexeddb';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { exampleCamps, regions, type Catalog, type DataManifest } from '@marps/data';
+import { detailedRegions, exampleCamps, type Catalog, type DataManifest } from '@marps/data';
 import { calculateMissionBudget, createEmptyMission, type Mission } from '@marps/mission-core';
 import { PlannerProvider, usePlannerDispatch } from '../state/PlannerProvider';
 import type { PlannerAction } from '../state/planner';
@@ -14,9 +14,10 @@ import { MissionDatabase } from '../storage/missionDatabase';
 import { loadMissionDraft, saveMissionDraft } from '../storage/missionDraft';
 import { BudgetPanel } from './BudgetPanel';
 import { MissionEditor } from './MissionEditor';
+import { setLanguage } from '../i18n';
 
 const manifest = JSON.parse(readFileSync(resolve(fileURLToPath(import.meta.url), '../../../public/data/manifest.json'), 'utf8')) as DataManifest;
-const catalog: Catalog = { manifest, regions, datasets: manifest.datasets, sites: manifest.sites, coverage: manifest.regions };
+const catalog: Catalog = { manifest, regions: detailedRegions(manifest.regions), datasets: manifest.datasets, sites: manifest.sites, coverage: manifest.regions };
 const load = async () => catalog;
 const demo: Mission = { ...createEmptyMission('jezero', 'demo'), name: 'Mission de démonstration', missionType: 'sampling', camp: exampleCamps[0]!,
   parameters: { availableSeconds: 360 * 60, speedMetresPerSecond: 0.5, reserveSeconds: 60 * 60 },
@@ -61,7 +62,7 @@ beforeEach(() => {
   window.localStorage.clear(); vi.stubGlobal('indexedDB', new IDBFactory()); vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);
   container = document.createElement('div'); document.body.append(container);
 });
-afterEach(async () => { await act(async () => root?.unmount()); container.remove(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+afterEach(async () => { await act(async () => root?.unmount()); container.remove(); setLanguage('fr'); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 it('reproduit la démo : marge +32,3 min, dépassement −17,7 min puis adaptation à +27,3 min', async () => {
   await mount();
@@ -150,6 +151,9 @@ it('ne calcule aucun budget pour une sortie absente ou la vue globale', async ()
   await mount(demo, false);
   expect(panel().textContent).toContain('Pas de budget hors du secteur détaillé');
   expect(panel().querySelector('[data-slot="budget-breakdown"]')).toBeNull();
+  await send({ type: 'regionOpened', regionId: 'gale' });
+  expect(panel().textContent).toContain('Pas de budget hors du secteur détaillé');
+  expect(panel().querySelector('[data-slot="budget-breakdown"]')).toBeNull();
   await send({ type: 'workspaceChanged', workspace: 'mission' });
   expect(panel().textContent).toContain('Aucune sortie en cours');
   expect(panel().querySelector('[data-slot="budget-breakdown"]')).toBeNull();
@@ -162,4 +166,18 @@ it('affiche les petits dépassements sans les arrondir à zéro, même avec une 
   expect(value('Marge après réserve')).toBe('−0,001 min');
   expect(panel().querySelector('[role="alert"]')?.textContent).toContain('Dépassement de 0,001 min');
   expect(panel().innerHTML).not.toMatch(/NaN|Infinity/);
+});
+
+it('switches budget labels, numeric formatting and overrun alerts between French and English', async () => {
+  await mount();
+  await act(async () => setLanguage('en'));
+  expect([...container.querySelectorAll('h2')].some(heading => heading.textContent === 'Time budget')).toBe(true);
+  const breakdown = () => container.querySelector('[data-slot="budget-breakdown"]')!;
+  expect(breakdown().textContent).toContain('Exploration walking');
+  expect(breakdown().textContent).toContain('+32.3 min');
+  expect(breakdown().textContent).not.toContain('Marche d’exploration');
+  await send({ type: 'activityAdded', stepId: 'amalik', activity: { id: 'extra', type: 'sampling', durationMinutes: 50, completed: false } });
+  expect(breakdown().querySelector('[role="alert"]')?.textContent).toContain('Over budget by 17.7 min');
+  await act(async () => setLanguage('fr'));
+  expect(breakdown().querySelector('[role="alert"]')?.textContent).toContain('Dépassement de 17,7 min');
 });

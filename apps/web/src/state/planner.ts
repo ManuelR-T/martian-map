@@ -207,7 +207,7 @@ export function selectMapDataset(state: PlannerState): DatasetDescriptor | null 
     && (global || (dataset.delivery === 'local' && dataset.tileset))) ?? null;
 }
 
-/** No speed, outing, reserve or slope threshold has been supplied in this version. */
+/** Current scenario parameters; a terrain slope threshold is not part of the time model. */
 export function selectMissionAssumptions(state: PlannerState) {
   const sites = state.catalog.status === 'ready' ? state.catalog.data.sites : [];
   return {

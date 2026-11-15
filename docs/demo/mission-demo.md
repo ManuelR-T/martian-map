@@ -1,6 +1,6 @@
 # Demonstration mission (#17)
 
-A 6-hour outing around three Perseverance sites. The plan holds, then an added activity causes the budget to exceed the budget, and an adaptation restores the margin. During the exit, a simulated radiation alert orders the return to camp. The mission is prepared in PR #50 (“At Base” and “On Mission” modes). The total durations come from real missions (Apollo and NASA BASALT tests). The division of a stop into tasks is a hypothesis of the team.
+A 6-hour outing around three Perseverance sites. The plan fits, an added activity exceeds the budget, and an adaptation restores the margin. During the outing, a simulated radiation alert orders a return to camp. Apollo and NASA BASALT provide analog context; the exact durations, speed and reserve below are team assumptions, not measured human performance at Jezero.
 
 ## Settings
 
@@ -10,7 +10,7 @@ A 6-hour outing around three Perseverance sites. The plan holds, then an added a
 | Reserve | 60 mins | Artemis III requires a reserve for each outing, without giving the duration. 60 min is a team choice. |
 | Walking speed | 0.5 m/s (1.8 km/h) | Application default. The team's hypothesis: no open source gives a walking speed in a suit on Mars. |
 | Camp | “Jezero Alpha — simulation”, 77.400° E, 18.450° N | Fictitious camp from the application catalog. Each stop is less than 640 m from camp; Artemis III limits 2 km from the lander. |
-| Duration of a stop | 75 mins | Apollo 17 planned stops of 30 to 66 minutes. BASALT made 2 to 3 stops per 4-hour outing. 75 min remains in this range. |
+| Duration of a stop | 75 mins | Team assumption for the demo. The cited Apollo 17 stops of 30–66 min and BASALT phases provide analog context; they do not validate a 75 min stop on Mars. |
 
 ## Course
 
@@ -28,7 +28,7 @@ The return is displayed separately but counted only once in the walk.
 
 ## Unfolded
 
-Margin = field time − on − stops − reserve.
+Margin = available field time − walking (return included) − planned activities − reserve.
 
 | Step | What the crew does | Stops | Margin |
 | --- | --- | --- | --- |
@@ -44,7 +44,7 @@ Values rounded to two decimals: walking 42.67 min, margins +32.33, −17.67 and
 precision until display. `apps/web/src/panels/BudgetPanel.test.tsx` reproduces
 these three stages using the manifest positions and Jezero Alpha camp.
 
-## Why this scenario is realistic
+## Analog context and its limits
 
 - **Tasks are taking longer than expected.** On Apollo 14, they took 23% longer than planned and the first exit exceeded by about 30 min. The crew caught up by reducing their travel. He considered a margin of 25 to 30% on each task desirable.
 - **In the field, it's slower than in training.** Tasks took about 40% longer on Apollo 15 and 70% longer on Apollo 16. A single double core took 6.7-7.2 min on Apollo 15.
@@ -52,7 +52,7 @@ these three stages using the manifest positions and Jezero Alpha camp.
 
 ## Team hypotheses
 
-- The distribution of a 75 min stop into tasks. Only total downtimes are sourced.
+- The 75 min stop and its distribution into tasks are assumptions. The analog sources do not establish the duration of a human activity at a Jezero site.
 - The field time of 360 min, with 1 hour to exit and return (optimistic compared to the 1.5 to 2 hours of Artemis III), the reserve of 60 min, the speed of 0.5 m/s (1.8 km/h) and the position of the camp.
 - The 50 min of the 2nd sampling: this is an entire phase of BASALT, not a measurement taken on this site.
 - Lunar sources and tests on Earth are transposed to Mars by analogy.
