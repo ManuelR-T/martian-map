@@ -1,5 +1,5 @@
 import { IDBFactory } from 'fake-indexeddb';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { createEmptyMission, missionReducer } from '@marps/mission-core';
 import { MissionDatabase } from './missionDatabase';
 
@@ -28,6 +28,26 @@ describe('base locale IndexedDB', () => {
     await expect(db.saveMission({ ...m, parameters: { ...m.parameters, speedMetresPerSecond: 0 } })).rejects.toThrow('Mission invalide');
     expect(await db.missions()).toEqual([]);
   });
+});
+
+it('signale IndexedDB indisponible sans planter à la construction et permet une nouvelle tentative', async () => {
+  vi.stubGlobal('indexedDB', undefined);
+  try {
+    const db = new MissionDatabase();
+    await expect(db.activeMission()).rejects.toThrow();
+    vi.stubGlobal('indexedDB', new IDBFactory());
+    expect(await db.activeMission()).toBeNull();
+  } finally { vi.unstubAllGlobals(); }
+});
+
+it('signale les écritures refusées et reprend après rétablissement du stockage', async () => {
+  const factory = new IDBFactory();
+  const open = vi.spyOn(factory, 'open').mockImplementationOnce(() => { throw new DOMException('Stockage refusé', 'SecurityError'); });
+  const db = new MissionDatabase(factory);
+  await expect(db.saveMission(createEmptyMission('jezero'))).rejects.toThrow('Stockage refusé');
+  open.mockRestore();
+  await db.saveMission(createEmptyMission('jezero'));
+  expect(await db.missions()).toHaveLength(1);
 });
 
 it('signale une version persistée inconnue au lieu de charger un modèle partiel', async () => {

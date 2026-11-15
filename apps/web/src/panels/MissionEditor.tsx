@@ -5,7 +5,8 @@ import { confirmAction } from '../confirm';
 import { createEmptyMission, missionTypes, validParameters, type MissionType, type ActivityType, type Camp, type Mission, type MissionActivity, type MissionStep } from '@marps/mission-core';
 import { usePlannerDispatch, usePlannerState } from '../state/PlannerProvider';
 import { MissionDatabase, type MissionHistoryEntry } from '../storage/missionDatabase';
-import { missionMatchesCatalog } from '../state/planner';
+import { withDataReferences } from '../storage/missionDraft';
+import { DETAILED_REGION_ID, missionMatchesCatalog } from '../state/planner';
 import { PlanningGate } from './PlanningGate';
 import { CampsManager } from './CampsPanel';
 import { MissionStepsEditor } from './MissionStepsEditor';
@@ -20,7 +21,7 @@ type Action = 'new' | 'template';
 type Tab = 'prepare' | 'camps' | 'saved';
 
 export function MissionEditor({ className, collapsible = true }: { className?: string; collapsible?: boolean }) {
-  const { mission, catalog, runningMission, trackingReady, trackingError } = usePlannerState();
+  const { mission, catalog, runningMission, trackingReady, trackingError, draftStatus, draftError } = usePlannerState();
   const dispatch = usePlannerDispatch();
   const [database] = useState(() => new MissionDatabase());
   const [camps, setCamps] = useState<Camp[]>([]);
@@ -45,7 +46,7 @@ export function MissionEditor({ className, collapsible = true }: { className?: s
   }, [database]);
   useEffect(() => {
     let active = true;
-    const load = () => { if (active) void refresh().catch(() => { if (active) setStatus('Impossible de charger la base locale. Réessayez.'); }); };
+    const load = () => { if (active) void refresh().catch((error: unknown) => { if (active) setStatus(`Impossible de charger la base locale. ${error instanceof Error ? error.message : ''} Réessayez.`); }); };
     load(); window.addEventListener(baseRecordsChanged, load);
     return () => { active = false; window.removeEventListener(baseRecordsChanged, load); };
   }, [refresh]);
@@ -54,7 +55,7 @@ export function MissionEditor({ className, collapsible = true }: { className?: s
     try { await operation(); } catch (error) { setStatus(error instanceof Error ? error.message : 'Échec de la sauvegarde locale.'); }
     finally { setBusy(false); }
   };
-  const canLeave = async () => (!parametersDirty && JSON.stringify(mission) === JSON.stringify(baseline) && name === baseline.name)
+  const canLeave = async () => (!draftError && !parametersDirty && JSON.stringify(mission) === JSON.stringify(baseline) && name === baseline.name)
     || confirmAction('Abandonner les modifications non enregistrées ?', { confirmLabel: 'Abandonner', cancelLabel: 'Continuer la préparation', destructive: true });
   const replaceTracking = () => confirmAction('Remplacer le suivi précédent par cette nouvelle sortie ? Son historique sera conservé.', { confirmLabel: 'Remplacer le suivi' });
   const remove = async (label: string, operation: () => Promise<void>) => {
@@ -94,6 +95,7 @@ export function MissionEditor({ className, collapsible = true }: { className?: s
   const content = (
     <div role="tabpanel" id={`${tabsId}-panel`} aria-labelledby={`${tabsId}-${tab}`} className="grid gap-3 text-sm">
     <p role="status" className="empty:hidden">{status}</p>
+    {draftError ? <p role="alert">{draftError} La sauvegarde d’origine est conservée jusqu’à son remplacement explicite.</p> : <p role="status" className="empty:hidden text-xs">{draftStatus}</p>}
     {trackingError && <div role="alert"><p>{trackingError}</p><Button variant="outline" onClick={() => dispatch({ type: 'trackingRequested' })}>Réessayer le chargement du suivi</Button></div>}
     {tab === 'saved' && <div className="grid gap-4">
       <section className="grid gap-2" aria-label="Missions">
@@ -135,6 +137,9 @@ export function MissionEditor({ className, collapsible = true }: { className?: s
     </div>}
     {tab === 'prepare' && <fieldset disabled={busy} className="grid min-w-0 gap-3">
       <p className="font-semibold">{action === 'template' ? 'Modèle réutilisable' : 'Nouvelle mission'} · Étape {stage} sur 3</p>
+      <Button className="justify-self-start" variant="outline" onClick={async () => {
+        if (await confirmAction('Réinitialiser la préparation ? Les missions enregistrées et le suivi seront conservés.', { confirmLabel: 'Réinitialiser', destructive: true })) open(createEmptyMission(DETAILED_REGION_ID, uid()), 'new');
+      }}>Réinitialiser la préparation</Button>
       {action === 'template' && <Button className="justify-self-start" variant="outline" onClick={() => void openBlank('new')}>Préparer une mission à la place</Button>}
       {/* A stage already passed is a button: no need to step back one screen at a time. */}
       <ol className="grid gap-1 border-l-2 border-mars pl-3 text-xs" aria-label="Progression de la préparation">
@@ -153,7 +158,7 @@ export function MissionEditor({ className, collapsible = true }: { className?: s
           if (name === missionTypes[mission.missionType ?? 'reconnaissance'] || name === 'Nouvelle mission') setName(missionTypes[type]);
           dispatch({ type: 'missionTypeChanged', missionType: type });
         }}>{Object.entries(missionTypes).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-        <label>Nom proposé, modifiable<input className={field} value={name} onChange={event => setName(event.target.value)} required maxLength={120} pattern=".*\S.*" /></label>
+        <label>Nom proposé, modifiable<input className={field} value={name} onChange={event => { setName(event.target.value); dispatch({ type: 'missionRenamed', name: event.target.value.trim() }); }} required maxLength={120} pattern=".*\S.*" /></label>
         <Button type="submit">Continuer : camp et parcours</Button>
       </form>}
       {stage === 2 && <>
@@ -178,11 +183,17 @@ export function MissionEditor({ className, collapsible = true }: { className?: s
         {action === 'new' && (!mission.camp || !mission.steps.length) && <p>Choisissez un camp et ajoutez au moins une étape pour continuer.</p>}
         <Button disabled={action === 'new' && (!mission.camp || !mission.steps.length)} onClick={() => setStage(3)}>Continuer : vérifier la mission</Button>
       </>}
-      {stage === 3 && <form className="grid gap-3" onChange={() => { setParametersDirty(true); setPersisted(null); }} onSubmit={event => {
+      {stage === 3 && <form className="grid gap-3" onChange={event => {
+        setParametersDirty(true); setPersisted(null);
+        const data = new FormData(event.currentTarget);
+        const parameters = { availableSeconds: number(data, 'available') * 60, reserveSeconds: number(data, 'reserve') * 60, speedMetresPerSecond: number(data, 'speed') };
+        if (validParameters(parameters)) dispatch({ type: 'parametersChanged', parameters });
+      }} onSubmit={event => {
         const data = form(event);
         const parameters = { availableSeconds: number(data, 'available') * 60, reserveSeconds: number(data, 'reserve') * 60, speedMetresPerSecond: number(data, 'speed') };
         if (!validParameters(parameters)) { setStatus('Durées finies et positives ou nulles, vitesse strictement positive ; la réserve ne doit pas dépasser la durée disponible.'); return; }
-        const value = { ...mission, id: mission.id === 'draft' ? uid() : mission.id, name: name.trim(), parameters };
+        if (catalog.status !== 'ready') return;
+        const value = withDataReferences({ ...mission, id: mission.id === 'draft' ? uid() : mission.id, name: name.trim(), parameters }, catalog.data);
         void run(async () => {
           if (action === 'template') await database.saveTemplate(value); else await database.saveMission(value);
           dispatch({ type: 'missionOpened', mission: value }); setBaseline(value); setName(value.name); setParametersDirty(false); setPersisted(value);

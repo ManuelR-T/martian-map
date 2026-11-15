@@ -1,6 +1,7 @@
 import { scienceSources, siteSheets, type Catalog, type DatasetDescriptor, type RegionDefinition } from '@marps/data';
 import { createEmptyMission, missionReducer, isMission, type MissionAction, type Mission } from '@marps/mission-core';
 import { siteWorkOf, siteWorkReducer, type SiteWorkAction } from '../sites/siteWork';
+import { withDataReferences } from '../storage/missionDraft';
 
 /** Région détaillée du MVP ; la carte globale ne sert qu'à s'orienter. */
 export const DETAILED_REGION_ID = 'jezero';
@@ -20,6 +21,8 @@ export interface PlannerState {
   readonly trackingRequest: number;
   readonly trackingError: string | null;
   readonly trackingStatus: string;
+  readonly draftStatus: string;
+  readonly draftError: string | null;
   readonly view: MapView;
   readonly catalog: Resource<Catalog>;
   /** Incrémenté à chaque (re)chargement demandé ; déclenche l'effet de chargement. */
@@ -37,6 +40,7 @@ export type PlannerAction =
   | { readonly type: 'trackingRequested' }
   | { readonly type: 'trackingFailed'; readonly request: number; readonly message: string }
   | { readonly type: 'trackingStatusChanged'; readonly message: string }
+  | { readonly type: 'draftStatusChanged'; readonly message: string }
   | { readonly type: 'activityToggled'; readonly stepId: string; readonly activityId: string }
 
   | { readonly type: 'viewChanged'; readonly view: MapView }
@@ -55,6 +59,8 @@ export const initialPlannerState: PlannerState = {
   trackingRequest: 0,
   trackingError: null,
   trackingStatus: 'Chargement du suivi…',
+  draftStatus: '',
+  draftError: null,
   view: 'global',
   catalog: { status: 'loading' },
   catalogRequest: 0,
@@ -64,6 +70,8 @@ export const initialPlannerState: PlannerState = {
 
 export function plannerReducer(state: PlannerState, action: PlannerAction): PlannerState {
   switch (action.type) {
+    case 'draftStatusChanged':
+      return { ...state, draftStatus: action.message };
     case 'workspaceChanged':
       return { ...state, workspace: action.workspace, view: action.workspace === 'mission' ? 'region' : state.view, selectedSiteId: null };
     case 'trackingRequested':
@@ -85,8 +93,8 @@ export function plannerReducer(state: PlannerState, action: PlannerAction): Plan
       return started === opened ? state : started;
     }
     case 'missionStarted': {
-      if (state.workspace !== 'base' || !state.trackingReady || !state.mission.camp || !state.mission.steps.length || !missionMatchesCatalog(state.mission, state.catalog) || !action.id.trim() || selectPlanningStatus(state) !== 'ready') return state;
-      const runningMission: Mission = { ...state.mission, id: action.id,
+      if (state.catalog.status !== 'ready' || state.workspace !== 'base' || !state.trackingReady || !state.mission.camp || !state.mission.steps.length || !missionMatchesCatalog(state.mission, state.catalog) || !action.id.trim() || selectPlanningStatus(state) !== 'ready') return state;
+      const runningMission: Mission = { ...withDataReferences(state.mission, state.catalog.data), id: action.id,
         steps: state.mission.steps.map(step => ({ ...step, activities: step.activities.map(a => ({ ...a, completed: false })) })),
         siteWork: Object.fromEntries(Object.entries(state.mission.siteWork).map(([id, work]) => [id, { ...work, doneTaskIds: [] }])) };
       return { ...state, workspace: 'mission', runningMission, selectedSiteId: null };
@@ -104,7 +112,9 @@ export function plannerReducer(state: PlannerState, action: PlannerAction): Plan
     case 'catalogLoaded':
       // Une réponse d'un chargement remplacé depuis ne doit pas écraser l'état courant.
       if (action.request !== state.catalogRequest) return state;
-      return { ...state, catalog: { status: 'ready', data: action.catalog } };
+      return { ...state, catalog: { status: 'ready', data: action.catalog },
+        draftError: state.draftError ?? (missionMatchesCatalog(state.mission, { status: 'ready', data: action.catalog }) ? null
+          : 'La préparation locale référence un site manquant ou un emplacement incompatible avec le catalogue. Réinitialisez la préparation pour continuer.') };
     case 'catalogFailed':
       if (action.request !== state.catalogRequest) return state;
       return { ...state, catalog: { status: 'error', message: action.message } };
@@ -117,7 +127,7 @@ export function plannerReducer(state: PlannerState, action: PlannerAction): Plan
       if (state.workspace !== 'base' || selectPlanningStatus(state) !== 'ready' || !Number.isFinite(action.minutes) || action.minutes < 0) return state;
       return { ...state, mission: { ...state.mission, siteWork: siteWorkReducer(state.mission.siteWork, action) } };
     case 'missionOpened':
-      return state.workspace === 'base' && isMission(action.mission) && missionMatchesCatalog(action.mission, state.catalog) ? { ...state, mission: action.mission } : state;
+      return state.workspace === 'base' && isMission(action.mission) && missionMatchesCatalog(action.mission, state.catalog) ? { ...state, mission: action.mission, draftError: null } : state;
     default: {
       if (state.workspace !== 'base' || selectPlanningStatus(state) !== 'ready') return state;
       const mission = missionReducer(state.mission, action);

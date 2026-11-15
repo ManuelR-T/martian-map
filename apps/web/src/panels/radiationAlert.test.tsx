@@ -33,6 +33,7 @@ const select = async (element: HTMLSelectElement, value: string) => {
 };
 
 beforeEach(async () => {
+  window.localStorage.clear();
   vi.stubGlobal('indexedDB', new IDBFactory()); vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);
   container = document.createElement('div'); document.body.append(container); root = createRoot(container);
   await act(async () => { root.render(<PlannerProvider load={async () => catalog}><Screen /></PlannerProvider>); });
