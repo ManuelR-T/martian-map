@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../i18n';
 import { useId, useRef } from 'react';
 import { CircleAlert, Maximize2, X } from 'lucide-react';
 import { STOP_MINUTES_CHOICES, type SiteDescriptor, type SiteSheet } from '@marps/data';
@@ -13,7 +15,7 @@ export interface SitePickerProps {
 /** Remplace la carte (#8) : seul moyen d'ouvrir une fiche tant que les sites n'y sont pas cliquables. */
 export function SitePicker({ sites, selectedSiteId, onSelect }: SitePickerProps) {
   return (
-    <div role="group" aria-label="Sites" className="grid grid-cols-3 gap-1.5">
+    <div role="group" aria-label={localize("Sites")} className="grid grid-cols-3 gap-1.5">
       {sites.map((site) => {
         const selected = site.id === selectedSiteId;
         return (
@@ -25,7 +27,7 @@ export function SitePicker({ sites, selectedSiteId, onSelect }: SitePickerProps)
             onClick={() => onSelect(site.id)}
             className="h-11 min-w-0 px-1 text-xs leading-tight whitespace-normal"
           >
-            {site.name}
+            {localize(site.name)}
           </Button>
         );
       })}
@@ -60,27 +62,27 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange, tra
           type="button"
           onClick={() => dialogRef.current?.showModal()}
           className="relative w-24 shrink-0 border"
-          aria-label={`Agrandir la photo à repérer : ${sheet.photo.caption}`}
+          aria-label={localize("Agrandir la photo à repérer : {{v0}}", { v0: sheet.photo.caption })}
         >
           <img src={photoUrl} alt="" width={sheet.photo.width} height={sheet.photo.height} className="block h-auto w-full" />
           <Maximize2 aria-hidden="true" className="absolute right-1 bottom-1 size-5 bg-card/90 p-0.5" />
         </button>
         <div className="grid min-w-0 content-start gap-0.5">
-          <p className="label-caps text-muted-foreground">À rapporter</p>
-          <p className="text-sm leading-snug">{sheet.objective}</p>
+          <p className="label-caps text-muted-foreground">{localize("À rapporter")}</p>
+          <p className="text-sm leading-snug">{localize(sheet.objective)}</p>
         </div>
       </div>
       <p className="text-xs text-muted-foreground">
-        <span className="font-semibold text-foreground">Pourquoi : </span>
-        {sheet.question}
+        <span className="font-semibold text-foreground">{localize("Pourquoi :")} </span>
+        {localize(sheet.question)}
       </p>
       <details className="text-xs text-muted-foreground">
-        <summary className="min-h-11 cursor-pointer py-3 font-semibold">Contexte scientifique et méthode</summary>
-        <p>Déjà fait par le rover : {sheet.roverWork.text}</p>
-        <p className="mt-2">Activités et durées choisies par l’équipe, d’après les procédures Apollo.</p>
+        <summary className="min-h-11 cursor-pointer py-3 font-semibold">{localize("Contexte scientifique et méthode")}</summary>
+        <p>{localize("Déjà fait par le rover :")} {localize(sheet.roverWork.text)}</p>
+        <p className="mt-2">{localize("Activités et durées choisies par l’équipe, d’après les procédures Apollo.")}</p>
       </details>
 
-      <ul aria-label="Tâches" className="m-0 grid list-none p-0">
+      <ul aria-label={localize("Tâches")} className="m-0 grid list-none p-0">
         {sheet.tasks.map((task) => {
           const done = work.doneTaskIds.includes(task.id);
           return (
@@ -95,9 +97,9 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange, tra
                   className="size-5 shrink-0 accent-mars"
                 />
                 <span className={done ? 'min-w-0 flex-1 py-2 text-muted-foreground line-through' : 'min-w-0 flex-1 py-2'}>
-                  {task.label}
+                  {localize(task.label)}
                 </span>
-                <span className="text-sm text-muted-foreground tabular-nums">{task.minutes} min</span>
+                <span className="text-sm text-muted-foreground tabular-nums">{localize(task.minutes)} {localize("min")}</span>
               </label>
             </li>
           );
@@ -105,13 +107,12 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange, tra
       </ul>
       {/* A disabled control says why: tasks are ticked during the walk, the allotted time is set before it. */}
       <p className="text-xs text-muted-foreground">
-        {tracking ? 'La durée allouée se règle à la base, avant la sortie.' : 'Les tâches se cochent pendant la sortie, dans « En mission ».'}
+        {localize(tracking ? localize("La durée allouée se règle à la base, avant la sortie.") : localize("Les tâches se cochent pendant la sortie, dans « En mission »."))}
       </p>
 
       <div className="flex flex-wrap items-center justify-between gap-2">
         <label htmlFor={selectId} className="flex items-center gap-2 text-sm">
-          Alloué
-          <select
+          {localize("Alloué")} <select
             disabled={tracking}
             id={selectId}
             value={work.allottedMinutes}
@@ -120,8 +121,7 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange, tra
           >
             {STOP_MINUTES_CHOICES.map((minutes) => (
               <option key={minutes} value={minutes}>
-                {minutes} min
-              </option>
+                {localize(minutes)} {localize("min")} </option>
             ))}
           </select>
         </label>
@@ -129,12 +129,11 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange, tra
           {shortfallMinutes > 0 ? (
             <span className="inline-flex items-center gap-1 font-semibold text-warning">
               <CircleAlert aria-hidden="true" className="size-4 shrink-0" />
-              Il manque {shortfallMinutes} min
-            </span>
+              {localize("Il manque")} {localize(shortfallMinutes)} {localize("min")} </span>
           ) : remainingTaskMinutes === 0 ? (
-            'Tâches faites'
+            localize("Tâches faites")
           ) : (
-            `Reste ${remainingTaskMinutes} min`
+            localize("Reste {{v0}} min", { v0: remainingTaskMinutes })
           )}
         </p>
       </div>
@@ -147,36 +146,34 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange, tra
       >
         <div className="flex items-center justify-between gap-2 border-b bg-muted px-4 py-2">
           <h3 id={dialogTitleId} className="label-caps">
-            À repérer sur place
-          </h3>
+            {localize("À repérer sur place")} </h3>
           <Button type="button" variant="outline" size="icon" onClick={() => dialogRef.current?.close()} className="size-11">
             <X aria-hidden="true" />
-            <span className="sr-only">Fermer</span>
+            <span className="sr-only">{localize("Fermer")}</span>
           </Button>
         </div>
         <div className="grid gap-4 p-4 md:grid-cols-[3fr_2fr]">
           <figure className="m-0 grid gap-1.5">
             <img src={photoUrl} alt="" width={sheet.photo.width} height={sheet.photo.height} className="h-auto w-full border" />
             <figcaption className="grid gap-0.5">
-              <span>{sheet.photo.caption}</span>
+              <span>{localize(sheet.photo.caption)}</span>
               <span className="text-xs text-muted-foreground">
-                Photo du rover, sol {sheet.photo.sol}. Crédit : {sheet.photo.credit}.
-              </span>
+                {localize("Photo du rover, sol")} {localize(sheet.photo.sol)}{localize(". Crédit :")} {localize(sheet.photo.credit)}{localize(".")} </span>
             </figcaption>
           </figure>
           <div className="grid content-start gap-3 text-sm">
             <p>
-              <span className="font-semibold">Déjà fait par le rover : </span>
-              {sheet.roverWork.text}
+              <span className="font-semibold">{localize("Déjà fait par le rover :")} </span>
+              {localize(sheet.roverWork.text)}
             </p>
             <ul className="m-0 grid list-none gap-2 p-0">
               {sheet.tasks.map((task) => (
                 <li key={task.id}>
-                  <span className="font-semibold">{task.label}</span> ({task.minutes} min). {task.detail}
+                  <span className="font-semibold">{localize(task.label)}</span> {localize("(")}{localize(task.minutes)} {localize("min).")} {localize(task.detail)}
                 </li>
               ))}
             </ul>
-            <p className="text-xs text-muted-foreground">Durées estimées par l'équipe, d'après les procédures Apollo.</p>
+            <p className="text-xs text-muted-foreground">{localize("Durées estimées par l'équipe, d'après les procédures Apollo.")}</p>
           </div>
         </div>
       </dialog>

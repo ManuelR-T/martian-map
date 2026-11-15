@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../i18n';
 import { useEffect, useId, useState } from 'react';
 import { TriangleAlert } from 'lucide-react';
 import {
@@ -70,18 +72,16 @@ function ConditionsView({ conditions, sols, firstSol, wind }: ConditionsViewProp
     <div className="grid gap-3">
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <label htmlFor={solId} className="flex items-center gap-2">
-          Sol
-          <select id={solId} value={sol} onChange={(event) => chooseSol(Number(event.target.value))} className={selectClass}>
+          {localize("Sol")} <select id={solId} value={sol} onChange={(event) => chooseSol(Number(event.target.value))} className={selectClass}>
             {sols.map((candidate) => (
               <option key={candidate} value={candidate}>
-                {candidate}
+                {localize(candidate)}
               </option>
             ))}
           </select>
         </label>
         <label htmlFor={hourId} className="flex items-center gap-2">
-          Heure martienne
-          <select id={hourId} value={hour} onChange={(event) => setHour(Number(event.target.value))} className={selectClass}>
+          {localize("Heure martienne")} <select id={hourId} value={hour} onChange={(event) => setHour(Number(event.target.value))} className={selectClass}>
             {HOURS.map((candidate) => (
               <option key={candidate} value={candidate} disabled={!measured.has(candidate)}>
                 {measured.has(candidate) ? `${candidate} h` : `${candidate} h, indisponible`}
@@ -95,37 +95,35 @@ function ConditionsView({ conditions, sols, firstSol, wind }: ConditionsViewProp
         {now.temperature ? (
           <>
             <span className="heading-display text-4xl font-bold tabular-nums">{formatCelsius(now.temperature.celsius)}</span>{' '}
-            <span className="text-sm text-muted-foreground">à {hour} h</span>
+            <span className="text-sm text-muted-foreground">{localize("à")} {localize(hour)} {localize("h")}</span>
           </>
         ) : (
-          <span className="font-semibold">Température indisponible à {hour} h</span>
+          <span className="font-semibold">{localize("Température indisponible à")} {localize(hour)} {localize("h")}</span>
         )}
       </p>
 
       <TemperatureCurve values={curve} selectedHour={hour} selectable={measured} onSelect={setHour} />
       {curve.some((value) => value === null) ? (
-        <p className="-mt-2 text-xs text-muted-foreground">Zone hachurée : température non mesurée.</p>
+        <p className="-mt-2 text-xs text-muted-foreground">{localize("Zone hachurée : température non mesurée.")}</p>
       ) : null}
 
       <div className="grid gap-1 text-sm">
         {now.temperature ? (
           <p>
-            Mesuré de {formatLmst(now.temperature.firstLmst)} à {formatLmst(now.temperature.lastLmst)}.
-          </p>
+            {localize("Mesuré de")} {formatLmst(now.temperature.firstLmst)} {localize("à")} {formatLmst(now.temperature.lastLmst)}{localize(".")} </p>
         ) : null}
         {/* Le lieu ne dépend pas de la température : une heure avec la seule pression le montre aussi. */}
         {now.location ? (
           <p>
-            Au rover, à {now.location.nearestSite.distanceMetres} m de {now.location.nearestSite.name}.
-          </p>
+            {localize("Au rover, à")} {localize(now.location.nearestSite.distanceMetres)} {localize("m de")} {localize(now.location.nearestSite.name)}{localize(".")} </p>
         ) : null}
         <p className="text-muted-foreground">
-          Pression {now.pressure ? formatPascals(now.pressure.pascals) : 'indisponible'}
+          {localize("Pression")} {localize(now.pressure ? formatPascals(now.pressure.pascals) : 'indisponible')}
         </p>
         <p className="text-muted-foreground">
           {wind.reasonUrl ? (
             <a href={wind.reasonUrl} className="underline">
-              {wind.reason}
+              {localize(wind.reason)}
             </a>
           ) : (
             wind.reason
@@ -133,17 +131,14 @@ function ConditionsView({ conditions, sols, firstSol, wind }: ConditionsViewProp
         </p>
         <p className="flex items-start gap-1.5 font-semibold text-warning">
           <TriangleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-          Mesure passée{series ? ` (${formatMonthYear(series.startUtc)})` : ''}, pas une prévision.
-        </p>
+          {localize("Mesure passée")}{localize(series ? ` (${formatMonthYear(series.startUtc)})` : '')}{localize(", pas une prévision.")} </p>
         <p className="text-muted-foreground">
           <a href={source.url} className="underline">
-            NASA PDS · MEDA
-          </a>
-          {series ? `, ${series.sensor.charAt(0).toLowerCase()}${series.sensor.slice(1)}` : ''}
-          {' · '}
+            {localize("NASA PDS · MEDA")} </a>
+          {localize(series ? `, ${series.sensor.charAt(0).toLowerCase()}${series.sensor.slice(1)}` : '')}
+          {localize(' · ')}
           <a href={pressureSource.url} className="underline">
-            source de la pression
-          </a>
+            {localize("source de la pression")} </a>
         </p>
       </div>
     </div>
@@ -157,7 +152,7 @@ export function ConditionsPanel({ className, collapsible = true }: { className?:
 
   return (
     <Panel
-      title="Conditions au rover"
+      title={localize("Conditions au rover")}
       actions={<ProvenanceBadge status="measured" />}
       collapsible={collapsible}
       floating
@@ -166,9 +161,9 @@ export function ConditionsPanel({ className, collapsible = true }: { className?:
     >
       <PlanningGate loadingTitle="Chargement des conditions" coverageTitle="Pas de mesure hors du secteur détaillé">
         {conditions.status === 'loading' ? (
-          <DataState kind="loading" announce={false} title="Chargement des mesures MEDA" />
+          <DataState kind="loading" announce={false} title={localize("Chargement des mesures MEDA")} />
         ) : conditions.status === 'error' ? (
-          <DataState kind="error" title="Mesures MEDA inaccessibles" description="Vérifiez la connexion, puis rechargez." />
+          <DataState kind="error" title={localize("Mesures MEDA inaccessibles")} description={localize("Vérifiez la connexion, puis rechargez.")} />
         ) : conditions.data && sols[0] !== undefined ? (
           // La clé repart du premier sol si un rechargement change la liste des sols préparés.
           <ConditionsView
@@ -179,7 +174,7 @@ export function ConditionsPanel({ className, collapsible = true }: { className?:
             wind={windStatus(catalog.status === 'ready' ? catalog.data.coverage : undefined)}
           />
         ) : (
-          <DataState kind="empty" title="Aucune mesure préparée" description="Ce secteur n'a pas de mesure MEDA." />
+          <DataState kind="empty" title={localize("Aucune mesure préparée")} description={localize("Ce secteur n'a pas de mesure MEDA.")} />
         )}
       </PlanningGate>
     </Panel>

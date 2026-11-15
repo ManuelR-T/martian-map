@@ -1,102 +1,102 @@
-# Marswalk Planner — fonctionnalités et données vérifiées
+# Marswalk Planner — verified features and data
 
-Vérification du 14 novembre 2026. Équipe d'étudiants SWE, prototype en deux jours. **Les données nécessaires au MVP sont disponibles et des échantillons sont conservés dans le dépôt.** Cela ne signifie pas que les fonctionnalités ou leur intégration navigateur sont déjà réalisées.
+Verification November 14, 2026. SWE student team, prototype in two days. **The data needed for the MVP is available and samples are kept in the repository.** This does not mean that the features or their browser integration are already implemented.
 
-## Périmètre recommandé
+## Recommended perimeter
 
-Un petit secteur du front du delta de Jezero ; trois arrêts : Skinner Ridge, Wildcat Ridge et Amalik. Le départ représente un camp fictif posé par l'utilisateur. Les coordonnées des prélèvements proviennent de NASA, les activités proposées aux astronautes et leur durée sont des choix du scénario.
+A small sector of the Jezero Delta front; three stops: Skinner Ridge, Wildcat Ridge and Amalik. The departure represents a fictitious camp set by the user. The coordinates of the samples come from NASA, the activities proposed to the astronauts and their duration are choices from the scenario.
 
-P0 = socle de démonstration ; P1 = après le socle ; P2 = extension.
+P0 = demonstration base; P1 = after the base; P2 = extension.
 
-| Priorité | Fonctionnalité et résultat attendu | Données et état |
+| Priority | Functionality and expected result | Data and status |
 | --- | --- | --- |
-| P0 | Carte 2D : zoom, déplacement, repères | HiRISE de Jezero via NASA Trek ; XML et trois tuiles PNG téléchargés et décodés. Les deux tuiles couvrant les trois arrêts sont non transparentes. |
-| P0 | Choisir le camp de départ | Clic utilisateur dans le secteur ; position fictive explicitement indiquée. Pas besoin d'une base humaine réelle. |
-| P0 | Afficher trois arrêts scientifiques | GeoJSON NASA des prélèvements téléchargé ; noms, coordonnées, échantillons et types de roche inspectés. Sources JPL pour leur intérêt scientifique. |
-| P0 | Ajouter, supprimer et réordonner les arrêts | État de l'application ; aucune donnée externe supplémentaire. |
-| P0 | Tracer un parcours incluant le retour | Polyligne dessinée ou scénario préparé. Trace historique du rover disponible comme contexte, sans qualification de chemin piéton. Ne pas présenter les segments reliant des points comme un chemin praticable calculé. |
-| P0 | Calculer la distance totale | Coordonnées et rayon martien. Mesurer la polyligne entière, avec le retour ; ne pas utiliser le rayon terrestre par défaut. |
-| P0 | Régler la durée de mission, la vitesse et les temps d'observation | Paramètres du scénario, pas des mesures NASA de déplacement humain. Aucune calibration physiologique validée dans ce travail. |
-| P0 | Afficher temps de marche, temps d'observation, retour et marge | Calcul déterministe à partir du parcours et des paramètres ; réserve explicite, comptée une seule fois. |
-| P0 | Alerter sur un dépassement et recalculer après chaque modification | État calculé ; signifie dépassement du budget choisi, pas prédiction de survie. |
-| P0 | Fiche de chaque arrêt : intérêt, activité proposée, source | Faits sourcés dans NASA/JPL ; activités et durées rédigées par l'équipe. Les photos doivent être associées à leur vrai lieu/date. |
-| P0 | Distinguer observations, calculs et hypothèses | Provenance de chaque donnée, échelle/résolution et date ; conserver le statut inconnu. |
-| P1 | Relief et profil d'altitude du parcours | Grilles d'altitude et de pente figées : DEM HiRISE agrégé à 4 m, DEM CTX 20 m en repli ; les trois arrêts tombent sur des mailles valides. Voir [relief-jezero.md](relief-jezero.md). |
-| P1 | Couche infrarouge nocturne et explication | Mosaïque THEMIS Mars Odyssey à 100 m/pixel ; une tuile couvrant le secteur téléchargée et décodée. Contrastes historiques, pas température actuelle en degrés. |
-| P1 | Sauvegarder/recharger et exporter une fiche de mission | JSON local et fiche imprimable à partir de l'état de l'application. |
-| P1 | Démonstration hors ligne sur le secteur choisi | Figer les fichiers nécessaires ; le DEM est conservé, mais seules quelques tuiles ont été téléchargées. Constituer le cache complet aux zooms choisis et le tester. |
-| P2 | Proposer un chemin selon les pentes | Grilles de pente disponibles (4 m et 20 m), mais il faut construire une grille de coût, fixer des seuils de scénario, tester les obstacles et traiter les lacunes. Même à 4 m, le DEM ne décrit pas chaque obstacle. |
+| P0 | 2D map: zoom, movement, landmarks | HiRISE by Jezero via NASA Trek; XML and three PNG tiles downloaded and decoded. The two tiles covering the three stops are non-transparent. |
+| P0 | Choose the starting camp | User click in the area; fictitious position explicitly indicated. No need for an actual human base. |
+| P0 | Show three scientific stops | GeoJSON NASA samples downloaded; names, contact details, samples and rock types inspected. JPL sources for their scientific interest. |
+| P0 | Add, remove and reorder stops | Application status; no additional external data. |
+| P0 | Trace a route including the return | Drawn polyline or prepared scenario. Historical trace of the rover available as context, without qualification as a pedestrian path. Do not present segments connecting points as a calculated passable path. |
+| P0 | Calculate total distance | Martian coordinates and radius. Measure the entire polyline, including the return; do not use the default earth radius. |
+| P0 | Set mission duration, speed and observation times | Scenario parameters, not NASA measurements of human movement. No physiological calibration validated in this work. |
+| P0 | Show walking time, observation time, return and margin | Deterministic calculation from the route and parameters; explicit reservation, counted only once. |
+| P0 | Alert on an overrun and recalculate after each modification | Calculated state; means exceeding the chosen budget, not predicting survival. |
+| P0 | Information about each stop: interest, proposed activity, source | Facts sourced from NASA/JPL; activities and durations written by the team. Photos must be associated with their true location/date. |
+| P0 | Distinguish observations, calculations and hypotheses | Origin of each data, scale/resolution and date; keep the status unknown. |
+| P1 | Relief and altitude profile of the route | Fixed altitude and slope grids: DEM HiRISE aggregated at 4 m, DEM CTX 20 m in retreat; the three stops fall on valid stitches. See [relief-jezero.md](relief-jezero.md). |
+| P1 | Night infrared layer and explanation | THEMIS Mars Odyssey mosaic at 100 m/pixel; a tile covering the sector downloaded and decoded. Historical contrasts, not current temperature in degrees. |
+| P1 | Save/reload and export a mission sheet | Local JSON and printable form from application state. |
+| P1 | Offline demonstration on the chosen sector | Freeze the necessary files; the DEM is preserved, but only a few tiles have been downloaded. Create the complete cache at the chosen zooms and test it. |
+| P2 | Suggest a path according to the slopes | Slope grids available (4 m and 20 m), but a cost grid must be constructed, scenario thresholds set, obstacles tested and gaps addressed. Even at 4 m, the DEM does not describe every obstacle. |
 
-## Sources et preuves d'accès
+## Sources and proof of access
 
-### Imagerie HiRISE : disponible
+### HiRISE Imaging: available
 
-[Catalogue NASA Trek](https://trek.nasa.gov/tiles/apidoc/trekAPI.html?body=mars).
+[NASA Trek Catalog](https://trek.nasa.gov/tiles/apidoc/trekAPI.html?body=mars).
 
-Couche : `JEZ_hirise_soc_006_orthoMosaic_25cm_Eqc_latTs0_lon0_first_dd`.
+Layer: `JEZ_hirise_soc_006_orthoMosaic_25cm_Eqc_latTs0_lon0_first_dd`.
 
-- [Configuration WMTS](https://trek.nasa.gov/tiles/Mars/EQ/JEZ_hirise_soc_006_orthoMosaic_25cm_Eqc_latTs0_lon0_first_dd/1.0.0/WMTSCapabilities.xml) récupérée intégralement via HTTP 206.
-- Tuiles `12/1627/5857.png` et `12/1628/5857.png` : HTTP 200, images 256 × 256 décodées, couverture des trois points vérifiée par la grille WMTS.
-- En-tête `Access-Control-Allow-Origin: *` observé avec une origine locale.
-- Grille équirectangulaire martienne, 2 × 1 tuiles au niveau 0 ; configurer le système de coordonnées et les distances. L'échantillonnage des tuiles dépend du zoom, même si le produit source est à 25 cm/pixel.
+- [WMTS](https://trek.nasa.gov/tiles/Mars/EQ/JEZ_hirise_soc_006_orthoMosaic_25cm_Eqc_latTs0_lon0_first_dd/1.0.0/WMTSCapabilities.xml) configuration retrieved entirely via HTTP 206.
+- `12/1627/5857.png` and `12/1628/5857.png` tiles: HTTP 200, 256 × 256 images decoded, three-point coverage verified by WMTS grid.
+- Observed `Access-Control-Allow-Origin: *` header with local origin.
+- Martian equirectangular grid, 2 × 1 tiles at level 0; configure the coordinate system and distances. Tile sampling depends on zoom, even if the source product is at 25 cm/pixel.
 
-### Altitudes CTX : disponibles, fichier intégral conservé
+### CTX altitudes: available, full file preserved
 
-[Fiche USGS](https://astrogeology.usgs.gov/search/map/mars_2020_terrain_relative_navigation_ctx_dtm_mosaic) · [GeoTIFF direct](https://planetarymaps.usgs.gov/mosaic/mars2020_trn/CTX/JEZ_ctx_B_soc_008_DTM_MOLAtopography_DeltaGeoid_20m_Eqc_latTs0_lon0.tif).
+[USGS](https://astrogeology.usgs.gov/search/map/mars_2020_terrain_relative_navigation_ctx_dtm_mosaic) file · [GeoTIFF direct](https://planetarymaps.usgs.gov/mosaic/mars2020_trn/CTX/JEZ_ctx_B_soc_008_DTM_MOLAtopography_DeltaGeoid_20m_Eqc_latTs0_lon0.tif).
 
-- HTTP 200, 9 662 387 octets ; GeoTIFF réellement décodé avec `tifffile`.
-- 1 596 colonnes × 1 512 lignes ; valeurs float32 ; pas de 20 m ; toutes les cellules lues sont finies et aucune ne contient la valeur NoData déclarée.
-- Projection équirectangulaire, sphère Mars 2000 de rayon 3 396 190 m, méridien central et parallèle standard à 0°.
-- Emprise calculée à partir du GeoTIFF : environ 77,1605–77,6990°E et 18,2110–18,7212°N. Elle contient les trois arrêts.
-- Des valeurs d'altitude ont été lues aux trois coordonnées. Ce contrôle d'emprise n'est pas une validation indépendante du recalage horizontal ou du datum vertical des sources. Pour le profil, utiliser le même DEM sur tout le tracé, sans mélanger ses valeurs et les altitudes des prélèvements.
-- Un pas de grille de 20 m ne permet pas d'affirmer qu'un sentier est praticable à pied.
+- HTTP 200, 9,662,387 bytes; GeoTIFF actually decoded with `tifffile`.
+- 1,596 columns × 1,512 rows; float32 values; step of 20 m; all cells read are finished and none contain the declared NoData value.
+- Equirectangular projection, Mars 2000 sphere with radius 3,396,190 m, central meridian and standard parallel at 0°.
+- Extent calculated from GeoTIFF: approximately 77.1605–77.6990°E and 18.2110–18.7212°N. It contains the three stops.
+- Altitude values ​​were read at three coordinates. This control of influence is not an independent validation of the horizontal registration or the vertical datum of the sources. For the profile, use the same DEM over the entire route, without mixing its values ​​and the altitudes of the samples.
+- A grid spacing of 20 m does not allow us to say that a path is passable on foot.
 
-La précédente note ne validait pas le téléchargement de MOLA global. Ce résultat porte sur un **autre produit : un DEM local CTX de Jezero**, maintenant téléchargé et inspecté.
+The previous note did not validate the global MOLA download. This result relates to **another product: a local CTX DEM from Jezero**, now downloaded and inspected.
 
-### Arrêts et parcours : disponibles
+### Stops and routes: available
 
-[Prélèvements NASA](https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_SAMPLE_v3.json) · [Positions](https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json) · [Trace](https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_traverse.json).
+[Samples NASA](https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_SAMPLE_v3.json) · [Positions](https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json) · [Trace](https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_traverse.json).
 
-Les trois réponses HTTP 200 ont été décodées. Des extraits sont conservés dans `data/research/`. Voir [le contrôle détaillé des sites](verification-sites-jezero.md) pour les coordonnées et les sources scientifiques. Les arrêts sont dans un diamètre géométrique d'environ 555 m ; cette valeur n'est pas la longueur d'un itinéraire.
+All three HTTP 200 responses have been decoded. Excerpts are kept in `data/research/`. See [detailed site control](verification-sites-jezero.md) for coordinates and scientific sources. The stops are in a geometric diameter of approximately 555 m; this value is not the length of a route.
 
-Le segment historique conservé ne relie pas les trois arrêts. Il faut préparer le parcours du scénario ; il ne doit pas apparaître automatiquement comme une route humaine validée.
+The preserved historic segment does not connect the three stops. You have to prepare the route of the scenario; it should not automatically appear as a validated human route.
 
-### Infrarouge THEMIS : intégré (#22)
+### THEMIS infrared: integrated (#22)
 
-Couche du [catalogue NASA Trek](https://trek.nasa.gov/tiles/apidoc/trekAPI.html?body=mars) : `THEMIS_NightIR_ControlledMosaics_100m_v2_oct2018`, mission Mars Odyssey, mosaïque nocturne à 100 m/pixel.
+[NASA Trek](https://trek.nasa.gov/tiles/apidoc/trekAPI.html?body=mars) catalog layer: `THEMIS_NightIR_ControlledMosaics_100m_v2_oct2018`, Mars Odyssey mission, nighttime mosaic at 100 m/pixel.
 
-Configuration WMTS et tuile `9/203/732.png` récupérées, tuile HTTP 200, PNG 256 × 256 décodé, opaque et non uniforme, CORS `*`. L'échantillon de recherche est dans `data/research/`.
+Retrieved WMTS configuration and `9/203/732.png` tile, HTTP 200 tile, PNG 256 × 256 decoded, opaque and non-uniform, CORS `*`. The research sample is in `data/research/`.
 
-Intégrée par #22 : `pnpm data:prepare` fige les capacités WMTS et les 4 tuiles du niveau 9 (le plus fin, environ 81 m/pixel) qui couvrent toute l'emprise du produit HiRISE, sous `apps/web/public/data/jezero/themis/` (jeu `jezero-themis-night-ir`, environ 220 Ko). Le gabarit officiel contient `1.0.0//{Style}` ; la forme à un seul `/` renvoie les mêmes octets. Au-delà de ±65° de latitude et au niveau 10, Trek répond HTTP 404.
+Integrated by #22: `pnpm data:prepare` freezes the WMTS capacities and the 4 tiles of level 9 (the finest, approximately 81 m/pixel) which cover the entire area of ​​the HiRISE product, under `apps/web/public/data/jezero/themis/` (game `jezero-themis-night-ir`, approximately 220 KB). The official template contains `1.0.0//{Style}`; the single form `/` returns the same bytes. Beyond ±65° latitude and at level 10, Trek responds to HTTP 404.
 
-Ces niveaux de gris ne sont pas des températures. L'USGS décrit ces mosaïques comme des produits 8 bits qualitatifs, étirés et fondus pour l'affichage : ni degrés, ni inertie thermique chiffrée. La nuit, poussière et sable fin se refroidissent vite et paraissent sombres ; roche et sols indurés restent clairs ([USGS](https://stac.astrogeology.usgs.gov/docs/data/mars/themis_controlled_mosaics/)).
+These gray levels are not temperatures. The USGS describes these mosaics as qualitative 8-bit products, stretched and melted for display: no degrees, no encrypted thermal inertia. At night, dust and fine sand cool quickly and appear dark; rock and hardened soils remain clear ([USGS](https://stac.astrogeology.usgs.gov/docs/data/mars/themis_controlled_mosaics/)).
 
-### Géologie détaillée : produit identifié, préparation supplémentaire
+### Detailed geology: product identified, additional preparation
 
 [USGS SIM 3464](https://pubs.usgs.gov/publication/sim3464) · [README](https://pubs.usgs.gov/sim/3464/sim3464_readme.txt) · [Archive SIG](https://pubs.usgs.gov/sim/3464/sim3464_database.zip).
 
-README récupéré (HTTP 200) ; répertoire central du ZIP inspecté par requête partielle (HTTP 206). L'archive de 349 336 873 octets contient une géodatabase et des rasters ; téléchargement complet et conversion non effectués. Le README indique des décalages aléatoires d'environ 100–200 m par rapport à la mosaïque opérationnelle contrôlée. À conserver en extension : ne pas supposer un calage précis avec chaque prélèvement.
+README retrieved (HTTP 200); central directory of the ZIP inspected by partial request (HTTP 206). The 349,336,873 byte archive contains a geodatabase and rasters; complete download and conversion not completed. The README indicates random offsets of approximately 100–200 m from the controlled operational mosaic. To be kept in extension: do not assume precise alignment with each sample.
 
-## Modèle minimal de durée
+## Minimum duration model
 
-Toutes les durées sont en minutes et les distances en kilomètres ; la vitesse est en km/h.
+All times are in minutes and distances in kilometers; speed is in km/h.
 
 ```text
-marche = 60 × distance du parcours complet / vitesse choisie
-observations = somme des durées choisies à chaque arrêt
-marge = durée disponible − marche − observations − réserve choisie
+walking = 60 × total route distance / selected speed
+observations = sum of the selected durations at each stop
+margin = available time − walking − observations − selected reserve
 ```
 
-Le parcours complet inclut le retour au camp. Le retour est affiché séparément dans l'interface mais n'est pas soustrait deux fois. Si un arrêt est supprimé, recalculer aussi le parcours et sa distance. Les durées d'observation permettent de démontrer un dépassement même sur ce petit secteur.
+The complete route includes the return to camp. The return is displayed separately in the interface but is not subtracted twice. If a stop is deleted, also recalculate the route and its distance. The observation times make it possible to demonstrate an exceedance even in this small sector.
 
-L'indicateur reste « marge selon les hypothèses ». Oxygène, dose de radiation, météo locale actuelle et probabilité de survie ne font pas partie du modèle vérifié.
+The indicator remains “margin according to assumptions”. Oxygen, radiation dose, current local weather and survival probability are not part of the verified model.
 
-## Artefacts et prochaine étape
+## Artifacts and next step
 
-- `data/research/jezero-ctx-dem-20m.tif` : vrai raster source, environ 9,7 Mo.
-- `data/research/jezero-hirise-wmts.xml` et `jezero-hirise-*.png` : configuration et trois tuiles source.
-- `data/research/jezero-themis-night-*.png` : une tuile infrarouge.
-- `data/research/perseverance-*-extrait.json` : trois petits extraits NASA.
-- [Manifeste des contrôles](../data/research/marswalk-data-verification.json) : URLs, tailles, empreintes SHA-256, formats et couverture des sites.
+- `data/research/jezero-ctx-dem-20m.tif`: true source raster, approximately 9.7 MB.
+- `data/research/jezero-hirise-wmts.xml` and `jezero-hirise-*.png`: configuration and three source tiles.
+- `data/research/jezero-themis-night-*.png`: an infrared tile.
+- `data/research/perseverance-*-extrait.json`: three small NASA extracts.
+- [Manifest of controls](../data/research/marswalk-data-verification.json): URLs, sizes, SHA-256 fingerprints, formats and site coverage.
 
-Prochain jalon de développement : superposer les trois points au fond HiRISE dans le navigateur, puis faire varier un temps d'observation et vérifier le recalcul de la marge. Aucun rendu navigateur, calculateur applicatif ou test hors ligne complet n'a été réalisé pendant cette vérification des données.
+Next development milestone: superimpose the three points on the HiRISE background in the browser, then vary an observation time and check the recalculation of the margin. No browser rendering, application calculator, or full offline testing was performed during this data verification.

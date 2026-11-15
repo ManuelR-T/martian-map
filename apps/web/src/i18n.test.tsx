@@ -1,0 +1,92 @@
+// @vitest-environment jsdom
+import { act } from 'react';
+import { createRoot } from 'react-dom/client';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { afterEach, expect, it } from 'vitest';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+import ts from 'typescript';
+import { localize, ProvenanceBadge } from '@marps/ui';
+import { findSiteSheet } from '@marps/data';
+import i18n, { detectLanguage, LANGUAGE_KEY, setLanguage } from './i18n';
+import { LanguageSelector } from './LanguageSelector';
+import { formatCoordinate, formatLmst, formatMonthYear } from './format';
+import fr from './locales/fr.json';
+import en from './locales/en.json';
+
+Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
+afterEach(async () => { localStorage.clear(); await i18n.changeLanguage('fr'); });
+
+it('detects browser languages, persists an explicit preference and falls back to French', () => {
+  expect(detectLanguage(undefined, ['en-GB', 'fr'])).toBe('en');
+  expect(detectLanguage(undefined, ['fr-CA', 'en'])).toBe('fr');
+  expect(detectLanguage(undefined, ['de'])).toBe('fr');
+  expect(detectLanguage({ getItem: () => 'fr' }, ['en'])).toBe('fr');
+  expect(detectLanguage({ getItem: () => { throw new Error('denied'); } }, ['en'])).toBe('en');
+});
+
+it('switches through the accessible header selector without a network request', async () => {
+  const host = document.createElement('div');
+  const root = createRoot(host);
+  await act(async () => { root.render(<LanguageSelector />); });
+  const select = host.querySelector('select')!;
+  await act(async () => { select.value = 'en'; select.dispatchEvent(new Event('change', { bubbles: true })); });
+  expect(i18n.language).toBe('en');
+  expect(document.documentElement.lang).toBe('en');
+  expect(localStorage.getItem(LANGUAGE_KEY)).toBe('en');
+  expect(host.textContent).toContain('Language');
+  expect(localize('Calques')).toBe('Layers');
+  await act(async () => { root.unmount(); });
+});
+
+it('localizes coordinates, dates, times, scientific sheets and accessibility labels', async () => {
+  setLanguage('en');
+  expect(formatCoordinate({ latitude: -4.5, longitude: -137.4 })).toBe('4.50° S, 137.40° W');
+  expect(formatMonthYear('2022-07-16T22:18:04Z')).toBe('July 2022');
+  expect(formatLmst('14:20:31')).toBe('14:20');
+  expect(localize(0.5)).toBe('0.5');
+  expect(renderToStaticMarkup(<ProvenanceBadge status="measured" />)).toContain('Measured');
+  const sheet = findSiteSheet('amalik')!;
+  expect(localize(sheet.objective)).not.toBe(sheet.objective);
+  expect(localize('Reste {{v0}} min', { v0: 12 })).toContain('12');
+  const savedStatus = localize('Reste {{v0}} min', { v0: 12 });
+  setLanguage('fr');
+  expect(localize(savedStatus)).toBe('Reste 12 min');
+  expect(formatCoordinate({ latitude: -4.5, longitude: -137.4 })).toBe('4,50° S, 137,40° O');
+  expect(localize('Calques')).toBe('Calques');
+  expect(localize(0.5)).toBe('0,5');
+});
+
+it('requires matching, nonempty bilingual entries with identical interpolation variables', () => {
+  expect(Object.keys(en).sort()).toEqual(Object.keys(fr).sort());
+  for (const [key, value] of Object.entries(fr)) {
+    const translated = (en as Record<string, string>)[key];
+    expect(translated, key).toBeTruthy();
+    expect(translated?.match(/{{\w+}}/g)?.sort() ?? [], key).toEqual(value.match(/{{\w+}}/g)?.sort() ?? []);
+  }
+});
+
+it('requires translations for French source text, including prepared data and site sheets', () => {
+  const catalog = fr as Record<string, string>;
+  function scan(directory: string) {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const path = join(directory, entry.name);
+      if (entry.isDirectory()) { if (entry.name !== 'locales') scan(path); continue; }
+      if (!/\.(tsx?|json)$/.test(path) || path.includes('.test.') || path.endsWith('/i18n.ts')) continue;
+      const content = readFileSync(path, 'utf8');
+      const source = ts.createSourceFile(path, content, ts.ScriptTarget.Latest, true,
+        path.endsWith('.tsx') ? ts.ScriptKind.TSX : path.endsWith('.json') ? ts.ScriptKind.JSON : ts.ScriptKind.TS);
+      function visit(node: ts.Node) {
+        if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
+          const text = node.text;
+          if (/[éèêàçùôîÉÀœ]/.test(text) && !/^https?:|^\.\.?\//.test(text)) {
+            expect(catalog[text], `${path}: ${text}`).toBeDefined();
+          }
+        }
+        ts.forEachChild(node, visit);
+      }
+      visit(source);
+    }
+  }
+  scan('apps/web/src'); scan('apps/web/public'); scan('packages/data/src'); scan('packages/ui/src');
+});

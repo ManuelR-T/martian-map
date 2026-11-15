@@ -1,32 +1,32 @@
-# Distances de mission
+# Mission distances
 
-`mission-core` fournit `groundDistanceMetres`, `polylineDistances` et
-`missionDistances`, sans dépendance cartographique. Les coordonnées sont
-planétocentriques en degrés, longitude positive vers l’est, dans les bornes
-[-180, 180] et [-90, 90].
+`mission-core` provides `groundDistanceMetres`, `polylineDistances` and
+`missionDistances`, without map dependency. The coordinates are
+planetocentric in degrees, positive longitude towards the east, within the limits
+[-180, 180] and [-90, 90].
 
-Le rayon par défaut est **3 396 190 m**, le rayon équatorial utilisé par le
-référentiel sphérique de la carte Jezero et les grilles de relief du manifeste.
-Il ne s’agit pas du rayon moyen de Mars. Un rayon explicite en mètres peut être
-fourni aux fonctions pour un autre référentiel sphérique.
+The default radius is **3,396,190 m**, the equatorial radius used by the
+spherical reference frame of the Jezero map and the relief grids of the manifest.
+This is not the average radius of Mars. An explicit radius in meters can be
+provided to functions for another spherical reference frame.
 
-La formule de haversine mesure le petit arc de grand cercle entre chaque paire
-de sommets consécutifs, y compris à l’antiméridien. Chaque segment reste présent,
-même de longueur nulle. `polylineDistances` ne ferme pas la polyligne.
-`missionDistances` utilise la géométrie de mission : camp, étapes dans l’ordre,
-puis camp. L’exploration comprend tous les segments jusqu’à la dernière étape ;
-le retour est le dernier segment direct vers le camp. Le total inclut le retour
-une seule fois. Sans camp ou sans étape, le résultat est `null`.
+Haversine's formula measures the small arc of a great circle between each pair
+of consecutive summits, including at the antimeridian. Each segment remains present,
+even of zero length. `polylineDistances` does not close the polyline.
+`missionDistances` uses mission geometry: camp, steps in order,
+then camp. The exploration includes all segments until the last step;
+the return is the last direct segment towards the camp. Total includes return
+only once. Without a camp or without a stage, the result is `null`.
 
-Chaque distance de segment et d’agrégat expose `metres` et `kilometres` (sans
-arrondi), pour éviter les conversions implicites dans l’UI et alimenter le
-budget de mission. Le relief et le retour d’urgence utilisent le même calcul.
+Each segment and aggregate distance exposes `metres` and `kilometres` (without
+rounded), to avoid implicit conversions in the UI and feed the
+mission budget. Relief and emergency return use the same calculation.
 
-Il s’agit d’une **distance horizontale estimée**, sans correction d’altitude,
-d’obstacles ou de praticabilité. Aucun calcul 3D n’est ajouté : il nécessiterait
-un profil complet, un datum vertical compatible et une résolution adaptée.
+This is an **estimated horizontal distance**, without altitude correction,
+obstacles or practicability. No 3D calculation is added: it would require
+a complete profile, a compatible vertical datum and a suitable resolution.
 
-Les valeurs terrestres par défaut ne sont jamais utilisées. La documentation
+Earth defaults are never used. Documentation
 [OpenLayers — ol/sphere](https://openlayers.org/en/latest/apidoc/module-ol_sphere.html)
-précise que ses fonctions prennent par défaut le rayon terrestre ; le moteur
-implémente ici son propre calcul avec le rayon martien explicite.
+specifies that its functions take the terrestrial radius by default; the engine
+here implements its own calculation with the explicit Martian radius.

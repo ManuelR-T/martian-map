@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../i18n';
 import { Globe, MapPinned } from 'lucide-react';
 import { SegmentedControl, type SegmentedOption } from '@marps/ui';
 import { usePlannerDispatch, usePlannerState } from '../state/PlannerProvider';
@@ -13,7 +15,7 @@ export function MapViewSelector() {
 
   return (
     <SegmentedControl
-      label="Vue de la carte"
+      label={localize("Vue de la carte")}
       value={state.view}
       options={views}
       onValueChange={(view) => dispatch({ type: 'viewChanged', view })}

@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../i18n';
 import { useId, useRef, type PointerEvent } from 'react';
 import { formatCelsius } from '../format';
 import { curvePath, curveScale, gestureIntent, hourAt } from './curve';
@@ -34,11 +36,11 @@ export function TemperatureCurve({ values, selectedHour, selectable, onSelect }:
     if (selectable.has(hour) && hour !== selectedHour) onSelect(hour);
   };
   const summary = measured.length
-    ? `Température sur le sol : de ${formatCelsius(Math.min(...measured))} à ${formatCelsius(Math.max(...measured))}.`
-    : 'Aucune température mesurée sur ce sol.';
+    ? localize("Température sur le sol : de {{v0}} à {{v1}}.", { v0: formatCelsius(Math.min(...measured)), v1: formatCelsius(Math.max(...measured)) })
+    : localize("Aucune température mesurée sur ce sol.");
 
   return (
-    <svg viewBox={`0 0 ${FRAME.width} ${FRAME.height}`} role="img" aria-label={summary} className="h-auto w-full max-w-md select-none"
+    <svg viewBox={`0 0 ${FRAME.width} ${FRAME.height}`} role="img" aria-label={localize(summary)} className="h-auto w-full max-w-md select-none"
       // Le doigt balaie à l'horizontale ; un geste vertical fait toujours défiler le panneau.
       // Sur l'élément <svg> : Chrome ignore touch-action sur ses formes internes.
       style={{ touchAction: 'pan-y' }}
@@ -53,8 +55,7 @@ export function TemperatureCurve({ values, selectedHour, selectable, onSelect }:
       ))}
       {HOUR_TICKS.map((hour) => (
         <text key={hour} x={scale.x(hour)} y={FRAME.height - 4} textAnchor="middle" fontSize={9} fill="var(--muted-foreground)">
-          {hour} h
-        </text>
+          {localize(hour)} {localize("h")} </text>
       ))}
       {values.map((value, hour) =>
         value === null ? (

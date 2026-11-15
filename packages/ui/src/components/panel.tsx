@@ -1,3 +1,4 @@
+import { localize } from '../localize';
 import { useId, useState, type ComponentProps, type ReactNode } from 'react';
 import { ChevronDown } from 'lucide-react';
 
@@ -76,20 +77,20 @@ export function Panel({
                   aria-hidden="true"
                   className={cn('size-4 shrink-0 text-mars transition-transform duration-200', !open && '-rotate-90')}
                 />
-                {title}
+                {localize(title)}
               </button>
             ) : (
               title
             )}
           </Heading>
           {description && expanded ? (
-            <p className={cn('mt-0.5 text-sm text-muted-foreground', collapsible && 'pl-6')}>{description}</p>
+            <p className={cn('mt-0.5 text-sm text-muted-foreground', collapsible && 'pl-6')}>{localize(description)}</p>
           ) : null}
         </div>
-        {actions ? <div className="relative z-10 flex shrink-0 items-center gap-2">{actions}</div> : null}
+        {actions ? <div className="relative z-10 flex shrink-0 items-center gap-2">{localize(actions)}</div> : null}
       </header>
       <div id={contentId} hidden={!expanded} className={cn('min-h-0 flex-1 p-4', contentClassName)}>
-        {children}
+        {localize(children)}
       </div>
     </section>
   );

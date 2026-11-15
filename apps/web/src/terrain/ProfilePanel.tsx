@@ -1,3 +1,6 @@
+import { locale } from '../i18n';
+import { localize } from '@marps/ui';
+import '../i18n';
 import { useId, type KeyboardEvent, type PointerEvent } from 'react';
 import type { TerrainGrid } from '@marps/data';
 import type { ProfilePoint, SteepPortion } from '@marps/mission-core';
@@ -11,7 +14,7 @@ const THRESHOLD_CHOICES = [5, 10, 15, 20, 25] as const;
 const CHART_WIDTH = 1000;
 const CHART_HEIGHT = 120;
 
-const formatMetres = (metres: number) => `${Math.round(metres).toLocaleString('fr-FR')} m`;
+const formatMetres = (metres: number) => `${Math.round(metres).toLocaleString(locale())} m`;
 
 /** Runs of consecutive points sharing a status, so gaps are drawn as gaps. */
 function runsOf(profile: readonly ProfilePoint[]) {
@@ -38,8 +41,7 @@ export function ProfilePanel({ className, collapsible = true }: { className?: st
 
   const thresholdControl = (
     <label htmlFor={thresholdId} className="flex items-center gap-2 text-sm">
-      Seuil de pente
-      <select
+      {localize("Seuil de pente")} <select
         id={thresholdId}
         value={threshold}
         onChange={(event) => setThreshold(Number(event.target.value))}
@@ -47,11 +49,10 @@ export function ProfilePanel({ className, collapsible = true }: { className?: st
       >
         {THRESHOLD_CHOICES.map((degrees) => (
           <option key={degrees} value={degrees}>
-            {degrees}°
-          </option>
+            {localize(degrees)}{localize("°")} </option>
         ))}
       </select>
-      <span className="text-xs text-muted-foreground">hypothèse</span>
+      <span className="text-xs text-muted-foreground">{localize("hypothèse")}</span>
     </label>
   );
 
@@ -61,24 +62,24 @@ export function ProfilePanel({ className, collapsible = true }: { className?: st
   return (
     <Panel
       floating
-      title="Profil du parcours"
-      description="Parcours de démonstration : les sites en ligne droite, puis retour"
+      title={localize("Profil du parcours")}
+      description={localize("Parcours de démonstration : les sites en ligne droite, puis retour")}
       collapsible={collapsible}
       className={className}
     >
       <PlanningGate loadingTitle="Chargement du relief" coverageTitle="Pas de relief hors du secteur détaillé">
         {!dem ? (
-          <DataState kind="empty" title="Relief indisponible" description="Aucun relief n'est préparé pour ce secteur." />
+          <DataState kind="empty" title={localize("Relief indisponible")} description={localize("Aucun relief n'est préparé pour ce secteur.")} />
         ) : stops.length < 2 ? (
-          <DataState kind="empty" title="Pas de parcours" description="Il faut au moins deux sites pour tracer un profil." />
+          <DataState kind="empty" title={localize("Pas de parcours")} description={localize("Il faut au moins deux sites pour tracer un profil.")} />
         ) : !relief || relief.status === 'loading' ? (
-          <DataState kind="loading" title="Chargement du relief" />
+          <DataState kind="loading" title={localize("Chargement du relief")} />
         ) : relief.status === 'error' ? (
-          <DataState kind="error" title="Relief non chargé" description="Le fichier d'altitudes est inaccessible. Rechargez la page." />
+          <DataState kind="error" title={localize("Relief non chargé")} description={localize("Le fichier d'altitudes est inaccessible. Rechargez la page.")} />
         ) : (
           // The threshold sits with the chart it changes, not in the title bar where it squeezed the description.
           <div className="grid gap-3">
-            {thresholdControl}
+            {localize(thresholdControl)}
             <ProfileChart grid={relief.grid} profile={relief.profile} steep={relief.steep} stops={stops} threshold={threshold} />
           </div>
         )}
@@ -101,7 +102,7 @@ function ProfileChart({ grid, profile, steep, stops, threshold }: ProfileChartPr
   const total = profile.at(-1)?.distanceMetres ?? 0;
   const elevations = profile.flatMap((point) => (point.elevationMetres === null ? [] : [point.elevationMetres]));
   if (total === 0 || elevations.length === 0) {
-    return <DataState kind="empty" title="Profil indisponible" description="Le parcours ne traverse aucune zone mesurée." />;
+    return <DataState kind="empty" title={localize("Profil indisponible")} description={localize("Le parcours ne traverse aucune zone mesurée.")} />;
   }
 
   const low = Math.min(...elevations);
@@ -121,8 +122,8 @@ function ProfileChart({ grid, profile, steep, stops, threshold }: ProfileChartPr
   const focusElevation = focus === null ? null : nearestPoint(profile, focus).elevationMetres;
   const focusText =
     focus === null
-      ? 'aucun point désigné'
-      : `${formatMetres(focus)} du départ, ${focusElevation === null ? 'altitude non mesurée' : `altitude ${formatMetres(focusElevation)}`}`;
+      ? localize("aucun point désigné")
+      : localize("{{v0}} du départ, {{v1}}", { v0: formatMetres(focus), v1: focusElevation === null ? 'altitude non mesurée' : `altitude ${formatMetres(focusElevation)}` });
 
   // Mouse hover, or a finger dragged along the chart: the map shows the same point.
   const designate = (event: PointerEvent<SVGSVGElement>) => {
@@ -154,8 +155,8 @@ function ProfileChart({ grid, profile, steep, stops, threshold }: ProfileChartPr
     <figure className="m-0 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-1">
       <div className="flex min-w-0 gap-2">
         <div className="flex w-16 shrink-0 flex-col justify-between py-1 text-right text-xs text-muted-foreground tabular-nums">
-          <span>{formatMetres(high)}</span>
-          <span>{formatMetres(low)}</span>
+          <span>{localize(formatMetres(high))}</span>
+          <span>{localize(formatMetres(low))}</span>
         </div>
         <svg
           viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
@@ -164,7 +165,7 @@ function ProfileChart({ grid, profile, steep, stops, threshold }: ProfileChartPr
           className="h-28 w-full min-w-0 flex-1 cursor-crosshair touch-pan-y border bg-muted/40 focus-visible:outline-2 focus-visible:outline-ring"
           role="slider"
           tabIndex={0}
-          aria-label="Point du parcours à montrer sur la carte"
+          aria-label={localize("Point du parcours à montrer sur la carte")}
           aria-describedby={descriptionId}
           aria-valuemin={0}
           aria-valuemax={Math.round(total)}
@@ -227,7 +228,7 @@ function ProfileChart({ grid, profile, steep, stops, threshold }: ProfileChartPr
           )}
         </svg>
         <span id={descriptionId} className="sr-only">
-          {`Profil d'altitude sur ${formatMetres(total)}, entre ${formatMetres(low)} et ${formatMetres(high)}. Flèches : déplacer le point sur la carte.`}
+          {localize("Profil d'altitude sur {{v0}}, entre {{v1}} et {{v2}}. Flèches : déplacer le point sur la carte.", { v0: formatMetres(total), v1: formatMetres(low), v2: formatMetres(high) })}
         </span>
       </div>
 
@@ -248,7 +249,7 @@ function ProfileChart({ grid, profile, steep, stops, threshold }: ProfileChartPr
                 transform: share > 90 ? 'translateX(-100%)' : share > 5 ? 'translateX(-50%)' : undefined,
               }}
             >
-              {stop.label}
+              {localize(stop.label)}
             </span>
           );
         })}
@@ -259,28 +260,26 @@ function ProfileChart({ grid, profile, steep, stops, threshold }: ProfileChartPr
           {focus !== null ? (
             <>
               <span aria-hidden="true" className="mr-1 inline-block size-2.5 rotate-45 border-2 border-foreground bg-card align-middle" />
-              Sur la carte : {focusText}.
-            </>
+              {localize("Sur la carte :")} {localize(focusText)}{localize(".")} </>
           ) : (
-            'Touchez le profil pour situer un point sur la carte.'
+            localize("Touchez le profil pour situer un point sur la carte.")
           )}
         </span>
         <span className="tabular-nums" aria-live="polite">
           {steep.length === 0 ? (
-            `Aucune pente au-delà de ${threshold}° sur ${formatMetres(total)}.`
+            localize("Aucune pente au-delà de {{v0}}° sur {{v1}}.", { v0: threshold, v1: formatMetres(total) })
           ) : (
             <>
               <span aria-hidden="true" className="mr-1 inline-block size-3 bg-destructive/25 align-middle" />
-              {steep.length} passage{steep.length > 1 ? 's' : ''} au-delà de {threshold}°, jusqu'à{' '}
-              {Math.round(Math.max(...steep.map((portion) => portion.maxSlopeDegrees)))}°.
-            </>
+              {localize(steep.length)} {localize("passage")}{steep.length > 1 ? 's' : ''} {localize("au-delà de")} {localize(threshold)}{localize("°, jusqu'à")}{' '}
+              {Math.round(Math.max(...steep.map((portion) => portion.maxSlopeDegrees)))}{localize("°.")} </>
           )}
-          {hasNoData ? ' Gris clair : trou dans les mesures.' : null}
-          {leavesCoverage ? ' Gris foncé : hors de la zone couverte par le relief.' : null}
-          {' Hauteur exagérée pour la lisibilité.'}
+          {localize(hasNoData ? localize(" Gris clair : trou dans les mesures.") : null)}
+          {localize(leavesCoverage ? localize(" Gris foncé : hors de la zone couverte par le relief.") : null)}
+          {localize(" Hauteur exagérée pour la lisibilité.")}
         </span>
         <span className="text-xs text-muted-foreground">
-          {grid.dataset.title} · {grid.dataset.source.credit.split(';')[0]}
+          {localize(grid.dataset.title)} {localize("·")} {localize(grid.dataset.source.credit.split(';')[0])}
         </span>
       </figcaption>
     </figure>

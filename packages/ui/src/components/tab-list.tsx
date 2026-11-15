@@ -1,3 +1,4 @@
+import { localize } from '../localize';
 import { useRef, type KeyboardEvent } from 'react';
 
 import { cn } from '../lib/utils';
@@ -40,7 +41,7 @@ export function TabList<Value extends string>({ label, value, options, onValueCh
       ref={list}
       role="tablist"
       data-slot="tab-list"
-      aria-label={label}
+      aria-label={localize(label)}
       onKeyDown={move}
       className={cn('flex w-full items-stretch gap-0.5 border border-input bg-card/70 p-0.5', className)}
     >
@@ -62,7 +63,7 @@ export function TabList<Value extends string>({ label, value, options, onValueCh
               'aria-selected:bg-mars aria-selected:text-mars-foreground aria-selected:shadow-ember',
             )}
           >
-            {option.label}
+            {localize(option.label)}
           </button>
         );
       })}

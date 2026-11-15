@@ -1,26 +1,26 @@
-# Préparation des données
+# Data preparation
 
-Les scripts Python de préparation et leurs dépendances restent dans ce dossier.
-Ils ne sont pas nécessaires pour installer, démarrer ou construire le frontend.
+The preparation Python scripts and their dependencies remain in this folder.
+They are not required to install, start or build the frontend.
 
-- `marps_data/spec.py` : secteur de Jezero, URL amont, crédits, conditions d'usage.
-- `marps_data/prepare.py` : télécharge, découpe et fige les données, puis écrit le manifeste.
-- `marps_data/check.py` : valide hors ligne les données figées.
-- `marps_data/geo.py` : arithmétique de grilles partagée (tuiles WMTS, fenêtre du DEM).
-- `marps_data/terrain.py` : agrégation, pente et relief ombré calculés sur les altitudes.
+- `marps_data/spec.py`: Jezero sector, upstream URL, credits, conditions of use.
+- `marps_data/prepare.py`: downloads, slices and freezes the data, then writes the manifest.
+- `marps_data/check.py`: validates frozen data offline.
+- `marps_data/geo.py`: shared grid arithmetic (WMTS tiles, DEM window).
+- `marps_data/terrain.py`: aggregation, slope and shaded relief calculated on altitudes.
 
-Depuis la racine du dépôt, avec [uv](https://docs.astral.sh/uv/) installé :
+From the root of the repository, with [uv](https://docs.astral.sh/uv/) installed:
 
 ```sh
-pnpm data:prepare   # réseau ; écrit apps/web/public/data
-pnpm data:check     # hors ligne
+pnpm data:prepare   # network required; writes apps/web/public/data
+pnpm data:check     # offline
 pnpm data:test      # pytest
 ```
 
-Pour changer le secteur, les zooms ou une source, modifier `spec.py`, relancer
-`pnpm data:prepare`, puis commiter les données et le manifeste régénérés. Pour
-ajouter une dépendance Python : `uv add --directory tools/data <paquet>==<version>`,
-et commiter `uv.lock`. Voir le README racine, section « Données ».
+To change the sector, zooms or a source, modify `spec.py`, restart
+`pnpm data:prepare`, then commit the regenerated data and manifest. For
+add a Python dependency: `uv add --directory tools/data <paquet>==<version>`,
+and commit `uv.lock`. See the root README, “Data” section.
 
 ## Perseverance history
 

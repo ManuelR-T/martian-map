@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../i18n';
 import { findSiteSheet } from '@marps/data';
 import { DataState, Panel } from '@marps/ui';
 import { SitePicker, SiteSheetView } from '../sites/SiteSheetView';
@@ -17,7 +19,7 @@ export function SiteDetailsPanel({ className, collapsible = true }: { className?
 
   return (
     <Panel
-      title="Fiche de site"
+      title={localize("Fiche de site")}
       collapsible={collapsible}
       floating
       className={className}
@@ -25,7 +27,7 @@ export function SiteDetailsPanel({ className, collapsible = true }: { className?
     >
       <PlanningGate loadingTitle="Chargement des fiches" coverageTitle="Pas de fiche hors du secteur détaillé">
         {workspace === 'mission' && !runningMission ? (
-          <DataState kind="empty" title="Aucune mission en cours" description="Démarrez une mission depuis la base pour suivre les tâches sur les sites." />
+          <DataState kind="empty" title={localize("Aucune mission en cours")} description={localize("Démarrez une mission depuis la base pour suivre les tâches sur les sites.")} />
         ) : <>
         <div className="grid gap-1.5">
           {sites.length > 0 ? (
@@ -46,11 +48,11 @@ export function SiteDetailsPanel({ className, collapsible = true }: { className?
           ) : selectedSiteId ? (
             <DataState
               kind="empty"
-              title="Fiche indisponible"
-              description="Aucune fiche n'existe pour le site sélectionné."
+              title={localize("Fiche indisponible")}
+              description={localize("Aucune fiche n'existe pour le site sélectionné.")}
             />
           ) : (
-            <DataState kind="empty" title="Aucun site sélectionné" description="Choisissez un site pour voir sa fiche." />
+            <DataState kind="empty" title={localize("Aucun site sélectionné")} description={localize("Choisissez un site pour voir sa fiche.")} />
           )}
         </div>
         {selectedSiteId && <SiteProvenance siteId={selectedSiteId} />}

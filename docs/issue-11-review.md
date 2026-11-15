@@ -1,60 +1,60 @@
-# Vérification de l’issue 11
+# Checking outcome 11
 
-Revue locale du 15 novembre 2026, branche `feat/11-mission-camps-activities`.
-Référence : https://github.com/ManuelR-T/martian-map/issues/11
+Local review from November 15, 2026, branch `feat/11-mission-camps-activities`.
+Reference: https://github.com/ManuelR-T/martian-map/issues/11
 
-Les six critères d’acceptation sont couverts après les corrections de cette revue.
-Aucun défaut bloquant connu dans le périmètre vérifié. Le ticket GitHub n’a pas
-été modifié ni fermé ; les changements restent locaux.
+The six acceptance criteria are covered after the corrections in this review.
+No known blocking faults within the verified scope. The GitHub ticket does not have
+been modified or closed; changes remain local.
 
-## Critères et preuves
+## Criteria and evidence
 
-| Critère | Implémentation | Vérification |
+| Criterion | Implementation | Verification |
 | --- | --- | --- |
-| Types versionnés : région, camp fictif, étapes, géométrie, activités, paramètres, hypothèses | `packages/mission-core/src/mission.ts` : types publics, enveloppe `schemaVersion: 1`, validation des sauvegardes ; géométrie dérivée des étapes pour éviter une géométrie périmée | `mission.test.ts`, `missionDatabase.test.ts` : versions inconnues refusées, aller-retour JSON, migrations et ordre de visite |
-| Camp, étapes libres/catalogue, suppression et réorganisation | Gestion indépendante des camps ; sélection dans la mission ; éditeur des étapes et reducer pur | `mission.test.ts`, `planner.test.ts`, `baseWorkflow.test.tsx` : ajout, suppression, ordre, catalogue, préparation et sauvegarde |
-| Activités photo/observation/prélèvement et durée en minutes | `MissionActivity`, `ActivityEditor`, suivi séparé des visites | Tests des activités indépendantes, durées fractionnaires, coches et refus des durées invalides |
-| Durée, vitesse, réserve, unités et validation | Secondes dans le modèle pour le budget, minutes dans les formulaires, vitesse en m/s ; `validParameters` vérifié à la sauvegarde et dans le reducer | Tests de valeurs négatives, NaN, infinis, vitesse nulle et réserve excessive ; paramètres du formulaire conservés au retour arrière |
-| useReducer + Context, transitions testables sans React | `PlannerProvider.tsx`, `planner.ts`, `missionReducer` indépendant du DOM | Tests unitaires des transitions et tests DOM du parcours utilisateur |
-| Mesures distinctes de la simulation ; édition détaillée limitée à Jezero | Sites scientifiques référencés par identifiant/coordonnées ; camps et hypothèses explicitement fictifs ; `missionMatchesCatalog` protège ajout, ouverture et démarrage | Tests du refus des sites inconnus et des préparations restaurées hors secteur ; moteur pur testé avec une autre région |
+| Versioned types: region, fictional camp, stages, geometry, activities, settings, assumptions | `packages/mission-core/src/mission.ts`: public types, envelope `schemaVersion: 1`, validation of backups; geometry derived from steps to avoid stale geometry | `mission.test.ts`, `missionDatabase.test.ts`: unknown versions denied, JSON round trip, migrations and visit order |
+| Camp, free stages/catalogue, deletion and reorganization | Independent management of camps; selection in the mission; step editor and pure reducer | `mission.test.ts`, `planner.test.ts`, `baseWorkflow.test.tsx`: addition, deletion, order, catalog, preparation and backup |
+| Photo/observation/sampling activities and duration in minutes | `MissionActivity`, `ActivityEditor`, separate monitoring of visits | Tests for independent activities, fractional durations, checkmarks and refusal of invalid durations |
+| Duration, speed, reserve, units and validation | Seconds in the model for the budget, minutes in the forms, speed in m/s; `validParameters` checked in save and in reducer | Tests for negative values, NaN, infinity, zero speed and excess reserve; form parameters preserved on rollback |
+| useReducer + Context, testable transitions without React | `PlannerProvider.tsx`, `planner.ts`, `missionReducer` DOM independent | Unit Testing of Transitions and User Journey DOM Testing |
+| Separate measurements of simulation; detailed edition limited to Jezero | Scientific sites referenced by identifier/contact details; explicitly fictional camps and hypotheses; `missionMatchesCatalog` protects adding, opening and starting | Tests for refusal of unknown sites and preparations restored outside the sector; pure engine tested with another region |
 
-## Défauts corrigés pendant la revue
+## Defects fixed during review
 
-- Les paramètres saisis à la dernière étape étaient perdus au retour arrière.
-  Leur brouillon est maintenant conservé et testé.
-- Changer entre À la base et En mission démontait le formulaire et perdait son
-  étape. La préparation reste montée et masquée pendant le suivi.
-- La première sauvegarde pouvait garder l’identifiant générique `draft`, et
-  continuer après une sauvegarde ne proposait pas clairement une nouvelle
-  mission. Une identité unique et les actions Préparer une autre mission /
-  Créer un autre modèle sont maintenant disponibles.
-- Les limites du secteur et la cohérence des sites étaient contrôlées à l’ajout
-  mais contournables par le chargement d’une sauvegarde. Ouverture et démarrage
-  vérifient maintenant aussi ces contraintes.
-- Restaurer le suivi réécrivait sa date d’historique sans changement utilisateur.
-  La restauration ne déclenche plus une sauvegarde automatique superflue.
-- Une restauration en échec était traitée comme un suivi vide prêt à remplacer.
-  Le démarrage reste maintenant bloqué et une action de nouvelle tentative est
-  proposée. Les réponses de chargements remplacés sont ignorées.
-- Les transitions des fiches acceptaient une tâche inconnue ou une durée
-  d’allocation invalide. Le reducer des fiches les refuse désormais aussi.
-- Sur les petits écrans, les liens des deux espaces disparaissaient avec la
-  navigation du bandeau. Ils restent accessibles dans les réglages compacts.
+- The settings entered in the last step were lost when backtracking.
+Their draft is now preserved and tested.
+- Changing between At Base and On Mission dismantled the form and lost its
+stage. The preparation remains mounted and masked during monitoring.
+- The first backup could keep the generic identifier `draft`, and
+continue after a save did not clearly offer a new
+assignment. A unique identity and actions Prepare another mission /
+Create another template are now available.
+- The boundaries of the sector and the consistency of the sites were checked when adding
+but can be bypassed by loading a save. Opening and starting
+now also check these constraints.
+- Restore tracking rewrote its history date without user change.
+Restoring no longer triggers an unnecessary automatic backup.
+- A failed restore was treated as an empty trace ready to replace.
+The startup now remains stuck and a retry action is
+proposed. Responses from replaced uploads are ignored.
+- Card transitions accepted an unknown task or duration
+invalid allocation. The file reducer now also refuses them.
+- On small screens, the links of the two spaces disappeared with the
+banner navigation. They remain accessible in compact settings.
 
-## Contrôles exécutés
+## Checks executed
 
-- `pnpm lint` : succès.
-- `pnpm typecheck` : succès.
-- `pnpm test` : 216 tests réussis dans 18 fichiers, dont les régressions DOM,
-  le modèle pur, la base IndexedDB simulée et les migrations.
-- `pnpm build` : succès.
-- `git diff --check` : succès.
+- `pnpm lint`: success.
+- `pnpm typecheck`: success.
+- `pnpm test`: 216 tests passed in 18 files, including DOM regressions,
+the pure model, the simulated IndexedDB database and the migrations.
+- `pnpm build`: success.
+- `git diff --check`: success.
 
-Le build signale un bundle JavaScript supérieur au seuil indicatif de 500 kB ;
-cela ne bloque pas la compilation. Les contrôles DOM utilisent jsdom et
-fake-indexeddb : cette revue ne constitue pas une validation visuelle dans un
-navigateur réel ni un essai sur tablette ou matériel d’astronaute.
+The build reports a JavaScript bundle greater than the guideline threshold of 500 kB;
+this does not block compilation. DOM controls use jsdom and
+fake-indexeddb: this review does not constitute visual validation in a
+real browser nor a test on a tablet or astronaut equipment.
 
-Le calcul complet du budget relève de l’issue 14. Le stockage reste local à
-l’appareil, sans synchronisation multi-équipage. Les camps d’exemple sont
-fictifs et le tracé en segments directs ne valide pas la praticabilité du terrain.
+The complete calculation of the budget falls under issue 14. Storage remains local to
+the device, without multi-crew synchronization. The example camps are
+fictitious and the route in direct segments does not validate the passability of the terrain.

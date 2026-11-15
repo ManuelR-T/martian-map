@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../i18n';
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { X, type LucideIcon } from 'lucide-react';
 
@@ -39,20 +41,20 @@ export function MapDrawer({ label, shortLabel, icon: Icon, side, open, onOpenCha
       type="button"
       className="map-drawer-trigger glass"
       hidden={open}
-      aria-label={label}
-      title={label}
+      aria-label={localize(label)}
+      title={localize(label)}
       aria-expanded={open}
       aria-controls={id}
       onClick={() => onOpenChange(!open)}
     >
       <Icon aria-hidden="true" className="size-5 shrink-0" />
-      {shortLabel && <span aria-hidden="true" className="label-caps">{shortLabel}</span>}
+      {shortLabel && <span aria-hidden="true" className="label-caps">{localize(shortLabel)}</span>}
     </button>
     <div
       ref={content}
       id={id}
       role="region"
-      aria-label={label}
+      aria-label={localize(label)}
       tabIndex={-1}
       inert={!open}
       aria-hidden={!open}
@@ -63,10 +65,10 @@ export function MapDrawer({ label, shortLabel, icon: Icon, side, open, onOpenCha
     >
       {/* Hors de la zone défilante : le repère et la croix restent visibles dans un long formulaire. */}
       <span aria-hidden="true" className="map-drawer-card-icon"><Icon className="size-5" /></span>
-      <button type="button" className="map-drawer-close" aria-label={`Fermer : ${label}`} title={`Fermer : ${label}`} onClick={close}>
+      <button type="button" className="map-drawer-close" aria-label={localize("Fermer : {{v0}}", { v0: label })} title={localize("Fermer : {{v0}}", { v0: label })} onClick={close}>
         <X aria-hidden="true" className="size-5" />
       </button>
-      <div ref={scroller} className="map-drawer-scroll">{children}</div>
+      <div ref={scroller} className="map-drawer-scroll">{localize(children)}</div>
     </div>
   </div>;
 }

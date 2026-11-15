@@ -36,7 +36,7 @@ it('toggles real map layers, reads geology at the centre and cleans up subscript
     const read = [...host.querySelectorAll('button')].find(button => button.textContent?.includes('Lire au centre'))!;
     await act(async () => read.click());
     expect(host.querySelector('[aria-live=polite]')?.textContent).not.toContain('Aucune unité');
-    expect(host.textContent).toContain('77.58° E');
+    expect(host.textContent).toContain('77,58° E');
     await act(async () => switches[1]!.click());
     expect(layers[1]!.getVisible()).toBe(true);
     expect((layers[1] as ImageLayer<ImageStatic>).getSource()?.getImageExtent()).toEqual([-180, -60, 180, 60]);

@@ -1,3 +1,4 @@
+import { localize } from '../localize';
 import type { ComponentProps } from 'react';
 import { CircleCheck, TriangleAlert } from 'lucide-react';
 
@@ -72,11 +73,11 @@ export function BudgetBreakdown({
       >
         <p className="label-caps flex items-center gap-2">
           <MarginIcon aria-hidden="true" className="size-5 shrink-0" />
-          {margin.message}
+          {localize(margin.message)}
         </p>
         <p className="numeral-display mt-2 text-4xl">
-          <span className="sr-only">{marginLabel} : </span>
-          {margin.value}
+          <span className="sr-only">{localize(marginLabel)} {localize(":")} </span>
+          {localize(margin.value)}
         </p>
       </div>
 
@@ -113,18 +114,18 @@ export function BudgetBreakdown({
                 aria-hidden="true"
                 className={cn('size-4 shrink-0 border border-primary text-primary', patternClasses[line.pattern])}
               />
-              {line.label}
+              {localize(line.label)}
             </dt>
-            <dd className="m-0 font-semibold tabular-nums">{line.value}</dd>
+            <dd className="m-0 font-semibold tabular-nums">{localize(line.value)}</dd>
           </div>
         ))}
         <div className="flex items-center justify-between gap-3 border-t pt-2.5">
-          <dt>{marginLabel}</dt>
-          <dd className={cn('m-0 font-semibold tabular-nums', over && 'text-destructive')}>{margin.value}</dd>
+          <dt>{localize(marginLabel)}</dt>
+          <dd className={cn('m-0 font-semibold tabular-nums', over && 'text-destructive')}>{localize(margin.value)}</dd>
         </div>
         <div className="flex items-center justify-between gap-3">
-          <dt className="text-muted-foreground">{availableLabel}</dt>
-          <dd className="m-0 font-semibold tabular-nums">{availableValue}</dd>
+          <dt className="text-muted-foreground">{localize(availableLabel)}</dt>
+          <dd className="m-0 font-semibold tabular-nums">{localize(availableValue)}</dd>
         </div>
       </dl>
     </div>

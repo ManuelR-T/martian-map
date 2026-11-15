@@ -1,62 +1,62 @@
-# Checklist de validation de la démo (#17)
+# Demo validation checklist (#17)
 
-À dérouler quand #11, #12, #13, #14, #15 et #16 sont fusionnés. Les valeurs attendues viennent de [la mission de démonstration](mission-demo.md). Une case cochée veut dire « vu dans l'application », pas « prévu ».
+To unfold when #11, #12, #13, #14, #15 and #16 are merged. The expected values ​​come from [the demonstration mission](mission-demo.md). A checked box means “seen in the application”, not “expected”.
 
-## Où tester
+## Where to test
 
-| Écran | Taille | Pourquoi |
+| Screen | Size | Why |
 | --- | --- | --- |
-| Production : <https://marps.vercel.app/> | 1920 × 1080 | Écran de présentation, projeté devant le jury. |
-| Production : <https://marps.vercel.app/> | 1024 × 768 | Tablette en paysage, l'usage visé dans l'habitat. |
-| Développement : <https://martian-map-dev.vercel.app/> | Les deux tailles | Répétition avant la mise en production. |
+| Production: <https://marps.vercel.app/> | 1920 × 1080 | Presentation screen, projected in front of the jury. |
+| Production: <https://marps.vercel.app/> | 1024 × 768 | Tablet in landscape, intended use in the home. |
+| Development: <https://martian-map-dev.vercel.app/> | Both sizes | Rehearsal before putting into production. |
 
-## Parcours de la démo
+## Demo walkthrough
 
-| ✓ | Étape | Attendu |
+| ✓ | Step | Expected |
 | --- | --- | --- |
-| [ ] | Ouvrir l'application | Carte globale MOLA ; l'indicateur hors ligne dit où en est l'installation. |
-| [ ] | Entrer dans Jezero | Imagerie HiRISE ; limite du secteur de mission visible ; retour possible à la vue globale. |
-| [ ] | Sortir du secteur | Message « imagerie uniquement » ; ni relief ni planification. |
-| [ ] | Poser le camp à 77,4095° E, 18,4513° N | Camp affiché comme position fictive. |
-| [ ] | Ajouter Skinner Ridge, Wildcat Ridge, Amalik | Même ordre sur la carte et dans la liste. |
-| [ ] | Régler 360 min, réserve 60 min, 2 km/h, arrêts de 75 min | Distance 1 499 m (± 1 m) ; marche 45 min ; retour 14 min affiché à part. |
-| [ ] | Lire la marge | +32 min. |
-| [ ] | Passer Amalik à 125 min (2e prélèvement) | Marge −18 min ; alerte en texte et en couleur. |
-| [ ] | Passer Skinner Ridge à 30 min | Marge +27 min ; l'alerte disparaît. |
+| [ ] | Open app | MOLA global map; The offline indicator tells you where the installation is. |
+| [ ] | Enter Jezero | HiRISE imaging; limit of the visible mission sector; possible return to the global view. |
+| [ ] | Exit the sector | “Imaging only” message; neither relief nor planning. |
+| [ ] | Set up camp at 77.4095° E, 18.4513° N | Camp displayed as fictitious position. |
+| [ ] | Add Skinner Ridge, Wildcat Ridge, Amalik | Same order on the map and in the list. |
+| [ ] | Set 360 min, reserve 60 min, 2 km/h, 75 min stops | Distance 1,499 m (± 1 m); walk 45 mins; return 14 min displayed separately. |
+| [ ] | Read the margin | +32 mins. |
+| [ ] | Pass Amalik at 125 min (2nd collection) | Margin −18 min; alert in text and color. |
+| [ ] | Pass Skinner Ridge 30 min | Margin +27 min; the alert disappears. |
 
 
-## Contrôles
+## Controls
 
-| ✓ | Contrôle | Attendu |
+| ✓ | Control | Expected |
 | --- | --- | --- |
-| [ ] | Retour compté une fois | Marche totale = 45 min, pas 45 + 14. |
-| [ ] | Carte, liste et profil synchronisés | Réordonner ou supprimer un arrêt met à jour les trois sans tracé périmé. |
-| [ ] | Profil d'altitude | Même relief sur tout le tracé ; lacunes affichées, jamais comblées en silence. |
-| [ ] | Données visibles | Source, résolution et date de chaque couche accessibles ; tracé marqué hypothétique. |
-| [ ] | Limites de couverture | Hors secteur, l'application le dit au lieu d'inventer des données. |
-| [ ] | Crédits | Conformes à [credits-donnees.md](credits-donnees.md). |
+| [ ] | Return counted once | Total walking = 45 min, steps 45 + 14. |
+| [ ] | Synchronized map, list and profile | Reordering or deleting a stop updates all three without an outdated track. |
+| [ ] | Elevation profile | Same relief across the entire route; gaps displayed, never filled in silence. |
+| [ ] | Visible data | Source, resolution and date of each layer accessible; hypothetical marked path. |
+| [ ] | Coverage Limits | Outside the sector, the application says it instead of inventing data. |
+| [ ] | Credits | Complies with [credits-donnees.md](credits-donnees.md). |
 
-## Réseau absent ou lent
+## Network absent or slow
 
-Dans les outils de développement du navigateur, onglet Réseau.
+In the browser's developer tools, Network tab.
 
-| ✓ | Situation | Attendu |
+| ✓ | Location | Expected |
 | --- | --- | --- |
-| [ ] | Hors ligne, après une première visite | Application et secteur préparé utilisables ; message clair pour les zones non téléchargées. |
-| [ ] | Hors ligne, première visite | Message d'erreur compréhensible, jamais un écran vide. |
-| [ ] | Connexion lente | État de chargement visible ; aucun écran vide sans explication. |
-| [ ] | Dans tous les cas | Aucun texte ne promet un cache hors ligne au-delà du secteur préparé (#24). |
+| [ ] | Offline, after a first visit | Usable application and prepared area; clear message for areas not downloaded. |
+| [ ] | Offline, first visit | Understandable error message, never a blank screen. |
+| [ ] | Slow connection | Visible loading status; no blank screen without explanation. |
+| [ ] | In any case | No text promises an offline cache beyond the prepared sector (#24). |
 
-## Tests automatiques
+## Automatic tests
 
-| ✓ | Élément | Attendu |
+| ✓ | Element | Expected |
 | --- | --- | --- |
-| [ ] | Tests unitaires du moteur | `pnpm test` passe dans la CI de chaque pull request. |
-| [ ] | Tests d'intégration du parcours critique | Ajout de la mission, dépassement à −18 min, adaptation à +27 min, retour compté une fois. Ils restent à écrire après #12 et #14. Le dépôt n'a aujourd'hui que Vitest, sans outil de test dans un vrai navigateur. |
+| [ ] | Engine Unit Testing | `pnpm test` passes into the CI of each pull request. |
+| [ ] | Critical Path Integration Tests | Added mission, overrun at −18 min, adaptation at +27 min, return counted once. They remain to be written after #12 and #14. The repository today only has Vitest, with no testing tool in a real browser. |
 
-## Vidéo de secours
+## Rescue video
 
-| ✓ | Élément | Attendu |
+| ✓ | Element | Expected |
 | --- | --- | --- |
-| [ ] | Enregistrer le parcours | Suivre la [version de 30 s](script-pitch.md#version-de-30-s-vidéo-de-secours) en 1920 × 1080, sur l'URL de production. |
-| [ ] | Rendre la vidéo accessible | Lien public hors du site Space Apps, et une copie hors ligne sur l'ordinateur de présentation. |
+| [ ] | Save the route | Follow the [version of 30 s](script-pitch.md#30s-version-backup-video) in 1920 × 1080, on the production URL. |
+| [ ] | Make video accessible | Public link off the Space Apps site, and an offline copy on the presentation computer. |

@@ -1,79 +1,79 @@
-# Atlas mondial intégré
+# Integrated World Atlas
 
-Ajout du 15 novembre 2026. Sources et choix scientifiques détaillés dans
-[la recherche initiale](ressources-mars-global.md).
+Addition of November 15, 2026. Sources and scientific choices detailed in
+[the initial search](ressources-mars-global.md).
 
-## Fichiers et préparation
+## Files and preparation
 
-`apps/web/public/atlas/manifest.json` est le manifeste indépendant de l’atlas.
-Il conserve les URL effectivement acquises, dates, empreintes SHA-256 des
-réponses et des fichiers dérivés, dimensions, emprises et transformations.
-Il ne modifie pas les capacités du secteur de mission du manifeste Jezero.
+`apps/web/public/atlas/manifest.json` is the independent atlas manifest.
+It retains the URLs actually acquired, dates, SHA-256 fingerprints of
+responses and derived files, dimensions, extents and transformations.
+It does not modify the capabilities of the Jezero Manifesto mission sector.
 
-Depuis l’environnement Python de `tools/data` (Pillow, déjà déclaré) :
+From the Python environment of `tools/data` (Pillow, already declared):
 
 ```sh
 python tools/data/prepare_atlas.py
 ```
 
-Le serveur ASU présentait une chaîne TLS incomplète à l’acquisition. Une
-exception ponctuelle a été utilisée pour ce seul téléchargement public TES,
-explicitement enregistrée par `tlsVerified: false` dans le manifeste. Pour
-reproduire cette acquisition dans le même environnement :
+The ASU server presented an incomplete TLS chain upon acquisition. A
+one-time exception was used for this single public TES download,
+explicitly recorded by `tlsVerified: false` in the manifest. For
+reproduce this acquisition in the same environment:
 
 ```sh
 python tools/data/prepare_atlas.py --allow-insecure-tes
 ```
 
-Cette option ne concerne ni HRSC ni les polygones géologiques. Aucun accès
-réseau n’est nécessaire au build ou à l’utilisation de l’atlas installé.
-Les assertions du préparateur vérifient dimensions, référentiel natif et
-pagination complète. `pnpm test` vérifie aussi les empreintes des fichiers figés.
+This option does not concern HRSC or geological polygons. No access
+network is not necessary to build or use the installed atlas.
+The preparer's assertions check dimensions, native repository and
+full pagination. `pnpm test` also checks the fingerprints of frozen files.
 
-## Transformations et portée
+## Transformations and scope
 
-- **HRSC** : aperçu JPEG équirectangulaire fourni par l’équipe ESA/DLR/FU Berlin,
-  1 280 × 640, sans retouche colorimétrique. Le GeoTIFF original fait environ
-  683 Mo : seuls ses 65 536 premiers octets ont été acquis avec HTTP Range
-  pour lire dimensions, pas et ancrage géographique. L’empreinte de cette
-  réponse concerne ce fragment, pas le GeoTIFF complet. Rayon source
-  3 396 000 m, projection équirectangulaire centrée à 0° ; emprise convertie en
-  degrés à partir des métadonnées. Échantillonnage livré : 16 671,875 m/pixel à
-  l’équateur. Les marges débordant légèrement ±180°/±90° viennent du raster
-  d’origine ; la vue conserve les limites martiennes habituelles.
-- **Géologie** : USGS SIM 3292, Tanaka et al. (2014), 1:20 000 000. Distribution
-  accessible par Esri StoryMaps (`dasbury_storymaps`), et non téléchargement
-  direct USGS (403 dans cet environnement). Tous les 1 311 objets ont été
-  récupérés en deux pages, avec unités, descriptions originales, géométries
-  et palette de la distribution. Référentiel natif WKID 104971, Mars 2000
-  sphérique en degrés ; aucune conversion terrestre. Simplification serveur
-  à 0,08°, arrondi des coordonnées à quatre décimales. Ces frontières
-  généralisées servent à la lecture régionale ; les couleurs ne codent pas
-  un score de sécurité. La description de l’unité sélectionnée est la légende
-  au point lu. Pas de traduction ni de réinterprétation automatique des âges.
-- **TES** : PNG WMS ASU à 2 880 × 1 440, longitude −180° à +180°, latitude
-  planétocentrique. Recadrage des lignes 240 à 1 200 pour limiter strictement
-  l’affichage à ±60° ; pas d’extrapolation aux pôles. Image conservée en RGBA,
-  sans transformation de palette ni lissage. Légende qualitative conforme à
-  l’image de référence ASU : violet faible, blanc fort. Aucune valeur numérique
-  n’est reconstruite depuis les couleurs. Crédit NASA MGS/TES, ASU,
-  Christensen et al. (2001).
-- **Mars24** : calculs purs TypeScript dans `mission-core`, contrôlés avec les
-  deux exemples publiés par NASA GISS (2000 et atterrissage Spirit 2004).
-  Longitudes est positives ; résultats cycliques LMST/LTST et `Ls`. Table
-  TAI−UTC applicable de 2000 à 2026, dont les changements de 2006, 2009, 2012,
-  2015 et 2017. Aucune seconde supplémentaire fin 2026 selon
-  [USNO / IERS Bulletin C](https://maia.usno.navy.mil/products/leap-second).
-  Hors plage : indisponible, pas de prolongation silencieuse de la table.
-- **MCD** : liens vers documentation et interface officielle LMD. La base
-  complète demande une inscription ; aucun scénario ni fichier NetCDF acquis,
-  aucune météo en direct ou valeur climatique affichée dans l’application.
+- **HRSC**: equirectangular JPEG preview provided by the ESA/DLR/FU Berlin team,
+1280 × 640, without color editing. The original GeoTIFF is approximately
+683 MB: only its first 65,536 bytes were acquired with HTTP Range
+to read dimensions, pitch and geographic anchoring. The imprint of this
+answer concerns this fragment, not the full GeoTIFF. Source ray
+3,396,000 m, equirectangular projection centered at 0°; right-of-way converted into
+degrees from metadata. Sampling delivered: 16,671.875 m/pixel at
+the equator. Margins slightly overflowing ±180°/±90° come from the raster
+original; the view retains the usual Martian boundaries.
+- **Geology**: USGS SIM 3292, Tanaka et al. (2014), 1:20,000,000. Distribution
+accessible by Esri StoryMaps (`dasbury_storymaps`), not download
+direct USGS (403 in this environment). All 1,311 objects were
+recovered in two pages, with units, original descriptions, geometries
+and distribution palette. Native Repository WKID 104971, March 2000
+spherical in degrees; no terrestrial conversion. Server simplification
+to 0.08°, rounding coordinates to four decimal places. These borders
+generalized are used for regional reading; colors do not code
+a security score. The description of the selected unit is the legend
+to the point read. No automatic translation or reinterpretation of ages.
+- **TES**: PNG WMS ASU at 2880 × 1440, longitude −180° to +180°, latitude
+planetocentric. Crop lines 240 to 1200 to strictly limit
+display at ±60°; no extrapolation to the poles. Image preserved in RGBA,
+without palette transformation or smoothing. Qualitative legend conforms to
+the ASU reference image: weak violet, strong white. No numerical value
+is not reconstructed from the colors. Credit NASA MGS/TES, ASU,
+Christensen et al. (2001).
+- **March24**: pure TypeScript calculations in `mission-core`, controlled with the
+two examples published by NASA GISS (2000 and Spirit landing 2004).
+Longitudes is positive; LMST/LTST and `Ls` cyclic results. Table
+TAI−UTC applicable from 2000 to 2026, including changes from 2006, 2009, 2012,
+2015 and 2017. No additional seconds at the end of 2026 according to
+[USNO/IERS Bulletin C](https://maia.usno.navy.mil/products/leap-second).
+Out of range: unavailable, no silent extension of the table.
+- **MCD**: links to official LMD documentation and interface. The basis
+complete requires registration; no scenario or NetCDF file acquired,
+No live weather or climate values ​​displayed in the app.
 
 ## Validation
 
-Tests des exemples NASA, des limites temporelles et longitudes, intégrité des
-fichiers, lecture OpenLayers des polygones dans leur référentiel Mars, coordonnées
-et attributs, activation des couches, lecture géologique au centre au clavier et
-nettoyage des abonnements. Le build de production inclut l’atlas dans le précache
-versionné de la PWA. L’affichage et les interactions sur navigateur et matériel
-réels restent à valider ; les tests de composants n’établissent pas cette recette.
+Testing of NASA examples, temporal and longitude limits, integrity of
+files, OpenLayers reading of polygons in their Mars repository, coordinates
+and attributes, activation of layers, geological reading in the center on the keyboard and
+subscription cleaning. The production build includes the atlas in the precache
+version of the PWA. Display and interactions on browser and hardware
+actual figures remain to be validated; component testing does not establish this recipe.

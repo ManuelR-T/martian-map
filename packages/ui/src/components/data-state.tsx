@@ -1,3 +1,4 @@
+import { localize } from '../localize';
 import type { ComponentProps, ReactNode } from 'react';
 import { CircleDashed, LoaderCircle, MapPinOff, OctagonAlert, type LucideIcon } from 'lucide-react';
 
@@ -119,12 +120,12 @@ export function DataState({
       </span>
       <div className={cn('grid min-w-0 content-start gap-1', centered && 'justify-items-center')}>
         <p>
-          <span className={cn('label-caps block', definition.labelClassName)}>{definition.label}</span>
-          <span className={cn('block font-semibold', centered && 'heading-display mt-1 text-lg')}>{title}</span>
+          <span className={cn('label-caps block', definition.labelClassName)}>{localize(definition.label)}</span>
+          <span className={cn('block font-semibold', centered && 'heading-display mt-1 text-lg')}>{localize(title)}</span>
         </p>
-        {description ? <div className="max-w-prose leading-relaxed text-muted-foreground">{description}</div> : null}
-        {children}
-        {action ? <div className="mt-2.5">{action}</div> : null}
+        {description ? <div className="max-w-prose leading-relaxed text-muted-foreground">{localize(description)}</div> : null}
+        {localize(children)}
+        {action ? <div className="mt-2.5">{localize(action)}</div> : null}
       </div>
     </div>
   );

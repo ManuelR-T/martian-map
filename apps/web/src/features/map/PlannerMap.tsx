@@ -1,3 +1,5 @@
+import { localize } from '@marps/ui';
+import '../../i18n';
 import { useCallback, useState } from 'react';
 import type Map from 'ol/Map';
 import { DataState } from '@marps/ui';
@@ -22,7 +24,7 @@ export function PlannerMap({ panelHost, onSiteSelected }: { panelHost: HTMLEleme
     && candidate.kind === (global ? 'basemap' : 'imagery')
     && candidate.status !== 'unavailable'
     && (global || (candidate.delivery === 'local' && candidate.tileset)));
-  if (!dataset) return <div className="absolute inset-0 flex items-center justify-center p-4"><DataState kind="empty" title="Fond de carte indisponible" description="Le manifeste ne déclare pas de fond utilisable pour cette vue." /></div>;
+  if (!dataset) return <div className="absolute inset-0 flex items-center justify-center p-4"><DataState kind="empty" title={localize("Fond de carte indisponible")} description={localize("Le manifeste ne déclare pas de fond utilisable pour cette vue.")} /></div>;
   const sector = state.catalog.data.coverage?.find(region => region.id === dataset.regionId)?.extent;
   // The night infrared layer exists only on the detailed map, never on the global one.
   const themis = findThemisNightDataset({ regions: state.catalog.data.coverage ?? [], datasets: state.catalog.data.datasets }, dataset.regionId);
