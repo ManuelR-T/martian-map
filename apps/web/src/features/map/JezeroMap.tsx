@@ -16,7 +16,8 @@ import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import XYZ from 'ol/source/XYZ';
 import TileGrid from 'ol/tilegrid/TileGrid';
-import { Circle, Fill, Stroke, Style, Text } from 'ol/style';
+import { Circle, Fill, Stroke, Style } from 'ol/style';
+import { MISSION_COLOUR, SECTOR_COLOUR, mapLabel } from './mapText';
 import type { Extent, DatasetDescriptor, SiteDescriptor } from '@marps/data';
 import { Button, Panel } from '@marps/ui';
 import { marsProjection, createRegionSource } from './marsWmts';
@@ -95,15 +96,16 @@ export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected,
       } });
     const boundary = (extent: Extent, color: string, dash: number[]) => {
       const feature = new Feature(fromExtent(bounds(extent)));
-      feature.setStyle(new Style({ stroke: new Stroke({ color, width: 3, lineDash: dash }) }));
+      feature.setStyle(new Style({ stroke: new Stroke({ color, width: 2, lineDash: dash }) }));
       return feature;
     };
-    const features = sites.filter(site => site.regionId === dataset.regionId).map(site => {
+    // Neighbouring sites (Skinner Ridge and Wildcat Ridge are metres apart) alternate their label above and below.
+    const features = sites.filter(site => site.regionId === dataset.regionId).sort((a, b) => b.coordinate.latitude - a.coordinate.latitude).map((site, index) => {
       const feature = new Feature(new Point([site.coordinate.longitude, site.coordinate.latitude]));
       feature.setId(site.id);
-      feature.setStyle(() => new Style({ image: new Circle({ radius: selectedRef.current === site.id ? 10 : 7,
+      feature.setStyle(() => new Style({ image: new Circle({ radius: selectedRef.current === site.id ? 10 : 7, declutterMode: 'none',
         fill: new Fill({ color: selectedRef.current === site.id ? '#fff' : '#ffcc66' }), stroke: new Stroke({ color: '#151b25', width: 3 }) }),
-        text: new Text({ text: site.name, offsetY: -22, fill: new Fill({ color: '#fff' }), stroke: new Stroke({ color: '#151b25', width: 4 }) }) }));
+        text: mapLabel(site.name, index % 2 === 0 ? -24 : 26) }));
       return feature;
     });
     const view = new View({ projection: marsProjection, extent: bounds(product.extent),
@@ -120,12 +122,12 @@ export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected,
       new TileLayer({ source: createRegionSource(dataset) }), new TileLayer({ source }),
       // Order: imagery < night infrared < rover traverse (zIndex 2) < outlines and sites (zIndex 3).
       ...(themisLayer ? [themisLayer] : []),
-      new VectorLayer({ zIndex: 3, source: new VectorSource({ features: [boundary(product.extent, '#ffcc66', []), boundary(sector, '#50c8ff', [10, 5])], wrapX: false }) }),
+      new VectorLayer({ zIndex: 3, source: new VectorSource({ features: [boundary(product.extent, '#ffcc66', []), boundary(sector, SECTOR_COLOUR, [10, 5])], wrapX: false }) }),
       new VectorLayer({ zIndex: 3, source: new VectorSource({ features: prepared, wrapX: false }), style: feature => {
         if (feature.get('level') !== Math.round(view.getZoom() ?? 12)) return;
         return new Style({ stroke: new Stroke({ color: '#fff', width: 2, lineDash: [2, 6] }) });
       } }),
-      new VectorLayer({ zIndex: 3, source: new VectorSource({ features, wrapX: false }) }),
+      new VectorLayer({ zIndex: 3, declutter: true, source: new VectorSource({ features, wrapX: false }) }),
     ], view });
     mapRef.current = map; setOverlayMap(map);
     view.fit(bounds(sector), { size: map.getSize(), padding: [90, 40, 160, 40] });
@@ -178,36 +180,42 @@ export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected,
     return () => { map.removeLayer(layer); };
   }, [mission, dataset, sector, radius, sites, onSelect, themisLayer]);
   return <div className="mars-map-container jezero-map">
-    {roverEnabled && <p className="rover-warning border bg-card p-2 text-xs font-semibold">{roverMessages.fr.warning}</p>}
     <div ref={target} className="mars-map" tabIndex={0} aria-label={messages.label} />
-    {(failed || offline) && <div role="status" className="map-alert border bg-card p-3 text-sm">
-      <p>{failed ? messages.failure : messages.offline}</p>
-      {failed && <Button size="sm" variant="outline" onClick={() => { setFailed(false); mapRef.current?.getLayers().forEach(layer => { if (layer instanceof TileLayer) layer.getSource()?.refresh(); }); }}>{messages.retry}</Button>}
-    </div>}
+    <div className="map-notices">
+      {roverEnabled && <p className="rover-warning border bg-card p-2 text-xs font-semibold">{roverMessages.fr.warning}</p>}
+      {(failed || offline) && <div role="status" className="map-alert border bg-card p-3 text-sm">
+        <p>{failed ? messages.failure : messages.offline}</p>
+        {failed && <Button size="sm" variant="outline" onClick={() => { setFailed(false); mapRef.current?.getLayers().forEach(layer => { if (layer instanceof TileLayer) layer.getSource()?.refresh(); }); }}>{messages.retry}</Button>}
+      </div>}
+    </div>
     <MapPanelDock host={panelHost}>
     <Panel title={messages.panelTitle} floating className="jezero-status text-sm" contentClassName="overflow-y-auto">
       <p role="status">{outside ? messages.outside : messages.sector} {offline ? messages.offline : messages.online} {failed && messages.failure}</p>
 
       <Button size="sm" onClick={() => mapRef.current?.getView().fit(bounds(sector), { size: mapRef.current.getSize(), padding: [90, 40, 160, 40] })}>{messages.return}</Button>
       {failed && <Button size="sm" variant="outline" onClick={() => { setFailed(false); mapRef.current?.getLayers().forEach(layer => { if (layer instanceof TileLayer) layer.getSource()?.refresh(); }); }}>{messages.retry}</Button>}
-      {overlay?.(overlayMap)}
+
+      {/* One list, one control: every layer is shown or hidden with the same switch. */}
+      <div className="mt-2 border-t pt-2" role="group" aria-label={messages.layersTitle}>
+        <p className="text-xs font-semibold">{messages.layersTitle}</p>
+        {overlay?.(overlayMap)}
+        {themisDataset && <ThemisNightControl dataset={themisDataset} settings={themis.settings} onChange={themis.setSettings} className="border-0 bg-transparent p-0" />}
+        <RoverHistoryControl enabled={roverEnabled} onToggle={onRoverToggle} history={history} candidates={roverCandidates} failed={historyFailed} retry={() => { setHistoryFailed(false); setAttempt(value => value + 1); }} selected={roverSelected} onSelect={index => { setRoverSelected(index); if (index === null) setRoverCandidates(null); }} />
+      </div>
+
       <details className="jezero-legend mt-2 border-t pt-2 text-xs">
         <summary className="min-h-11 cursor-pointer py-3 font-semibold">{messages.legendTitle}</summary>
         <ul className="mt-1 grid gap-1">
-          <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke="#50c8ff" strokeWidth="3" strokeDasharray="10 5" /></svg><span>{messages.missionBoundary}</span></li>
-          <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke="#ffcc66" strokeWidth="3" /></svg><span>{messages.productBoundary}</span></li>
+          <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke={MISSION_COLOUR} strokeWidth="3" strokeDasharray="8 6" /></svg><span>{messages.missionRoute}</span></li>
+          <li><svg viewBox="0 0 40 24" aria-hidden="true"><circle cx="20" cy="12" r="9" fill="#151b25" stroke={MISSION_COLOUR} strokeWidth="2" /></svg><span>{messages.missionStop}</span></li>
+          <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke="#50c8ff" strokeWidth="2" strokeDasharray="10 5" /></svg><span>{messages.missionBoundary}</span></li>
+          <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke="#ffcc66" strokeWidth="2" /></svg><span>{messages.productBoundary}</span></li>
           <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke="#fff" strokeWidth="2" strokeDasharray="2 6" /></svg><span>{messages.preparedBoundary}</span></li>
           <li><svg viewBox="0 0 40 20" aria-hidden="true"><circle cx="20" cy="10" r="7" fill="#ffcc66" stroke="#151b25" strokeWidth="3" /></svg><span>{messages.scienceSite}</span></li>
           <li><svg viewBox="0 0 40 24" aria-hidden="true"><circle cx="20" cy="12" r="10" fill="#fff" stroke="#151b25" strokeWidth="3" /></svg><span>{messages.selectedSite}</span></li>
           <li><span className="jezero-missing-swatch" aria-hidden="true" /><span>{messages.missingImagery}</span></li>
         </ul>
       </details>
-
-      <div className="mt-2 border-t pt-2" role="group" aria-label={messages.layersTitle}>
-        <p className="text-xs font-semibold">{messages.layersTitle}</p>
-        {themisDataset && <ThemisNightControl dataset={themisDataset} settings={themis.settings} onChange={themis.setSettings} className="border-0 bg-transparent p-0" />}
-        <RoverHistoryControl enabled={roverEnabled} onToggle={onRoverToggle} history={history} candidates={roverCandidates} failed={historyFailed} retry={() => { setHistoryFailed(false); setAttempt(value => value + 1); }} selected={roverSelected} onSelect={index => { setRoverSelected(index); if (index === null) setRoverCandidates(null); }} />
-      </div>
     </Panel>
     </MapPanelDock>
     {choice && <SiteChoicePopover choice={choice} onSelect={onSelect} onClose={() => { setChoice(null); target.current?.focus({ preventScroll: true }); }} />}
@@ -216,7 +224,7 @@ export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected,
       <p>{scale} · {messages.scale}</p>
     </div>
     <MapInformation>
-      <p>Camp et étapes : simulation. Pointillés bleus du parcours : segments directs, sans validation du terrain.</p>
+      <p>Camp et étapes : simulation. Tirets orange du parcours : segments directs, sans validation du terrain.</p>
       <p>{messages.legend}</p>
       <p>{messages.coordinates} R = {radius} m.</p>
       <p>{messages.cache}</p>

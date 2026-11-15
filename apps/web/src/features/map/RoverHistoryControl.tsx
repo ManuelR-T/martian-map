@@ -1,6 +1,8 @@
 import type { RoverHistory } from '@marps/data';
 import { Button } from '@marps/ui';
+import { Footprints } from 'lucide-react';
 import { roverLabel } from './roverLayer';
+import { LayerSwitch } from './LayerSwitch';
 export const roverMessages = {
   en: { toggle: 'Perseverance history', warning: 'Rover history — not a validated human route.', loading: 'Loading prepared history…', failure: 'History unavailable. Retry', snapshot: 'Snapshot', quality: 'Historical extract; metadata discrepancies', choose: 'Inspect a position or segment', close: 'Close', source: 'NASA/JPL-Caltech · historical sector extract' },
   fr: { toggle: 'Historique de Perseverance', warning: 'Historique du rover — pas un itinéraire humain validé.', loading: 'Chargement de l’historique préparé…', failure: 'Historique indisponible. Réessayer', snapshot: 'Instantané', quality: 'Extrait historique ; écarts de métadonnées', choose: 'Examiner une position ou un segment', close: 'Fermer', source: 'NASA/JPL-Caltech · extrait historique du secteur' },
@@ -12,7 +14,7 @@ export function RoverHistoryControl({ enabled, onToggle, history, failed, retry,
   selected: number | null; onSelect: (index: number | null) => void;
 }) {
   return <div className="mt-2 border-t pt-2">
-    <Button variant="outline" className="min-h-11" aria-pressed={enabled} onClick={onToggle}>{messages.toggle}</Button>
+    <LayerSwitch label={messages.toggle} icon={<Footprints aria-hidden="true" />} checked={enabled} onChange={onToggle} />
     {enabled && <>
       <p className="mt-2 font-semibold">{messages.warning}</p>
       {!history && <p role="status">{failed ? <Button className="min-h-11" onClick={retry}>{messages.failure}</Button> : messages.loading}</p>}

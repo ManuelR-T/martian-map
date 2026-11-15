@@ -3,7 +3,8 @@ import type Map from 'ol/Map';
 import TileLayer from 'ol/layer/Tile';
 import { hillshadeFor } from '@marps/data';
 import { pointAtDistance, steepStretches } from '@marps/mission-core';
-import { Button } from '@marps/ui';
+import { Mountain } from 'lucide-react';
+import { LayerSwitch } from '../features/map/LayerSwitch';
 import { usePlannerState } from '../state/PlannerProvider';
 import { useRouteProfile } from './RouteProfileProvider';
 import {
@@ -70,12 +71,10 @@ export function TerrainOverlay({ map }: { map: Map | null }) {
   if (stops.length < 2 && !hillshade) return null;
 
   return (
-    <div className="mt-2 grid gap-2 border-t pt-2 text-xs">
+    <div className="grid gap-2 text-xs">
       {hillshade && (
         <>
-          <Button variant={shaded ? 'default' : 'outline'} className="min-h-11" aria-pressed={shaded} onClick={() => setShaded((value) => !value)}>
-            Relief ombré
-          </Button>
+          <LayerSwitch label="Relief ombré" icon={<Mountain aria-hidden="true" />} checked={shaded} onChange={setShaded} />
           {shaded && (
             <>
               <label htmlFor={opacityId} className="flex items-center gap-2">

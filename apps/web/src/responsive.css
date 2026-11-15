@@ -5,101 +5,81 @@
 .planner-app button, .planner-app a, .planner-app summary { touch-action: manipulation; }
 summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 
-.map-drawer-rails { position: absolute; z-index: 10; inset: 1rem 0; pointer-events: none; }
-.map-drawer-rail { position: absolute; top: 0; bottom: 0; display: flex; flex-direction: column; gap: .5rem; width: min(25rem, calc(100vw - 3.75rem)); overflow-y: auto; overscroll-behavior: contain; container-type: size; pointer-events: none; }
+/* Les rails laissent le bas de la carte aux commandes : échelle à gauche, zoom et informations à droite. */
+.map-drawer-rails { position: absolute; z-index: 10; inset: 1rem 0 0; pointer-events: none; }
+.map-drawer-rail { position: absolute; top: 0; display: flex; flex-direction: column; gap: .5rem; width: min(25rem, calc(100vw - 3.75rem)); overflow-y: auto; overscroll-behavior: contain; container-type: size; pointer-events: none; }
 .map-drawer-rail[hidden] { display: none; }
-.map-drawer-rail-left { left: 0; }
-.map-drawer-rail-right { right: 0; }
+.map-drawer-rail-left { left: 0; bottom: 4.5rem; }
+.map-drawer-rail-right { right: 0; bottom: 9.75rem; }
 .map-drawer { position: relative; display: grid; grid-template-rows: 0fr; min-height: 44px; flex-shrink: 0; transition: grid-template-rows 240ms var(--ease-instrument); }
 .map-drawer[data-state=open] { grid-template-rows: 1fr; }
-/* Un seul filet au-dessus du bouton et de la carte, continu pendant le déploiement. */
-.map-drawer::after { content: ''; position: absolute; top: 0; z-index: 3; width: 44px; height: 2px; background: var(--horizon); pointer-events: none; transition: width 240ms var(--ease-instrument); }
+/* Un seul filet au-dessus de la carte ouverte ; replié, le bouton porte le sien. */
+.map-drawer::after { content: ''; position: absolute; top: 0; z-index: 3; width: 0; height: 2px; background: var(--horizon); pointer-events: none; transition: width 240ms var(--ease-instrument); }
 .map-drawer-left::after { left: 0; }
 .map-drawer-right::after { right: 0; }
 .map-drawer[data-state=open]::after { width: 100%; }
-.map-drawer-trigger, .map-drawer-card-icon, .map-drawer-close { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0; cursor: pointer; }
-.map-drawer-trigger { position: absolute; top: 0; z-index: 2; pointer-events: auto; border: 1px solid var(--border); color: var(--primary); box-shadow: var(--elevation), 0 0 14px -7px var(--mars); transition: background 180ms, box-shadow 180ms, border-color 180ms; }
+.map-drawer-card-icon, .map-drawer-close { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0; }
+.map-drawer-trigger { position: absolute; top: 0; z-index: 2; display: flex; align-items: center; gap: .5rem; height: 44px; min-width: 44px; padding-inline: .75rem; cursor: pointer; pointer-events: auto; border: 1px solid var(--border); border-top: 0; color: var(--primary); box-shadow: var(--elevation), 0 0 14px -7px var(--mars); transition: background 180ms, box-shadow 180ms, border-color 180ms; }
+.map-drawer-trigger::before { content: ''; position: absolute; inset: 0 0 auto; height: 2px; background: var(--horizon); pointer-events: none; }
 .map-drawer-left .map-drawer-trigger { left: 0; border-left: 0; border-radius: 0 6px 6px 0; }
-.map-drawer-right .map-drawer-trigger { right: 0; border-right: 0; border-radius: 6px 0 0 6px; }
+.map-drawer-right .map-drawer-trigger { right: 0; flex-direction: row-reverse; border-right: 0; border-radius: 6px 0 0 6px; }
 .map-drawer-trigger:hover, .map-drawer-close:hover { background: var(--accent); color: var(--accent-foreground); box-shadow: var(--glow-primary); }
 .map-drawer-trigger[hidden] { display: none; }
-.map-drawer-card-icon { position: absolute; top: 0; z-index: 2; color: var(--mars); background: transparent; }
-.map-drawer-left .map-drawer-card-icon { left: 0; }
-.map-drawer-right .map-drawer-card-icon { right: 0; }
-.map-drawer-card-icon:hover { background: var(--accent); }
-.map-drawer-content { position: relative; z-index: 1; min-height: 0; width: 100%; max-height: clamp(44px, calc(100cqh - 52px), 32rem); overflow-y: auto; overscroll-behavior: contain; pointer-events: none; background: var(--card); border: 1px solid var(--border); border-top: 2px solid transparent; border-radius: 6px; box-shadow: var(--elevation), 0 0 24px -16px var(--mars); opacity: 0; visibility: hidden; transition: clip-path 240ms var(--ease-instrument), opacity 180ms ease, visibility 0s 240ms; }
+.map-drawer-card-icon { position: absolute; top: 0; left: 0; z-index: 3; color: var(--mars); pointer-events: none; }
+/* Seul sur son rail, un volet prend toute la hauteur libre ; à plusieurs, chacun est plafonné. */
+.map-drawer-content { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 0; width: 100%; max-height: max(44px, calc(100cqh - var(--closed-drawers, 0) * 52px)); overflow: hidden; pointer-events: none; background: var(--card); border: 1px solid var(--border); border-top: 2px solid transparent; border-radius: 6px; box-shadow: var(--elevation), 0 0 24px -16px var(--mars); opacity: 0; visibility: hidden; transition: clip-path 240ms var(--ease-instrument), opacity 180ms ease, visibility 0s 240ms; }
+.map-drawer-rail[data-multi] .map-drawer-content { max-height: clamp(44px, calc(100cqh - 52px), 32rem); }
+.map-drawer-scroll { min-height: 0; flex: 1; overflow-y: auto; overscroll-behavior: contain; }
 .map-drawer-left .map-drawer-content { left: 0; border-top-left-radius: 0; clip-path: inset(0 calc(100% - 44px) calc(100% - 44px) 0 round 6px); }
 .map-drawer-right .map-drawer-content { right: 0; border-top-right-radius: 0; clip-path: inset(0 0 calc(100% - 44px) calc(100% - 44px) round 6px); }
 .map-drawer[data-state=open] .map-drawer-content { clip-path: inset(0 round 6px); opacity: 1; visibility: visible; pointer-events: auto; transition-delay: 0s; }
-.map-drawer-content [data-slot=panel] { border: 0; }
+.map-drawer-content [data-slot=panel] { border: 0; background: transparent; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
 .map-drawer-content [data-slot=panel]::before { display: none; }
 /* Les coins décoratifs restent dans le cadre pour éviter un débordement de 1 px. */
 .map-drawer-content [data-slot=panel]::after { inset: 0; }
-.map-drawer-content [data-slot=panel] > header { padding-inline: 3.25rem; min-height: 44px; }
+/* Le titre reste en tête pendant le défilement, sous la croix. */
+.map-drawer-content [data-slot=panel] > header { position: sticky; top: 0; z-index: 2; padding-inline: 3.25rem; min-height: 44px; background: var(--card); }
 .map-drawer-content [data-slot=panel] > div { transition: opacity 120ms ease, translate 180ms ease; }
 .map-drawer[data-state=closed] .map-drawer-content [data-slot=panel] > div { opacity: 0; translate: 0 -4px; }
 .map-drawer[data-state=open] .map-drawer-content [data-slot=panel] > div { transition-delay: 90ms; }
-.map-drawer-close { position: absolute; top: 0; z-index: 2; color: var(--muted-foreground); }
-.map-drawer-left .map-drawer-close { right: 0; }
-.map-drawer-right .map-drawer-close { left: 0; }
+.map-drawer-close { position: absolute; top: 0; right: 0; z-index: 3; cursor: pointer; color: var(--muted-foreground); }
 @media (prefers-reduced-motion: reduce) {
   .map-drawer, .map-drawer::after, .map-drawer-trigger, .map-drawer-content, .map-drawer-content [data-slot=panel] > div { transition: none; }
 }
 
 @media (max-width: 480px), (max-height: 480px) {
   .planner-app > header { min-height: 44px; gap: .25rem; padding: 0 .5rem; }
-  .planner-app > header > svg, .planner-app > header > div p { display: none; }
+  .planner-app > header > a > svg, .planner-app > header p { display: none; }
   .planner-app > header h1 { font-size: 1rem; line-height: 1.25; }
   .planner-app > header button { min-height: 44px; min-width: 44px; }
-  .map-drawer-rails { top: .75rem; bottom: 4.5rem; }
 }
 @media (pointer: coarse) {
   .planner-app button, .planner-app summary { min-height: 44px; min-width: 44px; }
 }
 
-/* Sur écran étroit, les cartes partagent une pile pour ne pas se recouvrir. */
+/* Sous 1280 px, les volets commencent sous le sélecteur de vue posé en haut de la carte. */
+@media (max-width: 1279px) {
+  .map-drawer-rails { top: 4.25rem; }
+}
+
+/* Sur écran étroit, les volets partagent une pile ; un volet ouvert masque les autres boutons et prend la hauteur. */
 @media (max-width: 800px) {
-  .map-drawer-rails { display: flex; flex-direction: column; gap: .5rem; overflow-y: auto; overscroll-behavior: contain; container-type: size; }
+  .map-drawer-rails { bottom: 9.75rem; display: flex; flex-direction: column; gap: .5rem; overflow-y: auto; overscroll-behavior: contain; container-type: size; }
   .map-drawer-rail { display: contents; }
   .map-drawer-rail[hidden] { display: none; }
   .map-drawer { width: min(25rem, calc(100vw - 3.75rem)); }
   .map-drawer-left { align-self: flex-start; }
   .map-drawer-right { align-self: flex-end; }
+  .map-drawer-rails:has(.map-drawer[data-state=open]) .map-drawer[data-state=closed] { display: none; }
+  .map-drawer-content, .map-drawer-rail[data-multi] .map-drawer-content { max-height: max(44px, 100cqh); }
 }
 
-.planning-navigation { display: inline-flex; flex-wrap: wrap; align-items: center; max-width: 100%; }
-.planning-map-selector { position: relative; margin-inline: .25rem .75rem; padding-left: .5rem; transform-origin: left center; animation: planning-selector-reveal 240ms var(--ease-instrument) both; }
-.planning-map-selector::before { content: ''; position: absolute; left: 0; top: 50%; height: 18px; width: 1px; translate: 0 -50%; background: var(--border); }
-.planning-map-selector [data-slot=segmented-control] { gap: 0; padding: 0; border: 0; background: transparent; }
-.planning-map-selector [role=radio] { color: color-mix(in srgb, var(--header-foreground) 70%, transparent); }
-.planning-map-selector [role=radio]:hover { background: var(--accent); color: var(--accent-foreground); }
-.planning-map-selector [role=radio][data-state=checked] { background: var(--accent); color: var(--mars); box-shadow: inset 0 -2px var(--mars); }
-.planning-map-selector [role=radio] { min-height: 44px; height: 44px; padding-inline: .625rem; }
-@keyframes planning-selector-reveal {
-  from { opacity: 0; translate: -10px 0; }
-  to { opacity: 1; translate: 0 0; }
-}
-@media (max-width: 640px) {
-  .planning-map-selector { margin-right: 0; }
-  .planning-map-selector svg { display: none; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .planning-map-selector { animation: none; }
-}
+/* Sélecteur de vue, posé sur la carte : il change la carte, pas la page. */
+.map-view-switch { position: absolute; z-index: 11; top: .75rem; left: 50%; translate: -50% 0; pointer-events: auto; }
+.map-view-switch [data-slot=segmented-control] { border-radius: 6px; box-shadow: var(--elevation); }
+.map-view-switch [role=radio] { min-height: 44px; height: 44px; }
 
 .map-drawer-group { display: contents; }
 .map-drawer-group[hidden] { display: none; }
 .workspace-navigation [aria-pressed=true] { background: var(--accent); color: var(--primary); box-shadow: inset 0 -2px var(--primary); }
 .map-panel-dock:empty { min-height: 44px; }
-
-.planning-workspace-selector { position: relative; margin-right: .75rem; padding-left: .5rem; transform-origin: left center; animation: planning-selector-reveal 240ms var(--ease-instrument) both; }
-.planning-workspace-selector::before { content: ''; position: absolute; left: 0; top: 50%; height: 18px; width: 1px; translate: 0 -50%; background: var(--border); }
-@media (max-width: 640px) {
-  .planning-navigation { max-width: calc(100% - 44px); }
-  .planning-workspace-selector { margin-right: 0; padding-left: 0; }
-  .planning-workspace-selector::before { display: none; }
-  .resource-menu { align-self: flex-start; margin-left: auto; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .planning-workspace-selector { animation: none; }
-}

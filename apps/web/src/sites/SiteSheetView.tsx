@@ -103,6 +103,10 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange, tra
           );
         })}
       </ul>
+      {/* A disabled control says why: tasks are ticked during the walk, the allotted time is set before it. */}
+      <p className="text-xs text-muted-foreground">
+        {tracking ? 'La durée allouée se règle à la base, avant la sortie.' : 'Les tâches se cochent pendant la sortie, dans « En mission ».'}
+      </p>
 
       <div className="flex flex-wrap items-center justify-between gap-2">
         <label htmlFor={selectId} className="flex items-center gap-2 text-sm">

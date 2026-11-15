@@ -38,7 +38,7 @@ export function ProfilePanel({ className, collapsible = true }: { className?: st
 
   const thresholdControl = (
     <label htmlFor={thresholdId} className="flex items-center gap-2 text-sm">
-      Seuil
+      Seuil de pente
       <select
         id={thresholdId}
         value={threshold}
@@ -64,7 +64,6 @@ export function ProfilePanel({ className, collapsible = true }: { className?: st
       title="Profil du parcours"
       description="Parcours de démonstration : les sites en ligne droite, puis retour"
       collapsible={collapsible}
-      actions={thresholdControl}
       className={className}
     >
       <PlanningGate loadingTitle="Chargement du relief" coverageTitle="Pas de relief hors du secteur détaillé">
@@ -77,7 +76,11 @@ export function ProfilePanel({ className, collapsible = true }: { className?: st
         ) : relief.status === 'error' ? (
           <DataState kind="error" title="Relief non chargé" description="Le fichier d'altitudes est inaccessible. Rechargez la page." />
         ) : (
-          <ProfileChart grid={relief.grid} profile={relief.profile} steep={relief.steep} stops={stops} threshold={threshold} />
+          // The threshold sits with the chart it changes, not in the title bar where it squeezed the description.
+          <div className="grid gap-3">
+            {thresholdControl}
+            <ProfileChart grid={relief.grid} profile={relief.profile} steep={relief.steep} stops={stops} threshold={threshold} />
+          </div>
         )}
       </PlanningGate>
     </Panel>
