@@ -173,7 +173,7 @@ export function App() {
             </div>
             <div className="map-drawer-rail map-drawer-rail-right" hidden={global} {...railState('right')}>
               <MapDrawer label={localize("Budget de temps")} shortLabel={localize("Budget")} icon={Timer} {...drawer('budget')}>
-                <BudgetPanel budget={null} className={floatingPanel} collapsible={false} />
+                <BudgetPanel className={floatingPanel} collapsible={false} />
               </MapDrawer>
               <MapDrawer label={localize("Fiche de site")} shortLabel={localize("Site")} icon={MapPin} {...drawer('site')}>
                 <SiteDetailsPanel className={floatingPanel} collapsible={false} />

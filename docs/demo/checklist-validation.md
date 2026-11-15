@@ -17,19 +17,19 @@ To unfold when #11, #12, #13, #14, #15 and #16 are merged. The expected values �
 | [ ] | Open app | MOLA global map; The offline indicator tells you where the installation is. |
 | [ ] | Enter Jezero | HiRISE imaging; limit of the visible mission sector; possible return to the global view. |
 | [ ] | Exit the sector | “Imaging only” message; neither relief nor planning. |
-| [ ] | Set up camp at 77.4095° E, 18.4513° N | Camp displayed as fictitious position. |
+| [ ] | Choose Jezero Alpha at 77.400° E, 18.450° N | Camp displayed as fictitious position. |
 | [ ] | Add Skinner Ridge, Wildcat Ridge, Amalik | Same order on the map and in the list. |
-| [ ] | Set 360 min, reserve 60 min, 2 km/h, 75 min stops | Distance 1,499 m (± 1 m); walk 45 mins; return 14 min displayed separately. |
-| [ ] | Read the margin | +32 mins. |
-| [ ] | Pass Amalik at 125 min (2nd collection) | Margin −18 min; alert in text and color. |
-| [ ] | Pass Skinner Ridge 30 min | Margin +27 min; the alert disappears. |
+| [ ] | Set 360 min, reserve 60 min, 0.5 m/s (1.8 km/h), activities totaling 75 min per stop | Distance 1,280 m (± 1 m); total walking 42.7 min; return 3.1 min displayed separately. |
+| [ ] | Read the margin | +32.3 min. |
+| [ ] | Add a 50 min sampling activity at Amalik | Activities 275 min; margin −17.7 min; alert in text and color. |
+| [ ] | Remove the 45 min sampling activity at Skinner Ridge | Activities 230 min; margin +27.3 min; the alert disappears. |
 
 
 ## Controls
 
 | ✓ | Control | Expected |
 | --- | --- | --- |
-| [ ] | Return counted once | Total walking = 45 min, steps 45 + 14. |
+| [ ] | Return counted once | Total walking = 42.7 min, including the 3.1 min return. |
 | [ ] | Synchronized map, list and profile | Reordering or deleting a stop updates all three without an outdated track. |
 | [ ] | Elevation profile | Same relief across the entire route; gaps displayed, never filled in silence. |
 | [ ] | Visible data | Source, resolution and date of each layer accessible; hypothetical marked path. |
@@ -52,7 +52,7 @@ In the browser's developer tools, Network tab.
 | ✓ | Element | Expected |
 | --- | --- | --- |
 | [ ] | Engine Unit Testing | `pnpm test` passes into the CI of each pull request. |
-| [ ] | Critical Path Integration Tests | Added mission, overrun at −18 min, adaptation at +27 min, return counted once. They remain to be written after #12 and #14. The repository today only has Vitest, with no testing tool in a real browser. |
+| [ ] | Critical Path Integration Tests | `apps/web/src/panels/BudgetPanel.test.tsx` covers the demo, −17.7 min overrun, +27.3 min adaptation, invalid inputs, recalculation and preparation/tracking separation. React tests run under jsdom; browser acceptance is a separate check. |
 
 ## Rescue video
 

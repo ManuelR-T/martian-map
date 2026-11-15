@@ -190,7 +190,9 @@ export function MissionEditor({ className, collapsible = true }: { className?: s
         setParametersDirty(true); setPersisted(null);
         const data = new FormData(event.currentTarget);
         const parameters = { availableSeconds: number(data, 'available') * 60, reserveSeconds: number(data, 'reserve') * 60, speedMetresPerSecond: number(data, 'speed') };
-        if (validParameters(parameters)) dispatch({ type: 'parametersChanged', parameters });
+        const valid = event.currentTarget.checkValidity() && validParameters(parameters);
+        dispatch({ type: 'parameterDraftValidityChanged', valid });
+        if (valid) dispatch({ type: 'parametersChanged', parameters });
       }} onSubmit={event => {
         const data = form(event);
         const parameters = { availableSeconds: number(data, 'available') * 60, reserveSeconds: number(data, 'reserve') * 60, speedMetresPerSecond: number(data, 'speed') };

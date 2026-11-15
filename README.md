@@ -440,7 +440,35 @@ reloading. Each output has an updated history entry with
 its checkmarks; starting another exit keeps the previous ones. History
 indicates the last save date and does not claim that an output is
 finished. The camp–stages–camp geometry connects direct segments: it does not
-does not constitute a validated practicable path. The complete budget calculation remains #14.
+constitute a validated practicable path. The Budget panel shows the complete
+planned mission budget, independently of tracking checkmarks.
+
+### Mission time budget (#14)
+
+`calculateMissionBudget` in `@marps/mission-core` uses #13's horizontal Mars
+distances. Walking minutes = `60 × total kilometres / speed in km/h`, with
+explicit conversion from the stored m/s and seconds. Margin equals available
+time minus total walking, planned activities and reserve. The return leg is
+already included in total walking and is counted exactly once.
+
+The panel separates exploration walking, observations and activities, return,
+reserve and margin, with explicit units. It also shows total walking, planned
+duration excluding reserve, and total/return distance. Negative margin has a
+text warning, icon and distinct color. Missing and invalid inputs have separate
+states; invalid parameter drafts hide the previous budget until corrected.
+Rounding occurs only for display.
+
+Only activities explicitly planned on each visit contribute to activity time.
+Site-sheet task allocations are separate and are not added again. Checking an
+activity does not measure elapsed time or release margin: this is the full-plan
+budget. Preparation and the active outing use separate snapshots. Durations,
+walking speed and reserve are scenario assumptions; terrain, fatigue and live
+consumable measurements are not part of this model. A positive margin does not
+establish that the route is safe.
+
+The [demo](docs/demo/mission-demo.md) has reproducible engine and React tests:
+margin +32.3 min, then −17.7 min after adding a sampling activity, then +27.3 min
+after adapting the first stop.
 
 ### Storage and simulation data
 

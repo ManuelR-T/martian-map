@@ -39,7 +39,10 @@ Margin = field time − on − stops − reserve.
 | 5. Exit | Save, then “Start this mission”. In “On Mission” mode, check off Skinner Ridge activities. | | |
 | 6. Delisting alert | “Simulate a radiation alert” at Wildcat Ridge: return from 610 m in 21 min at 0.5 m/s. Abandoned: Wildcat Ridge (3 activities) and Amalik (4 activities). | | |
 
-Exact values: walk 42.67 min, margins +32.33, −17.67 and +27.33 min. The margins will be displayed by the application when the time budget (#14) is merged; until then, they come from this calculation.
+Values rounded to two decimals: walking 42.67 min, margins +32.33, −17.67 and
++27.33 min. The Budget panel displays one decimal; calculations retain their
+precision until display. `apps/web/src/panels/BudgetPanel.test.tsx` reproduces
+these three stages using the manifest positions and Jezero Alpha camp.
 
 ## Why this scenario is realistic
 
@@ -50,7 +53,7 @@ Exact values: walk 42.67 min, margins +32.33, −17.67 and +27.33 min. The margi
 ## Team hypotheses
 
 - The distribution of a 75 min stop into tasks. Only total downtimes are sourced.
-- The field time of 360 min, with 1 hour to exit and return (optimistic compared to the 1.5 to 2 hours of Artemis III), the reserve of 60 min, the speed of 2 km/h and the position of the camp.
+- The field time of 360 min, with 1 hour to exit and return (optimistic compared to the 1.5 to 2 hours of Artemis III), the reserve of 60 min, the speed of 0.5 m/s (1.8 km/h) and the position of the camp.
 - The 50 min of the 2nd sampling: this is an entire phase of BASALT, not a measurement taken on this site.
 - Lunar sources and tests on Earth are transposed to Mars by analogy.
 
