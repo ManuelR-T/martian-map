@@ -46,3 +46,5 @@ export * from './profileSampler';
 export * from './camps';
 
 export * from './provenance';
+
+export * from './terrainAnnotations';

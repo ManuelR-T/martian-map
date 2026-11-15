@@ -36,7 +36,7 @@ export function DatasetProvenance({ dataset: d, datasets = [] }: {
         <div><dt className="font-semibold">{localize("Instrument")}</dt><dd>{localize(d.instrument)}</dd></div>
         <div><dt className="font-semibold">{localize("Date / sol")}</dt><dd>{localize(d.acquisition.date ?? 'Date inconnue')} {localize("/")} {localize(d.acquisition.sol ?? localize("Sol inconnu"))}{localize(".")} {localize(d.acquisition.note)}</dd></div>
         <div><dt className="font-semibold">{localize("Unités")}</dt><dd>{localize(Object.entries(d.units).map(([key, value]) => `${quantityLabels[key] ?? key} : ${unitLabels[value] ?? value}`).join(' ; ') || localize("Sans unité"))}</dd></div>
-        <div><dt className="font-semibold">{localize("Résolution de la source")}</dt><dd>{localize(d.resolution ? `${d.resolution.value} ${d.resolution.unit}` : d.kind === 'sites' ? localize("Non applicable (données vectorielles)") : 'Inconnue')}</dd></div>
+        <div><dt className="font-semibold">{localize("Résolution de la source")}</dt><dd>{localize(d.resolution ? `${d.resolution.value} ${d.resolution.unit}` : (d.kind === 'sites' || d.kind === 'terrain-annotations') ? localize("Non applicable (données vectorielles)") : 'Inconnue')}</dd></div>
         {d.tileset ? <div><dt className="font-semibold">{localize("Échantillonnage local le plus fin")}</dt><dd>{d.tileset.finestMetresPerPixel.toLocaleString(locale(), { maximumFractionDigits: 2 })} {localize("m/pixel. Le zoom ne crée pas de détail supplémentaire.")}</dd></div> : null}
         {d.raster ? <div><dt className="font-semibold">{localize("Maille du relief")}</dt><dd>{localize(d.raster.pixelSizeMetres)} {localize("m : un pas d’échantillonnage, pas une précision de navigation. Les obstacles plus petits ne sont pas résolus.")}</dd></div> : null}
         <div><dt className="font-semibold">{localize("Emprise (degrés planétocentriques, est positif)")}</dt><dd>{localize("O")} {localize(d.extent.west)} {localize("; S")} {localize(d.extent.south)} {localize("; E")} {localize(d.extent.east)} {localize("; N")} {localize(d.extent.north)}</dd></div>
@@ -87,6 +87,7 @@ export function SourcesPage() {
       <Panel title={localize("Atlas mondial de Mars")} collapsible defaultOpen={false}><GlobalAtlasReferences /></Panel>
       <Panel title={localize("Légende et limites")} collapsible defaultOpen={false}>
         <div className="space-y-3 text-sm">
+          <p><ProvenanceBadge status="interpreted" /> {localize("Visual interpretation of imagery; not a measurement of terrain safety.")}</p>
           <p><ProvenanceBadge status="measured" /> {localize("Observation issue d’un instrument.")}</p>
           <p><ProvenanceBadge status="calculated" /> {localize("Résultat dérivé de mesures ou de paramètres.")}</p>
           <p><ProvenanceBadge status="simulated" /> {localize("Scénario hypothétique, notamment l’éclairage du relief ombré.")}</p>

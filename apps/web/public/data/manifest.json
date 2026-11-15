@@ -76,6 +76,14 @@
           ]
         },
         {
+          "id": "terrain-annotations",
+          "label": "Terrain inspection annotations",
+          "status": "partial",
+          "datasetIds": [
+            "jezero-terrain-annotations"
+          ]
+        },
+        {
           "id": "science-sites",
           "label": "Sites scientifiques",
           "status": "available",
@@ -2169,6 +2177,60 @@
           }
         ]
       }
+    },
+    {
+      "id": "jezero-terrain-annotations",
+      "regionId": "jezero",
+      "title": "Terrain inspection annotations",
+      "kind": "terrain-annotations",
+      "instrument": "Visual interpretation of HiRISE imagery",
+      "delivery": "local",
+      "source": {
+        "url": "https://github.com/ManuelR-T/martian-map/blob/dev/data/research/jezero-terrain-annotations.geojson",
+        "retrievedAt": "2026-11-14T22:03:52Z",
+        "credit": "Marps curators; imagery NASA/JPL-Caltech/University of Arizona",
+        "terms": {
+          "summary": "Conditions propres à ce produit non vérifiées ; appliquer au minimum la citation de la source et confirmer avant toute redistribution.",
+          "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+          "verified": false
+        },
+        "fingerprint": {
+          "target": "jezero-terrain-annotations.geojson",
+          "sha256": "11db95521aed34c026ec7b2ddc9d787711053883fa174491e8bce00c4c63ac19",
+          "bytes": 5656
+        }
+      },
+      "acquisition": {
+        "date": null,
+        "sol": null,
+        "note": "Image acquisition dates unknown; curation dates are separate."
+      },
+      "units": {},
+      "crs": "urn:ogc:def:crs:EPSG::104905",
+      "extent": {
+        "west": 77.395,
+        "south": 18.445,
+        "east": 77.412,
+        "north": 18.465
+      },
+      "resolution": null,
+      "noData": {
+        "kind": "not-applicable"
+      },
+      "status": "partial",
+      "version": "2026-11-15-v1",
+      "limitations": [
+        "Selected visual interpretations; unannotated terrain has not been assessed.",
+        "Not measured bearing capacity or an operational exclusion."
+      ],
+      "files": [
+        {
+          "path": "jezero/annotations/terrain.geojson",
+          "bytes": 5656,
+          "sha256": "11db95521aed34c026ec7b2ddc9d787711053883fa174491e8bce00c4c63ac19",
+          "mediaType": "application/geo+json"
+        }
+      ]
     }
   ],
   "sites": [

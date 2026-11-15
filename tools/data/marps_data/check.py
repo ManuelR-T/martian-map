@@ -15,7 +15,7 @@ from PIL import Image
 from . import geo, meda, spec
 
 STATUSES = {"available", "partial", "unavailable"}
-KINDS = {"basemap", "imagery", "elevation", "slope", "hillshade", "sites", "rover-waypoints", "rover-traverse", "weather", "thermal", "geology"}
+KINDS = {"basemap", "imagery", "elevation", "slope", "hillshade", "sites", "rover-waypoints", "rover-traverse", "weather", "thermal", "geology", "terrain-annotations"}
 DELIVERIES = {"local", "remote"}
 NODATA_KINDS = {"not-applicable", "alpha-channel", "nan", "invalid-samples"}
 # Mars spans about -8.2 km (Hellas) to +21.2 km (Olympus Mons) around the MOLA datum.
@@ -456,12 +456,18 @@ def validate(root: Path) -> list[str]:
         region = regions.get(d.get("regionId"))
         if region is None:
             errors.append(f"dataset {d.get('id')}: unknown region {d.get('regionId')}")
-        elif d["status"] == "available" and d["kind"] not in {"sites", "rover-waypoints", "rover-traverse", "weather"} and not check_extent(d.get("extent"), ""):
+        elif d["status"] == "available" and d["kind"] not in {"sites", "rover-waypoints", "rover-traverse", "weather", "terrain-annotations"} and not check_extent(d.get("extent"), ""):
             if not geo.contains(d["extent"], region["extent"]):
                 errors.append(f"dataset {d['id']}: extent does not cover the {region['id']} region")
         if file_errors:
             continue  # content checks are meaningless on missing or altered files
-        if d.get("kind") == "elevation":
+        if d.get("kind") == "terrain-annotations":
+            from .annotations import validate_annotations
+            try:
+                errors += validate_annotations(json.loads((root / d["files"][0]["path"]).read_text()), manifest, root)
+            except (OSError, ValueError, IndexError) as error:
+                errors.append(f"annotations: {error}")
+        elif d.get("kind") == "elevation":
             errors += check_elevation(root, manifest, d)
         elif d.get("kind") == "slope":
             errors += check_slope(root, datasets, d)

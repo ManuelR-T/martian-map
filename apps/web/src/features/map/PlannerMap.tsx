@@ -14,6 +14,7 @@ import { TerrainOverlay } from '../../terrain/TerrainOverlay';
 const terrainOverlay = (map: Map | null) => <TerrainOverlay map={map} />;
 
 export function PlannerMap({ panelHost, onSiteSelected }: { panelHost: HTMLElement | null; onSiteSelected?: () => void }) {
+  const [annotationsEnabled, setAnnotationsEnabled] = useState(true);
   const [roverEnabled, setRoverEnabled] = useState(false);
   const state = usePlannerState();
   const dispatch = usePlannerDispatch();
@@ -30,7 +31,7 @@ export function PlannerMap({ panelHost, onSiteSelected }: { panelHost: HTMLEleme
     // The night infrared layer exists only on the detailed map, never on the global one.
     const themis = findThemisNightDataset({ regions: coverage ?? [], datasets }, region.id);
     const geology = findGeologyDataset({ regions: coverage ?? [], datasets }, region.id);
-    return <JezeroMap panelHost={panelHost} roverEnabled={roverEnabled} onRoverToggle={() => setRoverEnabled(value => !value)} datasets={datasets} dataset={imagery} sector={region.extent} radius={planet.radiusMeters} sites={sites} selected={state.selectedSiteId} onSelect={selectSite} overlay={terrainOverlay} themisDataset={themis} geologyDataset={geology} />;
+    return <JezeroMap annotationsEnabled={annotationsEnabled} onAnnotationsToggle={() => setAnnotationsEnabled(value => !value)} panelHost={panelHost} roverEnabled={roverEnabled} onRoverToggle={() => setRoverEnabled(value => !value)} datasets={datasets} dataset={imagery} sector={region.extent} radius={planet.radiusMeters} sites={sites} selected={state.selectedSiteId} onSelect={selectSite} overlay={terrainOverlay} themisDataset={themis} geologyDataset={geology} />;
   }
   // Without verified imagery, a region is framed on the orientation basemap with its capabilities listed.
   const basemap = datasets.find(dataset => dataset.regionId === 'global' && dataset.kind === 'basemap' && dataset.status !== 'unavailable');

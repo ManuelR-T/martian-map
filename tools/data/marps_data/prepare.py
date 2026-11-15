@@ -26,6 +26,7 @@ from PIL import Image
 from .wmts import imagery_wmts
 from . import check, geo, geology, meda, spec, terrain
 from .rover import prepare_rover
+from .annotations import prepare_annotations
 
 # Covers the TIFF tags and the row offsets of the largest source (HiRISE: 172 609 bytes).
 HEADER_BYTES = 262_144
@@ -774,6 +775,7 @@ def build_manifest(datasets: list[dict], sites: list[dict], generated_at: str) -
                     available("terrain-dem", "Altitudes (HiRISE 4 m, repli CTX 20 m)", *terrain_ids("dem")),
                     available("terrain-slope", "Pentes (HiRISE 4 m, repli CTX 20 m)", *terrain_ids("slope")),
                     available("terrain-hillshade", "Relief ombré", *terrain_ids("hillshade")),
+                    available("terrain-annotations", "Terrain inspection annotations", "jezero-terrain-annotations"),
                     available("science-sites", "Sites scientifiques", "jezero-sampling-sites"),
                     available("rover-traverse", "Trace historique de Perseverance", "jezero-perseverance-waypoints", "jezero-perseverance-traverse"),
                     available("thermal-themis", "Infrarouge nocturne THEMIS", "jezero-themis-night-ir"),
@@ -800,6 +802,7 @@ def main() -> None:
     datasets = [
         prepare_mola(staging, retrieved_at),
         hirise,
+        prepare_annotations(staging, retrieved_at, hirise),
         prepare_themis(staging, retrieved_at, hirise["wmts"]["extent"]),
         *(d for product in spec.ELEVATION_PRODUCTS for d in prepare_terrain(staging, retrieved_at, product)),
         sites_dataset,

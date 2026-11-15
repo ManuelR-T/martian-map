@@ -1,3 +1,5 @@
+import { TerrainAnnotations } from './TerrainAnnotations';
+import { findTerrainAnnotationDataset } from '@marps/data';
 import { locale } from '../../i18n';
 import { localize } from '@marps/ui';
 import '../../i18n';
@@ -39,6 +41,8 @@ import { useGeologyLayer } from './useGeologyLayer';
 const messages = new Proxy(jezeroMessages.fr, { get: (target, key: string) => localize(target[key as keyof typeof target]) });
 
 interface Props {
+  annotationsEnabled?: boolean;
+  onAnnotationsToggle?: () => void;
   panelHost: HTMLElement | null;
   datasets: readonly DatasetDescriptor[];
   roverEnabled: boolean;
@@ -55,8 +59,10 @@ interface Props {
   overlay?: (map: Map | null) => ReactNode;
 }
 const bounds = (extent: Extent) => [extent.west, extent.south, extent.east, extent.north];
-export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected, onSelect, datasets, roverEnabled, onRoverToggle, overlay, themisDataset, geologyDataset }: Props) {
-  const mission = selectCurrentMission(usePlannerState());
+export function JezeroMap({ annotationsEnabled = false, onAnnotationsToggle = () => {}, panelHost, dataset, sector, radius, sites, selected, onSelect, datasets, roverEnabled, onRoverToggle, overlay, themisDataset, geologyDataset }: Props) {
+  const planner = usePlannerState();
+  const mission = selectCurrentMission(planner);
+  const [annotationHits, setAnnotationHits] = useState<readonly string[] | null>(null);
   const themis = useThemisNightLayer(themisDataset);
   const themisLayer = themis.layer;
   const geology = useGeologyLayer(geologyDataset);
@@ -150,7 +156,9 @@ export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected,
     map.on('movestart', () => setChoice(null));
     map.on('singleclick', event => {
       const hits = map.getFeaturesAtPixel(event.pixel, { hitTolerance: 15 }).map(feature => sites.find(site => site.id === feature.getId())).filter((site): site is SiteDescriptor => Boolean(site));
-      if (hits.length === 0 && roverEnabledRef.current && historyRef.current) {
+      const annotations = hits.length === 0 ? [...new Set(map.getFeaturesAtPixel(event.pixel, { hitTolerance: 15 }).map(feature => feature.get('annotationId')).filter((id): id is string => typeof id === 'string'))] : [];
+      setAnnotationHits(annotations.length ? annotations : null);
+      if (hits.length === 0 && annotations.length === 0 && roverEnabledRef.current && historyRef.current) {
         const roverHits = map.getFeaturesAtPixel(event.pixel, { hitTolerance: 15 }).map(feature => feature.get('roverIndex')).filter((index): index is number => typeof index === 'number');
         setRoverCandidates(roverHits.length > 1 ? [...new Set(roverHits)] : null);
         setRoverSelected(roverHits.length === 1 ? roverHits[0]! : null);
@@ -217,6 +225,7 @@ export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected,
         {localize(overlay?.(overlayMap))}
         {geologyDataset && <GeologyControl dataset={geologyDataset} sites={sites} settings={geology.settings} onChange={geology.setSettings} loading={geology.loading} failed={geology.failed} onRetry={geology.retry} className="border-0 bg-transparent p-0" />}
         {themisDataset && <ThemisNightControl dataset={themisDataset} settings={themis.settings} onChange={themis.setSettings} className="border-0 bg-transparent p-0" />}
+        {planner.catalog.status === 'ready' && findTerrainAnnotationDataset(planner.catalog.data.manifest, dataset.regionId) && <TerrainAnnotations map={overlayMap} manifest={planner.catalog.data.manifest} enabled={annotationsEnabled} onToggle={onAnnotationsToggle} hits={annotationHits} onHitsChange={setAnnotationHits} onClose={() => target.current?.focus({ preventScroll: true })} />}
         <RoverHistoryControl enabled={roverEnabled} onToggle={onRoverToggle} history={history} candidates={roverCandidates} failed={historyFailed} retry={() => { setHistoryFailed(false); setAttempt(value => value + 1); }} selected={roverSelected} onSelect={index => { setRoverSelected(index); if (index === null) setRoverCandidates(null); }} />
       </div>
 
