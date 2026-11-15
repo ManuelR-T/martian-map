@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { BrandMark, DataState, ThemeToggle } from '@marps/ui';
 import { BudgetPanel } from './panels/BudgetPanel';
+import { ConditionsPanel } from './panels/ConditionsPanel';
 import { floatingSurface, MapStage } from './panels/MapStage';
 import { SiteDetailsPanel } from './panels/SiteDetailsPanel';
 import { PlannerMap } from './features/map/PlannerMap';
@@ -122,7 +123,9 @@ export function App() {
           <div className="mission-panels relative z-10 flex min-h-0 flex-col gap-3 max-xl:px-3 max-xl:pb-3 xl:pointer-events-none xl:col-start-3 xl:row-start-1 xl:max-h-[calc(100%-10rem)] xl:overflow-y-auto">
             {/* #14 fournira le budget calculé par mission-core. */}
             <BudgetPanel budget={null} className={`${floatingSurface} shrink-0`} />
-            <SiteDetailsPanel className={floatingSurface} />
+            {/* Pas sous « Étapes » : la carte y ancre son panneau « Secteur ». shrink-0 : la colonne défile au lieu d'écraser un panneau. */}
+            <SiteDetailsPanel className={`${floatingSurface} shrink-0`} />
+            <ConditionsPanel className={`${floatingSurface} shrink-0`} />
           </div>
         </main>
       )}

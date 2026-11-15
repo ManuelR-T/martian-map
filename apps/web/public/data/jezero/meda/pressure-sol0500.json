@@ -1,0 +1,217 @@
+{
+  "measure": "pressure",
+  "sol": 500,
+  "column": "PRESSURE",
+  "unit": "pascal",
+  "sensor": "Capteur de pression, dans le boîtier du rover",
+  "aggregation": "median",
+  "timeScale": "LMST",
+  "startUtc": "2022-07-16T22:18:04.706Z",
+  "stopUtc": "2022-07-17T22:16:38.386Z",
+  "location": {
+    "longitude": 77.40616768,
+    "latitude": 18.45889532,
+    "waypoint": "26_1004",
+    "sinceSol": 477,
+    "untilSol": 501,
+    "nearestSite": {
+      "id": "skinner-ridge",
+      "name": "Skinner Ridge",
+      "distanceMetres": 2
+    }
+  },
+  "hours": [
+    {
+      "hour": 0,
+      "median": 801.77,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "00:00:06",
+      "lastLmst": "00:20:11"
+    },
+    {
+      "hour": 1,
+      "median": 797.63,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "01:00:06",
+      "lastLmst": "01:20:11"
+    },
+    {
+      "hour": 2,
+      "median": 793.52,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "02:00:05",
+      "lastLmst": "02:20:10"
+    },
+    {
+      "hour": 3,
+      "median": 789.58,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "03:00:05",
+      "lastLmst": "03:20:10"
+    },
+    {
+      "hour": 4,
+      "median": 787.31,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "04:00:05",
+      "lastLmst": "04:20:10"
+    },
+    {
+      "hour": 5,
+      "median": 789.0,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "05:00:06",
+      "lastLmst": "05:20:10"
+    },
+    {
+      "hour": 6,
+      "median": 801.4,
+      "samples": 3693,
+      "invalid": 0,
+      "firstLmst": "06:00:06",
+      "lastLmst": "06:59:59"
+    },
+    {
+      "hour": 7,
+      "median": 807.59,
+      "samples": 1238,
+      "invalid": 0,
+      "firstLmst": "07:00:00",
+      "lastLmst": "07:20:04"
+    },
+    {
+      "hour": 8,
+      "median": 806.61,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "08:00:06",
+      "lastLmst": "08:20:11"
+    },
+    {
+      "hour": 9,
+      "median": 801.43,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "09:00:06",
+      "lastLmst": "09:20:11"
+    },
+    {
+      "hour": 10,
+      "median": 796.24,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "10:00:06",
+      "lastLmst": "10:20:11"
+    },
+    {
+      "hour": 11,
+      "median": 792.39,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "11:00:06",
+      "lastLmst": "11:20:11"
+    },
+    {
+      "hour": 12,
+      "median": 789.2,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "12:00:06",
+      "lastLmst": "12:20:11"
+    },
+    {
+      "hour": 13,
+      "median": 784.93,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "13:00:06",
+      "lastLmst": "13:20:11"
+    },
+    {
+      "hour": 14,
+      "median": 780.61,
+      "samples": 1236,
+      "invalid": 0,
+      "firstLmst": "14:00:06",
+      "lastLmst": "14:20:08"
+    },
+    {
+      "hour": 15,
+      "median": 775.41,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "15:00:06",
+      "lastLmst": "15:20:11"
+    },
+    {
+      "hour": 16,
+      "median": 771.38,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "16:00:06",
+      "lastLmst": "16:20:11"
+    },
+    {
+      "hour": 17,
+      "median": 769.93,
+      "samples": 306,
+      "invalid": 0,
+      "firstLmst": "17:00:06",
+      "lastLmst": "17:05:03"
+    },
+    {
+      "hour": 18,
+      "median": 781.39,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "18:00:06",
+      "lastLmst": "18:20:11"
+    },
+    {
+      "hour": 19,
+      "median": 794.73,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "19:00:05",
+      "lastLmst": "19:20:10"
+    },
+    {
+      "hour": 20,
+      "median": 801.75,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "20:00:05",
+      "lastLmst": "20:20:10"
+    },
+    {
+      "hour": 21,
+      "median": 806.07,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "21:00:06",
+      "lastLmst": "21:20:10"
+    },
+    {
+      "hour": 22,
+      "median": 806.18,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "22:00:06",
+      "lastLmst": "22:20:10"
+    },
+    {
+      "hour": 23,
+      "median": 805.44,
+      "samples": 1239,
+      "invalid": 0,
+      "firstLmst": "23:00:06",
+      "lastLmst": "23:20:11"
+    }
+  ]
+}

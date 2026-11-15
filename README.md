@@ -141,6 +141,7 @@ Les données du MVP sont **figées dans le dépôt** sous `apps/web/public/data`
 | `jezero-hirise-dem`, `-slope`, `-hillshade` | figée | Altitudes, pentes et relief ombré HiRISE, agrégés à 4 m |
 | `jezero-ctx-dem`, `-slope`, `-hillshade` | figée | Les mêmes grilles à 20 m (CTX), en repli |
 | `jezero-sampling-sites` | figée | Skinner Ridge, Wildcat Ridge et Amalik (GeoJSON NASA) |
+| `jezero-meda-temperature`, `-pressure` | figée | Température et pression MEDA du sol 500, une valeur par heure martienne |
 
 Le manifeste sépare l'**orientation globale** (région `global`) du **détail de
 Jezero** (région `jezero`). Chaque capacité (`imagery-hirise`, `terrain-dem`,
@@ -162,6 +163,24 @@ manifeste donne l'origine, le pas, la projection et le datum vertical.
 est préféré, CTX prend le relais s'il manque. La taille de maille n'est pas une
 précision de navigation. Détails et limites : [`docs/relief-jezero.md`](docs/relief-jezero.md).
 
+Les conditions MEDA sont des **mesures passées au rover**, jamais une prévision
+sur le parcours. La préparation lit le CSV complet de chaque sol et son label
+PDS4 : l'empreinte MD5 et l'unité de la colonne doivent correspondre, sinon elle
+s'arrête. Une seule colonne est gardée par mesure : `ATS_LOCAL_TEMP1` (capteur du
+mât à 1,45 m, le moins chauffé par le rover) pour la température, `PRESSURE` du
+produit dérivé pour la pression. Les cinq capteurs ne sont jamais moyennés.
+Chaque heure garde la médiane des valeurs valides, leur nombre et la fenêtre
+mesurée (MEDA ne mesure qu'une partie de l'heure). Une valeur vide, non numérique,
+égale à la sentinelle `9999999999` ou physiquement impossible (hors 120–330 K ou
+100–1 300 Pa) est comptée et écartée ; une heure sans valeur valide reste `null`
+et s'affiche « indisponible ». Les valeurs restent en kelvins et en pascals ;
+`kelvinToCelsius` (K − 273,15) les convertit à l'affichage. L'incertitude de
+pression n'est pas utilisée : la colonne est vide et son label la déclare en
+kelvins. Le lieu est le dernier arrêt NASA (`M20_waypoints.json`) avant le sol ;
+un sol où le rover a roulé est refusé, car ses mesures viendraient de plusieurs
+endroits. `loadMedaConditions`, `conditionsAt` et `availableHours` de
+`@marps/data` les lisent.
+
 ### Préparer et vérifier
 
 La préparation est une étape explicite. Elle demande [uv](https://docs.astral.sh/uv/)
@@ -176,8 +195,8 @@ pnpm data:test      # tests des scripts
 
 `data:prepare` écrit dans un dossier temporaire, valide, puis remplace
 `apps/web/public/data` ; un échec réseau ou de validation laisse les données
-actuelles intactes. Le DEM CTX et le bloc de lignes lu dans le DEM HiRISE (103 Mo
-sur 1,8 Go, par requête `Range`) sont mis en cache dans `tools/data/.cache` (ignoré
+actuelles intactes. Le DEM CTX, le bloc de lignes lu dans le DEM HiRISE (103 Mo
+sur 1,8 Go, par requête `Range`) et les CSV MEDA sont mis en cache dans `tools/data/.cache` (ignoré
 par Git) et leur empreinte est vérifiée : si une source amont change, la préparation
 s'arrête pour revue. Le secteur, les URL et les crédits sont dans
 `tools/data/marps_data/spec.py`.
@@ -186,7 +205,9 @@ s'arrête pour revue. Le secteur, les URL et les crédits sont dans
 le secteur, tailles et empreintes des fichiers, unités, `NaN` des altitudes
 (aucune valeur sentinelle), pixels transparents, transformation des grilles,
 présence de chaque site sur une maille valide, pentes entre 0° et 90° sur la même
-grille que leurs altitudes, et cohérence statut/capacités.
+grille que leurs altitudes, 24 heures MEDA par sol avec une valeur seulement
+là où des mesures valides existent, position du rover dans le secteur, et
+cohérence statut/capacités.
 Les notes de recherche sont dans [`docs/`](docs/) et les échantillons de contrôle
 dans [`data/research/`](data/research/).
 
