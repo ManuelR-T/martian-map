@@ -31,7 +31,7 @@
   .map-view-switch [role=radio] svg { display: none; }
 }
 @media (max-width: 360px) and (max-height: 400px) {
-  .planner-app > header { display: none; }
+  .planner-app > header { min-height: 44px; }
   .compact-navigation { padding-block: 0; }
   .offline-status { font-size: .65rem; line-height: 1rem; }
 }
@@ -40,4 +40,11 @@
 }
 @media (max-width: 480px) {
   .map-view-switch { align-self: flex-start; max-width: calc(100% - 3.5rem); }
+}
+
+/* Keep collapsed content out of flex layouts at every screen size. */
+.mission-panels.hidden { display: none; }
+summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+@media (max-width: 480px), (max-height: 480px) {
+  .planner-app > header nav { display: flex; }
 }

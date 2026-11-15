@@ -67,8 +67,12 @@ export function GlobalMarsMap({ dataset, manifest, global, onSelectRegion }: Pro
   }, [dataset, global, onSelectRegion]);
   return <div className="mars-map-container">
     <div ref={target} className="mars-map" tabIndex={0} aria-label={global ? 'Carte globale de Mars. Flèches pour déplacer, plus et moins pour zoomer.' : 'Carte du secteur Jezero'} />
+    {(failed || offline) && <div role="status" className="map-alert border bg-card p-3 text-sm text-foreground">
+      <p>{failed ? 'Certaines tuiles sont indisponibles.' : 'Hors ligne : seules les données téléchargées sont accessibles.'}</p>
+      {failed && <Button variant="outline" size="sm" onClick={() => { setFailed(false); sourceRef.current?.refresh(); }}>Réessayer les tuiles</Button>}
+    </div>}
     <details className="map-information border bg-card/95 p-2 text-xs text-foreground backdrop-blur-sm">
-      <summary className="map-info-toggle cursor-pointer font-semibold">Carte et sources · <ProvenanceBadge status={datasetScientificStatus(dataset)} /></summary>
+      <summary className="map-info-toggle cursor-pointer font-semibold">Légende et informations · <ProvenanceBadge status={datasetScientificStatus(dataset)} /></summary>
       <div className="flex flex-wrap items-center gap-2">
       {global && <>
         <Button size="sm" className="px-2" onClick={onSelectRegion}>Ouvrir Jezero</Button>
@@ -77,6 +81,7 @@ export function GlobalMarsMap({ dataset, manifest, global, onSelectRegion }: Pro
       </div>
       <p role="status">{failed ? 'Certaines tuiles sont indisponibles.' : offline ? 'Hors ligne : données locales et tuiles déjà téléchargées.' : global ? 'Carte disponible. Les détails globaux se chargent en ligne.' : 'Imagerie locale chargée.'} {global ? 'Glissez pour explorer Mars ; utilisez la molette ou + / − pour zoomer.' : 'Imagerie locale figée ; hors secteur, aucune couverture.'}</p>
       {failed && <Button variant="outline" size="sm" onClick={() => { setFailed(false); sourceRef.current?.refresh(); }}>Réessayer les tuiles</Button>}
+      {global && <p className="mt-2"><span aria-hidden="true" className="mr-2 inline-block size-3 rounded-full border-2 border-[#151b25] bg-[#ffcc66]" />Jezero : sélectionnez le repère pour ouvrir le secteur détaillé.</p>}
       <div className="map-metadata">
       <p className="mt-2">{dataset.title}. {resolution !== null && `Vue : ${resolution.toFixed(6)}°/pixel.`}</p>
       {global

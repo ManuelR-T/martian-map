@@ -32,3 +32,4 @@
   text-shadow: none;
 }
 .mars-map-container:has(.ol-attribution:not(.ol-collapsed)) .map-information { visibility: hidden; }
+.map-alert { position: absolute; top: 4.5rem; left: 50%; transform: translateX(-50%); width: min(24rem, calc(100% - 2rem)); pointer-events: auto; }

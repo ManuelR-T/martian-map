@@ -9,19 +9,18 @@ export function StepsPanel({ className }: { className?: string }) {
   return (
     <Panel
       title="Étapes"
-      description="Dans l'ordre de visite"
       collapsible
       floating
       className={className}
       contentClassName="overflow-y-auto"
     >
-      <p className="mb-3 text-sm"><ProvenanceBadge status="simulated" /> Tracé hypothétique. Aucune validation opérationnelle ; la praticabilité n’est pas vérifiée sur le terrain.</p>
+      <p className="mb-3 text-sm"><ProvenanceBadge status="simulated" /> Mission hypothétique</p>
       <PlanningGate loadingTitle="Chargement des étapes" coverageTitle="Pas d'étapes hors du secteur détaillé" offerRegion>
         {mission.steps.length === 0 ? (
           <DataState
             kind="empty"
             title="Aucune étape"
-            description="La mission ne contient encore aucune étape. Elles s'afficheront ici dans l'ordre de visite."
+            description="Choisissez un site sur la fiche pour préparer votre sortie."
           />
         ) : (
           <StepList label="Étapes de la mission">
@@ -30,7 +29,7 @@ export function StepsPanel({ className }: { className?: string }) {
                 key={step.id}
                 position={index + 1}
                 title={step.name}
-                description={<span className="tabular-nums">{formatCoordinate(step.position)}</span>}
+                description={<details><summary className="min-h-11 cursor-pointer py-2">Coordonnées</summary><span className="tabular-nums">{formatCoordinate(step.position)}</span></details>}
               />
             ))}
           </StepList>

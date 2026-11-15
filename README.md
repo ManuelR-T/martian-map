@@ -74,8 +74,8 @@ l'application montre les jetons, les composants et ces états, avec des contenus
 d'exemple signalés comme tels.
 
 Le système de design s'appelle « Heure bleue » : sur Mars, le ciel de jour est
-caramel et le coucher de soleil est bleu. Le thème nuit est celui d'origine ; le
-thème jour s'applique quand il a été choisi.
+caramel et le coucher de soleil est bleu. La palette nuit est la seule
+apparence, appliquée dès le premier rendu, sans préférence locale.
 
 - **Un seul état partagé.** `apps/web/src/state/planner.ts` contient le
   réducteur et les sélecteurs, testables sans React ; `PlannerProvider` les
@@ -84,12 +84,10 @@ thème jour s'applique quand il a été choisi.
 - **Quatre états de données.** `DataState` couvre chargement, erreur, absence de
   données et couverture insuffisante. Toute zone qui dépend de données en
   affiche un plutôt qu'un vide.
-- **Couleurs.** Les jetons de `packages/ui/src/styles.css` forment deux
-  familles, en thème nuit et jour. Le bleu crépuscule (`--primary`) porte
-  l'interface et les actions ; la braise (`--mars`) marque le terrain, les
-  repères et le parcours. Le fond est une nuit de basalte, ou un plein jour
-  clair et froid. Le bandeau (`--header`) reste nuit dans les deux thèmes : il
-  porte la classe `dark`, que toute zone peut reprendre pour forcer ces jetons.
+- **Couleurs.** Les jetons de `packages/ui/src/styles.css` définissent une
+  seule palette « Heure bleue », à la racine et dans la portée `dark`.
+  Le bleu crépuscule (`--primary`) porte l'interface et les actions ; la braise
+  (`--mars`) marque le terrain, les repères et le parcours, sur une nuit de basalte.
   `tokens.test.ts` échoue si le texte principal passe sous 7:1, un autre texte
   sous 4,5:1 ou une bordure de contrôle sous 3:1.
 - **Accessibilité.** Un état ne repose jamais sur la seule couleur : il porte

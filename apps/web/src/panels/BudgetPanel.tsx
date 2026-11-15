@@ -23,13 +23,13 @@ export function BudgetPanel({ className, budget }: BudgetPanelProps) {
   return (
     <Panel
       title="Budget de temps"
-      description="Marche, observations, retour et réserve"
       collapsible
+      defaultOpen={Boolean(budget)}
       floating
       className={className}
       contentClassName="overflow-y-auto"
     >
-      <p className="mb-3 text-sm"><ProvenanceBadge status={budget ? 'calculated' : 'unknown'} /> {budget ? 'Estimation selon les hypothèses de mission.' : 'Aucun budget disponible.'}</p>
+      {budget && <p className="mb-3 text-sm"><ProvenanceBadge status="calculated" /> Estimation selon les hypothèses de mission.</p>}
       <PlanningGate loadingTitle="Chargement du budget" coverageTitle="Pas de budget hors du secteur détaillé">
         {budget ? (
           <BudgetBreakdown {...budget} />

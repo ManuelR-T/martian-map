@@ -12,55 +12,13 @@
  * « Heure bleue ». Sur Mars, le ciel de jour est caramel et le coucher de
  * soleil est bleu : la palette part de cette inversion. Le bleu crépuscule
  * porte l'interface et les actions, la braise marque le terrain et les repères,
- * sur une nuit de basalte (thème sombre) ou un plein jour froid (thème clair).
+ * sur une nuit de basalte, avec une seule palette pour tous les écrans.
  * Chaque paire texte/fond est contrôlée par tokens.test.ts.
  */
-:root {
-  color-scheme: light;
-  --radius: 0.125rem;
-
-  --background: #edf0f5;
-  --foreground: #0b1220;
-  --card: #ffffff;
-  --card-foreground: #0b1220;
-  --popover: #ffffff;
-  --popover-foreground: #0b1220;
-  --primary: #1a48c4;
-  --primary-foreground: #ffffff;
-  --secondary: #e2e7ef;
-  --secondary-foreground: #1b2536;
-  --muted: #e6eaf1;
-  --muted-foreground: #465165;
-  --accent: #dbe5fb;
-  --accent-foreground: #0f2a66;
-  --destructive: #b3261e;
-  --destructive-foreground: #ffffff;
-  --border: #cfd6e2;
-  --input: #6b778c;
-  --ring: #1a48c4;
-
-  --header: #060912;
-  --header-foreground: #ffffff;
-  --mars: #c2410c;
-  --mars-foreground: #ffffff;
-  --mars-surface: #f6e7dc;
-
-  --danger: #8f1d14;
-  --danger-surface: #fdeeeb;
-  --danger-border: #d0503f;
-  --warning: #6b4a00;
-  --warning-surface: #fdf3d7;
-  --warning-border: #b07c12;
-  --success: #0f5c3c;
-  --success-surface: #e9f7ef;
-  --success-border: #2f8f63;
-  --info: #1a48c4;
-  --info-surface: #ebf1fe;
-  --info-border: #4f78d8;
-}
-
+:root,
 .dark {
   color-scheme: dark;
+  --radius: 0.125rem;
 
   --background: #070a11;
   --foreground: #eef2f8;

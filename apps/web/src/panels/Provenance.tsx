@@ -82,7 +82,7 @@ export function SourcesPage() {
         <h2 className="heading-display mt-3 text-3xl font-bold">Sources et limites</h2>
         <p className="mt-3 text-muted-foreground">Les données et les hypothèses pour interpréter votre mission.</p>
       </div>
-      <Panel title="Interpréter les résultats">
+      <Panel title="Légende et limites" collapsible defaultOpen={false}>
         <div className="space-y-3 text-sm">
           <p><ProvenanceBadge status="measured" /> Observation issue d’un instrument.</p>
           <p><ProvenanceBadge status="calculated" /> Résultat dérivé de mesures ou de paramètres.</p>
@@ -97,12 +97,12 @@ export function SourcesPage() {
       {catalog.status === 'ready' ? <>
         <p className="text-sm text-muted-foreground">Catalogue figé le {catalog.data.manifest.generatedAt}. Sources disponibles au catalogue ; leur présence ne signifie pas qu’une couche est affichée.</p>
         {catalog.data.manifest.regions.map((region) => (
-          <Panel key={region.id} title={region.name}>
+          <Panel key={region.id} title={region.name} collapsible defaultOpen={false}>
             <RegionCapabilities region={region} manifest={catalog.data.manifest} />
             {catalog.data.datasets.filter((d) => d.regionId === region.id).map((dataset) => <DatasetProvenance key={dataset.id} dataset={dataset} datasets={catalog.data.datasets} />)}
           </Panel>
         ))}
-        <Panel title="Références des fiches de site">
+        <Panel title="Références des fiches de site" collapsible defaultOpen={false}>
           {catalog.data.manifest.sites.map((site) => <div key={site.id} className="border-t py-2">
             <h3 className="font-semibold">{site.name}</h3>
             <SiteScienceProvenance sheet={findSiteSheet(site.id)} />
@@ -145,9 +145,10 @@ export function SiteProvenance({ siteId }: { siteId: string }) {
   const site = catalog.data.manifest.sites.find((s) => s.id === siteId);
   if (!site) return <p>Provenance du site inconnue / indisponible.</p>;
   const dataset = catalog.data.datasets.find((d) => d.id === site.datasetId && d.regionId === site.regionId);
-  return <div className="mt-3 border-t pt-3">
+  return <details className="mt-3 border-t text-sm">
+    <summary className="min-h-11 cursor-pointer py-3 font-semibold">Position et sources du site</summary>
     <SitePositionProvenance site={site} dataset={dataset} />
     <SiteScienceProvenance sheet={findSiteSheet(siteId)} />
     {dataset ? <DatasetProvenance dataset={dataset} datasets={catalog.data.datasets} /> : <p>Source de la position inconnue / indisponible.</p>}
-  </div>;
+  </details>;
 }

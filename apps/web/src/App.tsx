@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from 'react';
-import { BrandMark, DataState, ThemeToggle } from '@marps/ui';
+import { BrandMark, DataState } from '@marps/ui';
 import { BudgetPanel } from './panels/BudgetPanel';
 import { MapStage } from './panels/MapStage';
 import { SiteDetailsPanel } from './panels/SiteDetailsPanel';
@@ -8,6 +8,7 @@ import { OfflineStatus } from './offline/OfflineStatus';
 import './responsive.css';
 import { SourcesPage } from './panels/Provenance';
 import { StepsPanel } from './panels/StepsPanel';
+import { usePlannerState } from './state/PlannerProvider';
 
 const DesignSystemPage = lazy(() => import('./design-system/DesignSystemPage'));
 
@@ -32,6 +33,7 @@ const floatingPanel = 'power-on pointer-events-auto';
 
 export function App() {
   const [mobilePage, setMobilePage] = useState<'map' | 'mission'>('map');
+  const { view } = usePlannerState();
   const hash = useHash();
   const showsDesignSystem = hash === DESIGN_SYSTEM_HASH;
   const showsSources = hash === SOURCES_HASH;
@@ -43,7 +45,7 @@ export function App() {
 
   return (
     <div data-mobile-page={mobilePage} className={showsPage ? 'flex min-h-dvh flex-col' : 'planner-app flex min-h-dvh flex-col xl:h-dvh'}>
-      {/* Bandeau nuit, identique dans les deux thèmes : il porte la portée `dark` pour que ses contrôles et son focus en héritent. */}
+      {/* Bandeau Heure bleue : ses contrôles et son focus héritent de la palette nuit. */}
       <header className="dark relative z-20 flex flex-wrap items-center gap-x-3 gap-y-1 bg-header px-4 py-1.5 text-header-foreground">
         <a
           href={`#${CONTENT_ID}`}
@@ -65,19 +67,17 @@ export function App() {
             Préparer une sortie scientifique à Jezero
           </p>
         </div>
-        <nav aria-label="Pages" className="flex flex-wrap">
-          {!showsSources ? <a href={SOURCES_HASH} className={headerLink}>Sources et limites</a> : null}
-          {showsPage ? (
-            <a href="#/" className={headerLink}>
-              Planification
-            </a>
-          ) : (
-            <a href={DESIGN_SYSTEM_HASH} className={headerLink}>
-              Système de design
-            </a>
-          )}
+        <nav aria-label="Pages" className="flex items-center">
+          {showsPage && <a href="#/" className={headerLink}>Planification</a>}
+          <details key={hash} className="relative">
+            <summary className={`${headerLink} cursor-pointer`}>Plus</summary>
+            <div className="absolute right-0 top-full z-50 grid min-w-52 border bg-header p-2 shadow-lg">
+              <a href={SOURCES_HASH} className={headerLink} aria-current={showsSources ? 'page' : undefined}>Sources et limites</a>
+              <a href={DESIGN_SYSTEM_HASH} className={headerLink} aria-current={showsDesignSystem ? 'page' : undefined}>Système de design</a>
+              <p className="px-3 py-2 text-xs text-header-foreground/75">Scénario de recherche · aucune validation opérationnelle.</p>
+            </div>
+          </details>
         </nav>
-        <ThemeToggle className="text-header-foreground/85" />
         {/* Filet d'horizon : il se trace de la braise au bleu à l'ouverture. */}
         <span aria-hidden="true" className="horizon-draw absolute inset-x-0 -bottom-0.5 h-0.5 bg-[image:var(--horizon)]" />
       </header>
@@ -117,13 +117,8 @@ export function App() {
           <MapStage map={<PlannerMap />} className="planner-map-stage relative flex h-[62dvh] min-h-[24rem] flex-col items-center justify-between gap-3 p-3 xl:pointer-events-none xl:static xl:col-start-2 xl:row-start-1 xl:h-auto xl:min-h-0 xl:p-0" />
           <div className="mission-panels relative z-10 flex min-h-0 flex-col gap-3 max-xl:px-3 xl:pointer-events-none xl:col-start-1 xl:row-start-1">
             <StepsPanel className={floatingPanel} />
-            <div className="compact-settings">
-              <a href={SOURCES_HASH}>Sources et limites</a>
-              <a href={DESIGN_SYSTEM_HASH}>Système de design</a>
-              <ThemeToggle />
-            </div>
           </div>
-          <div className="mission-panels relative z-10 flex min-h-0 flex-col gap-3 max-xl:px-3 max-xl:pb-3 xl:pointer-events-none xl:col-start-3 xl:row-start-1 xl:max-h-[calc(100%-10rem)] xl:overflow-y-auto">
+          <div className={`${view === 'global' ? 'hidden' : 'flex'} mission-panels relative z-10 min-h-0 flex-col gap-3 max-xl:px-3 max-xl:pb-3 xl:pointer-events-none xl:col-start-3 xl:row-start-1 xl:max-h-[calc(100%-10rem)] xl:overflow-y-auto`}>
             {/* #14 fournira le budget calculé par mission-core. */}
             <BudgetPanel budget={null} className={`${floatingPanel} shrink-0 [--power-delay:240ms]`} />
             {/* #9 fournira les fiches scientifiques. */}
