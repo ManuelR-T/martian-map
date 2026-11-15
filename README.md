@@ -66,10 +66,16 @@ tâches suivantes.
 Sur l'écran de planification (`apps/web`), la carte occupe toute la surface
 sous le bandeau. Le sélecteur de vue (globale ou Jezero), les étapes, le budget
 de temps et la fiche de site flottent par-dessus ; chaque panneau se replie par
-son titre pour dégager la carte. Sous 1024 px, la carte reste en haut et les
-panneaux défilent dessous. Tant que leurs données ne sont pas intégrées, ces
-emplacements affichent un état explicite. La page `#/systeme-design` de l'application montre les jetons, les
-composants et ces états, avec des contenus d'exemple signalés comme tels.
+son bandeau de titre pour dégager la carte. Sous 1024 px, la carte reste en haut
+et les panneaux défilent dessous. Tant que leurs données ne sont pas intégrées,
+ces emplacements affichent un état explicite, sur un décor d'attente (limbe de
+Mars ou quadrillage) qui n'est pas une donnée. La page `#/systeme-design` de
+l'application montre les jetons, les composants et ces états, avec des contenus
+d'exemple signalés comme tels.
+
+Le système de design s'appelle « Heure bleue » : sur Mars, le ciel de jour est
+caramel et le coucher de soleil est bleu. Le thème nuit est celui d'origine ; le
+thème jour s'applique quand il a été choisi.
 
 - **Un seul état partagé.** `apps/web/src/state/planner.ts` contient le
   réducteur et les sélecteurs, testables sans React ; `PlannerProvider` les
@@ -79,21 +85,35 @@ composants et ces états, avec des contenus d'exemple signalés comme tels.
   données et couverture insuffisante. Toute zone qui dépend de données en
   affiche un plutôt qu'un vide.
 - **Couleurs.** Les jetons de `packages/ui/src/styles.css` forment deux
-  familles, désaturées pour rester calmes, en thème clair et sombre. Le bleu
-  (`--primary`) et le marine (`--header`), dérivés du bleu NASA `#0B3D91`,
-  portent l'interface et les actions. Les teintes de Mars marquent le terrain
-  et les repères : rouille (`--mars`), poussière (`--mars-surface`), neutres
-  chauds le jour et basalte la nuit. `tokens.test.ts` échoue si une paire
-  texte/fond passe sous 4,5:1 ou une bordure de contrôle sous 3:1.
+  familles, en thème nuit et jour. Le bleu crépuscule (`--primary`) porte
+  l'interface et les actions ; la braise (`--mars`) marque le terrain, les
+  repères et le parcours. Le fond est une nuit de basalte, ou un plein jour
+  clair et froid. Le bandeau (`--header`) reste nuit dans les deux thèmes : il
+  porte la classe `dark`, que toute zone peut reprendre pour forcer ces jetons.
+  `tokens.test.ts` échoue si le texte principal passe sous 7:1, un autre texte
+  sous 4,5:1 ou une bordure de contrôle sous 3:1.
 - **Accessibilité.** Un état ne repose jamais sur la seule couleur : il porte
-  aussi une icône, un texte ou un motif. Le focus clavier est un contour plein
-  de 3 px défini une fois dans `styles.css` ; ne pas le retirer d'un composant.
-- **Typographie.** Public Sans pour le texte, Archivo élargi pour les titres
-  (`heading-display`) et les libellés courts en capitales (`label-caps`),
-  servis depuis le bundle, sans appel externe.
-- **Formes.** Esprit console de mission : angles droits, aucune ombre, panneaux
-  à bandeau de titre et filet supérieur rouille, boutons et badges en aplats. Ne pas
-  réintroduire de coins arrondis ni d'ombres portées sur un composant.
+  aussi une icône, un texte, une forme ou un motif. Le focus clavier est un
+  contour plein de 3 px défini une fois dans `styles.css` ; ne pas le retirer
+  d'un composant. Les cibles sont prévues pour une main gantée : 44 px de haut
+  par défaut pour un bouton, 40 au minimum, et le bandeau entier d'un panneau
+  ou la ligne entière d'une étape sont activables.
+- **Typographie.** Public Sans pour le texte, Archivo sur toute sa largeur pour
+  les titres (`heading-display`), les libellés courts en capitales
+  (`label-caps`) et les relevés chiffrés (`numeral-display`), servis depuis le
+  bundle, sans appel externe.
+- **Formes et lumière.** Esprit instrument de bord : angles droits, filet
+  d'horizon braise vers bleu (`--horizon`) sur l'arête haute des panneaux et
+  sous le bandeau, équerres de viseur aux angles bas (`panel-frame`). Une
+  surface posée sur la carte est un verre presque opaque (`glass`, activé par
+  la propriété `floating` de `Panel` et `DataState`). La lumière a un sens :
+  seuls rayonnent l'action principale, la sélection et les alertes
+  (`shadow-glow`, `shadow-ember`). Ne pas ajouter de coins arrondis ni de lueur
+  décorative à un composant.
+- **Mouvement.** Un seul moment orchestré, la mise sous tension des panneaux à
+  l'ouverture (`power-on`, échelonnée par `--power-delay`). Ensuite un
+  mouvement signale un chargement (`scan`, `shimmer`) ou répond à un geste.
+  `prefers-reduced-motion` les neutralise tous.
 
 Pour ajouter un composant shadcn/ui, lancer le CLI depuis `packages/ui` :
 

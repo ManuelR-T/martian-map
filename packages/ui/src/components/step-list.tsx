@@ -70,26 +70,28 @@ export function StepListItem({
       data-kind={kind}
       className={cn(
         // Le trait vertical relie les repères : il matérialise l'ordre du parcours.
-        "relative flex gap-3 pb-4 last:pb-0 after:absolute after:top-9 after:bottom-0 after:left-[1.0625rem] after:w-0.5 after:bg-border after:content-[''] last:after:hidden",
+        "relative flex gap-3 pb-4 last:pb-0 after:absolute after:top-11 after:bottom-1 after:left-[1.1875rem] after:border-l-2 after:border-dashed after:border-mars/60 after:content-[''] last:after:hidden",
         className,
       )}
       {...props}
     >
-      <span
-        className={cn(
-          'relative z-10 flex size-9 shrink-0 items-center justify-center border-2 text-sm font-bold tabular-nums',
-          kind === 'stop'
-            ? 'border-mars bg-mars text-mars-foreground'
-            : 'border-mars bg-card text-foreground',
-          kind === 'return' && 'border-dashed',
-        )}
-      >
-        {marker}
+      {/* La forme dit la nature du repère sans la couleur : losange plein pour une étape, carré pour le camp, carré pointillé pour le retour. */}
+      <span className="relative z-10 flex size-10 shrink-0 items-center justify-center text-sm font-bold tabular-nums">
+        <span
+          aria-hidden="true"
+          className={cn(
+            'absolute border-2 border-mars',
+            kind === 'stop' ? 'inset-[5px] rotate-45 bg-mars shadow-ember' : 'inset-0.5 bg-card',
+            kind === 'return' && 'border-dashed',
+          )}
+        />
+        <span className={cn('relative', kind === 'stop' ? 'text-mars-foreground' : 'text-foreground')}>{marker}</span>
       </span>
       <div
         className={cn(
-          'flex min-w-0 flex-1 items-start justify-between gap-2 border-2 border-transparent px-2 py-1',
-          selected && 'border-primary bg-accent text-accent-foreground',
+          'relative flex min-w-0 flex-1 items-start justify-between gap-2 border-2 border-transparent px-2.5 py-1.5 transition-[background-color,border-color,box-shadow] duration-200',
+          onSelect && !selected && 'hover:bg-accent/50',
+          selected && 'border-primary bg-accent text-accent-foreground shadow-glow',
         )}
       >
         <div className="min-w-0">
@@ -98,7 +100,8 @@ export function StepListItem({
               type="button"
               aria-pressed={selected}
               onClick={onSelect}
-              className="text-left font-semibold underline-offset-4 hover:underline"
+              // La zone activable couvre toute la ligne de l'étape, pas seulement son nom.
+              className="text-left font-semibold after:absolute after:inset-0 after:content-['']"
             >
               {heading}
             </button>
@@ -107,7 +110,7 @@ export function StepListItem({
           )}
           {description ? <div className="text-sm text-muted-foreground">{description}</div> : null}
         </div>
-        {actions ? <div className="flex shrink-0 items-center gap-1">{actions}</div> : null}
+        {actions ? <div className="relative z-10 flex shrink-0 items-center gap-1">{actions}</div> : null}
       </div>
     </li>
   );

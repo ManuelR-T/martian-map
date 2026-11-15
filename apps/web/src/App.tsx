@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from 'react';
 import { BrandMark, Button, DataState, ThemeToggle } from '@marps/ui';
 import { BudgetPanel } from './panels/BudgetPanel';
-import { floatingSurface, MapStage } from './panels/MapStage';
+import { MapStage } from './panels/MapStage';
 import { SiteDetailsPanel } from './panels/SiteDetailsPanel';
 import { PlannerMap } from './features/map/PlannerMap';
 import { OfflineStatus } from './offline/OfflineStatus';
@@ -23,8 +23,11 @@ function useHash(): string {
   return useSyncExternalStore(subscribeToHash, () => window.location.hash);
 }
 
-const headerControl = 'text-header-foreground/85 hover:bg-white/10 hover:text-header-foreground';
-const headerLink = `label-caps inline-flex h-9 items-center px-3 transition-colors ${headerControl}`;
+const headerLink =
+  'label-caps inline-flex h-11 items-center px-3 text-header-foreground/85 transition-colors hover:bg-accent hover:text-accent-foreground';
+
+/** Panneau flottant : capte les clics que sa colonne laisse passer vers la carte, et s'allume à son tour au chargement. */
+const floatingPanel = 'power-on pointer-events-auto';
 
 export function App() {
   const { workspace } = usePlannerState();
@@ -39,8 +42,8 @@ export function App() {
 
   return (
     <div data-mobile-page={mobilePage} className={showsDesignSystem ? 'flex min-h-dvh flex-col' : 'planner-app flex min-h-dvh flex-col xl:h-dvh'}>
-      {/* Bandeau marine souligné d'un filet rouille ; le focus y passe au blanc pour rester visible. */}
-      <header className="relative z-20 flex flex-wrap items-center gap-x-3 gap-y-2 border-b-2 border-mars bg-header px-4 py-2 text-header-foreground [--ring:var(--header-foreground)]">
+      {/* Bandeau nuit, identique dans les deux thèmes : il porte la portée `dark` pour que ses contrôles et son focus en héritent. */}
+      <header className="dark relative z-20 flex flex-wrap items-center gap-x-3 gap-y-1 bg-header px-4 py-1.5 text-header-foreground">
         <a
           href={`#${CONTENT_ID}`}
           onClick={(event) => {
@@ -52,16 +55,16 @@ export function App() {
         >
           Aller au contenu
         </a>
-        <BrandMark className="size-7" />
+        <BrandMark className="size-9" />
         <div className="mr-auto min-w-0">
-          <h1 className="heading-display text-xl font-extrabold tracking-[0.04em] uppercase [font-stretch:125%]">Marps</h1>
+          <h1 className="heading-display text-2xl leading-none font-extrabold tracking-[0.06em] uppercase [font-stretch:125%]">Marps</h1>
           <p className="text-sm text-header-foreground/75 max-sm:sr-only">{workspace === 'base' ? 'À la base · préparer les sorties' : 'En mission · suivre la sortie'}</p>
         </div>
         {!showsDesignSystem && <nav aria-label="Espaces de travail" className="flex flex-wrap gap-1">
           <button type="button" aria-pressed={workspace === 'base'} className={`${headerLink} min-h-11 border ${workspace === 'base' ? 'border-current bg-white/10' : 'border-transparent'}`} onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'base' })}>À la base</button>
           <button type="button" aria-pressed={workspace === 'mission'} className={`${headerLink} min-h-11 border ${workspace === 'mission' ? 'border-current bg-white/10' : 'border-transparent'}`} onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'mission' })}>En mission</button>
         </nav>}
-        <nav aria-label="Pages">
+        <nav aria-label="Pages" className="flex flex-wrap">
           {showsDesignSystem ? (
             <a href="#/" className={headerLink}>
               Planification
@@ -72,7 +75,9 @@ export function App() {
             </a>
           )}
         </nav>
-        <ThemeToggle className={headerControl} />
+        <ThemeToggle className="text-header-foreground/85" />
+        {/* Filet d'horizon : il se trace de la braise au bleu à l'ouverture. */}
+        <span aria-hidden="true" className="horizon-draw absolute inset-x-0 -bottom-0.5 h-0.5 bg-[image:var(--horizon)]" />
       </header>
       <OfflineStatus />
       {!showsDesignSystem && <nav className="compact-navigation" aria-label="Écran de mission">
@@ -105,7 +110,7 @@ export function App() {
           */}
           <MapStage map={<PlannerMap panelHost={mapPanelHost} />} className="planner-map-stage relative flex h-[62dvh] min-h-[24rem] flex-col items-center justify-between gap-3 p-3 xl:pointer-events-none xl:static xl:col-start-2 xl:row-start-1 xl:h-auto xl:min-h-0 xl:p-0" />
           <div className="mission-panels relative z-10 flex min-h-0 flex-col gap-3 max-xl:px-3 xl:pointer-events-none xl:col-start-1 xl:row-start-1 xl:overflow-y-auto">
-            <StepsPanel className={`${floatingSurface} mission-steps shrink-0`} />
+            <StepsPanel className={`${floatingPanel} mission-steps shrink-0`} />
             <div ref={setMapPanelHost} className="map-panel-dock pointer-events-auto shrink-0 empty:hidden" />
             <div className="compact-settings">
               <Button variant="outline" aria-pressed={workspace === 'base'} onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'base' })}>À la base</Button>
@@ -116,8 +121,9 @@ export function App() {
           </div>
           <div className="mission-panels relative z-10 flex min-h-0 flex-col gap-3 max-xl:px-3 max-xl:pb-3 xl:pointer-events-none xl:col-start-3 xl:row-start-1 xl:max-h-[calc(100%-10rem)] xl:overflow-y-auto">
             {/* #14 fournira le budget calculé par mission-core. */}
-            <BudgetPanel budget={null} className={`${floatingSurface} shrink-0`} />
-            <SiteDetailsPanel className={floatingSurface} />
+            <BudgetPanel budget={null} className={`${floatingPanel} shrink-0 [--power-delay:240ms]`} />
+            {/* #9 fournira les fiches scientifiques. */}
+            <SiteDetailsPanel className={`${floatingPanel} [--power-delay:360ms]`} />
           </div>
         </main>
       )}
