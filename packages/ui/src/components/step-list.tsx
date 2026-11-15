@@ -109,7 +109,8 @@ export function StepListItem({
           ) : (
             <p className="font-semibold">{localize(heading)}</p>
           )}
-          {description ? <div className="text-sm text-muted-foreground">{localize(description)}</div> : null}
+          {/* Keep embedded controls above the title's stretched click target. */}
+          {description ? <div className="relative z-10 text-sm text-muted-foreground">{localize(description)}</div> : null}
         </div>
         {actions ? <div className="relative z-10 flex shrink-0 items-center gap-1">{localize(actions)}</div> : null}
       </div>

@@ -118,3 +118,27 @@ it('garde le suivi sauvegardé quand une nouvelle sortie remplace la précédent
     expect(active!.id).not.toBe(first!.id);
   }); });
 });
+
+it('coche et décoche une activité, restaure sa coche puis termine sans confirmation quand tout est fait', async () => {
+  await startSavedMission();
+  const checkbox = () => container.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+  await act(async () => { checkbox().click(); });
+  expect(checkbox().checked).toBe(true);
+  expect(container.textContent).toContain('1 / 1 activités terminées');
+  await act(async () => { checkbox().click(); });
+  expect(checkbox().checked).toBe(false);
+  await act(async () => { checkbox().click(); });
+  await act(async () => { await new MissionDatabase().activeMission(); await new MissionDatabase().history(); });
+  await act(async () => root.unmount());
+  root = createRoot(container);
+  await act(async () => { root.render(<PlannerProvider load={async () => catalog}><Screen /></PlannerProvider>); await new MissionDatabase().activeMission(); });
+  await click('En mission');
+  expect(checkbox().checked).toBe(true);
+  const confirm = vi.spyOn(window, 'confirm');
+  await click('Terminer la sortie');
+  expect(confirm).not.toHaveBeenCalled();
+  await act(async () => {
+    expect(await new MissionDatabase().activeMission()).toBeNull();
+    expect((await new MissionDatabase().history())[0]?.mission.steps[0]?.activities[0]?.completed).toBe(true);
+  });
+});
