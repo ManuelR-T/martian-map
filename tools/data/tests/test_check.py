@@ -256,3 +256,9 @@ def test_frozen_capabilities_are_those_the_preparation_writes():
     manifest = json.loads((spec.DATA_DIR / "manifest.json").read_text("utf-8"))
     rebuilt = prepare.build_manifest(manifest["datasets"], manifest["sites"], manifest["generatedAt"])
     assert rebuilt["regions"] == manifest["regions"]
+
+
+@pytest.mark.parametrize("name", list(spec.MOLA_FALLBACK_TILES))
+def test_the_offline_global_map_tiles_are_required(data_copy, name):
+    (data_copy / "mola" / f"{name}.jpg").unlink()
+    assert any(f"mola/{name}.jpg" in e for e in check.validate(data_copy))

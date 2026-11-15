@@ -21,6 +21,8 @@ NODATA_KINDS = {"not-applicable", "alpha-channel", "nan", "invalid-samples"}
 # Mars spans about -8.2 km (Hellas) to +21.2 km (Olympus Mons) around the MOLA datum.
 ELEVATION_RANGE_M = (-9000.0, 22000.0)
 SLOPE_RANGE_DEG = (0.0, 90.0)
+# The global map draws these two tiles when it is offline, so they are part of the frozen data.
+MOLA_FALLBACK_DIR = "mola"
 TEXT_FIELDS = ("id", "regionId", "title", "kind", "instrument", "delivery", "crs", "version", "status")
 
 
@@ -343,6 +345,20 @@ def check_sites(root: Path, manifest: dict, d: dict) -> list[str]:
     return errors
 
 
+def check_mola_fallback(root: Path) -> list[str]:
+    errors = []
+    for name in spec.MOLA_FALLBACK_TILES:
+        path = root / MOLA_FALLBACK_DIR / f"{name}.jpg"
+        try:
+            with Image.open(path) as image:
+                bad = image.format != "JPEG" or image.size != (geo.TILE_SIZE, geo.TILE_SIZE)
+        except OSError:
+            bad = True
+        if bad:
+            errors.append(f"{MOLA_FALLBACK_DIR}/{name}.jpg: missing or not a {geo.TILE_SIZE}-pixel JPEG tile")
+    return errors
+
+
 def check_capabilities(manifest: dict, datasets: dict[str, dict]) -> list[str]:
     errors = []
     for region in manifest["regions"]:
@@ -382,6 +398,7 @@ def validate(root: Path) -> list[str]:
     if planet.get("radiusMeters") != spec.MARS_RADIUS_M or planet.get("coordinates") != "planetocentric":
         errors.append("planet: expected the Mars radius and planetocentric coordinates")
 
+    errors += check_mola_fallback(root)
     datasets = {d.get("id"): d for d in manifest.get("datasets", [])}
     regions = {r.get("id"): r for r in manifest.get("regions", [])}
     for d in datasets.values():
