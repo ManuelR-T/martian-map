@@ -31,7 +31,9 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .map-drawer-close { position: absolute; top: 0; z-index: 2; color: var(--muted-foreground); }
 .map-drawer-left .map-drawer-close { right: 0; }
 .map-drawer-right .map-drawer-close { left: 0; }
-.map-drawer-rail:has(.map-drawer[data-state=open]) .map-drawer[data-state=closed] .map-drawer-trigger { visibility: hidden; }
+/* Les raccourcis restent au-dessus du volet, dans une bande sans contenu. */
+.map-drawer-right .map-drawer-content [data-slot=panel] > div { padding-right: 3.25rem; }
+.map-drawer-rail:has(.map-drawer[data-state=open]) .map-drawer[data-state=closed] .map-drawer-trigger { background-color: var(--card); }
 @media (prefers-reduced-motion: reduce) {
   .map-drawer-trigger, .map-drawer-content, .map-drawer-content [data-slot=panel] > div { transition: none; }
 }
