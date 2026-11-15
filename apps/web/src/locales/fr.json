@@ -930,5 +930,21 @@
   "Cliquez sur la carte pour placer les points du trajet. Double-cliquez pour terminer.": "Cliquez sur la carte pour placer les points du trajet. Double-cliquez pour terminer.",
   "Déplacez un point du trajet ou ajoutez un sommet en faisant glisser le segment.": "Déplacez un point du trajet ou ajoutez un sommet en faisant glisser le segment.",
   "Dessin du trajet": "Dessin du trajet",
-  "Modification du trajet": "Modification du trajet"
+  "Modification du trajet": "Modification du trajet",
+  "Marche d’exploration": "Marche d’exploration",
+  "Observations et activités": "Observations et activités",
+  "Marge après réserve": "Marge après réserve",
+  "Dépassement de {{v0}}": "Dépassement de {{v0}}",
+  "Durée prévue hors réserve :": "Durée prévue hors réserve :",
+  "Marche totale (retour compris) :": "Marche totale (retour compris) :",
+  "Distance totale :": "Distance totale :",
+  "Retour :": "Retour :",
+  "Budget du plan complet : cocher une activité ne mesure pas le temps écoulé. Distances horizontales estimées et durées de scénario ; ce budget ne garantit pas un retour sûr.": "Budget du plan complet : cocher une activité ne mesure pas le temps écoulé. Distances horizontales estimées et durées de scénario ; ce budget ne garantit pas un retour sûr.",
+  "Budget non calculable": "Budget non calculable",
+  "Vérifiez les paramètres et les activités : durées finies positives ou nulles, vitesse strictement positive et réserve inférieure ou égale à la durée disponible.": "Vérifiez les paramètres et les activités : durées finies positives ou nulles, vitesse strictement positive et réserve inférieure ou égale à la durée disponible.",
+  "Aucune sortie en cours : préparez puis démarrez une mission.": "Aucune sortie en cours : préparez puis démarrez une mission.",
+  "Budget non calculé : ajoutez un camp et au moins une étape.": "Budget non calculé : ajoutez un camp et au moins une étape.",
+  "Budget non calculé : ajoutez un camp.": "Budget non calculé : ajoutez un camp.",
+  "Budget non calculé : ajoutez au moins une étape.": "Budget non calculé : ajoutez au moins une étape.",
+  "Le budget nécessite un camp, une étape, une vitesse et des durées valides. Le seuil de pente reste distinct du calcul de temps.": "Le budget nécessite un camp, une étape, une vitesse et des durées valides. Le seuil de pente reste distinct du calcul de temps."
 }
