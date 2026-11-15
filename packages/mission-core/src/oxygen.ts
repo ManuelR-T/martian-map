@@ -1,5 +1,5 @@
 import { calculateMissionBudget } from './budget';
-import type { Mission } from './mission';
+import { missionGeometry, type Mission } from './mission';
 import { groundDistanceMetres } from './distance';
 import { sampleProfile, slopeSegments, type ElevationSampler } from './terrain';
 
@@ -58,7 +58,8 @@ export function calculateMissionOxygen(mission: Mission | null, terrain?: { samp
   const p = mission.parameters.oxygen ?? DEFAULT_OXYGEN_PARAMETERS;
   if (!validOxygenParameters(p)) return { status: 'invalid-inputs' };
   if (!p.assumeFlatTerrain && (!terrain || !Number.isFinite(terrain.spacingMetres) || terrain.spacingMetres <= 0)) return { status: 'terrain-unavailable' };
-  const route = [mission.camp!.position, ...mission.steps.map(s => s.position), mission.camp!.position];
+  const route = missionGeometry(mission)!.coordinates.map(([longitude, latitude]) => ({ longitude, latitude }));
+  const returnSegments = (mission.routeLegs?.at(-1)?.length ?? 0) + 1;
   const legs: { returnToCamp: boolean; grams: number; minutes: number }[] = [];
   const speed = mission.parameters.speedMetresPerSecond;
   for (let i = 1; i < route.length; i++) {
@@ -77,7 +78,7 @@ export function calculateMissionOxygen(mission: Mission | null, terrain?: { samp
         grams += oxygenFlow(p, speed, segment.slopeDegrees) * (segment.endMetres - segment.startMetres) / speed / 60;
       }
     }
-    legs.push({ returnToCamp: i === route.length - 1, grams, minutes: distance / speed / 60 });
+    legs.push({ returnToCamp: i >= route.length - returnSegments, grams, minutes: distance / speed / 60 });
   }
   const activities = mission.steps.flatMap(step => step.activities.map(a => ({ stepId: step.id, activityId: a.id, grams: a.durationMinutes * p.activityGramsPerMinute })));
   const totalGrams = legs.reduce((sum, leg) => sum + leg.grams, 0) + activities.reduce((sum, a) => sum + a.grams, 0);

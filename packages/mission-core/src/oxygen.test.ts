@@ -37,6 +37,22 @@ describe('oxygen model v1', () => {
     expect(r.legs[1]!.grams).toBeCloseTo(2.4);
     expect(r.flatTerrain).toBe(false);
   });
+  it('includes edited detours and every return segment once, matching the time budget', () => {
+    const m: Mission = { ...mission, routeLegs: [
+      [{ longitude: 0, latitude: 0.001 }],
+      [{ longitude: mission.steps[0]!.position.longitude, latitude: -0.001 }],
+    ] };
+    const result = ready(m);
+    const time = calculateMissionBudget(m);
+    if (time.status !== 'ready') throw Error(time.status);
+    expect(result.legs).toHaveLength(4);
+    expect(result.totalGrams).toBeCloseTo(time.walkingMinutes * 2 + 10);
+    expect(result.legs.filter(l => l.returnToCamp).reduce((sum, l) => sum + l.minutes, 0)).toBeCloseTo(time.returnMinutes);
+    expect(result.totalGrams).toBeGreaterThan(ready().totalGrams);
+    const withRelief = { ...m, parameters: { ...m.parameters, oxygen: { ...m.parameters.oxygen!, assumeFlatTerrain: false } } };
+    expect(calculateMissionOxygen(withRelief, { spacingMetres: 20, sample: c => Math.abs(c.latitude) > 0.0005
+      ? { status: 'no-data', elevationMetres: null } : { status: 'measured', elevationMetres: 0 } }).status).toBe('terrain-unavailable');
+  });
   it('preserves gaps and requires explicit flat terrain', () => {
     const m = { ...mission, parameters: { ...mission.parameters, oxygen: { ...defaults, assumeFlatTerrain: false } } };
     expect(calculateMissionOxygen(m).status).toBe('terrain-unavailable');

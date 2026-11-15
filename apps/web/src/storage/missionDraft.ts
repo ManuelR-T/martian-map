@@ -31,6 +31,7 @@ export function saveMissionDraft(mission: Mission, storage: Pick<Storage, 'setIt
     position: position(mission.camp.position), provenance: mission.camp.provenance, note: mission.camp.note, referenceUrl: mission.camp.referenceUrl };
   const steps = mission.steps.map(s => ({ id: s.id, name: s.name, position: position(s.position), siteId: s.siteId,
     activities: s.activities.map(({ id, type, durationMinutes, completed }) => ({ id, type, durationMinutes, completed })) }));
+  const routeLegs = mission.routeLegs?.map(leg => leg.map(position));
   const { availableSeconds, speedMetresPerSecond, reserveSeconds } = mission.parameters;
   const source = mission.parameters.oxygen;
   const oxygen = source && Object.fromEntries(([
@@ -44,5 +45,5 @@ export function saveMissionDraft(mission: Mission, storage: Pick<Storage, 'setIt
   const siteWork = Object.fromEntries(Object.entries(mission.siteWork).map(([id, { allottedMinutes, doneTaskIds }]) => [id, { allottedMinutes, doneTaskIds }]));
   const dataReferences = mission.dataReferences?.map(({ id, version, sha256 }) => ({ id, version, sha256 }));
   storage.setItem(MISSION_DRAFT_KEY, JSON.stringify({ schemaVersion, id, name, missionType, regionId,
-    camp, steps, parameters, assumptions, siteWork, dataReferences }));
+    camp, steps, routeLegs, parameters, assumptions, siteWork, dataReferences }));
 }
