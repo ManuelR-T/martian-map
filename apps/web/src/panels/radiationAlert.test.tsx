@@ -64,7 +64,7 @@ it('démarre une mission enregistrée sans repasser par l’assistant, même si 
   expect(container.textContent).toContain('0 / 1 activités terminées');
   // Back at the base, « Préparer » shows the started mission, never a mix with the previous draft.
   await click('À la base');
-  await click('Nouvelle mission');
+  await click('Préparation');
   expect(container.querySelector<HTMLInputElement>('input[maxlength="120"]')!.value).toBe('Reconnaissance du terrain');
   expect(container.textContent).toContain('Nouvelle mission · Étape 1 sur 3');
 });

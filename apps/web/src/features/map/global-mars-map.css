@@ -40,7 +40,10 @@
 }
 .site-choice-popover button { min-height: 44px; }
 
-.rover-warning { position: absolute; top: .5rem; right: .5rem; z-index: 1; max-width: calc(100% - 5rem); pointer-events: none; }
+/* Avis de la carte : centrés sous le sélecteur de vue, jamais sous les boutons des rails. */
+.map-notices { position: absolute; top: 4.25rem; left: 50%; z-index: 1; display: grid; gap: .5rem; width: min(24rem, calc(100% - 7rem)); translate: -50% 0; pointer-events: none; }
+.map-notices:empty { display: none; }
+.rover-warning { text-align: center; }
 
 /* Commandes de carte : même surface et même signature que les volets. */
 .mars-map .ol-control { background: transparent; border-radius: 6px; }
@@ -118,4 +121,4 @@
 .map-info-toggle:hover, .map-information[open] .map-info-toggle { color: var(--mars); background: var(--accent); }
 .map-info-content { border-radius: 6px; border-top: 2px solid transparent; background: linear-gradient(var(--card), var(--card)) padding-box, var(--horizon) border-box; box-shadow: var(--elevation); }
 .map-panel-dock .jezero-status { position: static; width: 100%; max-width: none; max-height: none; }
-.map-alert { position: absolute; top: .75rem; left: 50%; transform: translateX(-50%); width: min(24rem, calc(100% - 7rem)); pointer-events: auto; }
+.map-alert { pointer-events: auto; }

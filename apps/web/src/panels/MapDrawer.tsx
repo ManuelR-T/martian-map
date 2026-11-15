@@ -2,8 +2,10 @@ import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { X, type LucideIcon } from 'lucide-react';
 
 /** Volet non modal : la carte reste utilisable pendant la consultation. */
-export function MapDrawer({ label, icon: Icon, side, open, onOpenChange, children }: {
+export function MapDrawer({ label, shortLabel, icon: Icon, side, open, onOpenChange, children }: {
   label: string;
+  /** Libellé affiché sur le bouton replié : un mot, lisible sans infobulle. */
+  shortLabel?: string;
   icon: LucideIcon;
   side: 'left' | 'right';
   open: boolean;
@@ -13,11 +15,12 @@ export function MapDrawer({ label, icon: Icon, side, open, onOpenChange, childre
   const id = useId();
   const trigger = useRef<HTMLButtonElement>(null);
   const content = useRef<HTMLDivElement>(null);
+  const scroller = useRef<HTMLDivElement>(null);
   const restoreFocus = useRef(false);
 
   useEffect(() => {
     if (open && content.current) {
-      content.current.scrollTop = 0;
+      if (scroller.current) scroller.current.scrollTop = 0;
       content.current.focus();
     } else if (restoreFocus.current) {
       trigger.current?.focus();
@@ -42,7 +45,8 @@ export function MapDrawer({ label, icon: Icon, side, open, onOpenChange, childre
       aria-controls={id}
       onClick={() => onOpenChange(!open)}
     >
-      <Icon aria-hidden="true" className="size-5" />
+      <Icon aria-hidden="true" className="size-5 shrink-0" />
+      {shortLabel && <span aria-hidden="true" className="label-caps">{shortLabel}</span>}
     </button>
     <div
       ref={content}
@@ -57,13 +61,12 @@ export function MapDrawer({ label, icon: Icon, side, open, onOpenChange, childre
         if (event.key === 'Escape') { event.stopPropagation(); close(); }
       }}
     >
-      <button type="button" className="map-drawer-card-icon" aria-label={`Replier : ${label}`} title={`Replier : ${label}`} onClick={close}>
-        <Icon aria-hidden="true" className="size-5" />
-      </button>
-      <button type="button" className="map-drawer-close" aria-label={`Fermer : ${label}`} onClick={close}>
+      {/* Hors de la zone défilante : le repère et la croix restent visibles dans un long formulaire. */}
+      <span aria-hidden="true" className="map-drawer-card-icon"><Icon className="size-5" /></span>
+      <button type="button" className="map-drawer-close" aria-label={`Fermer : ${label}`} title={`Fermer : ${label}`} onClick={close}>
         <X aria-hidden="true" className="size-5" />
       </button>
-      {children}
+      <div ref={scroller} className="map-drawer-scroll">{children}</div>
     </div>
   </div>;
 }

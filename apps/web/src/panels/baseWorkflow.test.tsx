@@ -61,7 +61,7 @@ it('guide une mission du type à la sauvegarde sans proposer de créer un camp',
 
 it('enregistre un modèle sans imposer un camp et gère les camps séparément', async () => {
   const panel = [...container.querySelectorAll('section')].find(section => section.querySelector('h2')?.textContent === 'Mission')!;
-  expect([...panel.querySelectorAll('[role="radio"]')].map(tab => tab.textContent)).toEqual(['Nouvelle mission', 'Camps', 'Missions enregistrées']);
+  expect([...panel.querySelectorAll('[role="tab"]')].map(tab => tab.textContent)).toEqual(['Préparation', 'Camps', 'Missions enregistrées']);
   await click('Missions enregistrées');
   // The saved lists reload from IndexedDB: their buttons stay disabled until the refresh ends.
   await vi.waitFor(async () => { await act(async () => { await new MissionDatabase().templates(); }); expect([...container.querySelectorAll('button')].find(b => b.textContent === 'Nouveau modèle')?.disabled).toBe(false); });
@@ -83,14 +83,14 @@ it('garde la préparation en cours en passant par un autre onglet', async () => 
   expect(container.textContent).toContain('Étape 2 sur 3');
   await click('Camps');
   expect(container.textContent).not.toContain('Étape 2 sur 3');
-  await click('Nouvelle mission');
+  await click('Préparation');
   expect(container.textContent).toContain('Étape 2 sur 3');
 });
 
 it('ouvre l’onglet Camps depuis l’étape 2 de la préparation', async () => {
   await act(async () => { container.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
   await click('Créer un camp');
-  expect(container.querySelector('[role="radio"][aria-checked="true"]')?.textContent).toBe('Camps');
+  expect(container.querySelector('[role="tab"][aria-selected="true"]')?.textContent).toBe('Camps');
 });
 
 it('conserve les paramètres en revenant en arrière et permet de préparer une autre mission', async () => {
@@ -158,7 +158,7 @@ it('demande avant de remplacer une préparation modifiée depuis l’onglet Miss
   await vi.waitFor(async () => { await act(async () => { await new MissionDatabase().templates(); }); expect([...container.querySelectorAll('button')].find(b => b.textContent === 'Nouveau modèle')?.disabled).toBe(false); });
   await click('Nouveau modèle');
   expect(confirm).toHaveBeenCalledWith('Abandonner les modifications non enregistrées ?');
-  await click('Nouvelle mission');
+  await click('Préparation');
   expect(container.textContent).toContain('Nouvelle mission · Étape 2 sur 3');
   expect(container.querySelectorAll('select')[0]!.value).toBe('sim-jezero-alpha');
 });

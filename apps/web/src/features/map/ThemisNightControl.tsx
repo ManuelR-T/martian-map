@@ -3,6 +3,7 @@ import { Moon } from 'lucide-react';
 import type { DatasetDescriptor } from '@marps/data';
 import { cn } from '@marps/ui';
 import type { ThemisNightSettings } from './themisNight';
+import { LayerSwitch } from './LayerSwitch';
 
 export interface ThemisNightControlProps {
   dataset: DatasetDescriptor;
@@ -20,19 +21,7 @@ export const ThemisNightControl = ({ dataset, settings, onChange, className }: T
   const percent = Math.round(settings.opacity * 100);
   return (
     <div className={cn('grid gap-2 border bg-card p-3 text-sm text-foreground', className)}>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={settings.visible}
-        onClick={() => onChange({ ...settings, visible: !settings.visible })}
-        className="flex min-h-11 w-full items-center justify-between gap-3 text-left font-semibold"
-      >
-        <span className="flex items-center gap-2"><Moon aria-hidden="true" className="size-5" />Infrarouge de nuit</span>
-        <span aria-hidden="true" className={cn('flex h-7 w-12 shrink-0 items-center rounded-full border-2 p-0.5 transition-colors',
-          settings.visible ? 'justify-end border-primary bg-primary' : 'justify-start border-input bg-muted')}>
-          <span className="size-5 rounded-full bg-background shadow" />
-        </span>
-      </button>
+      <LayerSwitch label="Infrarouge de nuit" icon={<Moon aria-hidden="true" />} checked={settings.visible} onChange={(visible) => onChange({ ...settings, visible })} />
       {settings.visible && <>
         <div className="flex items-center justify-between">
           <label htmlFor={opacityId}>Opacité</label>

@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { Button, Panel, SegmentedControl } from '@marps/ui';
+import { useCallback, useEffect, useId, useRef, useState, type FormEvent } from 'react';
+import { Check } from 'lucide-react';
+import { Button, Panel, TabList } from '@marps/ui';
+import { confirmAction } from '../confirm';
 import { createEmptyMission, missionTypes, validParameters, type MissionType, type ActivityType, type Camp, type Mission, type MissionActivity, type MissionStep } from '@marps/mission-core';
 import { usePlannerDispatch, usePlannerState } from '../state/PlannerProvider';
 import { MissionDatabase, type MissionHistoryEntry } from '../storage/missionDatabase';
@@ -29,6 +31,8 @@ export function MissionEditor({ className, collapsible = true }: { className?: s
   const [tab, setTab] = useState<Tab>('prepare');
   const [stage, setStage] = useState(1);
   const [status, setStatus] = useState('');
+  const tabsId = useId();
+  const stages = ['Objectif et nom', 'Camp et parcours', 'Vérification et enregistrement'];
   const [busy, setBusy] = useState(false);
   const [baseline, setBaseline] = useState(mission);
   const [name, setName] = useState(mission.name);
@@ -50,8 +54,13 @@ export function MissionEditor({ className, collapsible = true }: { className?: s
     try { await operation(); } catch (error) { setStatus(error instanceof Error ? error.message : 'Échec de la sauvegarde locale.'); }
     finally { setBusy(false); }
   };
-  const canLeave = () => (!parametersDirty && JSON.stringify(mission) === JSON.stringify(baseline) && name === baseline.name)
-    || window.confirm('Abandonner les modifications non enregistrées ?');
+  const canLeave = async () => (!parametersDirty && JSON.stringify(mission) === JSON.stringify(baseline) && name === baseline.name)
+    || confirmAction('Abandonner les modifications non enregistrées ?', { confirmLabel: 'Abandonner', cancelLabel: 'Continuer la préparation', destructive: true });
+  const replaceTracking = () => confirmAction('Remplacer le suivi précédent par cette nouvelle sortie ? Son historique sera conservé.', { confirmLabel: 'Remplacer le suivi' });
+  const remove = async (label: string, operation: () => Promise<void>) => {
+    if (!await confirmAction(`Supprimer « ${label} » ? L’historique des sorties sera conservé.`, { confirmLabel: 'Supprimer', destructive: true })) return;
+    void run(async () => { await operation(); await refresh(); setStatus('Suppression effectuée.'); });
+  };
   const open = (value: Mission, next: 'new' | 'template') => {
     if (!missionMatchesCatalog(value, catalog)) { setStatus('Cette préparation contient un camp ou un parcours hors du secteur Jezero, ou un site incompatible avec le catalogue.'); return; }
     dispatch({ type: 'missionOpened', mission: value }); setName(value.name); setBaseline(value);
@@ -59,29 +68,32 @@ export function MissionEditor({ className, collapsible = true }: { className?: s
     setAction(next); setStage(1); setParametersDirty(false); setPersisted(null); setStatus(''); setTab('prepare');
   };
   // A fresh draft replaces the open one, so it asks first when the open one has unsaved changes.
-  const openBlank = (next: Action) => { if (canLeave()) open(createEmptyMission(mission.regionId, uid()), next); };
-  const openFrom = (value: Mission, next: Action) => { if (canLeave()) open(value, next); };
+  const openBlank = async (next: Action) => { if (await canLeave()) open(createEmptyMission(mission.regionId, uid()), next); };
+  const openFrom = async (value: Mission, next: Action) => { if (await canLeave()) open(value, next); };
   const fromTemplate = (value: Mission): Mission => ({ ...value, id: uid(), siteWork: {}, steps: value.steps.map(s => ({ ...s, activities: s.activities.map(a => ({ ...a, completed: false })) })) });
   // No tab change during a save or a delete: overlapping runs would re-enable buttons mid-save.
   const changeTab = (next: Tab) => { if (busy) return; setTab(next); setStatus(''); if (next === 'saved') void run(refresh); };
   const sites = catalog.status === 'ready' ? catalog.data.sites.filter(s => s.regionId === mission.regionId) : [];
   const extent = catalog.status === 'ready' ? catalog.data.coverage?.find(r => r.id === mission.regionId)?.extent : undefined;
   const suggestedActivities = (): MissionActivity[] => [{ id: uid(), type: mission.missionType === 'sampling' ? 'sampling' : mission.missionType === 'photography' ? 'photo' : 'observation', durationMinutes: 10, completed: false }];
-  const start = () => {
-    if (runningMission && !window.confirm('Remplacer le suivi précédent par cette nouvelle sortie ? Son historique sera conservé.')) return;
+  const start = async () => {
+    if (runningMission && !await replaceTracking()) return;
     dispatch({ type: 'missionStarted', id: uid() });
   };
-  const startSaved = (value: Mission) => {
+  const startSaved = async (value: Mission) => {
     if (!missionMatchesCatalog(value, catalog)) { setStatus('Cette préparation contient un camp ou un parcours hors du secteur Jezero, ou un site incompatible avec le catalogue.'); return; }
-    if (!canLeave()) return;
-    if (runningMission && !window.confirm('Remplacer le suivi précédent par cette nouvelle sortie ? Son historique sera conservé.')) return;
+    if (!await canLeave()) return;
+    if (runningMission && !await replaceTracking()) return;
     // Open it in the editor too: « Préparer » stays one click away and must show this mission, never a mix with the old draft.
     open(value, 'new');
     dispatch({ type: 'savedMissionStarted', mission: value, id: uid() });
   };
+  const justSaved = stage === 3 && persisted !== null && !parametersDirty;
+  const savedRef = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (justSaved) savedRef.current?.scrollIntoView?.({ block: 'nearest' }); }, [justSaved]);
   const content = (
-    <div className="grid gap-3 text-sm">
-    <p role="status">{status}</p>
+    <div role="tabpanel" id={`${tabsId}-panel`} aria-labelledby={`${tabsId}-${tab}`} className="grid gap-3 text-sm">
+    <p role="status" className="empty:hidden">{status}</p>
     {trackingError && <div role="alert"><p>{trackingError}</p><Button variant="outline" onClick={() => dispatch({ type: 'trackingRequested' })}>Réessayer le chargement du suivi</Button></div>}
     {tab === 'saved' && <div className="grid gap-4">
       <section className="grid gap-2" aria-label="Missions">
@@ -89,26 +101,24 @@ export function MissionEditor({ className, collapsible = true }: { className?: s
         {saved.length === 0 && <p>Aucune mission enregistrée.</p>}
         {saved.map(value => <div key={value.id} className="grid gap-2 border p-3">
           <p className="font-semibold">{value.name}</p><p>{value.steps.length} étapes · {value.camp?.name ?? 'Camp à choisir'}</p>
-          <Button disabled={busy || !trackingReady || !value.camp || !value.steps.length} onClick={() => startSaved(value)}>Démarrer cette mission</Button>
-          <Button variant="outline" disabled={busy} onClick={() => openFrom(value, 'new')}>Modifier la mission</Button>
-          <Button variant="outline" disabled={busy} onClick={() => {
-            if (!window.confirm(`Supprimer « ${value.name} » ? L’historique des sorties sera conservé.`)) return;
-            void run(async () => { await database.deleteMission(value.id); await refresh(); setStatus('Suppression effectuée.'); });
-          }}>Supprimer</Button>
+          <Button disabled={busy || !trackingReady || !value.camp || !value.steps.length} onClick={() => void startSaved(value)}>Démarrer cette mission</Button>
+          <div className="flex flex-wrap gap-2">
+            <Button className="flex-1" size="sm" variant="outline" disabled={busy} onClick={() => void openFrom(value, 'new')}>Modifier la mission</Button>
+            <Button size="sm" variant="danger" disabled={busy} aria-label={`Supprimer la mission ${value.name}`} onClick={() => void remove(value.name, () => database.deleteMission(value.id))}>Supprimer</Button>
+          </div>
         </div>)}
       </section>
       <section className="grid gap-2" aria-label="Modèles">
         <h3 className="label-caps">Modèles</h3>
-        <Button className="justify-self-start" variant="outline" disabled={busy} onClick={() => openBlank('template')}>Nouveau modèle</Button>
+        <Button className="justify-self-start" variant="outline" disabled={busy} onClick={() => void openBlank('template')}>Nouveau modèle</Button>
         {templates.length === 0 && <p>Aucun modèle enregistré.</p>}
         {templates.map(value => <div key={value.id} className="grid gap-2 border p-3">
           <p className="font-semibold">{value.name}</p><p>{value.steps.length} étapes · {value.camp?.name ?? 'Camp à choisir'}</p>
-          <Button disabled={busy} onClick={() => openFrom(fromTemplate(value), 'new')}>Créer une mission avec ce modèle</Button>
-          <Button variant="outline" disabled={busy} onClick={() => openFrom(value, 'template')}>Modifier le modèle</Button>
-          <Button variant="outline" disabled={busy} onClick={() => {
-            if (!window.confirm(`Supprimer « ${value.name} » ? L’historique des sorties sera conservé.`)) return;
-            void run(async () => { await database.deleteTemplate(value.id); await refresh(); setStatus('Suppression effectuée.'); });
-          }}>Supprimer</Button>
+          <Button disabled={busy} onClick={() => void openFrom(fromTemplate(value), 'new')}>Créer une mission avec ce modèle</Button>
+          <div className="flex flex-wrap gap-2">
+            <Button className="flex-1" size="sm" variant="outline" disabled={busy} onClick={() => void openFrom(value, 'template')}>Modifier le modèle</Button>
+            <Button size="sm" variant="danger" disabled={busy} aria-label={`Supprimer le modèle ${value.name}`} onClick={() => void remove(value.name, () => database.deleteTemplate(value.id))}>Supprimer</Button>
+          </div>
         </div>)}
       </section>
       <section className="grid gap-2" aria-label="Historique">
@@ -125,13 +135,18 @@ export function MissionEditor({ className, collapsible = true }: { className?: s
     </div>}
     {tab === 'prepare' && <fieldset disabled={busy} className="grid min-w-0 gap-3">
       <p className="font-semibold">{action === 'template' ? 'Modèle réutilisable' : 'Nouvelle mission'} · Étape {stage} sur 3</p>
-      {action === 'template' && <Button className="justify-self-start" variant="outline" onClick={() => openBlank('new')}>Préparer une mission à la place</Button>}
+      {action === 'template' && <Button className="justify-self-start" variant="outline" onClick={() => void openBlank('new')}>Préparer une mission à la place</Button>}
+      {/* A stage already passed is a button: no need to step back one screen at a time. */}
       <ol className="grid gap-1 border-l-2 border-mars pl-3 text-xs" aria-label="Progression de la préparation">
-        {['Objectif et nom', 'Camp et parcours', 'Vérification et enregistrement'].map((label, i) => <li key={label} aria-current={stage === i + 1 ? 'step' : undefined} className={stage === i + 1 ? 'font-semibold' : 'text-muted-foreground'}>{i + 1}. {label}</li>)}
+        {stages.map((label, i) => <li key={label} aria-current={stage === i + 1 ? 'step' : undefined} className={stage === i + 1 ? 'font-semibold' : 'text-muted-foreground'}>
+          {i + 1 < stage
+            ? <button type="button" className="min-h-6 cursor-pointer text-left text-primary underline underline-offset-4 hover:decoration-2" onClick={() => { setStage(i + 1); setPersisted(null); }}>{i + 1}. {label}</button>
+            : <>{i + 1}. {label}</>}
+        </li>)}
       </ol>
       {stage === 1 && <form className="grid gap-3" onSubmit={event => { event.preventDefault(); if (!name.trim()) return; dispatch({ type: 'missionRenamed', name: name.trim() }); setStage(2); }}>
         {action === 'new' && templates.length > 0 && <label>Partir d’un modèle (facultatif)<select className={field} value="" onChange={event => {
-          const value = templates.find(t => t.id === event.target.value); if (value) openFrom(fromTemplate(value), 'new');
+          const value = templates.find(t => t.id === event.target.value); if (value) void openFrom(fromTemplate(value), 'new');
         }}><option value="">Choisir un modèle…</option>{templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>}
         <label>Quel est l’objectif ?<select className={field} value={mission.missionType ?? 'reconnaissance'} onChange={event => {
           const type = event.target.value as MissionType;
@@ -171,7 +186,7 @@ export function MissionEditor({ className, collapsible = true }: { className?: s
         void run(async () => {
           if (action === 'template') await database.saveTemplate(value); else await database.saveMission(value);
           dispatch({ type: 'missionOpened', mission: value }); setBaseline(value); setName(value.name); setParametersDirty(false); setPersisted(value);
-          await refresh(); setStatus(action === 'template' ? 'Modèle enregistré. Il est disponible pour créer de nouvelles missions.' : 'Mission enregistrée. Vous pouvez démarrer la sortie.');
+          await refresh();
         });
       }}>
         <p className="font-semibold">{name}</p><p>{mission.camp?.name ?? 'Camp à choisir lors de la création d’une mission'} · {mission.steps.length} étapes · {mission.steps.reduce((n, s) => n + s.activities.length, 0)} activités</p>
@@ -179,11 +194,16 @@ export function MissionEditor({ className, collapsible = true }: { className?: s
         <label>Vitesse prévue (m/s)<input className={field} type="number" step="any" min={Number.MIN_VALUE} name="speed" value={parameterDraft.speed} onChange={event => setParameterDraft(current => ({ ...current, speed: event.target.value }))} required /></label>
         <label>Réserve (min)<input className={field} type="number" step="any" min={0} name="reserve" value={parameterDraft.reserve} onChange={event => setParameterDraft(current => ({ ...current, reserve: event.target.value }))} required /></label>
         <p className="text-xs text-muted-foreground">Simulation : camps fictifs, durées estimées et segments directs. Le terrain n’est pas validé.</p>
-        <Button type="submit">{action === 'template' ? 'Enregistrer le modèle' : 'Enregistrer la mission'}</Button>
+        {/* Once saved, « Démarrer » takes over as the main action; saving again has nothing to do. */}
+        <Button type="submit" variant={justSaved ? 'outline' : 'default'}>{action === 'template' ? 'Enregistrer le modèle' : 'Enregistrer la mission'}</Button>
       </form>}
+      {/* The confirmation sits where the eye is, next to the button that was pressed, and scrolls into view. */}
+      <div ref={savedRef} className="grid gap-3 empty:hidden">
+        <p role="status" className="flex items-start gap-2 font-semibold text-success empty:hidden">{justSaved && <><Check aria-hidden="true" className="mt-0.5 size-4 shrink-0" />{action === 'template' ? 'Modèle enregistré. Il est disponible pour créer de nouvelles missions.' : 'Mission enregistrée. Vous pouvez démarrer la sortie.'}</>}</p>
+        {justSaved && JSON.stringify(persisted) === JSON.stringify(mission) && action === 'new' && <Button disabled={!trackingReady} onClick={() => void start()}>Démarrer cette mission</Button>}
+      </div>
+      {justSaved && <Button variant="outline" onClick={() => void openBlank(action)}>{action === 'template' ? 'Créer un autre modèle' : 'Préparer une autre mission'}</Button>}
       {stage > 1 && <Button variant="outline" onClick={() => { setStage(stage - 1); setPersisted(null); }}>Retour à l’étape précédente</Button>}
-      {persisted && !parametersDirty && <Button variant="outline" onClick={() => openBlank(action)}>{action === 'template' ? 'Créer un autre modèle' : 'Préparer une autre mission'}</Button>}
-      {persisted && JSON.stringify(persisted) === JSON.stringify(mission) && !parametersDirty && action === 'new' && <Button disabled={!trackingReady} onClick={start}>Démarrer cette mission</Button>}
     </fieldset>}
     {/* Kept mounted, so a camp being typed survives a tab change. */}
     <div hidden={tab !== 'camps'}><CampsManager /></div>
@@ -192,9 +212,9 @@ export function MissionEditor({ className, collapsible = true }: { className?: s
   return <Panel title="Mission" description="Préparer et retrouver vos sorties" collapsible={collapsible} floating className={className} contentClassName="overflow-y-auto">
     <PlanningGate loadingTitle="Chargement des missions" coverageTitle="Ouvrez Jezero pour préparer une mission" offerRegion>
       <div className="grid min-w-0 grid-cols-1 gap-3">
-        {/* The 19rem column fits three tabs only if they share its width and wrap on two lines. The check mark is hidden: it made the active tab overflow; the fill marks it. */}
-        <SegmentedControl<Tab> className="w-full [&>button]:flex-auto [&>button]:min-w-min [&>button]:px-1 [&>button]:tracking-normal [&>button]:text-[0.7rem] [&>button]:h-auto [&>button]:min-h-10 [&>button]:py-1 [&>button]:whitespace-normal [&>button]:leading-tight [&_svg]:hidden" label="Sections de la mission" value={tab} onValueChange={changeTab} options={[
-          { value: 'prepare', label: 'Nouvelle mission' },
+        <TabList<Tab> label="Sections de la mission" value={tab} onValueChange={changeTab} tabId={value => `${tabsId}-${value}`} panelId={`${tabsId}-panel`}
+          className="[&>button]:text-[0.75rem] [&>button]:tracking-[0.04em]" options={[
+          { value: 'prepare', label: 'Préparation' },
           { value: 'camps', label: 'Camps' },
           { value: 'saved', label: 'Missions enregistrées' },
         ]} />

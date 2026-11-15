@@ -4,6 +4,7 @@ import { Button } from '@marps/ui';
 import { usePlannerState } from '../state/PlannerProvider';
 import { MissionDatabase } from '../storage/missionDatabase';
 import { formatCoordinate } from '../format';
+import { confirmAction } from '../confirm';
 import { baseField, notifyBaseRecordsChanged } from './baseControls';
 
 /** Camp catalog without its panel, shown in the « Camps » tab of the mission panel. */
@@ -30,7 +31,7 @@ export function CampsManager() {
   };
   const filtered = camps.filter(c => c.name.toLocaleLowerCase('fr').includes(query.toLocaleLowerCase('fr')));
   return <div className="grid gap-3 text-sm">
-      <p role="status">{status}</p>
+      <p role="status" className="empty:hidden">{status}</p>
       {action === 'search' && <>
         <Button className="justify-self-start" disabled={busy} onClick={() => { setAction('create'); setSelected(null); setStatus(''); }}>Nouveau camp</Button>
         <label>Rechercher par nom<input className={baseField} type="search" value={query} onChange={event => setQuery(event.target.value)} /></label>
@@ -41,8 +42,8 @@ export function CampsManager() {
           <p className="text-xs text-muted-foreground">{camp.note}</p>
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" disabled={busy} onClick={() => { setSelected(camp); setAction('edit'); setStatus(''); }}>Modifier</Button>
-            <Button variant="outline" disabled={busy} onClick={() => {
-              if (!window.confirm(`Supprimer « ${camp.name} » du catalogue ? Les missions déjà préparées conserveront leur copie du camp.`)) return;
+            <Button variant="danger" disabled={busy} aria-label={`Supprimer le camp ${camp.name}`} onClick={async () => {
+              if (!await confirmAction(`Supprimer « ${camp.name} » du catalogue ? Les missions déjà préparées conserveront leur copie du camp.`, { confirmLabel: 'Supprimer', destructive: true })) return;
               void run(async () => { await database.deleteCamp(camp.id); setStatus('Camp supprimé du catalogue.'); });
             }}>Supprimer</Button>
           </div>
