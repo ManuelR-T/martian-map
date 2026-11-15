@@ -34,7 +34,7 @@ const headerLink =
 const floatingPanel = 'pointer-events-auto';
 
 export function App() {
-  const [openDrawer, setOpenDrawer] = useState<'steps' | 'budget' | 'site' | null>(null);
+  const [openDrawers, setOpenDrawers] = useState({ steps: false, budget: false, site: false });
   const { view } = usePlannerState();
   const hash = useHash();
   const showsDesignSystem = hash === DESIGN_SYSTEM_HASH;
@@ -102,18 +102,20 @@ export function App() {
           className="planner-main relative min-h-0 flex-1 outline-none"
         >
           <MapStage map={<PlannerMap />} className="planner-map-stage relative flex h-full min-h-0 flex-col items-center justify-between p-3" />
-          <div className="map-drawer-rail map-drawer-rail-left">
-            <MapDrawer label="Étapes de la mission" icon={Route} side="left" open={openDrawer === 'steps'} onOpenChange={(open) => setOpenDrawer(open ? 'steps' : null)}>
-              <StepsPanel className={floatingPanel} collapsible={false} />
-            </MapDrawer>
-          </div>
-          <div className="map-drawer-rail map-drawer-rail-right" hidden={view === 'global'}>
-            <MapDrawer label="Budget de temps" icon={Timer} side="right" open={openDrawer === 'budget'} onOpenChange={(open) => setOpenDrawer(open ? 'budget' : null)}>
-              <BudgetPanel budget={null} className={floatingPanel} collapsible={false} />
-            </MapDrawer>
-            <MapDrawer label="Fiche de site" icon={MapPin} side="right" open={openDrawer === 'site'} onOpenChange={(open) => setOpenDrawer(open ? 'site' : null)}>
-              <SiteDetailsPanel className={floatingPanel} collapsible={false} />
-            </MapDrawer>
+          <div className="map-drawer-rails">
+            <div className="map-drawer-rail map-drawer-rail-left">
+              <MapDrawer label="Étapes de la mission" icon={Route} side="left" open={openDrawers.steps} onOpenChange={(open) => setOpenDrawers((current) => ({ ...current, steps: open }))}>
+                <StepsPanel className={floatingPanel} collapsible={false} />
+              </MapDrawer>
+            </div>
+            <div className="map-drawer-rail map-drawer-rail-right" hidden={view === 'global'}>
+              <MapDrawer label="Budget de temps" icon={Timer} side="right" open={openDrawers.budget} onOpenChange={(open) => setOpenDrawers((current) => ({ ...current, budget: open }))}>
+                <BudgetPanel budget={null} className={floatingPanel} collapsible={false} />
+              </MapDrawer>
+              <MapDrawer label="Fiche de site" icon={MapPin} side="right" open={openDrawers.site} onOpenChange={(open) => setOpenDrawers((current) => ({ ...current, site: open }))}>
+                <SiteDetailsPanel className={floatingPanel} collapsible={false} />
+              </MapDrawer>
+            </div>
           </div>
         </main>
       )}
