@@ -1086,5 +1086,12 @@
   "{{v0}}, dont {{v1}} sur terrain fermé à {{v2}}° : coût non comparable": "{{v0}}, of which {{v1}} on terrain closed at {{v2}}°: cost not comparable",
   "Sur la carte : chemin proposé.": "On the map: proposed path.",
   "Coût : chaque mètre compte 1 + 2 × pente / pente maximale mètres à plat. Le poids 2 est une hypothèse de modèle, pas une limite de combinaison.": "Cost: each metre counts as 1 + 2 × slope / maximum slope metres on flat ground. The weight 2 is a modelling assumption, not a suit limit.",
-  "Les flèches indiquent le sens de marche, retour au camp compris.": "The arrows show the walking direction, including the return to camp."
+  "Les flèches indiquent le sens de marche, retour au camp compris.": "The arrows show the walking direction, including the return to camp.",
+  "Préparez explicitement Jezero avant de couper la connexion.": "Explicitly prepare Jezero before disconnecting.",
+  "Secteur de mission Jezero : HiRISE z12–16, THEMIS z9, sites, relief et météo figés. Les tuiles HiRISE supplémentaires sont conservées séparément ; les zones non téléchargées nécessitent internet.": "Jezero mission sector: HiRISE z12–16, THEMIS z9, sites, terrain and frozen weather. Additional HiRISE tiles are stored separately; areas not downloaded require internet.",
+  "Stockage insuffisant. Libérez de la place puis réessayez.": "Insufficient storage. Free space and retry.",
+  "Téléchargement incomplet ou stockage indisponible. Réessayez en ligne.": "Incomplete download or storage unavailable. Retry online.",
+  "Préparer / vérifier Jezero": "Prepare / verify Jezero",
+  "Les tuiles HiRISE supplémentaires sont conservées séparément dans la limite de 16 Mio ; les tuiles absentes nécessitent internet. L’imagerie hors secteur n’active ni relief ni planification.": "Additional HiRISE tiles are retained separately up to 16 MiB; missing tiles require internet. Out-of-sector imagery enables neither terrain nor planning.",
+  "L’exploration globale nécessite internet. Ouvrez Jezero pour utiliser le secteur préparé.": "Global exploration requires internet. Open Jezero to use the prepared sector."
 }

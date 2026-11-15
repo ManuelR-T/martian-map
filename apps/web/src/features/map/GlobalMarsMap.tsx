@@ -121,7 +121,7 @@ export function GlobalMarsMap({ panelHost, dataset, regions, focus, onSelectRegi
         <p>{localize("Aucune donnée détaillée vérifiée pour {{v0}} : seul le fond d'orientation est affiché.", { v0: focus.name })}</p>
       </div>}
       {(failed || offline) && <div role="status" className="map-alert border bg-card p-3 text-sm">
-        <p>{failed ? localize("Certaines tuiles sont indisponibles.") : localize("Hors ligne : seules les données téléchargées sont accessibles.")}</p>
+        <p>{failed ? localize("Certaines tuiles sont indisponibles.") : localize("L’exploration globale nécessite internet. Ouvrez Jezero pour utiliser le secteur préparé.")}</p>
         {failed && retry}
       </div>}
     </div>
@@ -141,7 +141,7 @@ export function GlobalMarsMap({ panelHost, dataset, regions, focus, onSelectRegi
           <Button key={region.id} size="sm" className="px-2" variant={hasDetailedData(region) ? 'default' : 'outline'} onClick={() => onSelectRegion(region.id)}>{localize("Ouvrir")} {region.name}</Button>)}
         {!focus && <Button size="sm" className="px-2" variant="outline" onClick={() => mapRef.current?.getView().fit(WHOLE_MARS, { size: mapRef.current.getSize(), duration: 250 })}>{localize("Mars entière")}</Button>}
       </div>
-      <p role="status">{failed ? localize("Certaines tuiles sont indisponibles.") : offline ? localize("Hors ligne : données locales et tuiles déjà téléchargées.") : localize("Carte disponible. Les détails globaux se chargent en ligne.")} {localize("Glissez pour explorer Mars ; utilisez la molette ou + / − pour zoomer.")}</p>
+      <p role="status">{failed ? localize("Certaines tuiles sont indisponibles.") : offline ? localize("L’exploration globale nécessite internet. Ouvrez Jezero pour utiliser le secteur préparé.") : localize("Carte disponible. Les détails globaux se chargent en ligne.")} {localize("Glissez pour explorer Mars ; utilisez la molette ou + / − pour zoomer.")}</p>
       {failed && retry}
       <div className="map-metadata">
         <p className="mt-2">{localize(dataset.title)} {localize("· Échantillonnage nominal :")} {localize(dataset.resolution?.value ?? localize("inconnu"))} {localize("m/pixel.")} {resolution !== null && `${localize("Vue :")} ${degrees(resolution)}°/pixel.`} {localize("Le fond de secours est moins détaillé. La planification n'est proposée que dans les régions aux données vérifiées.")}</p>

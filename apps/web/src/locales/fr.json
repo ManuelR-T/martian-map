@@ -1086,5 +1086,12 @@
   "{{v0}}, dont {{v1}} sur terrain fermé à {{v2}}° : coût non comparable": "{{v0}}, dont {{v1}} sur terrain fermé à {{v2}}° : coût non comparable",
   "Sur la carte : chemin proposé.": "Sur la carte : chemin proposé.",
   "Coût : chaque mètre compte 1 + 2 × pente / pente maximale mètres à plat. Le poids 2 est une hypothèse de modèle, pas une limite de combinaison.": "Coût : chaque mètre compte 1 + 2 × pente / pente maximale mètres à plat. Le poids 2 est une hypothèse de modèle, pas une limite de combinaison.",
-  "Les flèches indiquent le sens de marche, retour au camp compris.": "Les flèches indiquent le sens de marche, retour au camp compris."
+  "Les flèches indiquent le sens de marche, retour au camp compris.": "Les flèches indiquent le sens de marche, retour au camp compris.",
+  "Préparez explicitement Jezero avant de couper la connexion.": "Préparez explicitement Jezero avant de couper la connexion.",
+  "Secteur de mission Jezero : HiRISE z12–16, THEMIS z9, sites, relief et météo figés. Les tuiles HiRISE supplémentaires sont conservées séparément ; les zones non téléchargées nécessitent internet.": "Secteur de mission Jezero : HiRISE z12–16, THEMIS z9, sites, relief et météo figés. Les tuiles HiRISE supplémentaires sont conservées séparément ; les zones non téléchargées nécessitent internet.",
+  "Stockage insuffisant. Libérez de la place puis réessayez.": "Stockage insuffisant. Libérez de la place puis réessayez.",
+  "Téléchargement incomplet ou stockage indisponible. Réessayez en ligne.": "Téléchargement incomplet ou stockage indisponible. Réessayez en ligne.",
+  "Préparer / vérifier Jezero": "Préparer / vérifier Jezero",
+  "Les tuiles HiRISE supplémentaires sont conservées séparément dans la limite de 16 Mio ; les tuiles absentes nécessitent internet. L’imagerie hors secteur n’active ni relief ni planification.": "Les tuiles HiRISE supplémentaires sont conservées séparément dans la limite de 16 Mio ; les tuiles absentes nécessitent internet. L’imagerie hors secteur n’active ni relief ni planification.",
+  "L’exploration globale nécessite internet. Ouvrez Jezero pour utiliser le secteur préparé.": "L’exploration globale nécessite internet. Ouvrez Jezero pour utiliser le secteur préparé."
 }

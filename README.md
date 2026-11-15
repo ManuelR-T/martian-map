@@ -309,20 +309,15 @@ ranges, URLs and credit from the manifest. It never requests a local tile
 outside the frozen ranges. The approximate global Jezero marker is not used as a
 scientific site coordinate.
 
-Production builds precache all final assets, fonts, the lazy-loaded design
-system code, the manifest and the prepared local datasets. Once the
-"offline-ready" message appears, reloading works without internet. The first
-installation needs a connection, or the static build served from a local
-server; service workers require HTTPS or localhost. Development mode does not
-install a worker. Clearing or evicting browser storage requires preparing again.
-Additional global MOLA tiles that loaded successfully are cached up to 180
-tiles; unvisited detail falls back to the bundled overview. This is neither a
-complete high-resolution download of the planet nor a guarantee of mission
-suitability.
+Production builds install the application shell. Explicit preparation from the
+header downloads the local datasets with a 64 MiB limit and verifies every
+resource before announcing readiness. HTTPS or localhost is required; development
+mode does not install a worker. Storage eviction requires preparation again.
+Extra HiRISE tiles use a separate 16 MiB cache; global MOLA tiles are not cached.
+See the [offline checklist](docs/demo/hors-ligne.md).
 
 An installation failure shows an error and a retry action; a stalled
-installation times out after 30 seconds. A pending update asks users to close
-every app tab and reopen it. Cache versions hash the worker logic and every
+installation times out after 30 seconds. An activated update reloads controlled pages; prepare the new dataset version again. Cache versions hash the worker logic and every
 final file, including HTML and public data. CI tests cover failure, timeout and
 update states, invalidation of public data and HTML, and cached navigation and
 assets without network access.
@@ -414,9 +409,8 @@ Coordinates are planetocentric, with longitude positive to the east. The nominal
 0.25 m/pixel source sampling differs from the displayed sampling and does not
 establish positioning accuracy.
 
-The production installation includes the prepared resources. Extra HiRISE tiles
-streamed from NASA are not guaranteed after an offline reload; their bounded
-persistence belongs to #24. A NASA connection is optional for the
+Explicit production preparation includes the mission resources. Extra HiRISE tiles
+streamed from NASA persist separately up to 16 MiB, subject to browser storage eviction. A NASA connection is optional for the
 prepared-sector workflow. Browser rendering, disconnected reload and physical
 tablet or glove interaction have not been tested for this feature and must be
 validated before operational use.
@@ -669,3 +663,10 @@ explicitly unevaluated. Terrain spacing is estimation granularity, not navigatio
 accuracy. This hypothetical plan and uncalibrated O₂ model are not telemetry or
 a guarantee of return. Tablet interaction and disconnected production acceptance
 must be verified separately from automated calculation and storage tests.
+
+## Bounded offline Jezero demo (#24)
+
+Prepare the sector explicitly from the download menu before disconnecting.
+The menu shows the download size (64 MiB maximum); additional explored HiRISE
+tiles use a separate 16 MiB cache. Readiness checks every bundled resource.
+After a deployment, prepare again. See the [pitch checklist and offline limits](docs/demo/hors-ligne.md).
