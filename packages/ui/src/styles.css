@@ -275,7 +275,7 @@
       85% 60% at 50% 100%,
       color-mix(in oklab, var(--primary) 50%, transparent) 0%,
       color-mix(in oklab, var(--primary) 20%, transparent) 32%,
-      color-mix(in oklab, var(--primary) 14%, transparent) 62%,
+      color-mix(in oklab, var(--scene-terrain, var(--primary)) 14%, transparent) 62%,
       transparent 100%
     ),
     var(--background);
@@ -286,11 +286,11 @@
   border-radius: 50%;
   background: radial-gradient(
     circle closest-side,
-    color-mix(in oklab, var(--primary) 16%, var(--background)) 0%,
-    color-mix(in oklab, var(--primary) 30%, var(--background)) 80%,
-    color-mix(in oklab, var(--primary) 62%, var(--background)) 92%,
-    var(--primary) 98%,
-    color-mix(in oklab, var(--primary) 70%, white) 100%
+    color-mix(in oklab, var(--scene-terrain, var(--primary)) 16%, var(--background)) 0%,
+    color-mix(in oklab, var(--scene-terrain, var(--primary)) 30%, var(--background)) 80%,
+    color-mix(in oklab, var(--scene-terrain, var(--primary)) 62%, var(--background)) 92%,
+    var(--scene-terrain, var(--primary)) 98%,
+    color-mix(in oklab, var(--scene-terrain, var(--primary)) 70%, white) 100%
   );
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--primary) 65%, transparent),
@@ -301,7 +301,7 @@
 /* Quadrillage de l'emplacement carte : parallèles et méridiens, lignes maîtresses bleues, estompé vers les bords. */
 @utility graticule {
   --line: color-mix(in srgb, var(--foreground) 9%, transparent);
-  --line-major: color-mix(in srgb, var(--primary) 38%, transparent);
+  --line-major: color-mix(in srgb, var(--scene-terrain, var(--primary)) 38%, transparent);
 
   background-image:
     linear-gradient(to right, var(--line-major) 1px, transparent 1px),

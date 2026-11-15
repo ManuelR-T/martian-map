@@ -105,7 +105,7 @@ export default function DesignSystemPage() {
   const [bootCount, setBootCount] = useState(0);
 
   return (
-    <div>
+    <div className="[--scene-terrain:var(--mars)]">
       {/* Ouverture : le couchant bleu de Mars, toujours de nuit, dans la continuité du bandeau. */}
       <div className="dark stage-backdrop relative isolate overflow-hidden text-foreground">
         <div aria-hidden="true" className="graticule absolute inset-0 -z-10 opacity-50" />
