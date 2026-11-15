@@ -28,6 +28,18 @@ describe('préparation locale versionnée', () => {
     expect(loadMissionDraft(storage)?.name).toBe('Nom modifié');
   });
 
+  it('conserve les détours et les paramètres O₂ ensemble après restauration', () => {
+    const storage = memoryStorage();
+    const edited: Mission = { ...mission, routeLegs: [
+      [{ longitude: 77.401, latitude: 18.451 }],
+      [{ longitude: 77.402, latitude: 18.452 }],
+    ] };
+    saveMissionDraft(edited, storage);
+    const restored = loadMissionDraft(storage)!;
+    expect(restored).toEqual(edited);
+    expect(missionGeometry(restored)).toEqual(missionGeometry(edited));
+  });
+
   it.each(['{invalid', 'null', JSON.stringify({ ...mission, schemaVersion: 2 }), JSON.stringify({ ...mission, parameters: {} }),
     JSON.stringify({ ...mission, dataReferences: [{ id: 'data', version: '1', sha256: 'broken' }] })])(
     'refuse le contenu corrompu ou incompatible et conserve l’original : %s', raw => {

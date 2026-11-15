@@ -92,3 +92,11 @@ it('persists intermediate vertices, resets them after itinerary changes and reje
   expect(missionReducer(m, { type: 'stepRemoved', id: 'a' }).routeLegs).toBeUndefined();
   expect(missionReducer(m, { type: 'campPlaced', camp }).routeLegs).toBeUndefined();
 });
+
+it('replaces every leg at once and refuses a set that does not match the itinerary', () => {
+  const m = missionReducer(missionReducer(empty, { type: 'campPlaced', camp }), { type: 'stepAdded', step: step('a') });
+  const replaced = missionReducer(m, { type: 'routeLegsReplaced', legs: [[{ longitude: 77.402, latitude: 18.45 }], []] });
+  expect(missionGeometry(replaced)?.coordinates).toEqual([[77.4, 18.45], [77.402, 18.45], [77.401, 18.451], [77.4, 18.45]]);
+  expect(missionReducer(m, { type: 'routeLegsReplaced', legs: [[]] })).toBe(m);
+  expect(missionReducer(empty, { type: 'routeLegsReplaced', legs: [] })).toBe(empty);
+});
