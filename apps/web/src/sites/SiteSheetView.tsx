@@ -88,7 +88,7 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange }: S
                   type="checkbox"
                   checked={done}
                   onChange={() => onTaskToggle(task.id)}
-                  className="size-5 shrink-0 accent-primary"
+                  className="size-5 shrink-0 accent-mars"
                 />
                 <span className={done ? 'min-w-0 flex-1 py-2 text-muted-foreground line-through' : 'min-w-0 flex-1 py-2'}>
                   {task.label}

@@ -17,7 +17,7 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .map-drawer-left .map-drawer-trigger { border-left: 0; border-radius: 0 6px 6px 0; }
 .map-drawer-right .map-drawer-trigger { border-right: 0; border-radius: 6px 0 0 6px; }
 .map-drawer-trigger:hover, .map-drawer-close:hover { background: var(--accent); color: var(--accent-foreground); box-shadow: var(--glow-primary); }
-.map-drawer-trigger[aria-expanded=true] { background: transparent; border-color: transparent; border-radius: 0; box-shadow: none; }
+.map-drawer-trigger[aria-expanded=true] { color: var(--mars); background: transparent; border-color: transparent; border-radius: 0; box-shadow: none; }
 .map-drawer-trigger[aria-expanded=true]::before { opacity: 0; }
 .map-drawer-content { position: absolute; z-index: 1; top: var(--drawer-offset); width: min(25rem, calc(100vw - 3.75rem)); max-height: calc(100% - var(--drawer-offset)); overflow-y: auto; overscroll-behavior: contain; pointer-events: none; background: var(--card); border: 1px solid var(--border); border-top: 2px solid var(--primary); border-radius: 6px; box-shadow: var(--elevation), 0 0 24px -16px var(--mars); opacity: 0; visibility: hidden; transition: clip-path 240ms var(--ease-instrument), opacity 180ms ease, visibility 0s 240ms; }
 .map-drawer-left .map-drawer-content { left: 0; border-top-left-radius: 0; clip-path: inset(0 calc(100% - 44px) calc(100% - 44px) 0 round 6px); }

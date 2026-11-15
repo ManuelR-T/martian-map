@@ -11,7 +11,7 @@
 /*
  * « Heure bleue ». Sur Mars, le ciel de jour est caramel et le coucher de
  * soleil est bleu : la palette part de cette inversion. Le bleu crépuscule
- * porte l'ambiance ; la braise porte les actions, les sélections et les repères,
+ * porte l'ambiance et les actions ; la braise souligne les sélections et les repères,
  * sur une nuit de basalte, avec une seule palette pour tous les écrans.
  * Chaque paire texte/fond est contrôlée par tokens.test.ts.
  */
@@ -26,8 +26,8 @@
   --card-foreground: #eef2f8;
   --popover: #121a2a;
   --popover-foreground: #eef2f8;
-  --primary: #ff8a4c;
-  --primary-foreground: #2a0f02;
+  --primary: #8fbaff;
+  --primary-foreground: #06122b;
   --twilight: #8fbaff;
   --twilight-foreground: #06122b;
   --secondary: #1a2233;
