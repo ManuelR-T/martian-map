@@ -37,6 +37,7 @@ export function MapDrawer({ label, shortLabel, icon: Icon, side, open, onOpenCha
   }
 
   return <div ref={frame} className={`map-drawer map-drawer-${side}`} data-state={open ? 'open' : 'closed'}>
+    <div className="map-drawer-visual">
     <button
       ref={trigger}
       type="button"
@@ -70,6 +71,7 @@ export function MapDrawer({ label, shortLabel, icon: Icon, side, open, onOpenCha
         <X aria-hidden="true" className="size-5" />
       </button>
       <div className="map-drawer-body">{localize(children)}</div>
+    </div>
     </div>
   </div>;
 }

@@ -67,6 +67,10 @@ it('updates perspective when the rail scrolls without CSS scroll timelines', asy
   try {
     await act(async () => root.render(<div className="map-drawer-rail"><MapDrawer label="Budget" icon={Timer} side="right" open onOpenChange={() => {}}>Contenu</MapDrawer></div>));
     const card = container.querySelector<HTMLElement>('.map-drawer')!;
+    const visual = card.querySelector('.map-drawer-visual')!;
+    expect(visual.contains(card.querySelector('.map-drawer-trigger'))).toBe(true);
+    expect(visual.contains(card.querySelector('.map-drawer-content'))).toBe(true);
+    expect(parseFloat(card.style.getPropertyValue('--drawer-scale'))).toBeLessThan(1);
     expect(parseFloat(card.style.getPropertyValue('--drawer-tilt'))).toBeGreaterThan(0);
     top = 0;
     container.querySelector('.map-drawer-rail')!.dispatchEvent(new Event('scroll'));

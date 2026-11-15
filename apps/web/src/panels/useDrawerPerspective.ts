@@ -4,13 +4,14 @@ import { useEffect, type RefObject } from 'react';
 export function useDrawerPerspective(ref: RefObject<HTMLDivElement | null>, open: boolean) {
   useEffect(() => {
     const card = ref.current;
-    if (!card || !open) return;
+    if (!card) return;
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let frame = 0;
     const update = () => {
       frame = 0;
       if (motion.matches) {
         card.style.removeProperty('--drawer-tilt');
+        card.style.removeProperty('--drawer-scale');
         return;
       }
       const rail = card.closest<HTMLElement>('.map-drawer-rail');
@@ -22,7 +23,9 @@ export function useDrawerPerspective(ref: RefObject<HTMLDivElement | null>, open
       if (!bounds.height) return;
       const distance = (rect.top + rect.height / 2 - bounds.top - bounds.height / 2)
         / ((bounds.height + rect.height) / 2);
-      card.style.setProperty('--drawer-tilt', `${Math.max(-1, Math.min(1, distance)) * 8}deg`);
+      const position = Math.max(-1, Math.min(1, distance));
+      card.style.setProperty('--drawer-tilt', `${position * 8}deg`);
+      card.style.setProperty('--drawer-scale', `${1 - Math.abs(position) * 0.025}`);
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
     document.addEventListener('scroll', schedule, true);
@@ -40,6 +43,7 @@ export function useDrawerPerspective(ref: RefObject<HTMLDivElement | null>, open
       motion.removeEventListener('change', schedule);
       observer.disconnect();
       card.style.removeProperty('--drawer-tilt');
+      card.style.removeProperty('--drawer-scale');
     };
   }, [ref, open]);
 }

@@ -13,11 +13,12 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .map-drawer-rail-right { right: 0; bottom: 9.75rem; }
 .map-drawer { position: relative; display: grid; grid-template-rows: 0fr; min-height: 44px; flex-shrink: 0; transition: grid-template-rows 240ms var(--ease-instrument); }
 .map-drawer[data-state=open] { grid-template-rows: 1fr; }
+.map-drawer-visual { position: relative; display: grid; grid-template-rows: inherit; min-height: 0; }
 /* Un seul filet au-dessus de la carte ouverte ; replié, le bouton porte le sien. */
-.map-drawer::after { content: ''; position: absolute; top: 0; z-index: 3; width: 0; height: 2px; background: var(--horizon); pointer-events: none; transition: width 240ms var(--ease-instrument); }
-.map-drawer-left::after { left: 0; }
-.map-drawer-right::after { right: 0; }
-.map-drawer[data-state=open]::after { width: 100%; }
+.map-drawer-visual::after { content: ''; position: absolute; top: 0; z-index: 3; width: 0; height: 2px; background: var(--horizon); pointer-events: none; transition: width 240ms var(--ease-instrument); }
+.map-drawer-left .map-drawer-visual::after { left: 0; }
+.map-drawer-right .map-drawer-visual::after { right: 0; }
+.map-drawer[data-state=open] .map-drawer-visual::after { width: 100%; }
 .map-drawer-card-icon, .map-drawer-close { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0; }
 .map-drawer-trigger { position: absolute; top: 0; z-index: 2; display: flex; align-items: center; gap: .5rem; height: 44px; min-width: 44px; padding-inline: .75rem; cursor: pointer; pointer-events: auto; border: 1px solid var(--border); border-top: 0; color: var(--primary); box-shadow: var(--elevation), 0 0 14px -7px var(--mars); transition: background 180ms, box-shadow 180ms, border-color 180ms; }
 .map-drawer-trigger::before { content: ''; position: absolute; inset: 0 0 auto; height: 2px; background: var(--horizon); pointer-events: none; }
@@ -43,7 +44,7 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .map-drawer[data-state=open] .map-drawer-content [data-slot=panel] > div { transition-delay: 90ms; }
 .map-drawer-close { position: absolute; top: 0; right: 0; z-index: 3; cursor: pointer; color: var(--muted-foreground); }
 @media (prefers-reduced-motion: reduce) {
-  .map-drawer, .map-drawer::after, .map-drawer-trigger, .map-drawer-content, .map-drawer-content [data-slot=panel] > div { transition: none; }
+  .map-drawer, .map-drawer-visual::after, .map-drawer-trigger, .map-drawer-content, .map-drawer-content [data-slot=panel] > div { transition: none; }
 }
 
 @media (max-width: 480px), (max-height: 480px) {
@@ -84,8 +85,8 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 
 /* Le scroll pilote la perspective sans dépendre des timelines CSS. */
 @media (prefers-reduced-motion: no-preference) {
-  .map-drawer[data-state=open] .map-drawer-content {
-    transform: perspective(1000px) rotateX(var(--drawer-tilt, 0deg));
+  .map-drawer-visual {
+    transform: perspective(1000px) rotateX(var(--drawer-tilt, 0deg)) scale(var(--drawer-scale, 1));
     transform-origin: center;
   }
 }
