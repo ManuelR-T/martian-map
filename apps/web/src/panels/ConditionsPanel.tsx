@@ -150,7 +150,7 @@ function ConditionsView({ conditions, sols, firstSol, wind }: ConditionsViewProp
   );
 }
 
-export function ConditionsPanel({ className }: { className?: string }) {
+export function ConditionsPanel({ className, collapsible = true }: { className?: string; collapsible?: boolean }) {
   const { catalog } = usePlannerState();
   const conditions = useMedaConditions(catalog.status === 'ready' ? catalog.data.datasets : null);
   const sols = conditions.status === 'ready' && conditions.data ? preparedSols(conditions.data) : [];
@@ -159,7 +159,7 @@ export function ConditionsPanel({ className }: { className?: string }) {
     <Panel
       title="Conditions au rover"
       actions={<ProvenanceBadge status="measured" />}
-      collapsible
+      collapsible={collapsible}
       floating
       className={className}
       contentClassName="overflow-y-auto p-3"

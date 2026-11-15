@@ -11,6 +11,7 @@ export type BudgetView = Pick<
 
 export interface BudgetPanelProps {
   className?: string;
+  collapsible?: boolean;
   /**
    * Budget calculé par le moteur de mission (#14) et mis en forme pour
    * l'affichage. `null` tant qu'une entrée manque : le panneau ne calcule rien.
@@ -18,24 +19,24 @@ export interface BudgetPanelProps {
   budget: BudgetView | null;
 }
 
-export function BudgetPanel({ className, budget }: BudgetPanelProps) {
+export function BudgetPanel({ className, budget, collapsible = true }: BudgetPanelProps) {
   const state = usePlannerState();
   const mission = selectCurrentMission(state);
   return (
     <Panel
       title="Budget de temps"
       description="Marche, observations, retour et réserve"
-      collapsible
+      collapsible={collapsible}
       floating
       className={className}
       contentClassName="overflow-y-auto"
     >
       <PlanningGate loadingTitle="Chargement du budget" coverageTitle="Pas de budget hors du secteur détaillé">
-        {(state.workspace === 'base' || state.runningMission) && <dl className="mb-3 grid gap-1 text-sm">
+        {(state.workspace === 'base' || state.runningMission) && <details className="mb-3 border-b text-sm"><summary className="min-h-11 cursor-pointer py-3 font-semibold">Paramètres de la sortie</summary><dl className="mb-3 grid gap-1 text-sm">
           <div><dt className="inline">Durée disponible : </dt><dd className="inline">{mission.parameters.availableSeconds / 60} min</dd></div>
           <div><dt className="inline">Vitesse prévue : </dt><dd className="inline">{mission.parameters.speedMetresPerSecond} m/s</dd></div>
           <div><dt className="inline">Réserve : </dt><dd className="inline">{mission.parameters.reserveSeconds / 60} min</dd></div>
-        </dl>}
+        </dl></details>}
         {budget ? (
           <BudgetBreakdown {...budget} />
         ) : (

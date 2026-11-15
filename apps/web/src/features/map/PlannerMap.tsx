@@ -9,12 +9,12 @@ import { TerrainOverlay } from '../../terrain/TerrainOverlay';
 
 const terrainOverlay = (map: Map | null) => <TerrainOverlay map={map} />;
 
-export function PlannerMap({ panelHost }: { panelHost: HTMLElement | null }) {
+export function PlannerMap({ panelHost, onSiteSelected }: { panelHost: HTMLElement | null; onSiteSelected?: () => void }) {
   const [roverEnabled, setRoverEnabled] = useState(false);
   const state = usePlannerState();
   const dispatch = usePlannerDispatch();
   const openRegion = useCallback(() => dispatch({ type: 'viewChanged', view: 'region' }), [dispatch]);
-  const selectSite = useCallback((siteId: string) => dispatch({ type: 'siteSelected', siteId }), [dispatch]);
+  const selectSite = useCallback((siteId: string) => { dispatch({ type: 'siteSelected', siteId }); onSiteSelected?.(); }, [dispatch, onSiteSelected]);
   if (state.catalog.status !== 'ready') return null;
   const global = state.view === 'global';
   const dataset = state.catalog.data.datasets.find(candidate =>

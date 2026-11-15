@@ -1,17 +1,20 @@
-import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from 'react';
-import { BrandMark, Button, DataState } from '@marps/ui';
+import { lazy, Suspense, useCallback, useEffect, useState, useSyncExternalStore } from 'react';
+import { Route, Timer, MapPin, Layers, ChartNoAxesCombined, CloudSun } from 'lucide-react';
+import { MapDrawer } from './panels/MapDrawer';
+import { BrandMark, DataState } from '@marps/ui';
 import { BudgetPanel } from './panels/BudgetPanel';
-import { ConditionsPanel } from './panels/ConditionsPanel';
 import { MapStage } from './panels/MapStage';
+import { MapViewSelector } from './panels/MapViewSelector';
+import { ConditionsPanel } from './panels/ConditionsPanel';
+import { ProfilePanel } from './terrain/ProfilePanel';
+import { RouteProfileProvider } from './terrain/RouteProfileProvider';
 import { SiteDetailsPanel } from './panels/SiteDetailsPanel';
 import { PlannerMap } from './features/map/PlannerMap';
 import { OfflineStatus } from './offline/OfflineStatus';
 import './responsive.css';
 import { SourcesPage } from './panels/Provenance';
-import { usePlannerDispatch, usePlannerState } from './state/PlannerProvider';
 import { StepsPanel } from './panels/StepsPanel';
-import { ProfilePanel } from './terrain/ProfilePanel';
-import { RouteProfileProvider } from './terrain/RouteProfileProvider';
+import { usePlannerDispatch, usePlannerState } from './state/PlannerProvider';
 
 const DesignSystemPage = lazy(() => import('./design-system/DesignSystemPage'));
 
@@ -29,16 +32,17 @@ function useHash(): string {
 }
 
 const headerLink =
-  'label-caps inline-flex h-11 items-center px-3 text-header-foreground/85 transition-colors hover:bg-accent hover:text-accent-foreground';
+  'label-caps inline-flex h-11 items-center px-3 text-header-foreground/85 transition-colors hover:bg-accent hover:text-accent-foreground aria-[current=page]:bg-accent aria-[current=page]:text-mars aria-[current=page]:shadow-[inset_0_-2px_var(--mars)]';
 
-/** Panneau flottant : capte les clics que sa colonne laisse passer vers la carte, et s'allume à son tour au chargement. */
-const floatingPanel = 'power-on pointer-events-auto';
+/** Contenu interactif des volets superposés à la carte. */
+const floatingPanel = 'pointer-events-auto';
 
 export function App() {
-  const { workspace } = usePlannerState();
+  const [openDrawers, setOpenDrawers] = useState({ steps: false, budget: false, site: false, layers: false, profile: false, conditions: false });
+  const { view, workspace } = usePlannerState();
   const dispatch = usePlannerDispatch();
   const [mapPanelHost, setMapPanelHost] = useState<HTMLDivElement | null>(null);
-  const [mobilePage, setMobilePage] = useState<'map' | 'mission'>('map');
+  const openSiteDetails = useCallback(() => setOpenDrawers((current) => ({ ...current, site: true })), []);
   const hash = useHash();
   const showsDesignSystem = hash === DESIGN_SYSTEM_HASH;
   const showsSources = hash === SOURCES_HASH;
@@ -49,8 +53,8 @@ export function App() {
   }, [showsDesignSystem, showsSources]);
 
   return (
-    <div data-mobile-page={mobilePage} className={showsPage ? 'flex min-h-dvh flex-col' : 'planner-app flex min-h-dvh flex-col xl:h-dvh'}>
-      {/* Bandeau nuit, identique dans les deux thèmes : il porte la portée `dark` pour que ses contrôles et son focus en héritent. */}
+    <div className={showsPage ? 'flex min-h-dvh flex-col' : 'planner-app flex min-h-dvh flex-col xl:h-dvh'}>
+      {/* Bandeau Heure bleue : ses contrôles et son focus héritent de la palette nuit. */}
       <header className="dark relative z-20 flex flex-wrap items-center gap-x-3 gap-y-1 bg-header px-4 py-1.5 text-header-foreground">
         <a
           href={`#${CONTENT_ID}`}
@@ -65,29 +69,34 @@ export function App() {
         </a>
         <BrandMark className="size-9" />
         <div className="mr-auto min-w-0">
-          <h1 className="heading-display text-2xl leading-none font-extrabold tracking-[0.06em] uppercase [font-stretch:125%]">Marps</h1>
-          <p className="text-sm text-header-foreground/75 max-sm:sr-only">{workspace === 'base' ? 'À la base · préparer les sorties' : 'En mission · suivre la sortie'}</p>
+          <h1 className="heading-display text-2xl leading-none font-extrabold tracking-[0.06em] uppercase [font-stretch:125%]">
+            Marps
+          </h1>
+          <p className="mt-1 text-sm leading-tight text-header-foreground/75 max-sm:sr-only">
+            Préparer une sortie scientifique à Jezero
+          </p>
         </div>
-        {!showsPage && <nav aria-label="Espaces de travail" className="flex flex-wrap gap-1">
-          <button type="button" aria-pressed={workspace === 'base'} className={`${headerLink} min-h-11 border ${workspace === 'base' ? 'border-current bg-white/10' : 'border-transparent'}`} onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'base' })}>À la base</button>
-          <button type="button" aria-pressed={workspace === 'mission'} className={`${headerLink} min-h-11 border ${workspace === 'mission' ? 'border-current bg-white/10' : 'border-transparent'}`} onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'mission' })}>En mission</button>
-        </nav>}
-        <nav aria-label="Pages" className="flex flex-wrap">
-          <a href="#/" className={headerLink}>Planification</a>
-          <a href={SOURCES_HASH} className={headerLink}>Sources et limites</a>
-          <a href={DESIGN_SYSTEM_HASH} className={headerLink}>Système de design</a>
+        <nav aria-label="Pages" className="flex flex-wrap items-center max-sm:order-1 max-sm:w-full">
+          <div className="planning-navigation">
+            <a href="#/" className={headerLink} aria-current={!showsPage ? 'page' : undefined}>Planification</a>
+            {!showsPage && <MapViewSelector />}
+          </div>
+          <a href={SOURCES_HASH} className={headerLink} aria-current={showsSources ? 'page' : undefined}>Sources et limites</a>
+          <a href={DESIGN_SYSTEM_HASH} className={headerLink} aria-current={showsDesignSystem ? 'page' : undefined}>Système de design</a>
         </nav>
+        {!showsPage && <nav aria-label="Espaces de travail" className="workspace-navigation flex flex-wrap items-center">
+          <button type="button" aria-pressed={workspace === 'base'} className={headerLink} onClick={() => { dispatch({ type: 'workspaceChanged', workspace: 'base' }); setOpenDrawers((current) => ({ ...current, steps: true })); }}>À la base</button>
+          <button type="button" aria-pressed={workspace === 'mission'} className={headerLink} onClick={() => { dispatch({ type: 'workspaceChanged', workspace: 'mission' }); setOpenDrawers((current) => ({ ...current, steps: true })); }}>En mission</button>
+        </nav>}
         <OfflineStatus />
-        {/* Filet d'horizon : il se trace de la braise au bleu à l'ouverture. */}
+        {/* Filet d'horizon : il se trace du bleu à la braise à l'ouverture. */}
         <span aria-hidden="true" className="horizon-draw absolute inset-x-0 -bottom-0.5 h-0.5 bg-[image:var(--horizon)]" />
       </header>
-      {!showsPage && <nav className="compact-navigation" aria-label="Écran de mission">
-        <button type="button" aria-pressed={mobilePage === 'map'} onClick={() => setMobilePage('map')}>Carte</button>
-        <button type="button" aria-pressed={mobilePage === 'mission'} onClick={() => setMobilePage('mission')}>Mission</button>
-      </nav>}
 
       {showsSources ? (
-        <main id={CONTENT_ID} tabIndex={-1} className="flex-1 outline-none"><SourcesPage /></main>
+        <main id={CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
+          <SourcesPage />
+        </main>
       ) : showsDesignSystem ? (
         <main id={CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
           <Suspense
@@ -101,36 +110,38 @@ export function App() {
           </Suspense>
         </main>
       ) : (
-        // Profile and map share one relief load, the threshold and the point touched on the profile.
         <RouteProfileProvider>
         <main
           id={CONTENT_ID}
           tabIndex={-1}
-          className="planner-main relative flex flex-1 flex-col gap-3 outline-none xl:grid xl:min-h-0 xl:grid-cols-[19rem_minmax(0,1fr)_21rem] xl:grid-rows-[minmax(0,1fr)] xl:p-3"
+          className="planner-main relative min-h-0 flex-1 outline-none"
         >
-          {/*
-            La carte passe sous toute l'interface sur grand écran ; les colonnes laissent
-            passer les clics vers elle, seuls les panneaux flottants les captent.
-            #7 et #8 passeront ici la carte OpenLayers de la vue active.
-          */}
-          <MapStage map={<PlannerMap panelHost={mapPanelHost} />} className="planner-map-stage relative flex h-[62dvh] min-h-[24rem] flex-col items-center justify-between gap-3 p-3 xl:pointer-events-none xl:static xl:col-start-2 xl:row-start-1 xl:h-auto xl:min-h-0 xl:p-0" />
-          <ProfilePanel className={`planner-profile ${floatingPanel} relative z-10 shrink-0 max-xl:mx-2 max-xl:mb-2 xl:col-start-2 xl:row-start-1 xl:mb-14 xl:self-end`} />
-          <div className="mission-panels relative z-10 flex min-h-0 flex-col gap-3 max-xl:px-3 xl:pointer-events-none xl:col-start-1 xl:row-start-1 xl:overflow-y-auto">
-            <StepsPanel className={`${floatingPanel} mission-steps shrink-0`} />
-            <div ref={setMapPanelHost} className="map-panel-dock pointer-events-auto shrink-0 empty:hidden" />
-            <div className="compact-settings">
-              <Button variant="outline" aria-pressed={workspace === 'base'} onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'base' })}>À la base</Button>
-              <Button variant="outline" aria-pressed={workspace === 'mission'} onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'mission' })}>En mission</Button>
-              <a href={SOURCES_HASH}>Sources et limites</a>
-              <a href={DESIGN_SYSTEM_HASH}>Système de design</a>
+          <MapStage map={<PlannerMap panelHost={mapPanelHost} onSiteSelected={openSiteDetails} />} className="planner-map-stage relative flex h-full min-h-0 flex-col items-center justify-between p-3" />
+          <div className="map-drawer-rails">
+            <div className="map-drawer-rail map-drawer-rail-left">
+              <MapDrawer label={workspace === 'base' ? 'Préparer une mission' : 'Suivi de mission'} icon={Route} side="left" open={openDrawers.steps} onOpenChange={(open) => setOpenDrawers((current) => ({ ...current, steps: open }))}>
+                <StepsPanel className={floatingPanel} collapsible={false} />
+              </MapDrawer>
+              <div hidden={view === 'global'} className="map-drawer-group">
+                <MapDrawer label="Calques de la carte" icon={Layers} side="left" open={openDrawers.layers} onOpenChange={(open) => setOpenDrawers((current) => ({ ...current, layers: open }))}>
+                  <div ref={setMapPanelHost} className="map-panel-dock" />
+                </MapDrawer>
+                <MapDrawer label="Profil du parcours" icon={ChartNoAxesCombined} side="left" open={openDrawers.profile} onOpenChange={(open) => setOpenDrawers((current) => ({ ...current, profile: open }))}>
+                  <ProfilePanel className={floatingPanel} collapsible={false} />
+                </MapDrawer>
+              </div>
             </div>
-          </div>
-          <div className="mission-panels relative z-10 flex min-h-0 flex-col gap-3 max-xl:px-3 max-xl:pb-3 xl:pointer-events-none xl:col-start-3 xl:row-start-1 xl:max-h-[calc(100%-10rem)] xl:overflow-y-auto">
-            {/* #14 fournira le budget calculé par mission-core. */}
-            <BudgetPanel budget={null} className={`${floatingPanel} shrink-0 [--power-delay:240ms]`} />
-            {/* #9 fournira les fiches scientifiques. */}
-            <SiteDetailsPanel className={`${floatingPanel} shrink-0 [--power-delay:360ms]`} />
-            <ConditionsPanel className={`${floatingPanel} shrink-0 [--power-delay:480ms]`} />
+            <div className="map-drawer-rail map-drawer-rail-right" hidden={view === 'global'}>
+              <MapDrawer label="Budget de temps" icon={Timer} side="right" open={openDrawers.budget} onOpenChange={(open) => setOpenDrawers((current) => ({ ...current, budget: open }))}>
+                <BudgetPanel budget={null} className={floatingPanel} collapsible={false} />
+              </MapDrawer>
+              <MapDrawer label="Fiche de site" icon={MapPin} side="right" open={openDrawers.site} onOpenChange={(open) => setOpenDrawers((current) => ({ ...current, site: open }))}>
+                <SiteDetailsPanel className={floatingPanel} collapsible={false} />
+              </MapDrawer>
+              <MapDrawer label="Conditions au rover" icon={CloudSun} side="right" open={openDrawers.conditions} onOpenChange={(open) => setOpenDrawers((current) => ({ ...current, conditions: open }))}>
+                <ConditionsPanel className={floatingPanel} collapsible={false} />
+              </MapDrawer>
+            </div>
           </div>
         </main>
         </RouteProfileProvider>

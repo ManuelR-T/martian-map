@@ -31,7 +31,7 @@ function nearestPoint(profile: readonly ProfilePoint[], metres: number) {
   );
 }
 
-export function ProfilePanel({ className }: { className?: string }) {
+export function ProfilePanel({ className, collapsible = true }: { className?: string; collapsible?: boolean }) {
   const { view } = usePlannerState();
   const { dem, stops, relief, threshold, setThreshold } = useRouteProfile();
   const thresholdId = useId();
@@ -63,7 +63,7 @@ export function ProfilePanel({ className }: { className?: string }) {
       floating
       title="Profil du parcours"
       description="Parcours de démonstration : les sites en ligne droite, puis retour"
-      collapsible
+      collapsible={collapsible}
       actions={thresholdControl}
       className={className}
     >

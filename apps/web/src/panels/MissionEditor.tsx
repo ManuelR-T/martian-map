@@ -17,7 +17,7 @@ const uid = () => crypto.randomUUID();
 type Action = 'new' | 'template';
 type Tab = 'prepare' | 'camps' | 'saved';
 
-export function MissionEditor({ className }: { className?: string }) {
+export function MissionEditor({ className, collapsible = true }: { className?: string; collapsible?: boolean }) {
   const { mission, catalog, runningMission, trackingReady, trackingError } = usePlannerState();
   const dispatch = usePlannerDispatch();
   const [database] = useState(() => new MissionDatabase());
@@ -189,7 +189,7 @@ export function MissionEditor({ className }: { className?: string }) {
     <div hidden={tab !== 'camps'}><CampsManager /></div>
     </div>
   );
-  return <Panel title="Mission" description="Préparer et retrouver vos sorties" collapsible floating className={className} contentClassName="overflow-y-auto">
+  return <Panel title="Mission" description="Préparer et retrouver vos sorties" collapsible={collapsible} floating className={className} contentClassName="overflow-y-auto">
     <PlanningGate loadingTitle="Chargement des missions" coverageTitle="Ouvrez Jezero pour préparer une mission" offerRegion>
       <div className="grid min-w-0 grid-cols-1 gap-3">
         {/* The 19rem column fits three tabs only if they share its width and wrap on two lines. The check mark is hidden: it made the active tab overflow; the fill marks it. */}

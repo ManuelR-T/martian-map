@@ -74,10 +74,11 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange, tra
         <span className="font-semibold text-foreground">Pourquoi : </span>
         {sheet.question}
       </p>
-      <p className="text-xs text-muted-foreground">
-        <span className="font-semibold text-foreground">Déjà fait par le rover : </span>
-        {sheet.roverWork.text}
-      </p>
+      <details className="text-xs text-muted-foreground">
+        <summary className="min-h-11 cursor-pointer py-3 font-semibold">Contexte scientifique et méthode</summary>
+        <p>Déjà fait par le rover : {sheet.roverWork.text}</p>
+        <p className="mt-2">Activités et durées choisies par l’équipe, d’après les procédures Apollo.</p>
+      </details>
 
       <ul aria-label="Tâches" className="m-0 grid list-none p-0">
         {sheet.tasks.map((task) => {
@@ -85,15 +86,15 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange, tra
           return (
             <li key={task.id} className="-mt-px first:mt-0">
               {/* Cible tactile de 44 px : le coéquipier dans l'habitat coche en direct, sans viser. */}
-              <label className="flex h-11 cursor-pointer items-center gap-3 border px-3 hover:bg-accent">
+              <label className="flex min-h-11 cursor-pointer items-center gap-3 border px-3 hover:bg-accent">
                 <input
                   type="checkbox"
                   checked={done}
                   disabled={!tracking}
                   onChange={() => onTaskToggle(task.id)}
-                  className="size-5 shrink-0 accent-primary"
+                  className="size-5 shrink-0 accent-mars"
                 />
-                <span className={done ? 'flex-1 truncate text-muted-foreground line-through' : 'flex-1 truncate'}>
+                <span className={done ? 'min-w-0 flex-1 py-2 text-muted-foreground line-through' : 'min-w-0 flex-1 py-2'}>
                   {task.label}
                 </span>
                 <span className="text-sm text-muted-foreground tabular-nums">{task.minutes} min</span>
@@ -103,7 +104,7 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange, tra
         })}
       </ul>
 
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <label htmlFor={selectId} className="flex items-center gap-2 text-sm">
           Alloué
           <select

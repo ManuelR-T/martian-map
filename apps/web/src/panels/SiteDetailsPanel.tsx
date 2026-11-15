@@ -4,9 +4,10 @@ import { SitePicker, SiteSheetView } from '../sites/SiteSheetView';
 import { siteWorkOf } from '../sites/siteWork';
 import { usePlannerDispatch, usePlannerState } from '../state/PlannerProvider';
 import { selectCurrentMission } from '../state/planner';
+import { SiteProvenance } from './Provenance';
 import { PlanningGate } from './PlanningGate';
 
-export function SiteDetailsPanel({ className }: { className?: string }) {
+export function SiteDetailsPanel({ className, collapsible = true }: { className?: string; collapsible?: boolean }) {
   const state = usePlannerState();
   const { catalog, selectedSiteId, workspace, runningMission } = state;
   const mission = selectCurrentMission(state);
@@ -14,17 +15,18 @@ export function SiteDetailsPanel({ className }: { className?: string }) {
   const sites = catalog.status === 'ready' ? catalog.data.sites : [];
   const sheet = selectedSiteId ? findSiteSheet(selectedSiteId) : undefined;
 
-  if (workspace === 'mission' && !runningMission) return null;
-
   return (
     <Panel
       title="Fiche de site"
-      collapsible
+      collapsible={collapsible}
       floating
       className={className}
       contentClassName="overflow-y-auto px-3 py-2"
     >
       <PlanningGate loadingTitle="Chargement des fiches" coverageTitle="Pas de fiche hors du secteur détaillé">
+        {workspace === 'mission' && !runningMission ? (
+          <DataState kind="empty" title="Aucune mission en cours" description="Démarrez une mission depuis la base pour suivre les tâches sur les sites." />
+        ) : <>
         <div className="grid gap-1.5">
           {sites.length > 0 ? (
             <SitePicker
@@ -51,6 +53,8 @@ export function SiteDetailsPanel({ className }: { className?: string }) {
             <DataState kind="empty" title="Aucun site sélectionné" description="Choisissez un site pour voir sa fiche." />
           )}
         </div>
+        {selectedSiteId && <SiteProvenance siteId={selectedSiteId} />}
+        </>}
       </PlanningGate>
     </Panel>
   );

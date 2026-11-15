@@ -66,6 +66,10 @@ export function GlobalMarsMap({ dataset, global, onSelectRegion }: Props) {
   }, [dataset, global, onSelectRegion]);
   return <div className="mars-map-container">
     <div ref={target} className="mars-map" tabIndex={0} aria-label={global ? 'Carte globale de Mars. Flèches pour déplacer, plus et moins pour zoomer.' : 'Carte du secteur Jezero'} />
+    {(failed || offline) && <div role="status" className="map-alert border bg-card p-3 text-sm">
+      <p>{failed ? 'Certaines tuiles sont indisponibles.' : 'Hors ligne : seules les données téléchargées sont accessibles.'}</p>
+      {failed && <Button variant="outline" size="sm" onClick={() => { setFailed(false); sourceRef.current?.refresh(); }}>Réessayer les tuiles</Button>}
+    </div>}
     <MapInformation>
       <div className="flex flex-wrap items-center gap-2">
       {global && <>

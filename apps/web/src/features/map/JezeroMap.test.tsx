@@ -1,11 +1,15 @@
 import 'fake-indexeddb/auto';
 import { readFileSync } from 'node:fs';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { expect, it } from 'vitest';
+import type { ReactNode } from 'react';
+import { expect, it, vi } from 'vitest';
 import type { DataManifest, DatasetDescriptor } from '@marps/data';
 import { PlannerProvider } from '../../state/PlannerProvider';
 import { JezeroMap } from './JezeroMap';
 import { findThemisNightDataset } from './themisNight';
+
+// This test checks the sector controls; portal placement has its own DOM test.
+vi.mock('./MapPanelDock', () => ({ MapPanelDock: ({ children }: { children: ReactNode }) => children }));
 
 const manifest = JSON.parse(readFileSync('apps/web/public/data/manifest.json', 'utf8')) as DataManifest;
 const hirise = manifest.datasets.find(item => item.kind === 'imagery')!;

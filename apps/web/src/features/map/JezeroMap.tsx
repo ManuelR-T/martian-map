@@ -180,15 +180,19 @@ export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected,
   return <div className="mars-map-container jezero-map">
     {roverEnabled && <p className="rover-warning border bg-card p-2 text-xs font-semibold">{roverMessages.fr.warning}</p>}
     <div ref={target} className="mars-map" tabIndex={0} aria-label={messages.label} />
+    {(failed || offline) && <div role="status" className="map-alert border bg-card p-3 text-sm">
+      <p>{failed ? messages.failure : messages.offline}</p>
+      {failed && <Button size="sm" variant="outline" onClick={() => { setFailed(false); mapRef.current?.getLayers().forEach(layer => { if (layer instanceof TileLayer) layer.getSource()?.refresh(); }); }}>{messages.retry}</Button>}
+    </div>}
     <MapPanelDock host={panelHost}>
-    <Panel title={messages.panelTitle} collapsible floating className="jezero-status text-sm" contentClassName="overflow-y-auto">
+    <Panel title={messages.panelTitle} floating className="jezero-status text-sm" contentClassName="overflow-y-auto">
       <p role="status">{outside ? messages.outside : messages.sector} {offline ? messages.offline : messages.online} {failed && messages.failure}</p>
 
       <Button size="sm" onClick={() => mapRef.current?.getView().fit(bounds(sector), { size: mapRef.current.getSize(), padding: [90, 40, 160, 40] })}>{messages.return}</Button>
       {failed && <Button size="sm" variant="outline" onClick={() => { setFailed(false); mapRef.current?.getLayers().forEach(layer => { if (layer instanceof TileLayer) layer.getSource()?.refresh(); }); }}>{messages.retry}</Button>}
       {overlay?.(overlayMap)}
-      <div className="jezero-legend mt-2 border-t pt-2 text-xs" role="group" aria-label={messages.legendTitle}>
-        <p className="font-semibold">{messages.legendTitle}</p>
+      <details className="jezero-legend mt-2 border-t pt-2 text-xs">
+        <summary className="min-h-11 cursor-pointer py-3 font-semibold">{messages.legendTitle}</summary>
         <ul className="mt-1 grid gap-1">
           <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke="#50c8ff" strokeWidth="3" strokeDasharray="10 5" /></svg><span>{messages.missionBoundary}</span></li>
           <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke="#ffcc66" strokeWidth="3" /></svg><span>{messages.productBoundary}</span></li>
@@ -197,7 +201,7 @@ export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected,
           <li><svg viewBox="0 0 40 24" aria-hidden="true"><circle cx="20" cy="12" r="10" fill="#fff" stroke="#151b25" strokeWidth="3" /></svg><span>{messages.selectedSite}</span></li>
           <li><span className="jezero-missing-swatch" aria-hidden="true" /><span>{messages.missingImagery}</span></li>
         </ul>
-      </div>
+      </details>
 
       <div className="mt-2 border-t pt-2" role="group" aria-label={messages.layersTitle}>
         <p className="text-xs font-semibold">{messages.layersTitle}</p>
