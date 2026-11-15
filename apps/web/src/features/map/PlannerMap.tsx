@@ -1,11 +1,15 @@
 import { useCallback, useState } from 'react';
+import type Map from 'ol/Map';
 import { DataState } from '@marps/ui';
 import { usePlannerDispatch, usePlannerState } from '../../state/PlannerProvider';
 import { JezeroMap } from './JezeroMap';
 import { GlobalMarsMap } from './GlobalMarsMap';
 import { findThemisNightDataset } from './themisNight';
+import { TerrainOverlay } from '../../terrain/TerrainOverlay';
 
-export function PlannerMap() {
+const terrainOverlay = (map: Map | null) => <TerrainOverlay map={map} />;
+
+export function PlannerMap({ panelHost }: { panelHost: HTMLElement | null }) {
   const [roverEnabled, setRoverEnabled] = useState(false);
   const state = usePlannerState();
   const dispatch = usePlannerDispatch();
@@ -22,6 +26,6 @@ export function PlannerMap() {
   const sector = state.catalog.data.coverage?.find(region => region.id === dataset.regionId)?.extent;
   // The night infrared layer exists only on the detailed map, never on the global one.
   const themis = findThemisNightDataset({ regions: state.catalog.data.coverage ?? [], datasets: state.catalog.data.datasets }, dataset.regionId);
-  if (!global && sector && state.catalog.data.planet) return <JezeroMap roverEnabled={roverEnabled} onRoverToggle={() => setRoverEnabled(value => !value)} datasets={state.catalog.data.datasets} dataset={dataset} sector={sector} radius={state.catalog.data.planet.radiusMeters} sites={state.catalog.data.sites} selected={state.selectedSiteId} onSelect={selectSite} themisDataset={themis} />;
+  if (!global && sector && state.catalog.data.planet) return <JezeroMap panelHost={panelHost} roverEnabled={roverEnabled} onRoverToggle={() => setRoverEnabled(value => !value)} datasets={state.catalog.data.datasets} dataset={dataset} sector={sector} radius={state.catalog.data.planet.radiusMeters} sites={state.catalog.data.sites} selected={state.selectedSiteId} onSelect={selectSite} overlay={terrainOverlay} themisDataset={themis} />;
   return <GlobalMarsMap key={dataset.id} dataset={dataset} global={global} onSelectRegion={openRegion} />;
 }

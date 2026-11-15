@@ -12,7 +12,7 @@ interface KindDefinition {
   readonly role?: 'status' | 'alert';
   /** Bordure du bloc : pleine ou pointillée selon l'état. */
   readonly className: string;
-  /** Carré de l'icône, seule zone teintée du bloc. */
+  /** Voyant de l'icône, seule zone teintée du bloc ; il rayonne pour une erreur ou une vigilance. */
   readonly badgeClassName: string;
   readonly labelClassName: string;
   readonly iconClassName?: string;
@@ -24,7 +24,7 @@ const kinds: Record<DataStateKind, KindDefinition> = {
     label: 'Chargement',
     role: 'status',
     className: 'border-border',
-    badgeClassName: 'bg-muted text-muted-foreground',
+    badgeClassName: 'border-input bg-muted text-foreground',
     labelClassName: 'text-muted-foreground',
     iconClassName: 'animate-spin',
   },
@@ -33,21 +33,22 @@ const kinds: Record<DataStateKind, KindDefinition> = {
     label: 'Erreur',
     role: 'alert',
     className: 'border-danger-border border-l-[3px]',
-    badgeClassName: 'bg-danger-surface text-danger',
+    badgeClassName: 'border-danger-border bg-danger-surface text-danger shadow-[0_0_18px_-4px_var(--danger-border)]',
     labelClassName: 'text-danger',
   },
   empty: {
     icon: CircleDashed,
     label: 'Aucune donnée',
     className: 'border-dashed border-input',
-    badgeClassName: 'bg-muted text-muted-foreground',
+    badgeClassName: 'border-dashed border-input bg-muted text-muted-foreground',
     labelClassName: 'text-muted-foreground',
   },
   'insufficient-coverage': {
     icon: MapPinOff,
     label: 'Hors couverture',
     className: 'border-dashed border-warning-border border-l-[3px]',
-    badgeClassName: 'bg-warning-surface text-warning',
+    badgeClassName:
+      'border-dashed border-warning-border bg-warning-surface text-warning shadow-[0_0_18px_-4px_var(--warning-border)]',
     labelClassName: 'text-warning',
   },
 };
@@ -65,6 +66,8 @@ export interface DataStateProps extends Omit<ComponentProps<'div'>, 'title'> {
    * plusieurs zones affichent le même état : une seule doit l'annoncer.
    */
   announce?: boolean;
+  /** L'état flotte sur la carte : surface de verre floutée et ombre portée. */
+  floating?: boolean;
 }
 
 /**
@@ -79,6 +82,7 @@ export function DataState({
   action,
   align = 'start',
   announce = true,
+  floating = false,
   className,
   children,
   ...props
@@ -94,8 +98,10 @@ export function DataState({
       role={announce ? definition.role : undefined}
       aria-busy={kind === 'loading' ? true : undefined}
       className={cn(
-        'flex gap-3 border bg-card p-4 text-sm text-card-foreground',
-        centered && 'flex-col items-center px-6 py-6 text-center',
+        'flex gap-3 border p-4 text-sm text-card-foreground',
+        // Dans un panneau, le bloc laisse passer la surface qui le porte.
+        floating ? 'glass' : 'bg-card/60',
+        centered && 'flex-col items-center px-6 py-7 text-center',
         definition.className,
         className,
       )}
@@ -103,14 +109,18 @@ export function DataState({
     >
       <span
         aria-hidden="true"
-        className={cn('flex size-9 shrink-0 items-center justify-center', definition.badgeClassName)}
+        className={cn(
+          'flex shrink-0 items-center justify-center border',
+          centered ? 'size-12' : 'size-10',
+          definition.badgeClassName,
+        )}
       >
-        <Icon className={cn('size-[1.125rem]', definition.iconClassName)} />
+        <Icon className={cn(centered ? 'size-6' : 'size-5', definition.iconClassName)} />
       </span>
       <div className={cn('grid min-w-0 content-start gap-1', centered && 'justify-items-center')}>
         <p>
           <span className={cn('label-caps block', definition.labelClassName)}>{definition.label}</span>
-          <span className="block font-semibold">{title}</span>
+          <span className={cn('block font-semibold', centered && 'heading-display mt-1 text-lg')}>{title}</span>
         </p>
         {description ? <div className="max-w-prose leading-relaxed text-muted-foreground">{description}</div> : null}
         {children}

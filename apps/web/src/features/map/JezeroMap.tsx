@@ -1,6 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Map from 'ol/Map';
+import { usePlannerState } from '../../state/PlannerProvider';
+import { selectCurrentMission } from '../../state/planner';
+import { createMissionLayer } from './missionLayer';
 import { defaults as defaultControls } from 'ol/control';
+import { MapPanelDock } from './MapPanelDock';
 import { MapInformation } from './MapInformation';
 import type ImageTile from 'ol/ImageTile';
 import View from 'ol/View';
@@ -28,6 +32,7 @@ import { useThemisNightLayer } from './useThemisNightLayer';
 const messages = jezeroMessages.fr;
 
 interface Props {
+  panelHost: HTMLElement | null;
   datasets: readonly DatasetDescriptor[];
   roverEnabled: boolean;
   onRoverToggle: () => void;
@@ -38,11 +43,13 @@ interface Props {
   selected: string | null;
   onSelect: (id: string) => void;
   themisDataset?: DatasetDescriptor;
+  /** Extra layers and controls given the map instance, e.g. the relief and route of #15. */
+  overlay?: (map: Map | null) => ReactNode;
 }
 const bounds = (extent: Extent) => [extent.west, extent.south, extent.east, extent.north];
-export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, datasets, roverEnabled, onRoverToggle, themisDataset }: Props) {
+export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected, onSelect, datasets, roverEnabled, onRoverToggle, overlay, themisDataset }: Props) {
+  const mission = selectCurrentMission(usePlannerState());
   const themis = useThemisNightLayer(themisDataset);
-  // Kept across map rebuilds: the switch and the drawn layer always agree.
   const themisLayer = themis.layer;
   const [history, setHistory] = useState<RoverHistory | null>(null);
   const [historyFailed, setHistoryFailed] = useState(false);
@@ -60,6 +67,7 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, 
   }, [datasets, roverEnabled, history, attempt]);
   const target = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
+  const [overlayMap, setOverlayMap] = useState<Map | null>(null);
   const [failed, setFailed] = useState(false);
   const [outside, setOutside] = useState(false);
   const [offline, setOffline] = useState(!navigator.onLine);
@@ -119,7 +127,7 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, 
       } }),
       new VectorLayer({ zIndex: 3, source: new VectorSource({ features, wrapX: false }) }),
     ], view });
-    mapRef.current = map;
+    mapRef.current = map; setOverlayMap(map);
     view.fit(bounds(sector), { size: map.getSize(), padding: [90, 40, 160, 40] });
     const update = () => {
       const center = view.getCenter()!;
@@ -151,7 +159,7 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, 
     const connectivity = () => { setOffline(!navigator.onLine); };
     window.addEventListener('online', connectivity); window.addEventListener('offline', connectivity);
     const observer = new ResizeObserver(() => map.updateSize()); observer.observe(target.current!);
-    return () => { pending.forEach(cancel => cancel()); observer.disconnect(); window.removeEventListener('online', connectivity); window.removeEventListener('offline', connectivity); map.dispose(); mapRef.current = null; };
+    return () => { pending.forEach(cancel => cancel()); observer.disconnect(); window.removeEventListener('online', connectivity); window.removeEventListener('offline', connectivity); map.dispose(); mapRef.current = null; setOverlayMap(null); };
   }, [dataset, sector, radius, sites, onSelect, themisLayer]);
   useEffect(() => {
     historyRef.current = history;
@@ -162,14 +170,23 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, 
     map.addLayer(layer);
     return () => { map.removeLayer(layer); };
   }, [history, roverSelected, roverEnabled, dataset, sector, radius, sites, onSelect, themisLayer]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const layer = createMissionLayer(mission);
+    map.addLayer(layer);
+    return () => { map.removeLayer(layer); };
+  }, [mission, dataset, sector, radius, sites, onSelect, themisLayer]);
   return <div className="mars-map-container jezero-map">
     {roverEnabled && <p className="rover-warning border bg-card p-2 text-xs font-semibold">{roverMessages.fr.warning}</p>}
     <div ref={target} className="mars-map" tabIndex={0} aria-label={messages.label} />
-    <Panel title={messages.panelTitle} collapsible className="jezero-status text-sm" contentClassName="overflow-y-auto">
+    <MapPanelDock host={panelHost}>
+    <Panel title={messages.panelTitle} collapsible floating className="jezero-status text-sm" contentClassName="overflow-y-auto">
       <p role="status">{outside ? messages.outside : messages.sector} {offline ? messages.offline : messages.online} {failed && messages.failure}</p>
 
       <Button size="sm" onClick={() => mapRef.current?.getView().fit(bounds(sector), { size: mapRef.current.getSize(), padding: [90, 40, 160, 40] })}>{messages.return}</Button>
       {failed && <Button size="sm" variant="outline" onClick={() => { setFailed(false); mapRef.current?.getLayers().forEach(layer => { if (layer instanceof TileLayer) layer.getSource()?.refresh(); }); }}>{messages.retry}</Button>}
+      {overlay?.(overlayMap)}
       <div className="jezero-legend mt-2 border-t pt-2 text-xs" role="group" aria-label={messages.legendTitle}>
         <p className="font-semibold">{messages.legendTitle}</p>
         <ul className="mt-1 grid gap-1">
@@ -188,12 +205,14 @@ export function JezeroMap({ dataset, sector, radius, sites, selected, onSelect, 
         <RoverHistoryControl enabled={roverEnabled} onToggle={onRoverToggle} history={history} candidates={roverCandidates} failed={historyFailed} retry={() => { setHistoryFailed(false); setAttempt(value => value + 1); }} selected={roverSelected} onSelect={index => { setRoverSelected(index); if (index === null) setRoverCandidates(null); }} />
       </div>
     </Panel>
+    </MapPanelDock>
     {choice && <SiteChoicePopover choice={choice} onSelect={onSelect} onClose={() => { setChoice(null); target.current?.focus({ preventScroll: true }); }} />}
     <div className="mars-scale border bg-card p-4 text-xs" aria-label={messages.scale}>
       <div aria-hidden="true" className="mars-scale-bar" />
       <p>{scale} · {messages.scale}</p>
     </div>
     <MapInformation>
+      <p>Camp et étapes : simulation. Pointillés bleus du parcours : segments directs, sans validation du terrain.</p>
       <p>{messages.legend}</p>
       <p>{messages.coordinates} R = {radius} m.</p>
       <p>{messages.cache}</p>

@@ -77,7 +77,7 @@ def test_site_outside_the_sector_is_rejected(data_copy):
 
 def test_unavailable_capability_needs_a_reason_and_no_dataset(data_copy):
     def change(m):
-        cap = capability(m, "weather-meda")
+        cap = capability(m, "geology")
         cap["reason"] = ""
         cap["datasetIds"] = ["mola-colorized-relief"]
 
@@ -182,3 +182,77 @@ def test_a_night_infrared_tile_without_coverage_is_rejected(data_copy):
     errors = check.validate(data_copy)
     assert "dataset jezero-themis-night-ir: jezero/themis/9/203/732.png is fully transparent (no coverage)" in errors
     assert "dataset jezero-themis-night-ir: status must be 'partial' exactly when transparent pixels exist" in errors
+
+def rewrite_series(root, dataset_id, change):
+    """Edit a frozen MEDA series and keep its recorded size and hash in step."""
+    manifest = json.loads((root / "manifest.json").read_text("utf-8"))
+    path = root / dataset(manifest, dataset_id)["files"][0]["path"]
+    series = json.loads(path.read_text("utf-8"))
+    change(series)
+    path.write_text(json.dumps(series), "utf-8")
+    data = path.read_bytes()
+    edit_manifest(root, lambda m: dataset(m, dataset_id)["files"][0].update(sha256=prepare.sha256(data), bytes=len(data)))
+
+
+def test_weather_capability_is_backed_by_temperature_and_pressure():
+    manifest = json.loads((spec.DATA_DIR / "manifest.json").read_text("utf-8"))
+    weather = capability(manifest, "weather-meda")
+    assert (weather["status"], weather["datasetIds"]) == ("available", ["jezero-meda-temperature", "jezero-meda-pressure"])
+
+
+def test_invalid_sentinel_leaked_into_an_hour_is_rejected(data_copy):
+    rewrite_series(data_copy, "jezero-meda-pressure", lambda s: s["hours"][3].update(median=9999999999.0))
+    assert any("physical range" in e for e in check.validate(data_copy))
+
+
+def test_an_hour_cannot_have_a_value_without_valid_samples(data_copy):
+    rewrite_series(data_copy, "jezero-meda-temperature", lambda s: s["hours"][5].update(samples=0))
+    assert any("exactly when it has valid samples" in e for e in check.validate(data_copy))
+
+
+def test_an_empty_hour_forces_a_partial_status(data_copy):
+    def empty_hour(series):
+        series["hours"][17].update(median=None, samples=0, firstLmst=None, lastLmst=None)
+
+    rewrite_series(data_copy, "jezero-meda-temperature", empty_hour)
+    edit_manifest(data_copy, lambda m: dataset(m, "jezero-meda-temperature")["noData"].update(emptyHourCount=1))
+    assert any("'partial' exactly when an hour has no value" in e for e in check.validate(data_copy))
+
+
+def test_rover_position_outside_the_sector_is_rejected(data_copy):
+    rewrite_series(data_copy, "jezero-meda-pressure", lambda s: s["location"].update(longitude=77.5))
+    edit_manifest(data_copy, lambda m: dataset(m, "jezero-meda-pressure")["extent"].update(west=77.5, east=77.5))
+    assert any("outside the jezero sector" in e for e in check.validate(data_copy))
+
+
+def test_wind_is_declared_unpublished_with_its_source():
+    manifest = json.loads((spec.DATA_DIR / "manifest.json").read_text("utf-8"))
+    wind = capability(manifest, "weather-wind")
+    assert (wind["status"], wind["datasetIds"], wind["reasonUrl"]) == ("unavailable", [], spec.MEDA_RELEASE_NOTES_URL)
+    assert "sol 315" in wind["reason"]
+
+
+@pytest.mark.parametrize("level", ["CAL", "DER"])
+def test_preparation_stops_when_a_prepared_sol_gets_a_wind_file(level):
+    collection = {"CAL": "data_calibrated_env", "DER": "data_derived_env"}[level]
+    without_wind = b'<table><a href="WE__0500___________CAL_ATS_________________P01.CSV">x</a></table>'
+    with_wind = f'<table><a href="WE__0500___________{level}_WS__________________P01.CSV">x</a></table>'.encode()
+    fetcher = lambda url: with_wind if f"/{collection}/" in url else without_wind  # noqa: E731
+    with pytest.raises(RuntimeError, match="sol 500 now has wind files"):
+        prepare.assert_no_wind(500, fetcher)
+
+
+def test_a_capability_reason_link_must_be_https(data_copy):
+    # The panel turns it into a link: a javascript: URL would run on click.
+    def poison(manifest):
+        capability(manifest, "weather-wind")["reasonUrl"] = "javascript:alert(1)"
+
+    edit_manifest(data_copy, poison)
+    assert any("reasonUrl must be an https link" in e for e in check.validate(data_copy))
+
+
+def test_frozen_capabilities_are_those_the_preparation_writes():
+    # The next `data:prepare` must keep wind declared unpublished, not drop it.
+    manifest = json.loads((spec.DATA_DIR / "manifest.json").read_text("utf-8"))
+    rebuilt = prepare.build_manifest(manifest["datasets"], manifest["sites"], manifest["generatedAt"])
+    assert rebuilt["regions"] == manifest["regions"]

@@ -15,7 +15,7 @@ export interface DataListItemProps extends ComponentProps<'div'> {
 
 export function DataListItem({ label, annotation, className, children, ...props }: DataListItemProps) {
   return (
-    <div data-slot="data-list-item" className={cn('grid gap-1', className)} {...props}>
+    <div data-slot="data-list-item" className={cn('grid content-start gap-1.5 border-l-2 border-mars/50 pl-3', className)} {...props}>
       <dt className="label-caps flex flex-wrap items-center gap-2 text-muted-foreground">
         {label}
         {annotation}

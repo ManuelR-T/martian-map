@@ -50,11 +50,11 @@ describe('committed manifest', () => {
   });
 
   it('enables Jezero detail only where data was frozen', () => {
-    for (const id of ['imagery-hirise', 'terrain-dem', 'terrain-slope', 'terrain-hillshade', 'science-sites', 'thermal-themis']) {
+    for (const id of ['imagery-hirise', 'terrain-dem', 'terrain-slope', 'terrain-hillshade', 'science-sites', 'weather-meda', 'thermal-themis']) {
       expect(capabilityStatus(committed, 'jezero', id)).not.toBe('unavailable');
     }
     expect(capabilityStatus(committed, 'jezero', 'rover-traverse')).toBe('partial');
-    for (const id of ['weather-meda', 'geology']) {
+    for (const id of ['geology']) {
       expect(capabilityStatus(committed, 'jezero', id)).toBe('unavailable');
     }
   });

@@ -17,7 +17,7 @@ export type DataStatus = 'available' | 'partial' | 'unavailable';
  * `slope` and `hillshade` are computed from the `elevation` dataset named by `derivedFrom`.
  * `thermal` is an overlay of relative contrasts, never the imagery basemap nor temperatures.
  */
-export type DatasetKind = 'basemap' | 'imagery' | 'elevation' | 'slope' | 'hillshade' | 'sites' | 'rover-waypoints' | 'rover-traverse' | 'thermal';
+export type DatasetKind = 'basemap' | 'imagery' | 'elevation' | 'slope' | 'hillshade' | 'sites' | 'rover-waypoints' | 'rover-traverse' | 'thermal' | 'weather';
 /** `local` files are frozen under the data root; `remote` is streamed and not available offline. */
 export type DatasetDelivery = 'local' | 'remote';
 export type RegionKind = 'orientation' | 'detailed';
@@ -39,6 +39,8 @@ export interface SourceFingerprint {
 export interface DatasetSource {
   readonly url: string;
   readonly tileUrlTemplate?: string;
+  /** PDS4 label describing `url` (columns, units, checksum), for archive products. */
+  readonly labelUrl?: string;
   /** UTC instant of the download, `YYYY-MM-DDTHH:MM:SSZ`. */
   readonly retrievedAt: string;
   readonly credit: string;
@@ -62,7 +64,9 @@ export interface Resolution {
 export type NoDataPolicy =
   | { readonly kind: 'not-applicable' }
   | { readonly kind: 'alpha-channel'; readonly transparentPixelCount: number }
-  | { readonly kind: 'nan'; readonly sourceValue: number; readonly cellCount: number };
+  | { readonly kind: 'nan'; readonly sourceValue: number; readonly cellCount: number }
+  /** Time series: invalid samples are counted and dropped; an hour without valid sample has no value. */
+  | { readonly kind: 'invalid-samples'; readonly invalidSampleCount: number; readonly emptyHourCount: number };
 
 export interface FrozenFile {
   /** Relative to the data root served at `/data/`. */
@@ -188,6 +192,8 @@ export interface Capability {
   readonly datasetIds: readonly string[];
   /** Required when `status` is `unavailable`. */
   readonly reason?: string;
+  /** Source that states the reason, for example the instrument release notes. */
+  readonly reasonUrl?: string;
 }
 
 export interface RegionCoverage {
