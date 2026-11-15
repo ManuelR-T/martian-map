@@ -50,6 +50,13 @@ describe('site sheets', () => {
     }
   });
 
+  it('lets the crew allot the demo stops: 75 min planned, 125 min with a second sample, 30 min cut down', () => {
+    // A real geology stop lasts about an hour (Apollo 17 planned 30 to 66 min); the demo needs more than 60 min.
+    const amalik = siteSheets.find((sheet) => sheet.siteId === 'amalik');
+    expect(amalik && plannedTaskMinutes(amalik)).toBe(75);
+    for (const minutes of [30, 75, 125]) expect(STOP_MINUTES_CHOICES).toContain(minutes);
+  });
+
   it('gives every task a unique id within its stop, so ticking one never ticks another', () => {
     for (const sheet of siteSheets) {
       const ids = sheet.tasks.map((task) => task.id);
