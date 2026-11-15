@@ -13,3 +13,4 @@ export function minutesToSeconds(minutes: number): number {
 }
 
 export * from './mission';
+export * from './radiation';
