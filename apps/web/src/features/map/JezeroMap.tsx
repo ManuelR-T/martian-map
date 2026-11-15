@@ -1,0 +1,207 @@
+import { useEffect, useRef, useState } from 'react';
+import Map from 'ol/Map';
+import { usePlannerState } from '../../state/PlannerProvider';
+import { selectCurrentMission } from '../../state/planner';
+import { createMissionLayer } from './missionLayer';
+import { defaults as defaultControls } from 'ol/control';
+import { MapPanelDock } from './MapPanelDock';
+import { MapInformation } from './MapInformation';
+import type ImageTile from 'ol/ImageTile';
+import View from 'ol/View';
+import Feature from 'ol/Feature';
+import Point from 'ol/geom/Point';
+import { fromExtent } from 'ol/geom/Polygon';
+import TileLayer from 'ol/layer/Tile';
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
+import XYZ from 'ol/source/XYZ';
+import TileGrid from 'ol/tilegrid/TileGrid';
+import { Circle, Fill, Stroke, Style, Text } from 'ol/style';
+import type { Extent, DatasetDescriptor, SiteDescriptor } from '@marps/data';
+import { Button, Panel } from '@marps/ui';
+import { marsProjection, createRegionSource } from './marsWmts';
+import { containsPosition, marsHorizontalResolution, resolveJezeroTile } from './jezero';
+import './global-mars-map.css';
+import { SiteChoicePopover, type SiteChoice } from './SiteChoicePopover';
+import { loadRoverHistory, type RoverHistory } from '@marps/data';
+import { createRoverLayers } from './roverLayer';
+import { RoverHistoryControl, roverMessages } from './RoverHistoryControl';
+import { jezeroMessages } from './jezeroMessages';
+const messages = jezeroMessages.fr;
+
+interface Props {
+  panelHost: HTMLElement | null;
+  datasets: readonly DatasetDescriptor[];
+  roverEnabled: boolean;
+  onRoverToggle: () => void;
+  dataset: DatasetDescriptor;
+  sector: Extent;
+  radius: number;
+  sites: readonly SiteDescriptor[];
+  selected: string | null;
+  onSelect: (id: string) => void;
+}
+const bounds = (extent: Extent) => [extent.west, extent.south, extent.east, extent.north];
+export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected, onSelect, datasets, roverEnabled, onRoverToggle }: Props) {
+  const mission = selectCurrentMission(usePlannerState());
+  const [history, setHistory] = useState<RoverHistory | null>(null);
+  const [historyFailed, setHistoryFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [roverCandidates, setRoverCandidates] = useState<readonly number[] | null>(null);
+  const [roverSelected, setRoverSelected] = useState<number | null>(null);
+  const historyRef = useRef<RoverHistory | null>(null);
+  const roverEnabledRef = useRef(roverEnabled);
+  useEffect(() => { roverEnabledRef.current = roverEnabled; }, [roverEnabled]);
+  useEffect(() => {
+    if (!roverEnabled || history) return;
+    const controller = new AbortController();
+    loadRoverHistory(datasets, controller.signal).then(value => { if (!controller.signal.aborted) setHistory(value); }).catch(() => { if (!controller.signal.aborted) setHistoryFailed(true); });
+    return () => controller.abort();
+  }, [datasets, roverEnabled, history, attempt]);
+  const target = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<Map | null>(null);
+  const [failed, setFailed] = useState(false);
+  const [outside, setOutside] = useState(false);
+  const [offline, setOffline] = useState(!navigator.onLine);
+  const [scale, setScale] = useState('');
+  const [choice, setChoice] = useState<SiteChoice | null>(null);
+  const selectedRef = useRef(selected);
+  useEffect(() => { selectedRef.current = selected; mapRef.current?.getLayers().forEach(layer => { if (layer instanceof VectorLayer) layer.changed(); }); }, [selected]);
+  useEffect(() => {
+    const product = dataset.wmts;
+    if (!product) return;
+    const pending = new Set<() => void>();
+    const source = new XYZ({ projection: marsProjection, wrapX: false, crossOrigin: 'anonymous',
+      attributions: dataset.source.credit,
+      tileGrid: new TileGrid({ origin: [-180, 90], extent: bounds(product.extent),
+        resolutions: product.matrices.map(matrix => 360 / (matrix.tileSize * matrix.width)), tileSize: 256 }),
+      tileUrlFunction: coordinate => resolveJezeroTile(dataset, coordinate)?.url,
+      tileLoadFunction: (tile, url) => {
+        const image = (tile as ImageTile).getImage() as HTMLImageElement;
+        const timer = window.setTimeout(() => { image.src = ''; tile.setState(3); }, 15000);
+        const cleanup = () => { pending.delete(cancel); window.clearTimeout(timer); image.removeEventListener('load', cleanup); image.removeEventListener('error', cleanup); };
+        const cancel = () => { cleanup(); image.src = ''; };
+        pending.add(cancel);
+        image.addEventListener('load', cleanup); image.addEventListener('error', cleanup);
+        image.src = url;
+      } });
+    const boundary = (extent: Extent, color: string, dash: number[]) => {
+      const feature = new Feature(fromExtent(bounds(extent)));
+      feature.setStyle(new Style({ stroke: new Stroke({ color, width: 3, lineDash: dash }) }));
+      return feature;
+    };
+    const features = sites.filter(site => site.regionId === dataset.regionId).map(site => {
+      const feature = new Feature(new Point([site.coordinate.longitude, site.coordinate.latitude]));
+      feature.setId(site.id);
+      feature.setStyle(() => new Style({ image: new Circle({ radius: selectedRef.current === site.id ? 10 : 7,
+        fill: new Fill({ color: selectedRef.current === site.id ? '#fff' : '#ffcc66' }), stroke: new Stroke({ color: '#151b25', width: 3 }) }),
+        text: new Text({ text: site.name, offsetY: -22, fill: new Fill({ color: '#fff' }), stroke: new Stroke({ color: '#151b25', width: 4 }) }) }));
+      return feature;
+    });
+    const view = new View({ projection: marsProjection, extent: bounds(product.extent),
+      resolutions: product.matrices.map(matrix => 360 / (matrix.tileSize * matrix.width)), minZoom: 0, maxZoom: product.matrices.length - 1 });
+    const prepared = dataset.tileset!.ranges.map(range => {
+      const span = 180 / 2 ** range.z;
+      const feature = boundary({ west: -180 + range.colMin * span, east: -180 + (range.colMax + 1) * span,
+        north: 90 - range.rowMin * span, south: 90 - (range.rowMax + 1) * span }, '#fff', [2, 6]);
+      feature.setStyle(undefined);
+      feature.set('level', range.z);
+      return feature;
+    });
+    const map = new Map({ controls: defaultControls({ attribution: false }), target: target.current!, maxTilesLoading: 8, layers: [
+      new TileLayer({ source: createRegionSource(dataset) }), new TileLayer({ source }),
+      new VectorLayer({ source: new VectorSource({ features: [boundary(product.extent, '#ffcc66', []), boundary(sector, '#50c8ff', [10, 5])], wrapX: false }) }),
+      new VectorLayer({ source: new VectorSource({ features: prepared, wrapX: false }), style: feature => {
+        if (feature.get('level') !== Math.round(view.getZoom() ?? 12)) return;
+        return new Style({ stroke: new Stroke({ color: '#fff', width: 2, lineDash: [2, 6] }) });
+      } }),
+      new VectorLayer({ zIndex: 3, source: new VectorSource({ features, wrapX: false }) }),
+    ], view });
+    mapRef.current = map;
+    view.fit(bounds(sector), { size: map.getSize(), padding: [90, 40, 160, 40] });
+    const update = () => {
+      const center = view.getCenter()!;
+      setOutside(!containsPosition(sector, center[0]!, center[1]!));
+      const metres = marsHorizontalResolution(view.getResolution()!, center[1]!, radius) * 100;
+      setScale(`${metres >= 1000 ? `${(metres / 1000).toFixed(2)} km` : `${metres.toFixed(1)} m`} / 100 px`);
+    };
+    map.on('moveend', update); update();
+    map.on('movestart', () => setChoice(null));
+    map.on('singleclick', event => {
+      const hits = map.getFeaturesAtPixel(event.pixel, { hitTolerance: 15 }).map(feature => sites.find(site => site.id === feature.getId())).filter((site): site is SiteDescriptor => Boolean(site));
+      if (hits.length === 0 && roverEnabledRef.current && historyRef.current) {
+        const roverHits = map.getFeaturesAtPixel(event.pixel, { hitTolerance: 15 }).map(feature => feature.get('roverIndex')).filter((index): index is number => typeof index === 'number');
+        setRoverCandidates(roverHits.length > 1 ? [...new Set(roverHits)] : null);
+        setRoverSelected(roverHits.length === 1 ? roverHits[0]! : null);
+      }
+      if (hits.length === 1) onSelect(hits[0]!.id);
+      if (hits.length > 1) {
+        const rectangle = target.current!.getBoundingClientRect();
+        const pixels = hits.map(site => map.getPixelFromCoordinate([site.coordinate.longitude, site.coordinate.latitude]));
+        setChoice({ sites: hits,
+          left: rectangle.left + Math.min(...pixels.map(pixel => pixel[0]!)) - 12,
+          right: rectangle.left + Math.max(...pixels.map(pixel => pixel[0]!)) + 12,
+          top: rectangle.top + Math.min(...pixels.map(pixel => pixel[1]!)) - 32,
+          bottom: rectangle.top + Math.max(...pixels.map(pixel => pixel[1]!)) + 12 });
+      } else setChoice(null);
+    });
+    source.on('tileloaderror', () => setFailed(true));
+    const connectivity = () => { setOffline(!navigator.onLine); };
+    window.addEventListener('online', connectivity); window.addEventListener('offline', connectivity);
+    const observer = new ResizeObserver(() => map.updateSize()); observer.observe(target.current!);
+    return () => { pending.forEach(cancel => cancel()); observer.disconnect(); window.removeEventListener('online', connectivity); window.removeEventListener('offline', connectivity); map.dispose(); mapRef.current = null; };
+  }, [dataset, sector, radius, sites, onSelect]);
+  useEffect(() => {
+    historyRef.current = history;
+    const map = mapRef.current;
+    if (!map || !history) return;
+    const layer = createRoverLayers(history, roverSelected);
+    layer.setVisible(roverEnabled);
+    map.addLayer(layer);
+    return () => { map.removeLayer(layer); };
+  }, [history, roverSelected, roverEnabled, dataset, sector, radius, sites, onSelect]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const layer = createMissionLayer(mission);
+    map.addLayer(layer);
+    return () => { map.removeLayer(layer); };
+  }, [mission, dataset, sector, radius, sites, onSelect]);
+  return <div className="mars-map-container jezero-map">
+    {roverEnabled && <p className="rover-warning border bg-card p-2 text-xs font-semibold">{roverMessages.fr.warning}</p>}
+    <div ref={target} className="mars-map" tabIndex={0} aria-label={messages.label} />
+    <MapPanelDock host={panelHost}>
+    <Panel title={messages.panelTitle} collapsible className="jezero-status text-sm" contentClassName="overflow-y-auto">
+      <p role="status">{outside ? messages.outside : messages.sector} {offline ? messages.offline : messages.online} {failed && messages.failure}</p>
+
+      <Button size="sm" onClick={() => mapRef.current?.getView().fit(bounds(sector), { size: mapRef.current.getSize(), padding: [90, 40, 160, 40] })}>{messages.return}</Button>
+      {failed && <Button size="sm" variant="outline" onClick={() => { setFailed(false); mapRef.current?.getLayers().forEach(layer => { if (layer instanceof TileLayer) layer.getSource()?.refresh(); }); }}>{messages.retry}</Button>}
+      <RoverHistoryControl enabled={roverEnabled} onToggle={onRoverToggle} history={history} candidates={roverCandidates} failed={historyFailed} retry={() => { setHistoryFailed(false); setAttempt(value => value + 1); }} selected={roverSelected} onSelect={index => { setRoverSelected(index); if (index === null) setRoverCandidates(null); }} />
+      <div className="jezero-legend mt-2 border-t pt-2 text-xs" role="group" aria-label={messages.legendTitle}>
+        <p className="font-semibold">{messages.legendTitle}</p>
+        <ul className="mt-1 grid gap-1">
+          <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke="#50c8ff" strokeWidth="3" strokeDasharray="10 5" /></svg><span>{messages.missionBoundary}</span></li>
+          <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke="#ffcc66" strokeWidth="3" /></svg><span>{messages.productBoundary}</span></li>
+          <li><svg viewBox="0 0 40 12" aria-hidden="true"><path d="M0 6H40" stroke="#fff" strokeWidth="2" strokeDasharray="2 6" /></svg><span>{messages.preparedBoundary}</span></li>
+          <li><svg viewBox="0 0 40 20" aria-hidden="true"><circle cx="20" cy="10" r="7" fill="#ffcc66" stroke="#151b25" strokeWidth="3" /></svg><span>{messages.scienceSite}</span></li>
+          <li><svg viewBox="0 0 40 24" aria-hidden="true"><circle cx="20" cy="12" r="10" fill="#fff" stroke="#151b25" strokeWidth="3" /></svg><span>{messages.selectedSite}</span></li>
+          <li><span className="jezero-missing-swatch" aria-hidden="true" /><span>{messages.missingImagery}</span></li>
+        </ul>
+      </div>
+
+    </Panel>
+    </MapPanelDock>
+    {choice && <SiteChoicePopover choice={choice} onSelect={onSelect} onClose={() => { setChoice(null); target.current?.focus({ preventScroll: true }); }} />}
+    <div className="mars-scale border bg-card p-4 text-xs" aria-label={messages.scale}>
+      <div aria-hidden="true" className="mars-scale-bar" />
+      <p>{scale} · {messages.scale}</p>
+    </div>
+    <MapInformation>
+      <p>Camp et étapes : simulation. Pointillés bleus du parcours : segments directs, sans validation du terrain.</p>
+      <p>{messages.legend}</p>
+      <p>{messages.coordinates} R = {radius} m.</p>
+      <p>{messages.cache}</p>
+      <a href={dataset.source.url} className="underline">{dataset.source.credit}</a>
+    </MapInformation>
+  </div>;
+}

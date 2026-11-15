@@ -39,7 +39,7 @@ export function SourcesPage() {
           <p>Le fond mondial sert à l’orientation. Il ne fournit pas les détails de Jezero partout sur Mars. Les détails sont limités aux emprises indiquées pour chaque source.</p>
           <p>Aucune validation opérationnelle. Tout tracé de mission est hypothétique ; sa praticabilité n’est pas validée sur le terrain.</p>
           <p>La météo historique au rover ne constitue ni une prévision ni une mesure sur tout le secteur. Le relief ne permet pas de détecter les obstacles plus petits que sa résolution.</p>
-          <p>Vitesse, durée de sortie, durées d’observation, réserve et seuils : non renseignés dans cette version. Aucun budget disponible tant que ces entrées manquent.</p>
+          <p>La vitesse, la durée de sortie, la réserve et les durées des activités sont des hypothèses choisies lors de la préparation. Elles ne constituent pas des mesures du terrain. Les données absentes restent inconnues.</p>
         </div>
       </Panel>
       {catalog.status === 'ready' ? <>

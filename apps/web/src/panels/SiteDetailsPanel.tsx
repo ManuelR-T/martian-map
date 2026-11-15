@@ -4,13 +4,18 @@ import { SitePicker, SiteSheetView } from '../sites/SiteSheetView';
 import { siteWorkOf } from '../sites/siteWork';
 import { usePlannerDispatch, usePlannerState } from '../state/PlannerProvider';
 import { SiteProvenance } from './Provenance';
+import { selectCurrentMission } from '../state/planner';
 import { PlanningGate } from './PlanningGate';
 
 export function SiteDetailsPanel({ className }: { className?: string }) {
-  const { catalog, selectedSiteId, siteWork } = usePlannerState();
+  const state = usePlannerState();
+  const { catalog, selectedSiteId, workspace, runningMission } = state;
+  const mission = selectCurrentMission(state);
   const dispatch = usePlannerDispatch();
   const sites = catalog.status === 'ready' ? catalog.data.sites : [];
   const sheet = selectedSiteId ? findSiteSheet(selectedSiteId) : undefined;
+
+  if (workspace === 'mission' && !runningMission) return null;
 
   return (
     <Panel
@@ -32,7 +37,8 @@ export function SiteDetailsPanel({ className }: { className?: string }) {
           {sheet ? (
             <SiteSheetView
               sheet={sheet}
-              work={siteWorkOf(siteWork, sheet)}
+              tracking={workspace === 'mission' && runningMission !== null}
+              work={siteWorkOf(mission.siteWork, sheet)}
               onTaskToggle={(taskId) => dispatch({ type: 'siteTaskToggled', sheet, taskId })}
               onAllottedChange={(minutes) => dispatch({ type: 'siteAllottedChanged', sheet, minutes })}
             />

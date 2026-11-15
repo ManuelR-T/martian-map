@@ -15,7 +15,7 @@ from PIL import Image
 from . import geo, spec
 
 STATUSES = {"available", "partial", "unavailable"}
-KINDS = {"basemap", "imagery", "elevation", "slope", "hillshade", "sites"}
+KINDS = {"basemap", "imagery", "elevation", "slope", "hillshade", "sites", "rover-waypoints", "rover-traverse"}
 DELIVERIES = {"local", "remote"}
 NODATA_KINDS = {"not-applicable", "alpha-channel", "nan"}
 # Mars spans about -8.2 km (Hellas) to +21.2 km (Olympus Mons) around the MOLA datum.
@@ -315,7 +315,7 @@ def validate(root: Path) -> list[str]:
         region = regions.get(d.get("regionId"))
         if region is None:
             errors.append(f"dataset {d.get('id')}: unknown region {d.get('regionId')}")
-        elif not check_extent(d.get("extent"), "") and d["status"] == "available" and d["kind"] != "sites":
+        elif not check_extent(d.get("extent"), "") and d["status"] == "available" and d["kind"] not in {"sites", "rover-waypoints", "rover-traverse"}:
             if not geo.contains(d["extent"], region["extent"]):
                 errors.append(f"dataset {d['id']}: extent does not cover the {region['id']} region")
         if file_errors:
@@ -328,6 +328,22 @@ def validate(root: Path) -> list[str]:
             errors += check_hillshade(root, datasets, d)
         elif d.get("kind") == "imagery":
             errors += check_imagery(root, d)
+            if d.get("wmts") is not None:
+                from .wmts import imagery_wmts
+                try:
+                    expected = imagery_wmts((root / "jezero/hirise/WMTSCapabilities.xml").read_bytes())
+                    if d["wmts"] != expected:
+                        errors.append("imagery: WMTS metadata differs from frozen capabilities")
+                except (OSError, ValueError, AttributeError, TypeError) as error:
+                    errors.append(f"imagery: invalid WMTS metadata: {error}")
+        elif d.get("kind") in {"rover-waypoints", "rover-traverse"}:
+            from .rover import validate_feature
+            try:
+                collection = json.loads((root / d["files"][0]["path"]).read_text())
+                for feature in collection["features"]:
+                    validate_feature(feature, "Point" if d["kind"] == "rover-waypoints" else "LineString")
+            except (ValueError, KeyError, TypeError) as error:
+                errors.append(f"rover: {error}")
         elif d.get("kind") == "sites":
             errors += check_sites(root, manifest, d)
     return errors + check_capabilities(manifest, datasets)

@@ -77,7 +77,7 @@ def test_site_outside_the_sector_is_rejected(data_copy):
 
 def test_unavailable_capability_needs_a_reason_and_no_dataset(data_copy):
     def change(m):
-        cap = capability(m, "rover-traverse")
+        cap = capability(m, "thermal-themis")
         cap["reason"] = ""
         cap["datasetIds"] = ["mola-colorized-relief"]
 

@@ -1,7 +1,7 @@
 import type { MarsCoordinate } from '@marps/mission-core';
 
 /** Manifest format produced by tools/data; bump with `SCHEMA_VERSION` in tools/data/marps_data/spec.py. */
-export const MANIFEST_SCHEMA_VERSION = 2;
+export const MANIFEST_SCHEMA_VERSION = 3;
 
 /** Lon/lat box in planetocentric degrees, longitude positive east. */
 export interface Extent {
@@ -14,7 +14,7 @@ export interface Extent {
 /** `partial` means holes exist (NoData); `unavailable` means nothing usable. Never infer coverage from a basemap. */
 export type DataStatus = 'available' | 'partial' | 'unavailable';
 /** `slope` and `hillshade` are computed from the `elevation` dataset named by `derivedFrom`. */
-export type DatasetKind = 'basemap' | 'imagery' | 'elevation' | 'slope' | 'hillshade' | 'sites';
+export type DatasetKind = 'basemap' | 'imagery' | 'elevation' | 'slope' | 'hillshade' | 'sites' | 'rover-waypoints' | 'rover-traverse';
 /** `local` files are frozen under the data root; `remote` is streamed and not available offline. */
 export type DatasetDelivery = 'local' | 'remote';
 export type RegionKind = 'orientation' | 'detailed';
@@ -121,7 +121,18 @@ export interface RasterGrid {
   readonly navigationGrade: false;
 }
 
+export interface ImageryWmts {
+  readonly layer: string;
+  readonly style: string;
+  readonly matrixSet: string;
+  readonly crs: string;
+  readonly format: string;
+  readonly extent: Extent;
+  readonly matrices: readonly { readonly id: string; readonly origin: readonly number[]; readonly tileSize: number; readonly width: number; readonly height: number }[];
+}
+
 export interface DatasetDescriptor {
+  readonly wmts?: ImageryWmts;
   readonly id: string;
   readonly regionId: string;
   readonly title: string;

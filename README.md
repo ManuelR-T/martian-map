@@ -316,3 +316,131 @@ map dragging and zoom were exercised. The production worker cached the 108 built
 resources, including responsive styles and the prepared datasets. These checks
 use browser simulation; physical tablet/wrist hardware and glove input remain
 unverified.
+
+## Jezero mosaic exploration (#8)
+
+The Jezero view starts at the prepared mission sector and allows exploration of
+NASA's full declared HiRISE footprint (77.2229331–77.583964° E,
+18.3067994–18.669315° N), at WMTS levels 0–17. The pinned capabilities supply
+product bounds and matrix dimensions through optional manifest `wmts` metadata.
+Existing schema-2 readers remain compatible. The 91 prepared tiles at levels
+12–16 retain their original local paths and integrity hashes; other valid tiles
+use the NASA template, with at most eight simultaneous map tile loads and a
+15-second request timeout. Retry and return-to-prepared-sector actions remain
+available after failures. The Mars/Jezero switch preserves planner state.
+
+Yellow outlines mark product bounds, blue dashes the mission sector, and white
+point outlines the prepared tile envelope at the current integer zoom. Patterned
+background means no displayed image; a transparent pixel or a failed request is
+not evidence of navigable terrain. Scientific capabilities remain scoped to the
+original mission sector. The three manifest sites select their existing sheets;
+overlapping touch hits offer a named choice.
+
+The 100 CSS-pixel scale uses the manifest Mars radius (3,396,190 m), angular
+resolution and cosine of the center latitude. Coordinates are planetocentric,
+east-positive longitude/latitude. Nominal 0.25 m/pixel source sampling is distinct
+from displayed sampling and does not establish positioning accuracy.
+
+Production installation includes prepared resources. Extra streamed HiRISE tiles
+are not promised after offline reload: their bounded persistence belongs to #24.
+NASA connectivity is optional for the prepared-sector workflow. Validate browser
+rendering, disconnected reload, and physical tablet/glove interaction before
+operational use; these have not been exercised for this implementation.
+
+### Perseverance historical context (#20)
+
+The Jezero sector panel includes an optional Perseverance history toggle. It
+shows NASA-published positions and separate drive segments, not a validated
+human route or current telemetry. Select a feature on the map or use the
+keyboard-accessible list to inspect its sol/RMC. Overlapping rover hits narrow
+the list; science sites keep selection priority. Mission steps are unaffected.
+
+The prepared extract includes complete segments intersecting the mission sector
+and their available endpoint waypoints. Outside it, missing history means no
+prepared data, not evidence that the rover never visited. Original source
+coordinates are preserved; five endpoint discrepancies are listed in the
+snapshot quality details. No snapping, gap filling, site substitution or vertical
+alignment is performed. CRS84 in the upstream metadata is interpreted explicitly
+as Mars planetocentric east-positive longitude/latitude, not Earth coordinates.
+
+History files ship with the production PWA and are included in its versioned
+precache. After a successful online/local installation and offline-ready status,
+the layer needs no NASA connection. Failed history loads offer retry without
+blocking imagery or the mission. Production offline/tablet interaction still
+requires acceptance testing; the automatic checks do not establish it.
+
+## Missions, camps et activités (#11)
+
+La navigation À la base / En mission sépare la préparation et le suivi. Le thème,
+la carte et les composants Panel, Button et StepList sont conservés.
+
+### À la base : missions, modèles et camps
+
+Un seul panneau **Mission** a trois onglets : **Préparer** (l’assistant, pour
+une mission ou un modèle), **Camps** (le catalogue des camps) et **Missions**
+(missions enregistrées, modèles et historique). Une mission enregistrée se
+démarre directement depuis l’onglet Missions. Une nouvelle mission peut
+toujours partir d’un modèle existant.
+La création suit trois étapes :
+
+1. Objectif et nom : choisir reconnaissance, observation, photographie ou
+   prélèvement. Un nom est proposé automatiquement et reste modifiable. Une
+   nouvelle mission peut reprendre un modèle enregistré sans modifier ce modèle.
+2. Camp et parcours : sélectionner un camp déjà enregistré, ajouter des étapes
+   du catalogue ou par coordonnées, réordonner les visites et définir leurs
+   activités (photo, observation, prélèvement) et durées en minutes. Une mission
+   exige un camp et au moins une étape ; un modèle peut les laisser à compléter.
+3. Vérification : consulter le récapitulatif, régler durée disponible, vitesse et
+   réserve, puis enregistrer. Le démarrage est proposé après enregistrement.
+
+L’onglet **Camps** permet de rechercher parmi les camps existants ou d’en
+enregistrer un nouveau, puis de les modifier ou de les supprimer. À l’étape 2,
+le bouton « Créer un camp » ouvre cet onglet. Enregistrer un camp ne sélectionne
+ni ne modifie le camp d’une mission en préparation. Les missions conservent une copie du camp choisi,
+y compris si le catalogue est modifié par la suite.
+
+Les actions destructrices demandent confirmation. Un message signale les erreurs
+de stockage. Les contrôles de préparation ne sont disponibles qu’à Jezero.
+Le catalogue des camps reste consultable indépendamment de la vue de la carte.
+
+### En mission
+
+Démarrer crée une copie indépendante du plan et remet les coches à zéro.
+Modifier un modèle ou une mission à la base ne modifie pas la sortie en cours.
+Le reducer interdit les modifications de configuration dans le suivi. Le parcours,
+les activités à cocher et les fiches de site restent accessibles ; les paramètres
+et les allocations sont en lecture seule. Les tâches des fiches restent distinctes
+des activités des visites et ne sont pas additionnées automatiquement à celles-ci.
+
+Le suivi est enregistré automatiquement sur cet appareil et restauré au
+rechargement. Chaque sortie dispose d’une entrée d’historique mise à jour avec
+ses coches ; démarrer une autre sortie conserve les précédentes. L’historique
+indique la date de dernière sauvegarde et ne prétend pas qu’une sortie est
+terminée. La géométrie camp–étapes–camp relie des segments directs : elle ne
+constitue pas un chemin praticable validé. Le calcul complet du budget reste #14.
+
+### Stockage et données de simulation
+
+IndexedDB `marps-missions` version 3 sépare `camps`, `missions`, `templates`,
+`tracking` et `history`. Les migrations conservent les anciennes données. Les
+préparations existantes restent dans missions ; elles ne sont pas reclassées
+automatiquement comme modèles. Les missions portent `schemaVersion: 1`, leur
+identité, type (facultatif pour les anciennes sauvegardes), nom, région, camp,
+étapes ordonnées, activités et coches, paramètres, hypothèses et travail des
+fiches. Les durées générales sont en secondes, la vitesse en m/s et les durées
+d’activités en minutes. Les valeurs négatives/non finies, la vitesse nulle et
+une réserve supérieure à la durée disponible sont refusées.
+
+Le repository `apps/web/src/storage/missionDatabase.ts` constitue le point à
+étendre pour un futur catalogue partagé. Il n’existe actuellement ni serveur,
+ni synchronisation multi-équipage, ni télémétrie. Effacer les données du
+navigateur efface cette base.
+
+Les camps d’exemple de `packages/data/src/camps.ts` sont fictifs et initialisés
+une seule fois. Leurs positions dans le secteur préparé ne confirment ni
+habitabilité, ni présence d’équipements, ni sélection NASA. La recherche n’a pas
+identifié de catalogue NASA de camps humains martiens enregistrés. Le rapport
+[NASA sur la science et la protection planétaire avant les missions humaines](https://ntrs.nasa.gov/citations/20250009522)
+étudie un scénario à Jezero sans valider ces camps. Les
+[données Perseverance](https://science.nasa.gov/mission/mars-2020-perseverance/)
+concernent l’exploration robotique réelle et restent séparées des simulations.

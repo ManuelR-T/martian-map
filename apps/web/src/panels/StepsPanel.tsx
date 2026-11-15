@@ -1,41 +1,21 @@
-import { DataState, Panel, StepList, StepListItem } from '@marps/ui';
-import { formatCoordinate } from '../format';
+import { useState } from 'react';
+import { Panel } from '@marps/ui';
+import { MissionTracking } from './MissionTracking';
+import type { RadiationAlertState } from './RadiationAlert';
+import { MissionEditor } from './MissionEditor';
 import { usePlannerState } from '../state/PlannerProvider';
 import { PlanningGate } from './PlanningGate';
 
 export function StepsPanel({ className }: { className?: string }) {
-  const { mission } = usePlannerState();
-
-  return (
-    <Panel
-      title="Étapes"
-      description="Dans l'ordre de visite"
-      collapsible
-      floating
-      className={className}
-      contentClassName="overflow-y-auto"
-    >
-      <p className="mb-3 text-sm">Simulé · Tracé hypothétique.</p>
-      <PlanningGate loadingTitle="Chargement des étapes" coverageTitle="Pas d'étapes hors du secteur détaillé" offerRegion>
-        {mission.steps.length === 0 ? (
-          <DataState
-            kind="empty"
-            title="Aucune étape"
-            description="La mission ne contient encore aucune étape. Elles s'afficheront ici dans l'ordre de visite."
-          />
-        ) : (
-          <StepList label="Étapes de la mission">
-            {mission.steps.map((step, index) => (
-              <StepListItem
-                key={step.id}
-                position={index + 1}
-                title={step.name}
-                description={<span className="tabular-nums">{formatCoordinate(step.position)}</span>}
-              />
-            ))}
-          </StepList>
-        )}
-      </PlanningGate>
-    </Panel>
-  );
+  const { workspace } = usePlannerState();
+  const [radiation, setRadiation] = useState<RadiationAlertState | null>(null);
+  return <>
+    <div className={workspace === 'base' ? 'flex min-h-0 shrink-0 flex-col gap-3' : 'hidden'}><MissionEditor className={className} /></div>
+    {workspace === 'mission' && <Panel title="Suivi de mission" description="Activités pendant la sortie"
+    collapsible floating className={className} contentClassName="overflow-y-auto">
+    <PlanningGate loadingTitle="Chargement des missions" coverageTitle="Ouvrez Jezero pour suivre une mission" offerRegion>
+      <MissionTracking radiation={radiation} onRadiationChange={setRadiation} />
+    </PlanningGate>
+  </Panel>}
+  </>;
 }

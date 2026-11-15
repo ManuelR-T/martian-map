@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from 'react';
-import { BrandMark, DataState, ThemeToggle } from '@marps/ui';
+import { BrandMark, Button, DataState, ThemeToggle } from '@marps/ui';
 import { BudgetPanel } from './panels/BudgetPanel';
 import { MapStage } from './panels/MapStage';
 import { SiteDetailsPanel } from './panels/SiteDetailsPanel';
@@ -7,6 +7,7 @@ import { PlannerMap } from './features/map/PlannerMap';
 import { OfflineStatus } from './offline/OfflineStatus';
 import './responsive.css';
 import { SourcesPage } from './panels/Provenance';
+import { usePlannerDispatch, usePlannerState } from './state/PlannerProvider';
 import { StepsPanel } from './panels/StepsPanel';
 
 const DesignSystemPage = lazy(() => import('./design-system/DesignSystemPage'));
@@ -31,6 +32,9 @@ const headerLink =
 const floatingPanel = 'power-on pointer-events-auto';
 
 export function App() {
+  const { workspace } = usePlannerState();
+  const dispatch = usePlannerDispatch();
+  const [mapPanelHost, setMapPanelHost] = useState<HTMLDivElement | null>(null);
   const [mobilePage, setMobilePage] = useState<'map' | 'mission'>('map');
   const hash = useHash();
   const showsDesignSystem = hash === DESIGN_SYSTEM_HASH;
@@ -58,13 +62,13 @@ export function App() {
         </a>
         <BrandMark className="size-9" />
         <div className="mr-auto min-w-0">
-          <h1 className="heading-display text-2xl leading-none font-extrabold tracking-[0.06em] uppercase [font-stretch:125%]">
-            Marps
-          </h1>
-          <p className="mt-1 text-sm leading-tight text-header-foreground/75 max-sm:sr-only">
-            Préparer une sortie scientifique à Jezero
-          </p>
+          <h1 className="heading-display text-2xl leading-none font-extrabold tracking-[0.06em] uppercase [font-stretch:125%]">Marps</h1>
+          <p className="text-sm text-header-foreground/75 max-sm:sr-only">{workspace === 'base' ? 'À la base · préparer les sorties' : 'En mission · suivre la sortie'}</p>
         </div>
+        {!showsPage && <nav aria-label="Espaces de travail" className="flex flex-wrap gap-1">
+          <button type="button" aria-pressed={workspace === 'base'} className={`${headerLink} min-h-11 border ${workspace === 'base' ? 'border-current bg-white/10' : 'border-transparent'}`} onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'base' })}>À la base</button>
+          <button type="button" aria-pressed={workspace === 'mission'} className={`${headerLink} min-h-11 border ${workspace === 'mission' ? 'border-current bg-white/10' : 'border-transparent'}`} onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'mission' })}>En mission</button>
+        </nav>}
         <nav aria-label="Pages" className="flex flex-wrap">
           {!showsSources ? <a href={SOURCES_HASH} className={headerLink}>Sources et limites</a> : null}
           {showsPage ? (
@@ -114,11 +118,14 @@ export function App() {
             passer les clics vers elle, seuls les panneaux flottants les captent.
             #7 et #8 passeront ici la carte OpenLayers de la vue active.
           */}
-          <MapStage map={<PlannerMap />} className="planner-map-stage relative flex h-[62dvh] min-h-[24rem] flex-col items-center justify-between gap-3 p-3 xl:pointer-events-none xl:static xl:col-start-2 xl:row-start-1 xl:h-auto xl:min-h-0 xl:p-0" />
-          <div className="mission-panels relative z-10 flex min-h-0 flex-col gap-3 max-xl:px-3 xl:pointer-events-none xl:col-start-1 xl:row-start-1">
-            <StepsPanel className={floatingPanel} />
+          <MapStage map={<PlannerMap panelHost={mapPanelHost} />} className="planner-map-stage relative flex h-[62dvh] min-h-[24rem] flex-col items-center justify-between gap-3 p-3 xl:pointer-events-none xl:static xl:col-start-2 xl:row-start-1 xl:h-auto xl:min-h-0 xl:p-0" />
+          <div className="mission-panels relative z-10 flex min-h-0 flex-col gap-3 max-xl:px-3 xl:pointer-events-none xl:col-start-1 xl:row-start-1 xl:overflow-y-auto">
+            <StepsPanel className={`${floatingPanel} mission-steps shrink-0`} />
+            <div ref={setMapPanelHost} className="map-panel-dock pointer-events-auto shrink-0 empty:hidden" />
             <div className="compact-settings">
               <a href={SOURCES_HASH}>Sources et limites</a>
+              <Button variant="outline" aria-pressed={workspace === 'base'} onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'base' })}>À la base</Button>
+              <Button variant="outline" aria-pressed={workspace === 'mission'} onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'mission' })}>En mission</Button>
               <a href={DESIGN_SYSTEM_HASH}>Système de design</a>
               <ThemeToggle />
             </div>

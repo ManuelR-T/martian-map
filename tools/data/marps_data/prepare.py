@@ -19,7 +19,9 @@ import numpy as np
 import tifffile
 from PIL import Image
 
+from .wmts import imagery_wmts
 from . import check, geo, spec, terrain
+from .rover import prepare_rover
 
 # Covers the TIFF tags and the row offsets of the largest source (HiRISE: 172 609 bytes).
 HEADER_BYTES = 262_144
@@ -152,6 +154,7 @@ def prepare_hirise(staging: Path, retrieved_at: str) -> dict:
     )
     return {
         "id": "jezero-hirise-mosaic",
+        "wmts": imagery_wmts(capabilities),
         "regionId": "jezero",
         "title": "Mosaïque HiRISE de Jezero (secteur du front du delta)",
         "kind": "imagery",
@@ -508,7 +511,7 @@ def build_manifest(datasets: list[dict], sites: list[dict], generated_at: str) -
                     available("terrain-slope", "Pentes (HiRISE 4 m, repli CTX 20 m)", *terrain_ids("slope")),
                     available("terrain-hillshade", "Relief ombré", *terrain_ids("hillshade")),
                     available("science-sites", "Sites scientifiques", "jezero-sampling-sites"),
-                    not_integrated("rover-traverse", "Trace historique de Perseverance"),
+                    available("rover-traverse", "Trace historique de Perseverance", "jezero-perseverance-waypoints", "jezero-perseverance-traverse"),
                     not_integrated("thermal-themis", "Infrarouge nocturne THEMIS"),
                     not_integrated("weather-meda", "Température et pression MEDA"),
                     not_integrated("geology", "Carte géologique"),
@@ -532,6 +535,7 @@ def main() -> None:
         prepare_hirise(staging, retrieved_at),
         *(d for product in spec.ELEVATION_PRODUCTS for d in prepare_terrain(staging, retrieved_at, product)),
         sites_dataset,
+        *prepare_rover(staging, retrieved_at),
     ]
     manifest = build_manifest(datasets, sites, retrieved_at)
     (staging / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", "utf-8")

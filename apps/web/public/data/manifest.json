@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "generatedAt": "2026-11-14T12:39:18Z",
   "planet": {
     "name": "Mars",
@@ -86,9 +86,11 @@
         {
           "id": "rover-traverse",
           "label": "Trace historique de Perseverance",
-          "status": "unavailable",
-          "datasetIds": [],
-          "reason": "Non intégré à cette version du manifeste."
+          "status": "partial",
+          "datasetIds": [
+            "jezero-perseverance-waypoints",
+            "jezero-perseverance-traverse"
+          ]
         },
         {
           "id": "thermal-themis",
@@ -814,7 +816,202 @@
           "sha256": "491acc228a2831a22ac4b19370305b95eb1f210d2aff7425ab0a347173d56e8e",
           "mediaType": "image/png"
         }
-      ]
+      ],
+      "wmts": {
+        "layer": "JEZ_hirise_soc_006_orthoMosaic_25cm_Eqc_latTs0_lon0_first_dd",
+        "style": "default",
+        "matrixSet": "default028mm",
+        "crs": "urn:ogc:def:crs:EPSG::104905",
+        "format": "image/png",
+        "extent": {
+          "west": 77.2229331,
+          "south": 18.3067994,
+          "east": 77.583964,
+          "north": 18.669315
+        },
+        "matrices": [
+          {
+            "id": "0",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 2,
+            "height": 1
+          },
+          {
+            "id": "1",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 4,
+            "height": 2
+          },
+          {
+            "id": "2",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 8,
+            "height": 4
+          },
+          {
+            "id": "3",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 16,
+            "height": 8
+          },
+          {
+            "id": "4",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 32,
+            "height": 16
+          },
+          {
+            "id": "5",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 64,
+            "height": 32
+          },
+          {
+            "id": "6",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 128,
+            "height": 64
+          },
+          {
+            "id": "7",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 256,
+            "height": 128
+          },
+          {
+            "id": "8",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 512,
+            "height": 256
+          },
+          {
+            "id": "9",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 1024,
+            "height": 512
+          },
+          {
+            "id": "10",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 2048,
+            "height": 1024
+          },
+          {
+            "id": "11",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 4096,
+            "height": 2048
+          },
+          {
+            "id": "12",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 8192,
+            "height": 4096
+          },
+          {
+            "id": "13",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 16384,
+            "height": 8192
+          },
+          {
+            "id": "14",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 32768,
+            "height": 16384
+          },
+          {
+            "id": "15",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 65536,
+            "height": 32768
+          },
+          {
+            "id": "16",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 131072,
+            "height": 65536
+          },
+          {
+            "id": "17",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 262144,
+            "height": 131072
+          }
+        ]
+      }
     },
     {
       "id": "jezero-hirise-dem",
@@ -1342,6 +1539,128 @@
           "path": "jezero/sites/sites.geojson",
           "bytes": 2278,
           "sha256": "f5ff324cbbef5562cbf733bbab599049984ee99c7b49bc56358f4d041b19b391",
+          "mediaType": "application/geo+json"
+        }
+      ]
+    },
+    {
+      "id": "jezero-perseverance-waypoints",
+      "regionId": "jezero",
+      "title": "Perseverance waypoints",
+      "kind": "rover-waypoints",
+      "instrument": "Mars 2020 Perseverance",
+      "delivery": "local",
+      "source": {
+        "url": "https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json",
+        "retrievedAt": "2026-11-14T16:26:51Z",
+        "credit": "NASA/JPL-Caltech",
+        "terms": {
+          "summary": "Contenu NASA réutilisable sans autorisation préalable pour un usage factuel sans suggestion de soutien ; NASA doit être citée comme source.",
+          "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+          "verified": true
+        },
+        "fingerprint": {
+          "target": "Upstream GeoJSON",
+          "sha256": "bd143ee69241229926abd373e6305b8bbb326d6b5a7b4a8d6935262696f93dc4",
+          "bytes": 603126
+        }
+      },
+      "acquisition": {
+        "date": null,
+        "sol": null,
+        "note": "M20_waypoints_sol2022_all"
+      },
+      "units": {
+        "longitude": "degree",
+        "latitude": "degree"
+      },
+      "crs": "MARS:104905",
+      "extent": {
+        "west": 77.39914701,
+        "east": 77.41413552,
+        "south": 18.44830598,
+        "north": 18.46551938
+      },
+      "resolution": null,
+      "noData": {
+        "kind": "not-applicable"
+      },
+      "status": "partial",
+      "version": "M20_waypoints_sol2022_all",
+      "limitations": [
+        "Historical extract; not a validated human route.",
+        "Mars planetocentric degrees, east-positive; upstream CRS84 is not an Earth datum.",
+        "Original vertices and elevations preserved; no vertical alignment performed."
+      ],
+      "files": [
+        {
+          "path": "jezero/rover/waypoints.geojson",
+          "bytes": 107991,
+          "sha256": "5a3ce4f97b75d90f9f6b5917464c7d7d789e0929a5353ba57f355d7bec1e0413",
+          "mediaType": "application/geo+json"
+        },
+        {
+          "path": "jezero/rover/quality.json",
+          "bytes": 355,
+          "sha256": "6fa3d8ccb156308165aa88233d28d9829d3fdee124e6950e336d52e9d6ef977b",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "id": "jezero-perseverance-traverse",
+      "regionId": "jezero",
+      "title": "Perseverance traverse",
+      "kind": "rover-traverse",
+      "instrument": "Mars 2020 Perseverance",
+      "delivery": "local",
+      "source": {
+        "url": "https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_traverse.json",
+        "retrievedAt": "2026-11-14T16:26:51Z",
+        "credit": "NASA/JPL-Caltech",
+        "terms": {
+          "summary": "Contenu NASA réutilisable sans autorisation préalable pour un usage factuel sans suggestion de soutien ; NASA doit être citée comme source.",
+          "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+          "verified": true
+        },
+        "fingerprint": {
+          "target": "Upstream GeoJSON",
+          "sha256": "6ddd0ece913d75b45d105946082f95ed84e68f4718b68d32a4421dc30877e7e6",
+          "bytes": 1723218
+        }
+      },
+      "acquisition": {
+        "date": null,
+        "sol": null,
+        "note": "M20_Traverse_Path_tosol2022"
+      },
+      "units": {
+        "longitude": "degree",
+        "latitude": "degree"
+      },
+      "crs": "MARS:104905",
+      "extent": {
+        "west": 77.39912853,
+        "east": 77.41413552,
+        "south": 18.44826861,
+        "north": 18.46551938
+      },
+      "resolution": null,
+      "noData": {
+        "kind": "not-applicable"
+      },
+      "status": "partial",
+      "version": "M20_Traverse_Path_tosol2022",
+      "limitations": [
+        "Historical extract; not a validated human route.",
+        "Mars planetocentric degrees, east-positive; upstream CRS84 is not an Earth datum.",
+        "Original vertices and elevations preserved; no vertical alignment performed."
+      ],
+      "files": [
+        {
+          "path": "jezero/rover/traverse.geojson",
+          "bytes": 189343,
+          "sha256": "05b8f76b0f47f6eafd6b22fa30564a0f7ad952bc650a4fe8fea796adf88628af",
           "mediaType": "application/geo+json"
         }
       ]

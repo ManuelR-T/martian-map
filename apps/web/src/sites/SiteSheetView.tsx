@@ -34,6 +34,7 @@ export function SitePicker({ sites, selectedSiteId, onSelect }: SitePickerProps)
 }
 
 export interface SiteSheetViewProps {
+  tracking?: boolean;
   sheet: SiteSheet;
   work: SiteWork;
   onTaskToggle: (taskId: string) => void;
@@ -45,7 +46,7 @@ export interface SiteSheetViewProps {
  * Ordre de l'arrêt : reconnaître la cible, connaître l'objectif, puis dérouler les tâches.
  * Le détail (grande photo, crédits, façon de faire) s'ouvre à la demande.
  */
-export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange }: SiteSheetViewProps) {
+export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange, tracking = true }: SiteSheetViewProps) {
   const selectId = useId();
   const dialogTitleId = useId();
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -84,6 +85,7 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange }: S
                 <input
                   type="checkbox"
                   checked={done}
+                  disabled={!tracking}
                   onChange={() => onTaskToggle(task.id)}
                   className="size-5 shrink-0 accent-primary"
                 />
@@ -101,6 +103,7 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange }: S
         <label htmlFor={selectId} className="flex items-center gap-2 text-sm">
           Alloué
           <select
+            disabled={tracking}
             id={selectId}
             value={work.allottedMinutes}
             onChange={(event) => onAllottedChange(Number(event.target.value))}

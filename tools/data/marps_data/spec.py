@@ -13,7 +13,7 @@ REPO_ROOT = TOOL_DIR.parents[1]
 DATA_DIR = REPO_ROOT / "apps" / "web" / "public" / "data"
 CACHE_DIR = TOOL_DIR / ".cache"
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 USER_AGENT = "marps-data-prepare/1.0"
 
 # Radius provided by the NASA Mars location-map configuration (docs/verification-sites-jezero.md).
@@ -138,3 +138,5 @@ UNVERIFIED_TERMS = {
 }
 
 CAPABILITY_NOT_INTEGRATED = "Non intégré à cette version du manifeste."
+
+ROVER_HASHES = {'waypoints': 'bd143ee69241229926abd373e6305b8bbb326d6b5a7b4a8d6935262696f93dc4', 'traverse': '6ddd0ece913d75b45d105946082f95ed84e68f4718b68d32a4421dc30877e7e6'}
