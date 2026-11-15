@@ -1,3 +1,4 @@
+import { activityDurationMinutes, legSpeedFactor } from './events';
 import type { MarsCoordinate } from './index';
 import { groundDistanceMetres } from './distance';
 import { isMission, type Mission } from './mission';
@@ -53,13 +54,14 @@ export function calculateMissionReturnLimit(mission: Mission | null, terrain?: {
   const flatTerrain = oxygen?.assumeFlatTerrain === true;
   const terrainValid = !!terrain && Number.isFinite(terrain.spacingMetres) && terrain.spacingMetres > 0;
   const stops = [mission.camp.position, ...mission.steps.map(s => s.position), mission.camp.position];
+  let reverseSeconds = 0;
   let elapsedSeconds = 0, distanceMetres = 0, consumed = 0, reverseConsumed = 0;
   let oxygenKnown = !oxygenEnabled || !!oxygen;
   let samples = 0;
   const portions: ReturnPortion[] = [];
   const crossings: ReturnCrossing[] = [];
   const point = (coordinate: MarsCoordinate, legIndex: number, stepId: string | null, activityId: string | null = null, activityOffsetSeconds = 0): ReturnPoint => {
-    const timeMarginSeconds = parameters.availableSeconds - elapsedSeconds - distanceMetres / parameters.speedMetresPerSecond - parameters.reserveSeconds;
+    const timeMarginSeconds = parameters.availableSeconds - elapsedSeconds - reverseSeconds - parameters.reserveSeconds;
     const oxygenMarginGrams = oxygenEnabled && oxygenKnown && oxygen ? oxygen.stockGrams - consumed - reverseConsumed - oxygen.reserveGrams : null;
     return { coordinate, legIndex, stepId, activityId, activityOffsetSeconds, distanceMetres, elapsedSeconds, timeMarginSeconds, oxygenMarginGrams, state: stateOf(timeMarginSeconds, oxygenMarginGrams, oxygenEnabled) };
   };
@@ -89,6 +91,7 @@ export function calculateMissionReturnLimit(mission: Mission | null, terrain?: {
     if (oxygenEnabled && to.oxygenMarginGrams === null) unknownSeen = true;
   };
   for (let legIndex = 0; legIndex < stops.length - 1; legIndex++) {
+    const speed = parameters.speedMetresPerSecond * legSpeedFactor(mission, legIndex);
     const vertices = [stops[legIndex]!, ...(mission.routeLegs?.[legIndex] ?? []), stops[legIndex + 1]!];
     const step = mission.steps[legIndex];
     for (let vertex = 1; vertex < vertices.length; vertex++) {
@@ -104,15 +107,16 @@ export function calculateMissionReturnLimit(mission: Mission | null, terrain?: {
         const a = profile[i - 1]!, b = profile[i]!;
         const run = b.distanceMetres - a.distanceMetres;
         const from = point(a.coordinate, legIndex, step?.id ?? null);
-        const seconds = run / parameters.speedMetresPerSecond;
+        const seconds = run / speed;
+        reverseSeconds += seconds;
         elapsedSeconds += seconds; distanceMetres += run;
         if (oxygenEnabled && run > 0 && oxygen) {
           const measured = a.status === 'measured' && b.status === 'measured' && a.elevationMetres !== null && b.elevationMetres !== null && Number.isFinite(a.elevationMetres) && Number.isFinite(b.elevationMetres);
           if (!flatTerrain && !measured) oxygenKnown = false;
           if (oxygenKnown) {
             const slope = flatTerrain ? 0 : Math.atan((b.elevationMetres! - a.elevationMetres!) / run) * 180 / Math.PI;
-            consumed += oxygenFlow(oxygen, parameters.speedMetresPerSecond, slope) * seconds / 60;
-            reverseConsumed += oxygenFlow(oxygen, parameters.speedMetresPerSecond, -slope) * seconds / 60;
+            consumed += oxygenFlow(oxygen, speed, slope) * seconds / 60;
+            reverseConsumed += oxygenFlow(oxygen, speed, -slope) * seconds / 60;
           }
         }
         append(from, point(b.coordinate, legIndex, step?.id ?? null));
@@ -120,9 +124,10 @@ export function calculateMissionReturnLimit(mission: Mission | null, terrain?: {
     }
     for (const activity of step?.activities ?? []) {
       const from = point(step!.position, legIndex, step!.id, activity.id);
-      const seconds = activity.durationMinutes * 60;
+      const durationMinutes = activityDurationMinutes(mission, step!.id, activity);
+      const seconds = durationMinutes * 60;
       elapsedSeconds += seconds;
-      if (oxygenEnabled && oxygen) consumed += oxygen.activityGramsPerMinute * activity.durationMinutes;
+      if (oxygenEnabled && oxygen) consumed += oxygen.activityGramsPerMinute * durationMinutes;
       append(from, point(step!.position, legIndex, step!.id, activity.id, seconds));
     }
   }

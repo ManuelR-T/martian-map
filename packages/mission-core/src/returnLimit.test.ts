@@ -80,3 +80,18 @@ it('bounds tablet work and rejects overflowing costs instead of returning partia
   expect(calculateMissionReturnLimit(value, { spacingMetres: 0.0001, sample: () => ({ status: 'measured', elevationMetres: 0 }) }).status).toBe('too-large');
   expect(calculateMissionReturnLimit({ ...mission, parameters: { ...mission.parameters, speedMetresPerSecond: Number.MIN_VALUE } }).status).toBe('invalid-inputs');
 });
+
+
+it('applies simulated activity delays and leg speeds to retreat limits and restores the original limits on cancellation', () => {
+  const base: Mission = { ...mission, steps: mission.steps.map(s => ({ ...s, activities: [{ id: 'sample', type: 'sampling', durationMinutes: 1, completed: false }] })), parameters: { ...mission.parameters, availableSeconds: 1000, returnLimitMode: 'time-and-oxygen', oxygen: { ...DEFAULT_OXYGEN_PARAMETERS, stockGrams: 100, reserveGrams: 0, assumeFlatTerrain: true, speedCoefficient: 0, loadKg: 0 } } };
+  const changed: Mission = { ...base, events: [
+    { id: 'delay', simulated: true, kind: 'activity-delay', stepId: 'visit', activityId: 'sample', delayMinutes: 2 },
+    { id: 'slow', simulated: true, kind: 'visibility', legIndices: [0], speedFactor: 0.5 },
+  ] };
+  const originalEnd = ready(base).portions.at(-1)!.to;
+  const changedEnd = ready(changed).portions.at(-1)!.to;
+  expect(changedEnd.elapsedSeconds - originalEnd.elapsedSeconds).toBeCloseTo(180);
+  expect(changedEnd.timeMarginSeconds - originalEnd.timeMarginSeconds).toBeCloseTo(-240);
+  expect(changedEnd.oxygenMarginGrams! - originalEnd.oxygenMarginGrams!).toBeCloseTo(-6);
+  expect(ready({ ...changed, events: undefined })).toEqual(ready(base));
+});

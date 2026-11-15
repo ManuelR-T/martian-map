@@ -39,3 +39,7 @@ les événements de #19 n’ajoutent aucune donnée radiative observée à Jezer
 La vue casque partage les événements avec le planificateur : ses durées d’activité,
 le reste prévu, la marche suivante et le retour direct utilisent les mêmes effets.
 L’alerte radiative reste partagée et se recalcule depuis son étape de départ figée.
+
+La limite de retour (#33) applique aussi les retards et facteurs de vitesse.
+Son repli suit le préfixe parcouru en sens inverse : chaque portion conserve son
+propre facteur de visibilité, à la différence du retour radiatif direct proposé.
