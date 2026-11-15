@@ -180,3 +180,11 @@ describe('démarrage d’une mission enregistrée', () => {
     expect(plannerReducer(state, { type: 'savedMissionStarted', mission: saved, id: 'run' })).toBe(state);
   });
 });
+
+describe('fin de sortie', () => {
+  it('ramène à la base sans sortie en cours, et ne fait rien sans sortie', () => {
+    const running = { ...initialPlannerState, workspace: 'mission' as const, runningMission: { ...initialPlannerState.mission, id: 'run' } };
+    expect(plannerReducer(running, { type: 'missionEnded' })).toMatchObject({ runningMission: null, workspace: 'base' });
+    expect(plannerReducer(initialPlannerState, { type: 'missionEnded' })).toBe(initialPlannerState);
+  });
+});

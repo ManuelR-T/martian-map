@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import type { Camp } from '@marps/mission-core';
-import { Button, Panel } from '@marps/ui';
+import { Button } from '@marps/ui';
 import { usePlannerState } from '../state/PlannerProvider';
 import { MissionDatabase } from '../storage/missionDatabase';
-import { ActionPanels } from './ActionPanels';
 import { formatCoordinate } from '../format';
 import { baseField, notifyBaseRecordsChanged } from './baseControls';
 
-export function CampsPanel({ className }: { className?: string }) {
+/** Camp catalog without its panel, shown in the « Camps » tab of the mission panel. */
+export function CampsManager() {
   const { catalog, mission } = usePlannerState();
   const [database] = useState(() => new MissionDatabase());
   const [camps, setCamps] = useState<Camp[]>([]);
@@ -29,16 +29,13 @@ export function CampsPanel({ className }: { className?: string }) {
     finally { setBusy(false); }
   };
   const filtered = camps.filter(c => c.name.toLocaleLowerCase('fr').includes(query.toLocaleLowerCase('fr')));
-  return <Panel title="Camps" description="Un catalogue indépendant des missions" collapsible className={className} contentClassName="overflow-y-auto p-0">
-    <ActionPanels<'search' | 'create' | 'edit'> label="Actions sur les camps" value={action} disabled={busy}
-      options={[{ value: 'search', label: 'Camps enregistrés' }, { value: 'create', label: 'Nouveau camp' }, ...(action === 'edit' ? [{ value: 'edit' as const, label: 'Modifier le camp' }] : [])]}
-      onChange={next => { if (next === action) return; setAction(next); setSelected(null); setStatus(''); }}>
-    <div className="grid gap-3 text-sm">
+  return <div className="grid gap-3 text-sm">
       <p role="status">{status}</p>
       {action === 'search' && <>
+        <Button className="justify-self-start" disabled={busy} onClick={() => { setAction('create'); setSelected(null); setStatus(''); }}>Nouveau camp</Button>
         <label>Rechercher par nom<input className={baseField} type="search" value={query} onChange={event => setQuery(event.target.value)} /></label>
         <p>{filtered.length} camp{filtered.length > 1 ? 's' : ''} enregistré{filtered.length > 1 ? 's' : ''}</p>
-        {filtered.length === 0 && <p>Aucun camp trouvé. Ouvrez le panneau « Nouveau camp » pour en ajouter un.</p>}
+        {filtered.length === 0 && <p>Aucun camp trouvé.</p>}
         <ul className="grid list-none gap-2 p-0">{filtered.map(camp => <li key={camp.id} className="grid gap-2 border p-3">
           <p className="font-semibold">{camp.name}</p><p>{camp.regionId} · {formatCoordinate(camp.position)}</p>
           <p className="text-xs text-muted-foreground">{camp.note}</p>
@@ -64,9 +61,8 @@ export function CampsPanel({ className }: { className?: string }) {
           <label>Longitude est (°)<input className={baseField} name="longitude" type="number" step="any" min={extent?.west ?? -180} max={extent?.east ?? 180} defaultValue={selected?.position.longitude} required /></label>
           <label>Latitude planétocentrique (°)<input className={baseField} name="latitude" type="number" step="any" min={extent?.south ?? -90} max={extent?.north ?? 90} defaultValue={selected?.position.latitude} required /></label>
           <Button type="submit">Enregistrer le camp</Button>
+          <Button type="button" variant="outline" onClick={() => { setAction('search'); setSelected(null); setStatus(''); }}>Annuler</Button>
         </fieldset>
       </form>}
-    </div>
-    </ActionPanels>
-  </Panel>;
+    </div>;
 }

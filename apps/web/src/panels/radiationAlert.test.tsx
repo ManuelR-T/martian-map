@@ -53,8 +53,16 @@ afterEach(async () => { await act(async () => root.unmount()); container.remove(
 
 it('démarre une mission enregistrée sans repasser par l’assistant, même si une autre préparation est ouverte', async () => {
   await click('Préparer une autre mission');
+  // A different draft: « Prélèvement d’échantillons ». Leaving it asks first; the test accepts.
+  await select(container.querySelectorAll('select')[0]!, 'sampling');
+  vi.spyOn(window, 'confirm').mockReturnValue(true);
   await startSavedMission();
   expect(container.textContent).toContain('0 / 1 activités terminées');
+  // Back at the base, « Préparer » shows the started mission, never a mix with the previous draft.
+  await click('À la base');
+  await click('Nouvelle mission');
+  expect(container.querySelector<HTMLInputElement>('input[maxlength="120"]')!.value).toBe('Reconnaissance du terrain');
+  expect(container.textContent).toContain('Nouvelle mission · Étape 1 sur 3');
 });
 
 it('affiche l’ordre de retour simulé depuis l’étape en cours, puis l’annule', async () => {
@@ -77,4 +85,31 @@ it('affiche l’ordre de retour simulé depuis l’étape en cours, puis l’ann
   await click('Annuler la simulation');
   expect(container.querySelector('[role="alert"]')).toBeNull();
   expect(document.activeElement).toBe(button('Simuler une alerte radiation'));
+});
+
+it('termine la sortie : retour à la base, sortie gardée dans l’historique et plus restaurée au rechargement', async () => {
+  await startSavedMission();
+  const confirm = vi.spyOn(window, 'confirm').mockReturnValueOnce(false);
+  await click('Terminer la sortie');
+  expect(confirm).toHaveBeenCalledWith('Terminer la sortie ? Il reste 1 activité non cochée.');
+  expect(container.textContent).toContain('0 / 1 activités terminées');
+  confirm.mockReturnValueOnce(true);
+  await click('Terminer la sortie');
+  expect(container.textContent).not.toContain('activités terminées');
+  expect(button('Missions enregistrées')).toBeTruthy();
+  await vi.waitFor(async () => { await act(async () => { expect(await new MissionDatabase().activeMission()).toBeNull(); }); });
+  await act(async () => { expect(await new MissionDatabase().history()).toHaveLength(1); });
+});
+
+it('garde le suivi sauvegardé quand une nouvelle sortie remplace la précédente', async () => {
+  await startSavedMission();
+  const first = await act(async () => new MissionDatabase().activeMission());
+  vi.spyOn(window, 'confirm').mockReturnValue(true);
+  await click('À la base');
+  await startSavedMission();
+  await vi.waitFor(async () => { await act(async () => {
+    const active = await new MissionDatabase().activeMission();
+    expect(active).not.toBeNull();
+    expect(active!.id).not.toBe(first!.id);
+  }); });
 });

@@ -32,6 +32,7 @@ export type PlannerAction =
   | { readonly type: 'workspaceChanged'; readonly workspace: 'base' | 'mission' }
   | { readonly type: 'missionStarted'; readonly id: string }
   | { readonly type: 'savedMissionStarted'; readonly mission: Mission; readonly id: string }
+  | { readonly type: 'missionEnded' }
   | { readonly type: 'trackingLoaded'; readonly mission: Mission | null; readonly request?: number }
   | { readonly type: 'trackingRequested' }
   | { readonly type: 'trackingFailed'; readonly request: number; readonly message: string }
@@ -74,6 +75,8 @@ export function plannerReducer(state: PlannerState, action: PlannerAction): Plan
       return { ...state, trackingReady: true, trackingError: null, runningMission: action.mission && isMission(action.mission) && action.mission.regionId === DETAILED_REGION_ID ? action.mission : null };
     case 'trackingStatusChanged':
       return { ...state, trackingStatus: action.message };
+    case 'missionEnded':
+      return state.runningMission ? { ...state, runningMission: null, workspace: 'base', selectedSiteId: null } : state;
     case 'savedMissionStarted': {
       // Open and start as one step: a refused start must leave the open preparation untouched.
       const opened = plannerReducer(state, { type: 'missionOpened', mission: action.mission });

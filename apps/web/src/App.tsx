@@ -7,7 +7,6 @@ import { PlannerMap } from './features/map/PlannerMap';
 import { OfflineStatus } from './offline/OfflineStatus';
 import './responsive.css';
 import { usePlannerDispatch, usePlannerState } from './state/PlannerProvider';
-import { CampsPanel } from './panels/CampsPanel';
 import { StepsPanel } from './panels/StepsPanel';
 
 const DesignSystemPage = lazy(() => import('./design-system/DesignSystemPage'));
@@ -107,7 +106,6 @@ export function App() {
           <MapStage map={<PlannerMap panelHost={mapPanelHost} />} className="planner-map-stage relative flex h-[62dvh] min-h-[24rem] flex-col items-center justify-between gap-3 p-3 xl:pointer-events-none xl:static xl:col-start-2 xl:row-start-1 xl:h-auto xl:min-h-0 xl:p-0" />
           <div className="mission-panels relative z-10 flex min-h-0 flex-col gap-3 max-xl:px-3 xl:pointer-events-none xl:col-start-1 xl:row-start-1 xl:overflow-y-auto">
             <StepsPanel className={`${floatingSurface} mission-steps shrink-0`} />
-            {workspace === 'base' && <CampsPanel className={`${floatingSurface} shrink-0`} />}
             <div ref={setMapPanelHost} className="map-panel-dock pointer-events-auto shrink-0 empty:hidden" />
             <div className="compact-settings">
               <Button variant="outline" aria-pressed={workspace === 'base'} onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'base' })}>À la base</Button>

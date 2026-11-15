@@ -55,6 +55,10 @@ export class MissionDatabase {
       tx.onabort = () => reject(tx.error ?? new Error('Sauvegarde du suivi annulée.'));
     });
   }
+  /** Ends the walk: the history keeps its last saved state, and a reload no longer restores it. */
+  async endActiveMission(): Promise<void> {
+    await this.run('tracking', 'readwrite', store => store.delete('active'));
+  }
   async camps(): Promise<Camp[]> {
     const values: unknown[] = await this.run('camps', 'readonly', store => store.getAll());
     return values.filter((value): value is Camp => { try { return validCamp(value as Camp); } catch { return false; } });

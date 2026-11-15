@@ -31,5 +31,10 @@ export function MissionTracking({ radiation, onRadiationChange }: { radiation: R
         </div>} />)}
       {mission.camp && <StepListItem kind="return" title={mission.camp.name} />}
     </StepList>
+    <Button variant="outline" onClick={() => {
+      const pending = activities.filter(a => !a.completed).length;
+      if (pending && !window.confirm(`Terminer la sortie ? Il reste ${pending} activité${pending > 1 ? 's' : ''} non cochée${pending > 1 ? 's' : ''}.`)) return;
+      dispatch({ type: 'missionEnded' });
+    }}>Terminer la sortie</Button>
   </div>;
 }
