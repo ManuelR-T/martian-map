@@ -1,3 +1,4 @@
+import { legSpeedFactor } from './events';
 import { marsDistanceMetres } from './distance';
 export { MARS_RADIUS_METRES, marsDistanceMetres } from './distance';
 import type { Mission, MissionStep } from './mission';
@@ -17,13 +18,16 @@ export interface RadiationReturn {
  * The app has no live position, so the current step is the first one with an unchecked
  * activity (the last step once everything is checked).
  */
-export function radiationReturn(mission: Mission): RadiationReturn | null {
+export function radiationReturn(mission: Mission, frozenFromIndex?: number): RadiationReturn | null {
   if (!mission.camp || mission.steps.length === 0) return null;
-  const fromIndex = currentStepIndex(mission);
+  const fromIndex = frozenFromIndex ?? currentStepIndex(mission);
+  if (!Number.isInteger(fromIndex) || fromIndex < 0 || fromIndex >= mission.steps.length) return null;
   const fromStep = mission.steps[fromIndex]!;
   const distanceMetres = marsDistanceMetres(fromStep.position, mission.camp.position);
   const abandoned = mission.steps.slice(fromIndex)
     .map(step => ({ step, activities: step.activities.filter(activity => !activity.completed).length }))
     .filter(entry => entry.activities > 0);
-  return { fromStep, fromIndex, distanceMetres, returnSeconds: distanceMetres / mission.parameters.speedMetresPerSecond, abandoned };
+  const returnSeconds = distanceMetres / (mission.parameters.speedMetresPerSecond * legSpeedFactor(mission, mission.steps.length));
+  if (!Number.isFinite(returnSeconds)) return null;
+  return { fromStep, fromIndex, distanceMetres, returnSeconds, abandoned };
 }

@@ -35,6 +35,7 @@ export function OxygenBudget() {
   const format = (n: number) => `${n.toLocaleString(i18n.language, { maximumFractionDigits: 1 })} g`;
   return <section className="mt-4 grid gap-3 border-t pt-3" aria-label={localize('Estimation d’oxygène')}>
     <h3 className="font-semibold">{localize('Estimation d’oxygène')}</h3>
+    {!!mission?.events?.length && <p className="text-xs font-semibold">{localize('Simulation : événements appliqués au bilan O₂.')}</p>}
       {result.status === 'ready' ? <>
         <div className={`border border-l-4 p-3 ${result.overBudget ? 'border-danger-border bg-danger-surface text-danger' : 'border-input bg-muted/40'}`}>
           <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide"><FlaskConical aria-hidden="true" className="size-4" />{localize('Simulation O₂ — modèle non calibré')}</p>

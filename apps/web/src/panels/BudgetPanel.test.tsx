@@ -228,3 +228,26 @@ it('isole une saisie O₂ invalide de la mission suivante sans enregistrer les v
   expect(container.textContent).toContain('O₂ indisponible');
   expect(container.textContent).not.toContain('O₂ non calculable');
 });
+
+
+it('cumule et annule les événements via le panneau, puis les sauvegarde pendant le suivi', async () => {
+  await mount({ ...demo, parameters: { ...demo.parameters, oxygen: { ...createEmptyMission('jezero').parameters.oxygen!, assumeFlatTerrain: true } } });
+  const events = () => container.querySelector('section[aria-label="Événements simulés"]')!;
+  await act(async () => events().querySelector('summary')!.click());
+  await click('Simuler un retard');
+  await click('Simuler un retard');
+  expect(events().querySelectorAll('li')).toHaveLength(2);
+  expect(loadMissionDraft()!.events).toHaveLength(2);
+  expect(events().textContent).toContain('+20 min');
+  expect(container.textContent).toContain('Simulation : événements appliqués au bilan O₂.');
+  await click('Simuler une visibilité réduite');
+  expect(loadMissionDraft()!.events).toHaveLength(3);
+  expect(events().textContent).toContain('Visibilité réduite');
+  await send({ type: 'missionStarted', id: 'events-running' });
+  await click('Annuler tous les événements');
+  expect(events().querySelectorAll('li')).toHaveLength(0);
+  await act(async () => { await new MissionDatabase().activeMission(); });
+  expect((await new MissionDatabase().activeMission())!.events).toBeUndefined();
+  // Starting the walk isolates it from the prepared scenario.
+  expect(loadMissionDraft()!.events).toHaveLength(3);
+});

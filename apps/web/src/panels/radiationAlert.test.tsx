@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
-import { act } from 'react';
+import { act, useEffect } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { IDBFactory } from 'fake-indexeddb';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
@@ -18,8 +18,10 @@ let container: HTMLDivElement;
 // Wildcat Ridge position from the data manifest; the camp is the « Jezero Beta » simulation camp.
 const manifest = JSON.parse(readFileSync(resolve(fileURLToPath(import.meta.url), '../../../public/data/manifest.json'), 'utf8')) as import('@marps/data').DataManifest;
 const catalog: Catalog = { manifest, regions: [], datasets: [], sites: [{ id: 'wildcat', name: 'Wildcat Ridge', regionId: 'jezero', datasetId: 'test', coordinate: { longitude: 77.40588851, latitude: 18.45863707 }, elevation: null, sol: '1', date: 'test', sampleName: 'test', rockType: 'test' }] };
+let send: ReturnType<typeof usePlannerDispatch>;
 const Screen = () => {
   const dispatch = usePlannerDispatch();
+  useEffect(() => { send = dispatch; }, [dispatch]);
   return <><button onClick={() => dispatch({ type: 'viewChanged', view: 'region' })}>Jezero</button>
     <button onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'base' })}>À la base</button>
     <button onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'mission' })}>En mission</button><StepsPanel /></>;
@@ -168,4 +170,19 @@ it('coche et décoche une activité, restaure sa coche puis termine sans confirm
     expect(await new MissionDatabase().activeMission()).toBeNull();
     expect((await new MissionDatabase().history())[0]?.mission.steps[0]?.activities[0]?.completed).toBe(true);
   });
+});
+
+
+it('actualise un ordre radiatif actif avec les ralentissements simulés et restaure son budget après annulation', async () => {
+  await startSavedMission();
+  await click('Simuler une alerte radiation');
+  const alert = () => container.querySelector('[role="alert"]')!;
+  expect(alert().textContent).toContain('102 m · 4 min');
+  await act(async () => { send({ type: 'eventAdded', event: { id: 'visibility', simulated: true, kind: 'visibility', legIndices: [1], speedFactor: 0.5 } }); });
+  expect(alert().textContent).toContain('102 m · 7 min');
+  expect(alert().textContent).toContain('ralentissements');
+  await act(async () => { send({ type: 'eventsCleared' }); });
+  expect(alert().textContent).toContain('102 m · 4 min');
+  await click('Annuler la simulation');
+  expect(container.querySelector('[role="alert"]')).toBeNull();
 });

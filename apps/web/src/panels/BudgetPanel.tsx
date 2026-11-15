@@ -1,4 +1,5 @@
 import { ReturnLimitSummary } from './ReturnLimitSummary';
+import { MissionEvents } from './MissionEvents';
 import { OxygenBudget } from './OxygenBudget';
 import { CircleDashed } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -36,6 +37,7 @@ export function BudgetPanel({ className, collapsible = true }: BudgetPanelProps)
           <div><dt className="inline">{localize('Réserve :')} </dt><dd className="inline">{formatBudgetMinutes(mission.parameters.reserveSeconds / 60)}</dd></div>
         </dl></details>}
         {budget.status === 'ready' ? <div className="grid gap-3">
+          {!!mission?.events?.length && <p className="text-xs font-semibold">{localize('Budget simulé : événements actifs.')}</p>}
           <BudgetBreakdown {...toBudgetView(budget)} />
           <p className="text-sm">{localize('Durée prévue hors réserve :')} <strong>{formatBudgetMinutes(budget.missionMinutes)}</strong><br />
             {localize('Marche totale (retour compris) :')} <strong>{formatBudgetMinutes(budget.walkingMinutes)}</strong><br />
@@ -52,6 +54,7 @@ export function BudgetPanel({ className, collapsible = true }: BudgetPanelProps)
                 : budget.missing.includes('camp') ? localize('Budget non calculé : ajoutez un camp.') : localize('Budget non calculé : ajoutez au moins une étape.')}
           </p>
         )}
+        <MissionEvents />
         <OxygenBudget />
       </PlanningGate>
     </Panel>

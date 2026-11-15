@@ -1,3 +1,4 @@
+import { activityDurationMinutes, routeSegmentSpeeds } from './events';
 import { calculateMissionBudget } from './budget';
 import { missionGeometry, type Mission } from './mission';
 import { groundDistanceMetres } from './distance';
@@ -61,9 +62,10 @@ export function calculateMissionOxygen(mission: Mission | null, terrain?: { samp
   const route = missionGeometry(mission)!.coordinates.map(([longitude, latitude]) => ({ longitude, latitude }));
   const returnSegments = (mission.routeLegs?.at(-1)?.length ?? 0) + 1;
   const legs: { returnToCamp: boolean; grams: number; minutes: number }[] = [];
-  const speed = mission.parameters.speedMetresPerSecond;
+  const speeds = routeSegmentSpeeds(mission);
   for (let i = 1; i < route.length; i++) {
     const from = route[i - 1]!, to = route[i]!;
+    const speed = speeds[i - 1]!;
     const distance = groundDistanceMetres(from, to);
     let grams = 0;
     if (p.assumeFlatTerrain) grams = oxygenFlow(p, speed, 0) * distance / speed / 60;
@@ -80,7 +82,7 @@ export function calculateMissionOxygen(mission: Mission | null, terrain?: { samp
     }
     legs.push({ returnToCamp: i >= route.length - returnSegments, grams, minutes: distance / speed / 60 });
   }
-  const activities = mission.steps.flatMap(step => step.activities.map(a => ({ stepId: step.id, activityId: a.id, grams: a.durationMinutes * p.activityGramsPerMinute })));
+  const activities = mission.steps.flatMap(step => step.activities.map(a => ({ stepId: step.id, activityId: a.id, grams: activityDurationMinutes(mission, step.id, a) * p.activityGramsPerMinute })));
   const totalGrams = legs.reduce((sum, leg) => sum + leg.grams, 0) + activities.reduce((sum, a) => sum + a.grams, 0);
   const remainingGrams = p.stockGrams - totalGrams;
   const marginGrams = remainingGrams - p.reserveGrams;

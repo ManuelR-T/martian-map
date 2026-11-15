@@ -40,6 +40,16 @@ describe('préparation locale versionnée', () => {
     expect(missionGeometry(restored)).toEqual(missionGeometry(edited));
   });
 
+  it('restaure les événements simulés avec leurs cibles et coefficients', () => {
+    const storage = memoryStorage();
+    const scenario: Mission = { ...mission, events: [
+      { id: 'delay', simulated: true, kind: 'activity-delay', stepId: 'step', activityId: 'photo', delayMinutes: 15 },
+      { id: 'visibility', simulated: true, kind: 'visibility', legIndices: [0, 1], speedFactor: 0.5 },
+    ] };
+    saveMissionDraft(scenario, storage);
+    expect(loadMissionDraft(storage)).toEqual(scenario);
+  });
+
   it.each(['{invalid', 'null', JSON.stringify({ ...mission, schemaVersion: 2 }), JSON.stringify({ ...mission, parameters: {} }),
     JSON.stringify({ ...mission, dataReferences: [{ id: 'data', version: '1', sha256: 'broken' }] })])(
     'refuse le contenu corrompu ou incompatible et conserve l’original : %s', raw => {

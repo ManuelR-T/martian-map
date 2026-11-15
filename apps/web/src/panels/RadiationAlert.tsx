@@ -23,11 +23,11 @@ const WhySimulated = () => <details className="text-xs">
 
 /**
  * Simulated radiation alert, in the « En mission » view: the teammate in the habitat reads the order
- * and relays it by radio. The figures are frozen when the alert starts, as a real order would be.
- * The state lives in the planner state, so « À la base » and the helmet view keep the alert.
+ * and relays it by radio. The origin is frozen; scenario speed changes still update the return.
+ * The planner state shares the alert with the base and helmet views.
  */
 export function RadiationAlert({ mission, state, onChange }: { mission: Mission; state: RadiationAlertState | null; onChange: (next: RadiationAlertState | null) => void }) {
-  const alert = state?.missionId === mission.id ? state.alert : null;
+  const alert = state?.missionId === mission.id ? radiationReturn(mission, state.alert.fromIndex) : null;
   const setAlert = (next: RadiationReturn | null) => onChange(next && { missionId: mission.id, alert: next });
   const focusTarget = useRef<'alert' | 'trigger' | null>(null);
   const alertRef = useRef<HTMLDivElement>(null);
@@ -52,6 +52,7 @@ export function RadiationAlert({ mission, state, onChange }: { mission: Mission;
         <dd>{localize(alert.abandoned.length ? alert.abandoned.map(entry => `${entry.step.name} (${plural(entry.activities)})`).join(', ') : 'aucune')}</dd>
       </dl>
       <Button className="justify-self-start" variant="outline" onClick={() => { focusTarget.current = 'trigger'; setAlert(null); }}>{localize("Annuler la simulation")}</Button>
+      {!!mission.events?.length && <p className="text-xs">{localize('Retour simulé : les ralentissements de la portion de retour sont appliqués. Les retards des activités abandonnées ne sont pas ajoutés au retour direct.')}</p>}
       <WhySimulated />
     </div>
   </Alert>;
