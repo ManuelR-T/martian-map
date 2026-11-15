@@ -42,6 +42,7 @@ export * from './terrain';
 export * from './rover';
 export * from './geology';
 export * from './profileSampler';
+export * from './routeFinder';
 
 export * from './camps';
 
