@@ -4,7 +4,6 @@ import { localize } from '@marps/ui';
 import './i18n';
 import { lazy, Suspense, useCallback, useEffect, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { Route, Timer, MapPin, Layers, ChartNoAxesCombined, CloudSun, BookOpen } from 'lucide-react';
-import { DrawerReelFilter } from './panels/DrawerReelFilter';
 import { MapDrawer } from './panels/MapDrawer';
 import { ConfirmHost } from './confirm';
 import { BrandMark, DataState } from '@marps/ui';
@@ -145,7 +144,6 @@ export function App() {
         >
           <MapStage map={<PlannerMap panelHost={mapPanelHost} onSiteSelected={openSiteDetails} />} className="planner-map-stage relative flex h-full min-h-0 flex-col items-center justify-between p-3" />
           <div className="map-view-switch glass"><MapViewSelector /></div>
-          <DrawerReelFilter />
           <div className="map-drawer-rails">
             <div className="map-drawer-rail map-drawer-rail-left" {...railState('left')}>
               <MapDrawer label={workspace === 'base' ? 'Mission' : 'Suivi de mission'} shortLabel={workspace === 'base' ? 'Mission' : 'Suivi'} icon={Route} {...drawer('steps')}>

@@ -13,12 +13,11 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .map-drawer-rail-right { right: 0; bottom: 9.75rem; }
 .map-drawer { position: relative; display: grid; grid-template-rows: 0fr; min-height: 44px; flex-shrink: 0; transition: grid-template-rows 240ms var(--ease-instrument); }
 .map-drawer[data-state=open] { grid-template-rows: 1fr; }
-.map-drawer-visual { position: relative; display: grid; grid-template-rows: inherit; min-height: 0; }
 /* Un seul filet au-dessus de la carte ouverte ; replié, le bouton porte le sien. */
-.map-drawer-visual::after { content: ''; position: absolute; top: 0; z-index: 3; width: 0; height: 2px; background: var(--horizon); pointer-events: none; transition: width 240ms var(--ease-instrument); }
-.map-drawer-left .map-drawer-visual::after { left: 0; }
-.map-drawer-right .map-drawer-visual::after { right: 0; }
-.map-drawer[data-state=open] .map-drawer-visual::after { width: 100%; }
+.map-drawer::after { content: ''; position: absolute; top: 0; z-index: 3; width: 0; height: 2px; background: var(--horizon); pointer-events: none; transition: width 240ms var(--ease-instrument); }
+.map-drawer-left::after { left: 0; }
+.map-drawer-right::after { right: 0; }
+.map-drawer[data-state=open]::after { width: 100%; }
 .map-drawer-card-icon, .map-drawer-close { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0; }
 .map-drawer-trigger { position: absolute; top: 0; z-index: 2; display: flex; align-items: center; gap: .5rem; height: 44px; min-width: 44px; padding-inline: .75rem; cursor: pointer; pointer-events: auto; border: 1px solid var(--border); border-top: 0; color: var(--primary); box-shadow: var(--elevation), 0 0 14px -7px var(--mars); transition: background 180ms, box-shadow 180ms, border-color 180ms; }
 .map-drawer-trigger::before { content: ''; position: absolute; inset: 0 0 auto; height: 2px; background: var(--horizon); pointer-events: none; }
@@ -44,7 +43,7 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .map-drawer[data-state=open] .map-drawer-content [data-slot=panel] > div { transition-delay: 90ms; }
 .map-drawer-close { position: absolute; top: 0; right: 0; z-index: 3; cursor: pointer; color: var(--muted-foreground); }
 @media (prefers-reduced-motion: reduce) {
-  .map-drawer, .map-drawer-visual::after, .map-drawer-trigger, .map-drawer-content, .map-drawer-content [data-slot=panel] > div { transition: none; }
+  .map-drawer, .map-drawer::after, .map-drawer-trigger, .map-drawer-content, .map-drawer-content [data-slot=panel] > div { transition: none; }
 }
 
 @media (max-width: 480px), (max-height: 480px) {
@@ -81,24 +80,3 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .map-drawer-group[hidden] { display: none; }
 .workspace-navigation [aria-pressed=true] { background: var(--accent); color: var(--primary); box-shadow: inset 0 -2px var(--primary); }
 .map-panel-dock:empty { min-height: 44px; }
-
-/* La lentille reste fixe sur la fenêtre défilante : les cartes passent dedans. */
-.drawer-reel-filter { position: absolute; width: 0; height: 0; pointer-events: none; }
-@media (prefers-reduced-motion: no-preference) {
-  /* 8 px hors écran couvrent le déplacement maximal de 6 px de la lentille.
-     Le contenu est compensé pour garder textes et commandes à leur place. */
-  .map-drawer-rail { width: calc(min(25rem, calc(100vw - 3.75rem)) + 8px); filter: url(#drawer-reel-lens); }
-  .map-drawer-rail-left { left: -8px; }
-  .map-drawer-rail-right { right: -8px; }
-  .map-drawer-left .map-drawer-body { padding-left: 8px; }
-  .map-drawer-right .map-drawer-body { padding-right: 8px; }
-  .map-drawer-left .map-drawer-card-icon { left: 8px; }
-  .map-drawer-right .map-drawer-close { right: 8px; }
-  .map-drawer-left .map-drawer-trigger { padding-left: calc(.75rem + 8px); }
-  .map-drawer-right .map-drawer-trigger { padding-right: calc(.75rem + 8px); }
-  @media (max-width: 800px) {
-    .map-drawer-rail { filter: none; }
-    .map-drawer-rails { left: -8px; right: -8px; filter: url(#drawer-reel-lens); }
-    .map-drawer { width: calc(min(25rem, calc(100vw - 3.75rem)) + 8px); }
-  }
-}
