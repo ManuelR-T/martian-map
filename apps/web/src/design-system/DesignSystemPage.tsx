@@ -85,17 +85,17 @@ type DemoView = 'global' | 'region';
 function Section({ title, intro, children }: { title: string; intro?: string; children: ReactNode }) {
   const id = useId();
   return (
-    <details className="border-b pb-4">
-      <summary className="min-h-11 cursor-pointer py-3">
-        <span id={id} className="heading-display text-2xl">
+    <section aria-labelledby={id} className="border-b pb-4">
+      <div className="py-3">
+        <h3 id={id} className="heading-display text-2xl">
           {title}
-        </span>
-      </summary>
+        </h3>
+      </div>
       <div className="grid gap-5 py-4">
         {intro ? <p className="max-w-prose text-muted-foreground">{intro}</p> : null}
         {children}
       </div>
-    </details>
+    </section>
   );
 }
 

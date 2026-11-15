@@ -20,7 +20,7 @@
   color-scheme: dark;
   --radius: 0.125rem;
 
-  --background: #070a11;
+  --background: #0c1426;
   --foreground: #eef2f8;
   --card: #0f1522;
   --card-foreground: #eef2f8;
@@ -44,7 +44,7 @@
   --header-foreground: #ffffff;
   --mars: #ff8a4c;
   --mars-foreground: #2a0f02;
-  --mars-surface: #21150f;
+  --mars-surface: #0c1426;
 
   --danger: #ffb4a6;
   --danger-surface: #2b1210;
@@ -160,7 +160,7 @@
     margin: 0;
     /* Lueur de crépuscule fixe en haut de page : à peine visible, elle donne sa profondeur au fond. */
     background:
-      radial-gradient(90% 55% at 50% 0%, color-mix(in oklab, var(--primary) 10%, transparent), transparent 70%) fixed,
+      radial-gradient(90% 55% at 50% 0%, color-mix(in oklab, var(--primary) 20%, transparent), transparent 85%) fixed,
       var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);
@@ -268,29 +268,29 @@
   }
 }
 
-/* Fond d'attente de la carte : la nuit, la lueur bleue du couchant et la poussière autour. */
+/* Fond d'attente de la carte : la nuit, la lueur bleue du couchant sur fond bleu nuit. */
 @utility stage-backdrop {
   background:
     radial-gradient(
       85% 60% at 50% 100%,
       color-mix(in oklab, var(--primary) 50%, transparent) 0%,
       color-mix(in oklab, var(--primary) 20%, transparent) 32%,
-      color-mix(in oklab, var(--mars) 14%, transparent) 62%,
+      color-mix(in oklab, var(--primary) 14%, transparent) 62%,
       transparent 100%
     ),
     var(--background);
 }
 
-/* Limbe de Mars, purement décoratif : un disque à contre-jour, ourlé de braise puis de l'atmosphère bleue du couchant. */
+/* Limbe de Mars, purement décoratif : un disque à contre-jour, ourlé de lumière bleue. */
 @utility planet-limb {
   border-radius: 50%;
   background: radial-gradient(
     circle closest-side,
-    color-mix(in oklab, var(--mars) 16%, var(--background)) 0%,
-    color-mix(in oklab, var(--mars) 30%, var(--background)) 80%,
-    color-mix(in oklab, var(--mars) 62%, var(--background)) 92%,
-    var(--mars) 98%,
-    color-mix(in oklab, var(--mars) 70%, white) 100%
+    color-mix(in oklab, var(--primary) 16%, var(--background)) 0%,
+    color-mix(in oklab, var(--primary) 30%, var(--background)) 80%,
+    color-mix(in oklab, var(--primary) 62%, var(--background)) 92%,
+    var(--primary) 98%,
+    color-mix(in oklab, var(--primary) 70%, white) 100%
   );
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--primary) 65%, transparent),
@@ -298,10 +298,10 @@
     0 -10px 80px 4px color-mix(in srgb, var(--primary) 42%, transparent);
 }
 
-/* Quadrillage de l'emplacement carte : parallèles et méridiens, lignes maîtresses couleur braise, estompé vers les bords. */
+/* Quadrillage de l'emplacement carte : parallèles et méridiens, lignes maîtresses bleues, estompé vers les bords. */
 @utility graticule {
   --line: color-mix(in srgb, var(--foreground) 9%, transparent);
-  --line-major: color-mix(in srgb, var(--mars) 38%, transparent);
+  --line-major: color-mix(in srgb, var(--primary) 38%, transparent);
 
   background-image:
     linear-gradient(to right, var(--line-major) 1px, transparent 1px),

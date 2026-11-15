@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@marps/ui';
+import { Check, Download, CircleAlert, RefreshCw } from 'lucide-react';
 import { waitForOfflineInstall } from './install';
 
 type Status = 'preparing' | 'ready' | 'waiting' | 'failed' | 'unsupported';
@@ -26,15 +27,23 @@ export function OfflineStatus() {
     return () => { active = false; navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange); };
   }, []);
   if (!import.meta.env.PROD) return null;
-  if (status === 'ready') return <details className="offline-status relative z-20 border-b bg-card px-4 text-xs text-muted-foreground">
-    <summary className="min-h-11 cursor-pointer py-3">Prêt hors ligne</summary>
-    <p className="pb-3">{messages.ready} Les tuiles mondiales non téléchargées nécessitent une connexion.</p>
+  const label = status === 'ready' ? 'Prêt hors ligne' : status === 'preparing' ? 'Préparation hors ligne' : status === 'waiting' ? 'Mise à jour disponible' : 'Hors ligne indisponible';
+  const Icon = status === 'ready' ? Check : status === 'preparing' ? Download : status === 'waiting' ? RefreshCw : CircleAlert;
+  const needsAttention = status === 'failed' || status === 'unsupported';
+  return <details className="relative shrink-0">
+    <summary
+      aria-label={label}
+      title={label}
+      className={`flex size-11 cursor-pointer list-none items-center justify-center hover:bg-accent hover:text-accent-foreground [&::-webkit-details-marker]:hidden ${needsAttention ? 'text-warning' : 'text-header-foreground/75'}`}
+    >
+      <Icon aria-hidden="true" className="size-5" />
+    </summary>
+    <span role="status" className="sr-only">{label}</span>
+    <div className="absolute right-0 top-full z-50 w-[min(20rem,calc(100vw-2rem))] border bg-card p-4 text-sm text-card-foreground shadow-lg">
+      <p className="font-semibold">{label}</p>
+      <p className="mt-2 text-muted-foreground">{messages[status]}</p>
+      {status === 'ready' && <p className="mt-2 text-muted-foreground">Les tuiles mondiales non téléchargées nécessitent une connexion.</p>}
+      {status === 'failed' && <Button className="mt-3" variant="outline" size="sm" onClick={() => window.location.reload()}>Réessayer l’installation</Button>}
+    </div>
   </details>;
-  return <div className="offline-status relative z-20 flex flex-wrap items-center gap-2 border-b bg-card px-4 py-1 text-xs text-muted-foreground">
-    <p role="status" title={import.meta.env.PROD ? messages[status] : 'Mode développement : installation hors ligne disponible dans la version compilée.'}>
-      <span className="offline-full">{import.meta.env.PROD ? messages[status] : 'Mode développement : installation hors ligne disponible dans la version compilée.'}</span>
-      <span className="offline-short">{!import.meta.env.PROD ? 'Développement · hors ligne non installé' : status === 'preparing' ? 'Préparation hors ligne…' : messages[status]}</span>
-    </p>
-    {status === 'failed' && <Button variant="outline" size="sm" onClick={() => window.location.reload()}>Réessayer l’installation</Button>}
-  </div>;
 }

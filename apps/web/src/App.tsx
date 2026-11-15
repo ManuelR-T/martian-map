@@ -26,7 +26,7 @@ function useHash(): string {
 }
 
 const headerLink =
-  'label-caps inline-flex h-11 items-center px-3 text-header-foreground/85 transition-colors hover:bg-accent hover:text-accent-foreground';
+  'label-caps inline-flex h-11 items-center px-3 text-header-foreground/85 transition-colors hover:bg-accent hover:text-accent-foreground aria-[current=page]:bg-accent aria-[current=page]:text-accent-foreground';
 
 /** Panneau flottant : capte les clics que sa colonne laisse passer vers la carte, et s'allume à son tour au chargement. */
 const floatingPanel = 'power-on pointer-events-auto';
@@ -67,21 +67,15 @@ export function App() {
             Préparer une sortie scientifique à Jezero
           </p>
         </div>
-        <nav aria-label="Pages" className="flex items-center">
-          {showsPage && <a href="#/" className={headerLink}>Planification</a>}
-          <details key={hash} className="relative">
-            <summary className={`${headerLink} cursor-pointer`}>Plus</summary>
-            <div className="absolute right-0 top-full z-50 grid min-w-52 border bg-header p-2 shadow-lg">
-              <a href={SOURCES_HASH} className={headerLink} aria-current={showsSources ? 'page' : undefined}>Sources et limites</a>
-              <a href={DESIGN_SYSTEM_HASH} className={headerLink} aria-current={showsDesignSystem ? 'page' : undefined}>Système de design</a>
-              <p className="px-3 py-2 text-xs text-header-foreground/75">Scénario de recherche · aucune validation opérationnelle.</p>
-            </div>
-          </details>
+        <nav aria-label="Pages" className="flex flex-wrap items-center max-sm:order-1 max-sm:w-full">
+          <a href="#/" className={headerLink} aria-current={!showsPage ? 'page' : undefined}>Planification</a>
+          <a href={SOURCES_HASH} className={headerLink} aria-current={showsSources ? 'page' : undefined}>Sources et limites</a>
+          <a href={DESIGN_SYSTEM_HASH} className={headerLink} aria-current={showsDesignSystem ? 'page' : undefined}>Système de design</a>
         </nav>
+        <OfflineStatus />
         {/* Filet d'horizon : il se trace de la braise au bleu à l'ouverture. */}
         <span aria-hidden="true" className="horizon-draw absolute inset-x-0 -bottom-0.5 h-0.5 bg-[image:var(--horizon)]" />
       </header>
-      <OfflineStatus />
       {!showsPage && <nav className="compact-navigation" aria-label="Écran de mission">
         <button type="button" aria-pressed={mobilePage === 'map'} onClick={() => setMobilePage('map')}>Carte</button>
         <button type="button" aria-pressed={mobilePage === 'mission'} onClick={() => setMobilePage('mission')}>Mission</button>
