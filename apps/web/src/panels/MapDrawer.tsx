@@ -1,4 +1,3 @@
-import { useDrawerPerspective } from './useDrawerPerspective';
 import { localize } from '@marps/ui';
 import '../i18n';
 import { useEffect, useId, useRef, type ReactNode } from 'react';
@@ -15,8 +14,6 @@ export function MapDrawer({ label, shortLabel, icon: Icon, side, open, onOpenCha
   onOpenChange: (open: boolean) => void;
   children: ReactNode;
 }) {
-  const frame = useRef<HTMLDivElement>(null);
-  useDrawerPerspective(frame, open);
   const id = useId();
   const trigger = useRef<HTMLButtonElement>(null);
   const content = useRef<HTMLDivElement>(null);
@@ -36,7 +33,7 @@ export function MapDrawer({ label, shortLabel, icon: Icon, side, open, onOpenCha
     onOpenChange(false);
   }
 
-  return <div ref={frame} className={`map-drawer map-drawer-${side}`} data-state={open ? 'open' : 'closed'}>
+  return <div className={`map-drawer map-drawer-${side}`} data-state={open ? 'open' : 'closed'}>
     <div className="map-drawer-visual">
     <button
       ref={trigger}

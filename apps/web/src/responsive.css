@@ -62,7 +62,7 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
   .map-drawer-rails { top: 4.25rem; }
 }
 
-/* Sur écran étroit, les volets partagent une pile ; un volet ouvert masque les autres boutons et prend la hauteur. */
+/* Sur écran étroit, tous les volets partagent une pile défilante. */
 @media (max-width: 800px) {
   .map-drawer-rails { bottom: 9.75rem; display: flex; flex-direction: column; gap: .5rem; overflow-y: auto; overscroll-behavior: contain; container-type: size; }
   .map-drawer-rail { display: contents; }
@@ -70,7 +70,6 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
   .map-drawer { width: min(25rem, calc(100vw - 3.75rem)); }
   .map-drawer-left { align-self: flex-start; }
   .map-drawer-right { align-self: flex-end; }
-  .map-drawer-rails:has(.map-drawer[data-state=open]) .map-drawer[data-state=closed] { display: none; }
 }
 
 /* Sélecteur de vue, posé sur la carte : il change la carte, pas la page. */
@@ -83,10 +82,12 @@ summary:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .workspace-navigation [aria-pressed=true] { background: var(--accent); color: var(--primary); box-shadow: inset 0 -2px var(--primary); }
 .map-panel-dock:empty { min-height: 44px; }
 
-/* Le scroll pilote la perspective sans dépendre des timelines CSS. */
+/* La lentille reste fixe sur la fenêtre défilante : les cartes passent dedans. */
+.drawer-reel-filter { position: absolute; width: 0; height: 0; pointer-events: none; }
 @media (prefers-reduced-motion: no-preference) {
-  .map-drawer-visual {
-    transform: perspective(var(--drawer-perspective, 1600px)) translateZ(var(--drawer-depth, 0px)) rotateX(var(--drawer-tilt, 0deg));
-    transform-origin: center var(--drawer-origin, 50%);
+  .map-drawer-rail { filter: url(#drawer-reel-lens); }
+  @media (max-width: 800px) {
+    .map-drawer-rail { filter: none; }
+    .map-drawer-rails { filter: url(#drawer-reel-lens); }
   }
 }

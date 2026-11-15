@@ -4,6 +4,7 @@ import { localize } from '@marps/ui';
 import './i18n';
 import { lazy, Suspense, useCallback, useEffect, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { Route, Timer, MapPin, Layers, ChartNoAxesCombined, CloudSun, BookOpen } from 'lucide-react';
+import { DrawerReelFilter } from './panels/DrawerReelFilter';
 import { MapDrawer } from './panels/MapDrawer';
 import { ConfirmHost } from './confirm';
 import { BrandMark, DataState } from '@marps/ui';
@@ -55,18 +56,10 @@ export function App() {
   const { view, workspace } = usePlannerState();
   const dispatch = usePlannerDispatch();
   const [mapPanelHost, setMapPanelHost] = useState<HTMLDivElement | null>(null);
-  /**
-   * Ouvre ou ferme un volet. Sous 1280 px, un seul volet reste ouvert par côté, et un seul
-   * en tout sous 800 px : la carte garde ainsi une largeur utile.
-   */
-  const setDrawer = useCallback((key: DrawerKey, open: boolean) => setOpenDrawers((current) => {
-    if (!open) return { ...current, [key]: false };
-    if (narrow('(max-width: 800px)')) return { ...allClosed, [key]: true };
-    if (!narrow('(max-width: 1279px)')) return { ...current, [key]: true };
-    const next = { ...current };
-    for (const other of drawerKeys) if (drawerSides[other] === drawerSides[key]) next[other] = false;
-    return { ...next, [key]: true };
-  }), []);
+  // Tous les volets peuvent rester ouverts, quelle que soit la largeur de l'écran.
+  const setDrawer = useCallback((key: DrawerKey, open: boolean) => {
+    setOpenDrawers(current => ({ ...current, [key]: open }));
+  }, []);
   const openSiteDetails = useCallback(() => setDrawer('site', true), [setDrawer]);
   const hash = useHash();
   const showsDesignSystem = hash === DESIGN_SYSTEM_HASH;
@@ -152,6 +145,7 @@ export function App() {
         >
           <MapStage map={<PlannerMap panelHost={mapPanelHost} onSiteSelected={openSiteDetails} />} className="planner-map-stage relative flex h-full min-h-0 flex-col items-center justify-between p-3" />
           <div className="map-view-switch glass"><MapViewSelector /></div>
+          <DrawerReelFilter />
           <div className="map-drawer-rails">
             <div className="map-drawer-rail map-drawer-rail-left" {...railState('left')}>
               <MapDrawer label={workspace === 'base' ? 'Mission' : 'Suivi de mission'} shortLabel={workspace === 'base' ? 'Mission' : 'Suivi'} icon={Route} {...drawer('steps')}>
