@@ -33,7 +33,6 @@ const click = async (label: string) => {
   expect(button, label).toBeTruthy();
   await act(async () => { button!.click(); });
 };
-const scenario = (name: string) => [...container.querySelectorAll('li')].find((item) => item.textContent?.startsWith(name))!;
 
 async function open(sites: readonly string[], fetcher: typeof fetch) {
   vi.stubGlobal('fetch', fetcher);
@@ -51,14 +50,17 @@ beforeEach(() => {
 });
 afterEach(async () => { await act(async () => root.unmount()); container.remove(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
-it('compares each scenario with the current route, shows why one fails, and applies the chosen path to the mission', async () => {
-  await open(['skinner-ridge', 'amalik'], frozen);
-  // Skinner Ridge sits on a 20.1° cell of the 4 m grid: closed to the two stricter scenarios.
-  expect(scenario('Prudent').querySelector('[role="alert"]')!.textContent).toBe('Arrivée « Skinner Ridge » inutilisable : pente au-delà de 15° à cet endroit.');
-  expect(scenario('Équilibré').querySelector('input')!.disabled).toBe(true);
-  const bold = scenario('Audacieux');
-  expect(bold.querySelector('input')!.checked).toBe(true);
-  expect(bold.textContent).toMatch(/Chemin proposé.* m, coût .* m à plat.*Tracé actuel/);
+const type = async (value: string) => {
+  const input = container.querySelector<HTMLInputElement>('input[type="number"]')!;
+  const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+  await act(async () => { set.call(input, value); input.dispatchEvent(new Event('input', { bubbles: true })); });
+};
+
+it('proposes a path under the chosen slope, compares it with the current route and applies it to the mission', async () => {
+  await open(['wildcat-ridge', 'amalik'], frozen);
+  expect((container.querySelector('input[type="number"]') as HTMLInputElement).value).toBe('20');
+  expect(container.querySelector('[role="alert"]')).toBeNull();
+  expect(container.querySelector('dl')!.textContent).toMatch(/Chemin proposé.* m, coût .* m à plat.*Tracé actuel/);
   expect(container.textContent).toContain('Hypothèses et limites');
   expect(container.textContent).toContain('cellules de 4 m');
 
@@ -66,14 +68,37 @@ it('compares each scenario with the current route, shows why one fails, and appl
   await click('Appliquer ce chemin au parcours');
   expect(container.querySelector('output')!.textContent).toBe('3');
   // Once applied, the current route is the proposal: same distance and cost on both lines.
-  const [proposed, current] = [...scenario('Audacieux').querySelectorAll('dd')].map((cell) => cell.textContent);
+  const [proposed, current] = [...container.querySelectorAll('dd')].map((cell) => cell.textContent);
   expect(current).toBe(proposed);
 });
 
-it('offers a path for every scenario between sites on gentle ground', async () => {
-  await open(['wildcat-ridge', 'amalik'], frozen);
+it('says there is no solution, and why, when the chosen slope is too low, then finds one again on a higher slope', async () => {
+  await open(['skinner-ridge', 'amalik'], frozen);
+  // Skinner Ridge sits on a 20.1° cell of the 4 m grid.
+  const alert = container.querySelector('[role="alert"]')!;
+  expect(alert.textContent).toContain('Aucune solution à 20°.');
+  expect(alert.textContent).toContain('Arrivée « Skinner Ridge » inutilisable : pente au-delà de 20° à cet endroit.');
+  expect(alert.textContent).toContain('Essayez une pente maximale plus élevée.');
+  expect(container.textContent).not.toContain('Appliquer ce chemin au parcours');
+
+  await type('25');
   expect(container.querySelector('[role="alert"]')).toBeNull();
-  expect([...container.querySelectorAll('input')].every((input) => !input.disabled)).toBe(true);
+  expect(container.textContent).toContain('Appliquer ce chemin au parcours');
+});
+
+it('names the leg without a path when a ridge cannot be crossed', async () => {
+  await open(['wildcat-ridge', 'amalik'], frozen);
+  await type('1');
+  expect(container.querySelector('[role="alert"]')!.textContent).toMatch(/Aucune solution à 1°\..*(inutilisable|Aucun chemin de)/);
+});
+
+it('asks for a valid slope instead of searching with a nonsense one', async () => {
+  await open(['wildcat-ridge', 'amalik'], frozen);
+  for (const value of ['', '0', '-3', '61', 'abc']) {
+    await type(value);
+    expect(container.querySelector('[role="alert"]')!.textContent, value).toBe('Saisissez une pente entre 1° et 60°.');
+    expect(container.textContent).not.toContain('Appliquer ce chemin au parcours');
+  }
 });
 
 it('says the slope grid could not be read and proposes nothing', async () => {

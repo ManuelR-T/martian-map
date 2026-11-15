@@ -3,7 +3,7 @@ import {
   cellBlock,
   findPath,
   routeCost,
-  routeScenarios,
+  slopeScenario,
   slopeCostFactor,
   straightenRoute,
   type GridCell,
@@ -13,7 +13,7 @@ import {
 } from './index';
 
 const CELL = 20;
-const scenario: RouteScenario = { id: 'balanced', maxSlopeDegrees: 20, slopeWeight: 2 };
+const scenario: RouteScenario = slopeScenario(20);
 const X = 90; // steeper than any scenario allows
 const N = NaN; // no measurement
 
@@ -40,9 +40,9 @@ describe('scenario cost', () => {
     expect(slopeCostFactor(null, scenario)).toBeNull();
   });
 
-  it('orders the scenarios from the strictest slope limit to the loosest', () => {
-    const limits = routeScenarios.map((candidate) => candidate.maxSlopeDegrees);
-    expect(limits).toEqual([...limits].sort((a, b) => a - b));
+  it('keeps the cost model and refuses a limit that is not a positive number', () => {
+    expect(slopeScenario(12)).toEqual({ maxSlopeDegrees: 12, slopeWeight: 2 });
+    for (const limit of [0, -5, NaN, Infinity]) expect(() => slopeScenario(limit)).toThrow(RangeError);
   });
 });
 
@@ -135,9 +135,9 @@ describe('findPath', () => {
     expect(cellBlock(terrain, scenario, cell(0, 0))).toBeNull();
   });
 
-  it('opens a passage to a bolder scenario that a cautious one refuses', () => {
+  it('opens a passage to a higher slope limit that a lower one refuses', () => {
     const pass = grid([[0, 18, 0]]);
-    expect(findPath(pass, { id: 'cautious', maxSlopeDegrees: 15, slopeWeight: 4 }, cell(0, 0), cell(0, 2)).status).toBe('no-path');
+    expect(findPath(pass, slopeScenario(15), cell(0, 0), cell(0, 2)).status).toBe('no-path');
     expect(findPath(pass, scenario, cell(0, 0), cell(0, 2)).status).toBe('found');
   });
 

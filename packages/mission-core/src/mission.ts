@@ -48,6 +48,7 @@ export interface MissionStep {
   readonly activities: readonly MissionActivity[];
 }
 export interface MissionParameters {
+  readonly returnLimitMode?: 'time-only' | 'time-and-oxygen';
   /** Optional extension of the v1 scenario; older saves remain valid. */
   readonly oxygen?: OxygenParameters;
   readonly availableSeconds: number;
@@ -85,7 +86,7 @@ export function validPosition(p: MarsCoordinate): boolean {
     && Number.isFinite(p.latitude) && p.latitude >= -90 && p.latitude <= 90;
 }
 export function validParameters(p: MissionParameters): boolean {
-  return [p.availableSeconds, p.speedMetresPerSecond, p.reserveSeconds].every(n => Number.isFinite(n) && n >= 0)
+  return (p.returnLimitMode === undefined || ['time-only', 'time-and-oxygen'].includes(p.returnLimitMode)) && [p.availableSeconds, p.speedMetresPerSecond, p.reserveSeconds].every(n => Number.isFinite(n) && n >= 0)
     && p.speedMetresPerSecond > 0 && p.reserveSeconds <= p.availableSeconds
     && (p.oxygen === undefined || validOxygenParameters(p.oxygen));
 }

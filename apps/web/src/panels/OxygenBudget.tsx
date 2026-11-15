@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FlaskConical, Mountain, Settings2, TriangleAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { elevationSampler } from '@marps/data';
@@ -17,6 +17,7 @@ export function OxygenBudget() {
   const { i18n } = useTranslation();
   const state = usePlannerState();
   const dispatch = usePlannerDispatch();
+  useEffect(() => () => { dispatch({ type: 'oxygenParameterDraftValidityChanged', valid: true }); }, [dispatch]);
   const mission = state.workspace === 'base' ? state.mission : state.runningMission;
   const profile = useOptionalRouteProfile();
   const relief = profile?.relief;
@@ -73,11 +74,13 @@ export function OxygenBudget() {
         {fields.map(([key, label]) => <label key={key} className="grid grid-cols-2 items-center gap-2 text-sm">{localize(label)}<input className="min-h-11 w-full border bg-background px-2" name={`oxygen-${key}`} type="number" step="any" min={key === 'referenceSpeedMetresPerSecond' ? Number.MIN_VALUE : 0} value={Number.isNaN(values[key]) ? '' : values[key]} onChange={e => {
           const next = { ...values, [key]: e.target.value === '' ? NaN : Number(e.target.value) };
           setDraft({ source: p, missionId: mission?.id, workspace: state.workspace, values: next });
+          dispatch({ type: 'oxygenParameterDraftValidityChanged', valid: validOxygenParameters(next) });
           if (validOxygenParameters(next)) { save(next); setDraft(null); }
         }} /></label>)}
         <label className="flex min-h-11 items-center gap-2"><input type="checkbox" checked={values.assumeFlatTerrain} onChange={e => {
           const next = { ...values, assumeFlatTerrain: e.target.checked };
           setDraft({ source: p, missionId: mission?.id, workspace: state.workspace, values: next });
+          dispatch({ type: 'oxygenParameterDraftValidityChanged', valid: validOxygenParameters(next) });
           if (validOxygenParameters(next)) { save(next); setDraft(null); }
         }} />{localize('Supposer explicitement un terrain plat')}</label>
       </div>}

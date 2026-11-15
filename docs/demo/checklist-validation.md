@@ -80,3 +80,21 @@ In the browser's developer tools, Network tab.
 | --- | --- | --- |
 | [ ] | Save the route | Follow the [version of 30 s](script-pitch.md#30s-version-backup-video) in 1920 × 1080, on the production URL. |
 | [ ] | Make video accessible | Public link off the Space Apps site, and an offline copy on the presentation computer. |
+
+## Return limit (#33)
+
+- [ ] With time-only mode, verify a 60 m outbound leg at 1 m/s, 180 s available
+  and 60 s reserve reaches zero margin at the visit.
+- [ ] With 300 s available and a 3 min activity at that visit, verify a threshold
+  at 2 min into the activity, without moving its marker.
+- [ ] Enable O₂, choose nonidentical ascent/descent coefficients, and compare an
+  outbound descent with its uphill retreat. Verify the constraint/margins agree
+  in map selection and Budget.
+- [ ] Remove terrain coverage: show indeterminate O₂, retaining known time
+  margins. Explicit flat terrain can restore an estimate; disabling O₂ preserves
+  a working time-only indicator.
+- [ ] Reload a saved combined-mode mission after production offline installation;
+  edit inputs and switch languages without NASA connectivity.
+- [ ] On portrait and landscape tablets, select coincident thresholds using the
+  list, close/reopen Time without losing results, scroll panels, and pan/pinch the map.
+- [ ] Record physical-device acceptance separately from browser simulation.

@@ -1,3 +1,4 @@
+import { ReturnLimitOverlay } from './ReturnLimitOverlay';
 import { localize } from '@marps/ui';
 import '../../i18n';
 import { useCallback, useMemo, useState } from 'react';
@@ -11,7 +12,7 @@ import { findThemisNightDataset } from './themisNight';
 import { findGeologyDataset } from '@marps/data';
 import { TerrainOverlay } from '../../terrain/TerrainOverlay';
 
-const terrainOverlay = (map: Map | null) => <TerrainOverlay map={map} />;
+const terrainOverlay = (map: Map | null) => <><TerrainOverlay map={map} /><ReturnLimitOverlay map={map} /></>;
 
 export function PlannerMap({ panelHost, onSiteSelected, routePanelHost = null }: { routePanelHost?: HTMLElement | null; panelHost: HTMLElement | null; onSiteSelected?: () => void }) {
   const [annotationsEnabled, setAnnotationsEnabled] = useState(true);
