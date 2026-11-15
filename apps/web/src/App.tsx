@@ -1,4 +1,6 @@
 import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from 'react';
+import { Route, Timer, MapPin } from 'lucide-react';
+import { MapDrawer } from './panels/MapDrawer';
 import { BrandMark, DataState } from '@marps/ui';
 import { BudgetPanel } from './panels/BudgetPanel';
 import { MapStage } from './panels/MapStage';
@@ -28,11 +30,11 @@ function useHash(): string {
 const headerLink =
   'label-caps inline-flex h-11 items-center px-3 text-header-foreground/85 transition-colors hover:bg-accent hover:text-accent-foreground aria-[current=page]:bg-accent aria-[current=page]:text-accent-foreground';
 
-/** Panneau flottant : capte les clics que sa colonne laisse passer vers la carte, et s'allume à son tour au chargement. */
-const floatingPanel = 'power-on pointer-events-auto';
+/** Contenu interactif des volets superposés à la carte. */
+const floatingPanel = 'pointer-events-auto';
 
 export function App() {
-  const [mobilePage, setMobilePage] = useState<'map' | 'mission'>('map');
+  const [openDrawer, setOpenDrawer] = useState<'steps' | 'budget' | 'site' | null>(null);
   const { view } = usePlannerState();
   const hash = useHash();
   const showsDesignSystem = hash === DESIGN_SYSTEM_HASH;
@@ -44,7 +46,7 @@ export function App() {
   }, [showsDesignSystem, showsSources]);
 
   return (
-    <div data-mobile-page={mobilePage} className={showsPage ? 'flex min-h-dvh flex-col' : 'planner-app flex min-h-dvh flex-col xl:h-dvh'}>
+    <div className={showsPage ? 'flex min-h-dvh flex-col' : 'planner-app flex min-h-dvh flex-col xl:h-dvh'}>
       {/* Bandeau Heure bleue : ses contrôles et son focus héritent de la palette nuit. */}
       <header className="dark relative z-20 flex flex-wrap items-center gap-x-3 gap-y-1 bg-header px-4 py-1.5 text-header-foreground">
         <a
@@ -76,10 +78,6 @@ export function App() {
         {/* Filet d'horizon : il se trace de la braise au bleu à l'ouverture. */}
         <span aria-hidden="true" className="horizon-draw absolute inset-x-0 -bottom-0.5 h-0.5 bg-[image:var(--horizon)]" />
       </header>
-      {!showsPage && <nav className="compact-navigation" aria-label="Écran de mission">
-        <button type="button" aria-pressed={mobilePage === 'map'} onClick={() => setMobilePage('map')}>Carte</button>
-        <button type="button" aria-pressed={mobilePage === 'mission'} onClick={() => setMobilePage('mission')}>Mission</button>
-      </nav>}
 
       {showsSources ? (
         <main id={CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
@@ -101,22 +99,21 @@ export function App() {
         <main
           id={CONTENT_ID}
           tabIndex={-1}
-          className="planner-main relative flex flex-1 flex-col gap-3 outline-none xl:grid xl:min-h-0 xl:grid-cols-[19rem_minmax(0,1fr)_21rem] xl:grid-rows-[minmax(0,1fr)] xl:p-3"
+          className="planner-main relative min-h-0 flex-1 outline-none"
         >
-          {/*
-            La carte passe sous toute l'interface sur grand écran ; les colonnes laissent
-            passer les clics vers elle, seuls les panneaux flottants les captent.
-            #7 et #8 passeront ici la carte OpenLayers de la vue active.
-          */}
-          <MapStage map={<PlannerMap />} className="planner-map-stage relative flex h-[62dvh] min-h-[24rem] flex-col items-center justify-between gap-3 p-3 xl:pointer-events-none xl:static xl:col-start-2 xl:row-start-1 xl:h-auto xl:min-h-0 xl:p-0" />
-          <div className="mission-panels relative z-10 flex min-h-0 flex-col gap-3 max-xl:px-3 xl:pointer-events-none xl:col-start-1 xl:row-start-1">
-            <StepsPanel className={floatingPanel} />
+          <MapStage map={<PlannerMap />} className="planner-map-stage relative flex h-full min-h-0 flex-col items-center justify-between p-3" />
+          <div className="map-drawer-rail map-drawer-rail-left">
+            <MapDrawer label="Étapes de la mission" icon={Route} side="left" open={openDrawer === 'steps'} onOpenChange={(open) => setOpenDrawer(open ? 'steps' : null)}>
+              <StepsPanel className={floatingPanel} collapsible={false} />
+            </MapDrawer>
           </div>
-          <div className={`${view === 'global' ? 'hidden' : 'flex'} mission-panels relative z-10 min-h-0 flex-col gap-3 max-xl:px-3 max-xl:pb-3 xl:pointer-events-none xl:col-start-3 xl:row-start-1 xl:max-h-[calc(100%-10rem)] xl:overflow-y-auto`}>
-            {/* #14 fournira le budget calculé par mission-core. */}
-            <BudgetPanel budget={null} className={`${floatingPanel} shrink-0 [--power-delay:240ms]`} />
-            {/* #9 fournira les fiches scientifiques. */}
-            <SiteDetailsPanel className={`${floatingPanel} [--power-delay:360ms]`} />
+          <div className="map-drawer-rail map-drawer-rail-right" hidden={view === 'global'}>
+            <MapDrawer label="Budget de temps" icon={Timer} side="right" open={openDrawer === 'budget'} onOpenChange={(open) => setOpenDrawer(open ? 'budget' : null)}>
+              <BudgetPanel budget={null} className={floatingPanel} collapsible={false} />
+            </MapDrawer>
+            <MapDrawer label="Fiche de site" icon={MapPin} side="right" open={openDrawer === 'site'} onOpenChange={(open) => setOpenDrawer(open ? 'site' : null)}>
+              <SiteDetailsPanel className={floatingPanel} collapsible={false} />
+            </MapDrawer>
           </div>
         </main>
       )}

@@ -1,3 +1,4 @@
+import { Info } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import Map from 'ol/Map';
 import View from 'ol/View';
@@ -72,7 +73,8 @@ export function GlobalMarsMap({ dataset, manifest, global, onSelectRegion }: Pro
       {failed && <Button variant="outline" size="sm" onClick={() => { setFailed(false); sourceRef.current?.refresh(); }}>Réessayer les tuiles</Button>}
     </div>}
     <details className="map-information border bg-card/95 p-2 text-xs text-foreground backdrop-blur-sm">
-      <summary className="map-info-toggle cursor-pointer font-semibold">Légende et informations · <ProvenanceBadge status={datasetScientificStatus(dataset)} /></summary>
+      <summary className="map-info-toggle cursor-pointer font-semibold" aria-label="Légende et informations" title="Légende et informations"><Info aria-hidden="true" className="size-5 shrink-0" /><span className="map-info-label">Légende et informations</span></summary>
+      <p><ProvenanceBadge status={datasetScientificStatus(dataset)} /></p>
       <div className="flex flex-wrap items-center gap-2">
       {global && <>
         <Button size="sm" className="px-2" onClick={onSelectRegion}>Ouvrir Jezero</Button>

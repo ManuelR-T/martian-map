@@ -11,6 +11,7 @@ export type BudgetView = Pick<
 
 export interface BudgetPanelProps {
   className?: string;
+  collapsible?: boolean;
   /**
    * Budget calculé par le moteur de mission (#14) et mis en forme pour
    * l'affichage. `null` tant qu'une entrée manque : le panneau ne calcule rien.
@@ -18,12 +19,12 @@ export interface BudgetPanelProps {
   budget: BudgetView | null;
 }
 
-export function BudgetPanel({ className, budget }: BudgetPanelProps) {
+export function BudgetPanel({ className, budget, collapsible = true }: BudgetPanelProps) {
   const state = usePlannerState();
   return (
     <Panel
       title="Budget de temps"
-      collapsible
+      collapsible={collapsible}
       defaultOpen={Boolean(budget)}
       floating
       className={className}

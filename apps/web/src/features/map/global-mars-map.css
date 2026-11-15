@@ -33,3 +33,10 @@
 }
 .mars-map-container:has(.ol-attribution:not(.ol-collapsed)) .map-information { visibility: hidden; }
 .map-alert { position: absolute; top: 4.5rem; left: 50%; transform: translateX(-50%); width: min(24rem, calc(100% - 2rem)); pointer-events: auto; }
+
+/* La légende utilise le même accès compact que les volets latéraux. */
+.map-information:not([open]) { left: 0; width: 44px; max-width: 44px; padding: 0; transform: none; }
+.map-info-toggle { display: flex; align-items: center; gap: .5rem; list-style: none; }
+.map-info-toggle::-webkit-details-marker { display: none; }
+.map-information:not([open]) .map-info-toggle { width: 44px; height: 44px; justify-content: center; }
+.map-information:not([open]) .map-info-label { display: none; }

@@ -3,13 +3,13 @@ import { formatCoordinate } from '../format';
 import { usePlannerState } from '../state/PlannerProvider';
 import { PlanningGate } from './PlanningGate';
 
-export function StepsPanel({ className }: { className?: string }) {
+export function StepsPanel({ className, collapsible = true }: { className?: string; collapsible?: boolean }) {
   const { mission } = usePlannerState();
 
   return (
     <Panel
       title="Étapes"
-      collapsible
+      collapsible={collapsible}
       floating
       className={className}
       contentClassName="overflow-y-auto"
