@@ -6,7 +6,7 @@ Chaque choix répond à un usage concret d'un astronaute en sortie sur Mars et s
 
 - **La tablette sert dans l'habitat, pas en combinaison.** La NASA juge l'écran tactile peu pratique avec un gant de sortie : un écran tactile fixé à l'avant-bras, testé sur la navette spatiale, a été limité par les reflets, sa petite taille et la fatigue ([NASA/TM-2012-217199](https://ntrs.nasa.gov/api/citations/20120011128/downloads/20120011128.pdf)). En sortie, « neither the mouse nor the touch screen are practical » ([NASA/TM-2013-216546](https://ntrs.nasa.gov/api/citations/20130014736/downloads/20130014736.pdf)). Un gant de sortie réduit la dextérité de 50 %, puis de 30 % de plus une fois pressurisé ([NASA NTRS, 1993](https://ntrs.nasa.gov/api/citations/19930016872/downloads/19930016872.pdf)). La tablette sert donc à préparer la sortie, puis au coéquipier resté dans l'habitat, qui coche les tâches que l'astronaute annonce à la radio. Dehors, la voix (#40) ou une vue casque (#30) prennent le relais.
 - **L'équipage décide seul sur place.** Un message met de 4 à 22 min entre Mars et la Terre. Les essais NASA BASALT donnent donc à l'équipage un outil de planning consultable sans le centre de contrôle ([NASA NTRS](https://ntrs.nasa.gov/api/citations/20170002363/downloads/20170002363.pdf), [Astrobiology, 2019](https://pmc.ncbi.nlm.nih.gov/articles/PMC6442304)). L'application fonctionne avec des données embarquées.
-- **Pas de GPS : on se repère avec des images et un cap.** « There is no GPS at the Red Planet » : Perseverance se situe en comparant ses panoramas aux images HiRISE prises depuis l'orbite ([JPL, 2026](https://www.jpl.nasa.gov/news/nasas-perseverance-now-autonomously-pinpoints-its-location-on-mars/)). Sur la Lune, le rover d'Apollo affichait la distance et la direction pour revenir au module lunaire, grâce à un gyroscope et des compteurs de roues ([manuel du rover lunaire, Apollo 17](https://www.nasa.gov/wp-content/uploads/static/history/alsj/LRVSysHndbkA17.pdf)). L'application montre donc des repères visuels et des parcours prévus, jamais une position en direct.
+- **Pas de GPS : on se repère avec des images et un cap.** « There is no GPS at the Red Planet » : Perseverance se situe en comparant ses panoramas aux images HiRISE prises depuis l'orbite ([JPL, 2026](https://www.jpl.nasa.gov/news/nasas-perseverance-now-autonomously-pinpoints-its-location-on-mars/)). Sur la Lune, le rover d'Apollo affichait la distance et la direction pour revenir au module lunaire, grâce à un gyroscope et des compteurs de roues ([manuel du rover lunaire, Apollo 17](https://apollojournals.org/alsj/LRVSysHndbkA17.pdf)). L'application montre donc des repères visuels et des parcours prévus, jamais une position en direct.
 
 ## Fiche de site (#9)
 
@@ -15,12 +15,26 @@ Chaque choix répond à un usage concret d'un astronaute en sortie sur Mars et s
 | Photo « À repérer sur place » | Reconnaître la cible en arrivant, sans GPS : trous de forage et zone abrasée du rover. Seules les photos dont la légende NASA nomme le site sont utilisées. | [Catalogue NASA des échantillons](https://science.nasa.gov/mission/mars-2020-perseverance/mars-rock-samples/) |
 | Objectif | Savoir ce que l'arrêt doit rapporter, pour décider seul sans attendre la Terre. | Articles JPL ([2022](https://www.jpl.nasa.gov/news/nasas-perseverance-rover-investigates-geologically-rich-mars-terrain/), [2023](https://www.jpl.nasa.gov/videos/meet-the-mars-samples-shuyak-and-mageik-samples-14-and-15/)) |
 | Déjà fait par le rover | Ne pas refaire le travail du rover et viser ce qui le complète. | Catalogue NASA des échantillons |
-| Tâches cochables | Suivre l'arrêt pas à pas, comme la check-list au poignet des astronautes d'Apollo. Le coéquipier dans l'habitat coche ce que l'astronaute annonce. | [Procédures de surface d'Apollo 16](https://www.nasa.gov/wp-content/uploads/static/history/alsj/a16/a16flsp.pdf) |
+| Tâches cochables | Suivre l'arrêt pas à pas, comme la check-list au poignet des astronautes d'Apollo. Le coéquipier dans l'habitat coche ce que l'astronaute annonce. | [Procédures de surface d'Apollo 16](https://pds-geosciences.wustl.edu/Lunar/urn-nasa-pds-apollodoc/document_a16/mission/a16_final_lunar_surface_procedures.pdf) |
 | Contenu des tâches | Décrire, photographier, puis prélever avec photo avant et photo de repérage : la documentation géologique d'Apollo. | [USGS, échantillons d'Apollo 17](https://www.usgs.gov/publications/documentation-and-environment-apollo-17-samples) |
 | Temps alloué et alerte « il manque X min » | Quand le temps manque, choisir quoi sauter. Apollo omettait alors certaines photos. | USGS, échantillons d'Apollo 17 |
 
 **Choix de l'équipe, sans source NASA :**
-- La durée de chaque tâche (5 ou 15 min) : aucune source NASA ne donne de durée d'arrêt humain sur ces sites.
+- La durée de chaque tâche (10 min pour décrire et pour chaque série de photos, 45 min pour le prélèvement, 75 min au total) : seul le total d'un arrêt s'appuie sur Apollo 17 et BASALT, la répartition est un choix de l'équipe.
 - La fiche tient sans défilement sur une tablette en paysage, avec des lignes de 44 px de haut : le coéquipier suit la sortie en direct, il ne doit pas chercher l'information. La photo s'agrandit d'un toucher.
 
 **Écarté volontairement :** le détail scientifique et les sources sur la fiche. Ils n'aident pas sur place ; les sources sont regroupées dans le panneau de provenance (#16). Les molécules organiques ne sont jamais présentées comme une preuve de vie : JPL précise qu'elles peuvent se former sans vie.
+
+## Démo (#17)
+
+La démo suit une sortie complète, de la préparation dans l'habitat à la décision d'adapter le plan. Détails et calculs : [mission de démonstration](demo/mission-demo.md).
+
+| Choix | Usage pour l'astronaute | Source |
+| --- | --- | --- |
+| Sortie de 6 h de terrain, arrêts de 75 min | Préparer une vraie journée de terrain, pas une démo raccourcie. Une fiche de site compte donc 75 min de tâches, et un arrêt peut recevoir jusqu'à 3 h. | [Apollo 17](https://pds-geosciences.wustl.edu/Lunar/urn-nasa-pds-apollodoc/document_a17/mission/a17_final_lunar_surface_procedures_vol1_nominal.pdf) : 7 h par sortie, arrêts de 30 à 66 min ; [BASALT](https://pmc.ncbi.nlm.nih.gov/articles/PMC6442258/) : 2 à 3 arrêts par sortie de 4 h |
+| Réserve fixe, retirée avant la marge | Garder du temps pour rentrer en cas d'imprévu. | [Artemis III](https://ntrs.nasa.gov/citations/20230008183) : une réserve est exigée à chaque sortie |
+| Dépassement causé par une activité ajoutée | Voir l'effet d'une décision avant de sortir. Sur le terrain, les tâches durent plus longtemps que prévu. | [Apollo 14](https://ntrs.nasa.gov/api/citations/20100036754/downloads/20100036754.pdf) : +23 % sur les tâches, sortie dépassée de 30 min |
+| Adaptation : sauter ce que le rover a déjà fait | Garder l'objectif nouveau et sacrifier le moins utile. | Fiche « Déjà fait par le rover » ; [catalogue NASA des échantillons](https://science.nasa.gov/mission/mars-2020-perseverance/mars-rock-samples/) |
+| Camp à moins de 490 m de chaque arrêt | Pouvoir rentrer vite en cas de problème de combinaison. | Artemis III : 2 km au plus de l'atterrisseur (règle lunaire) |
+
+**Choix de l'équipe, sans source NASA :** la réserve de 60 min, la vitesse de 2 km/h, la position du camp, 1 h pour sortir et rentrer, 50 min pour le 2e prélèvement, et la répartition d'un arrêt en tâches.
