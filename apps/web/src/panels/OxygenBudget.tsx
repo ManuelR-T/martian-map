@@ -21,8 +21,8 @@ export function OxygenBudget() {
   const profile = useOptionalRouteProfile();
   const relief = profile?.relief;
   const p = mission?.parameters.oxygen ?? DEFAULT_OXYGEN_PARAMETERS;
-  const [draft, setDraft] = useState<{ source: OxygenParameters; values: OxygenParameters } | null>(null);
-  const values = p && draft?.source === p ? draft.values : p;
+  const [draft, setDraft] = useState<{ source: OxygenParameters; missionId: string | undefined; workspace: typeof state.workspace; values: OxygenParameters } | null>(null);
+  const values = draft?.source === p && draft.missionId === mission?.id && draft.workspace === state.workspace ? draft.values : p;
   const valid = !values || validOxygenParameters(values);
   const result = !valid || (state.workspace === 'base' && !state.parameterDraftValid)
     ? { status: 'invalid-inputs' } as const
@@ -70,14 +70,14 @@ export function OxygenBudget() {
         <div className="grid gap-3 pb-3">
     {p && values && <>
       {state.workspace === 'base' && <div className="grid gap-2">
-        {fields.map(([key, label]) => <label key={key} className="grid grid-cols-2 items-center gap-2 text-sm">{localize(label)}<input className="min-h-11 w-full border bg-background px-2" type="number" step="any" min={key === 'referenceSpeedMetresPerSecond' ? Number.MIN_VALUE : 0} value={Number.isNaN(values[key]) ? '' : values[key]} onChange={e => {
+        {fields.map(([key, label]) => <label key={key} className="grid grid-cols-2 items-center gap-2 text-sm">{localize(label)}<input className="min-h-11 w-full border bg-background px-2" name={`oxygen-${key}`} type="number" step="any" min={key === 'referenceSpeedMetresPerSecond' ? Number.MIN_VALUE : 0} value={Number.isNaN(values[key]) ? '' : values[key]} onChange={e => {
           const next = { ...values, [key]: e.target.value === '' ? NaN : Number(e.target.value) };
-          setDraft({ source: p, values: next });
+          setDraft({ source: p, missionId: mission?.id, workspace: state.workspace, values: next });
           if (validOxygenParameters(next)) { save(next); setDraft(null); }
         }} /></label>)}
         <label className="flex min-h-11 items-center gap-2"><input type="checkbox" checked={values.assumeFlatTerrain} onChange={e => {
           const next = { ...values, assumeFlatTerrain: e.target.checked };
-          setDraft({ source: p, values: next });
+          setDraft({ source: p, missionId: mission?.id, workspace: state.workspace, values: next });
           if (validOxygenParameters(next)) { save(next); setDraft(null); }
         }} />{localize('Supposer explicitement un terrain plat')}</label>
       </div>}

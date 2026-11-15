@@ -214,3 +214,17 @@ it('estime par défaut sans interrupteur, exige le relief ou le plat explicite e
   expect(container.textContent).toContain('Oxygen estimate');
   expect(container.textContent).toContain('all defaults');
 });
+
+
+it('isole une saisie O₂ invalide de la mission suivante sans enregistrer les valeurs invalides', async () => {
+  await mount();
+  const field = () => container.querySelector<HTMLInputElement>('input[name="oxygen-stockGrams"]')!;
+  await input('oxygen-stockGrams', '');
+  expect(container.textContent).toContain('O₂ non calculable');
+  expect(field().value).toBe('');
+  expect(loadMissionDraft()!.parameters.oxygen).toBeUndefined();
+  await send({ type: 'missionOpened', mission: { ...demo, id: 'other-legacy-mission' } });
+  expect(field().value).toBe('1000');
+  expect(container.textContent).toContain('O₂ indisponible');
+  expect(container.textContent).not.toContain('O₂ non calculable');
+});
