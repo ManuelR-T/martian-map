@@ -1,12 +1,41 @@
 # Marps
 
-A static application for planning scientific field outings on Mars. The MVP targets Jezero. React, TypeScript, Vite, OpenLayers, Tailwind CSS and shadcn/ui run in a private pnpm workspace.
+A static web application for planning scientific field outings on Mars. The MVP
+targets Jezero crater. It is built with React, TypeScript, Vite, OpenLayers,
+Tailwind CSS and shadcn/ui in a private pnpm workspace.
+
+## Use of AI tools
+
+The team came up with the idea, the product decisions and the choice of data
+sources. AI coding assistants (Claude Code by Anthropic, Codex by OpenAI and
+Antigravity by Google) were used to accelerate the work:
+
+- **Code:** large parts of the application code, tests and data preparation
+  scripts (`tools/data`) were written with AI assistance, then reviewed, run and
+  tested by the team.
+- **Documentation:** this README and the notes in `docs/` were drafted or
+  translated with AI assistance.
+- **Data:** no scientific data is AI-generated. Imagery, terrain models, rover
+  positions and weather measurements come from NASA, USGS and the other sources
+  credited in the manifest and in [`docs/demo/credits-donnees.md`](docs/demo/credits-donnees.md).
+  The example camps and mission durations are fictional scenario choices made by
+  the team and are labelled as such in the app.
+- **Terrain annotations:** the texts of the Jezero terrain annotations
+  (`data/research/jezero-terrain-annotations.geojson`) were drafted with AI
+  assistance from HiRISE imagery. Their credit in the manifest says so, and the
+  app labels them as visual interpretations, not measurements.
+- **Images:** no image in the application is AI-generated. The Marps logo
+  (`packages/ui/src/components/brand-mark.tsx`, `apps/web/public/favicon.svg`)
+  is an original vector drawing written as code, and uses no NASA branding.
+
+The same disclosure is recorded as metadata in the root `package.json`
+(`description`) and in `apps/web/index.html` (`<meta name="ai-disclosure">`).
 
 ## Installation
 
-Use **Node 24.14.0** (`.nvmrc` and `.node-version` files) and
-**pnpm 9.15.4**, fixed by `packageManager`. Versions of direct dependencies
-are accurate and the repository maintains a single `pnpm-lock.yaml` at the root.
+Use **Node 24.14.0** (`.nvmrc` and `.node-version`) and **pnpm 9.15.4**, pinned
+by `packageManager`. Direct dependencies use exact versions, and the repository
+keeps a single `pnpm-lock.yaml` at the root.
 
 With nvm and Corepack:
 
@@ -18,429 +47,421 @@ corepack prepare pnpm@9.15.4 --activate
 pnpm install --frozen-lockfile
 ```
 
-If Corepack is not installed with your Node distribution, install it first
-`corepack@0.34.6` with `npm install --global corepack@0.34.6`.
-Do not use npm or Yarn to install project dependencies.
-The `engines` and `engine-strict` ranges reject incompatible versions.
+If your Node distribution does not ship Corepack, install it first with
+`npm install --global corepack@0.34.6`. Do not use npm or Yarn to install the
+project dependencies. The `engines` ranges and `engine-strict` reject
+incompatible versions.
 
-## Commands from root
+## Commands (from the root)
 
 ```sh
-pnpm dev        # Vite, http://localhost:5173 (or the next available port)
-pnpm build      # Checks the packages, then builds apps/web/dist
-pnpm lint       # ESLint, no warnings allowed
-pnpm typecheck  # Strict TypeScript for every package
-pnpm test       # Vitest, pure calculation and frozen manifest tests
-pnpm data:prepare  # Downloads and freezes data (network required; see “Data”)
-pnpm data:check    # Validates frozen data and the manifest offline
-pnpm data:test     # pytest, data preparation script tests
+pnpm dev           # Vite, http://localhost:5173 (or the next free port)
+pnpm build         # Type-checks the packages, then builds apps/web/dist
+pnpm lint          # ESLint, no warnings allowed
+pnpm typecheck     # Strict TypeScript for every package
+pnpm test          # Vitest: pure calculations and the frozen manifest
+pnpm data:prepare  # Downloads and freezes the data (network required, see "Data")
+pnpm data:check    # Validates the frozen data and the manifest offline
+pnpm data:test     # pytest: data preparation script tests
 ```
 
-To serve the static result locally after a build:
-`pnpm --filter @marps/web preview`.
-No business servers, databases, or Python processing are required.
+To serve the static build locally: `pnpm --filter @marps/web preview`.
+No application server, database or Python runtime is needed to run the app.
 
 ## Responsibilities and dependencies
 
 | Directory | Responsibility | Internal dependencies |
 | --- | --- | --- |
 | `apps/web` | React composition, OpenLayers integration, browser interactions | `mission-core`, `data`, `ui` |
-| `packages/mission-core` | Business types and pure calculations, without framework, DOM or network access | None |
-| `packages/data` | Manifest contracts (region, site, source), manifest reading and coverage rule | `mission-core` (types) |
+| `packages/mission-core` | Domain types and pure calculations, with no framework, DOM or network access | None |
+| `packages/data` | Manifest contracts (region, site, source), manifest loading and the coverage rule | `mission-core` (types) |
 | `packages/ui` | Design system: tokens, shadcn/ui components and mission components | None |
-| `tools/data` | Python scripts for downloading, preparation and validation, outside pnpm workspace | None |
+| `tools/data` | Python scripts that download, prepare and validate data, outside the pnpm workspace | None |
 
-The scientific catalog is the `apps/web/public/data/manifest.json` manifest
-(see “Data”).
-Jezero coordinates are approximate orientation metadata.
-Business coordinates are in planetocentric degrees, positive longitude towards
-the east; times are in seconds. Complete mission calculations fall under
-following tasks.
+The scientific catalog is the manifest `apps/web/public/data/manifest.json`
+(see "Data"). The Jezero coordinates are approximate orientation metadata.
+Domain coordinates are planetocentric degrees with longitude positive to the
+east, and durations are in seconds.
 
 ## Interface and design system
 
-On the planning screen (`apps/web`), the map occupies the entire area
-under the headband. The view selector (global or Jezero), the steps, the budget
-of time and the site sheet float on top; each panel folds up
-its title banner to release the card. Below 1024 px, the map remains on top
-and the panels scroll underneath. Until their data is integrated,
-these locations display an explicit state, on a waiting setting (limbo of
-Mars or grid) which is not data. The `#/systeme-design` page of
-the application shows the tokens, components and these states, with contents
-examples marked as such.
+On the planning screen (`apps/web`), the map fills the whole area below the
+header. The view selector (global or Jezero), the steps, the time budget and the
+site sheet float above it. Each panel collapses from its title bar to free up
+the map. Below 1024 px, the map stays on top and the panels scroll underneath.
+Until their data is loaded, these areas show an explicit state over a
+placeholder backdrop (the Mars limb or a grid) that is not data. The
+`#/systeme-design` page shows the tokens, the components and these states, with
+sample content labelled as such.
 
-The design system is called “Blue Hour”: on Mars, the daytime sky is
-caramel and the sunset is blue. The night palette is the only one
-appearance, applied from the first rendering, without local preference.
+The design system is called "Blue Hour": on Mars, the daytime sky is
+butterscotch and the sunset is blue. The night palette is the only appearance.
+It applies from the first render and has no local preference.
 
-- **A single shared state.** `apps/web/src/state/planner.ts` contains the
-reducer and selectors, testable without React; `PlannerProvider`
-exposed by Context. The panels read this state and do not recalculate anything: the
-budget arrives already calculated by `mission-core` (#14), then formatted.
-- **Four data states.** `DataState` covers loading, error, absence of
-data and insufficient coverage. Any area that depends on data in
-displays a rather than a blank.
-- **Colors.** `packages/ui/src/styles.css` tokens define a
-single “Blue Hour” palette, at the root and in the `dark` scope.
-Blue (`--primary`) carries the buttons and links; twilight blue
-(`--twilight`) preserves the atmosphere of the funds. Martian orange (`--mars`)
-highlights selections, active page, landmarks and path.
-`tokens.test.ts` fails if main text goes below 7:1, other text
-under 4.5:1 or a control border under 3:1.
-- **Accessibility.** A state is never based on color alone: ​​it carries
-also an icon, text, shape or pattern. The keyboard focus is a
-3 px solid outline defined once in `styles.css`; do not remove it
-of a component. The targets are designed for a gloved hand: 44 px high
-by default for a button, 40 at least, and the entire strip of a panel
-or the entire line of a step can be activated.
-- **Typography.** Public Without for the text, Archivo on its entire width for
-titles (`heading-display`), short labels in capitals
-(`label-caps`) and encrypted statements (`numeral-display`), served from the
-bundle, without external call.
-- **Shapes and light.** On-board instrument spirit: right angles, fillet
-blue horizon towards embers (`--horizon`) on the high edge of the panels and
-under the headband, viewfinder brackets at the bottom corners (`panel-frame`). A
-surface placed on the card is an almost opaque glass (`glass`, activated by
-the `floating` property of `Panel` and `DataState`). Light has a meaning:
-only the main action, selection and alerts shine
-(`shadow-glow`, `shadow-ember`). Do not add rounded corners or glow
-decorative one-component.
-- **Movement.** A single orchestrated moment, the powering of the panels to
-opening (`power-on`, scaled by `--power-delay`). Then a
-movement signals a loading (`scan`, `shimmer`) or responds to a gesture.
-`prefers-reduced-motion` neutralizes them all.
+- **One shared state.** `apps/web/src/state/planner.ts` holds the reducer and
+  selectors, testable without React, and `PlannerProvider` exposes them through
+  Context. Panels read this state and recompute nothing: the budget arrives
+  already computed by `mission-core` (#14) and is only formatted.
+- **Four data states.** `DataState` covers loading, error, no data and
+  insufficient coverage. Every area that depends on data shows one of these
+  states instead of a blank.
+- **Colors.** The tokens in `packages/ui/src/styles.css` define a single "Blue
+  Hour" palette, at the root and in the `dark` scope. Blue (`--primary`) is used
+  for buttons and links. Twilight blue (`--twilight`) sets the mood of the
+  backgrounds. Martian orange (`--mars`) highlights selections, the active page,
+  markers and the route. `tokens.test.ts` fails if the main text contrast drops
+  below 7:1, other text below 4.5:1, or a control border below 3:1.
+- **Accessibility.** A state never relies on color alone: it also has an icon,
+  text, shape or pattern. Keyboard focus is a solid 3 px outline defined once in
+  `styles.css`; do not remove it in a component. Targets are sized for a gloved
+  hand: 44 px high by default for a button, 40 px at least, and the whole header
+  of a panel or the whole row of a step is clickable.
+- **Typography.** Public Sans for body text. Archivo at full width for titles
+  (`heading-display`), short uppercase labels (`label-caps`) and numeric
+  readouts (`numeral-display`). Fonts are bundled, with no external request.
+- **Shapes and light.** The style of an onboard instrument: square corners, a
+  blue-to-ember horizon line (`--horizon`) on the top edge of panels and under
+  the header, and viewfinder brackets on the bottom corners (`panel-frame`). A
+  surface floating over the map is nearly opaque glass (`glass`, enabled by the
+  `floating` prop of `Panel` and `DataState`). Light carries meaning: only the
+  main action, the selection and alerts glow (`shadow-glow`, `shadow-ember`). Do
+  not add rounded corners or decorative glow to a component.
+- **Motion.** One orchestrated moment: panels power on when they open
+  (`power-on`, staggered by `--power-delay`). After that, motion only signals
+  loading (`scan`, `shimmer`) or responds to a gesture.
+  `prefers-reduced-motion` disables all of it.
 
-To add a shadcn/ui component, launch the CLI from `packages/ui`:
+To add a shadcn/ui component, run the CLI from `packages/ui`:
 
 ```sh
 pnpm dlx shadcn@4.23.0 add dialog
 ```
 
-Then, in the generated file: replace the `@/…` imports with imports
-relative (ESLint refuses them, Vite does not resolve them since `apps/web`),
-check that the CLI has not added a dependency `cn` to `package.json`,
-remove classes `outline-none` and `focus-visible:ring-*` in favor of focus
-global, and export the component from `src/index.ts`.
+Then, in the generated file: replace the `@/…` imports with relative imports
+(ESLint rejects them, and Vite cannot resolve them from `apps/web`), check that
+the CLI did not add a `cn` dependency to `package.json`, remove the
+`outline-none` and `focus-visible:ring-*` classes in favor of the global focus
+style, and export the component from `src/index.ts`.
 
 ## Conventions
 
-- All packages are private. Any internal dependency uses `workspace:*`.
-- Import public APIs by `@marps/mission-core`,
-`@marps/data` or `@marps/ui`, without a path to their internal files.
-- Shared package exports point to TypeScript sources: Quickly
-and Vitest transform them directly. No prior build or watcher
-packages is not necessary for development. Their builds are type-checked;
-only `apps/web` issues the deployable bundle. These packages are not intended for
-be executed directly by Node or published.
-- Keep the graph above without cycle; no packages depend on `apps/web`.
-ESLint prohibits imports of React, OpenLayers and other internal packages
-in `mission-core`. Browser APIs are not included by TypeScript.
-- Place the `*.test.ts` tests near the calculations; `pnpm test` has discovered them since
-the root. Do not replace missing data with fictitious data
-presented as scientific.
-- Import styles shared via `@marps/ui/styles.css`. The styles
-OpenLayers are imported by the application, which has this dependency.
-Tailwind is compiled by the Vite plugin from `apps/web`; the classes used
-in `packages/ui/src` are detected by the `@source` directive of this file.
+- All packages are private. Internal dependencies use `workspace:*`.
+- Import public APIs from `@marps/mission-core`, `@marps/data` or `@marps/ui`,
+  never through a path to their internal files.
+- Shared package exports point to TypeScript sources, which Vite and Vitest
+  transform directly. No prior package build or watcher is needed during
+  development. Package builds only type-check; `apps/web` alone produces the
+  deployable bundle. The packages are not meant to be run directly by Node or
+  published.
+- Keep the dependency graph above acyclic; no package depends on `apps/web`.
+  ESLint forbids importing React, OpenLayers and other internal packages in
+  `mission-core`, and TypeScript does not include browser APIs there.
+- Put `*.test.ts` files next to the calculations; `pnpm test` finds them from
+  the root. Never replace missing data with fictional data presented as
+  scientific.
+- Import shared styles through `@marps/ui/styles.css`. OpenLayers styles are
+  imported by the application, which owns that dependency. Tailwind is compiled
+  by the Vite plugin in `apps/web`; classes used in `packages/ui/src` are picked
+  up by the `@source` directive of that file.
 
 ## Data
 
 The MVP data is **frozen in the repository** under `apps/web/public/data`
-(approximately 6.0 MB) and served statically at the address `/data/`. `pnpm build`,
-`pnpm test` and the app never contact NASA or USGS.
+(about 6.0 MB) and served statically at `/data/`. `pnpm build`, `pnpm test` and
+the app never contact NASA or USGS for it.
 
 | Dataset | Delivery | Content |
 | --- | --- | --- |
-| `mola-colorized-relief` | remote (Trek) | Global orientation background, not fixed |
-| `jezero-hirise-mosaic` | frozen | HiRISE WMTS tiles, zooms 12 to 16, on the sector |
-| `jezero-hirise-dem`, `-slope`, `-hillshade` | frozen | Altitudes, slopes and shaded relief HiRISE, aggregated at 4 m |
-| `jezero-ctx-dem`, `-slope`, `-hillshade` | frozen | The same grids at 20 m (CTX), in retreat |
-| `jezero-sampling-sites` | frozen | Skinner Ridge, Wildcat Ridge and Amalik (GeoJSON NASA) |
-| `jezero-themis-night-ir` | frozen | THEMIS night infrared (Mars Odyssey), 4 level 9 tiles covering the entire HiRISE mosaic; qualitative contrast, not a temperature |
+| `mola-colorized-relief` | Remote (Trek) | Global orientation background, not frozen |
+| `jezero-hirise-mosaic` | Frozen | HiRISE WMTS tiles, zoom levels 12 to 16, over the sector |
+| `jezero-hirise-dem`, `-slope`, `-hillshade` | Frozen | HiRISE elevation, slope and hillshade, aggregated to 4 m |
+| `jezero-ctx-dem`, `-slope`, `-hillshade` | Frozen | The same grids at 20 m (CTX), used as a fallback |
+| `jezero-sampling-sites` | Frozen | Skinner Ridge, Wildcat Ridge and Amalik (NASA GeoJSON) |
+| `jezero-themis-night-ir` | Frozen | THEMIS night-time infrared (Mars Odyssey), 4 level-9 tiles covering the whole HiRISE mosaic. Qualitative contrast, not a temperature |
+| `jezero-meda-temperature`, `-pressure` | Frozen | MEDA air temperature and pressure for sol 500, one value per Martian hour |
 
-| `jezero-meda-temperature`, `-pressure` | frozen | MEDA soil temperature and pressure 500, one value per Martian hour |
+The manifest separates **global orientation** (region `global`) from **Jezero
+detail** (region `jezero`). Each capability (`imagery-hirise`, `terrain-dem`,
+`terrain-slope`, `science-sites`, `thermal-themis`…) has a status, and a
+capability that is not prepared is `unavailable` with its reason. A background
+layer can never enable missing data: `capabilityStatus` in `@marps/data` only
+keeps the datasets declared for the requested region and returns the lowest
+status.
 
-The manifest separates the **global orientation** (region `global`) from the **detail of
-Jezero** (region `jezero`). Each capacity (`imagery-hirise`, `terrain-dem`,
-`terrain-slope`, `science-sites`, `thermal-themis`…) carries its status; an unprepared capacity
-is `unavailable` with his reason. A background can never activate data
-absent: `capabilityStatus` of `@marps/data` only retains declared games
-for the requested region and takes the lowest status.
+Each dataset records its identifier, URL, instrument, date or sol, units, CRS,
+extent (planetocentric degrees, longitude positive to the east), resolution,
+status, source version, credit, terms of use, and the SHA-256 checksum of the
+upstream source and of each frozen file. An unknown value stays `null` (date,
+sol, vertical datum). Missing data is never turned into zero: images use
+transparent pixels, elevation and slope use `NaN`.
 
-Each dataset maintains identifier, URL, instrument, date/sol, units,
-CRS, right-of-way (planetocentric degrees, positive longitude towards the east),
-resolution, status, source version, credit, conditions of use, imprint
-SHA-256 of the upstream source and each frozen file. An unknown value remains
-`null` (date, sol, vertical datum); an absence of data is never converted
-to zero: transparent pixels for images, `NaN` for altitude and slope.
+Elevation and slope are float32 grids (`NaN` means no data). The manifest gives
+their origin, cell size, projection and vertical datum. `terrainDataset`,
+`loadGrid` and `sampleGrid` in `@marps/data` read them. HiRISE is preferred and
+CTX takes over where it is missing. The cell size is not a navigation accuracy.
+Details and limits: [`docs/relief-jezero.md`](docs/relief-jezero.md).
 
-Altitudes and slopes are float32 grids (`NaN` = no data) whose
-manifest gives the origin, step, projection and vertical datum.
-`terrainDataset`, `loadGrid` and `sampleGrid` of `@marps/data` read them; HiRISE
-is preferred, CTX takes over if missing. The mesh size is not a
-navigation accuracy. Details and limitations: [`docs/relief-jezero.md`](docs/relief-jezero.md).
+MEDA conditions are **past measurements taken at the rover**, never a forecast
+along the route. Preparation reads the full CSV of each sol and its PDS4 label:
+the MD5 checksum and the column unit must match, or it stops. Only one column is
+kept per measurement: `ATS_LOCAL_TEMP1` (mast sensor at 1.45 m, the least heated
+by the rover) for temperature, and `PRESSURE` from the derived product for
+pressure. The five temperature sensors are never averaged. Each hour keeps the
+median of its valid values, their count and the measured window (MEDA only
+measures part of each hour). Values that are empty, non-numeric, equal to the
+`9999999999` sentinel or physically impossible (outside 120–330 K or
+100–1300 Pa) are counted and discarded. An hour with no valid value stays `null`
+and shows "unavailable". Values are stored in kelvins and pascals;
+`kelvinToCelsius` (K − 273.15) converts them for display. The pressure
+uncertainty is not used: its column is empty and its label declares it in
+kelvins. The location is the last NASA waypoint (`M20_waypoints.json`) before
+the sol. A sol during which the rover drove is rejected, because its
+measurements would come from several places. `loadMedaConditions`,
+`conditionsAt` and `availableHours` in `@marps/data` read them.
 
-MEDA conditions are **measurements passed to the rover**, never a forecast
-on the course. The preparation reads the complete CSV of each soil and its label
-PDS4: the MD5 fingerprint and the column unit must match, otherwise it
-stops. Only one column is kept per measurement: `ATS_LOCAL_TEMP1` (sensor of
-mast at 1.45 m, the least heated by the rover) for the temperature, `PRESSURE` of
-derivative product for pressure. The five sensors are never averaged.
-Each hour keeps the median of valid values, their number and the window
-measured (MEDA only measures part of the hour). An empty, non-numeric value,
-equal to the `9999999999` sentinel or physically impossible (except 120–330 K or
-100–1300 Pa) is counted and discarded; a time without a valid value remains `null`
-and displays “unavailable”. The values ​​remain in kelvins and pascals;
-`kelvinToCelsius` (K − 273.15) converts them to display. The uncertainty of
-pressure is not used: the column is empty and its label declares it as
-kelvins. The location is the last NASA stop (`M20_waypoints.json`) before ground;
-a ground where the rover has rolled is refused, because its measurements would come from several
-places. `loadMedaConditions`, `conditionsAt` and `availableHours` of
-`@marps/data` read them.
-
-The wind is no longer published after ground 315 (damaged sensor): the capacity
-`weather-wind` is declared unavailable, with its reason and source, and
-`windStatus` reads it. Preparation stops if a wind file appears for
-prepared soil. Inventory: [`docs/meteo-et-dangers.md`](docs/meteo-et-dangers.md).
+Wind is no longer published after sol 315 (damaged sensor). The `weather-wind`
+capability is declared unavailable with its reason and source, and `windStatus`
+reads it. Preparation stops if a wind file appears for a prepared sol.
+Inventory: [`docs/meteo-et-dangers.md`](docs/meteo-et-dangers.md).
 
 ### Prepare and check
 
-Preparation is an explicit step. She asks [uv](https://docs.astral.sh/uv/)
-and accesses the network; the Python environment is reproducible thanks to
+Preparation is an explicit step. It requires [uv](https://docs.astral.sh/uv/)
+and network access. The Python environment is reproducible through
 `tools/data/pyproject.toml` (exact versions) and `tools/data/uv.lock`.
 
 ```sh
 pnpm data:prepare   # downloads, crops, computes checksums and writes the manifest
-pnpm data:check     # reads frozen files without network access
+pnpm data:check     # reads the frozen files without network access
 pnpm data:test      # script tests
 ```
 
-`data:prepare` writes to temporary folder, validates, then replaces
-`apps/web/public/data` ; a network or validation failure leaves the data
-current intact. The DEM CTX, the block of lines read in the DEM HiRISE (103 MB
-on 1.8 GB, per request `Range`) and MEDA CSVs are cached in `tools/data/.cache` (ignored
-by Git) and their footprint is checked: if an upstream source changes, the preparation
-stops for review. The sector, URLs and credits are in
-`tools/data/marps_data/spec.py`.
+`data:prepare` writes to a temporary folder, validates it, then replaces
+`apps/web/public/data`. A network or validation failure leaves the current data
+untouched. The CTX DEM, the block of rows read from the HiRISE DEM (103 MB out
+of 1.8 GB, through HTTP `Range` requests) and the MEDA CSVs are cached in
+`tools/data/.cache` (ignored by Git) and their checksums are verified: if an
+upstream source changes, preparation stops for review. The sector, URLs and
+credits are defined in `tools/data/marps_data/spec.py`.
 
-`data:check` control: required fields, valid footprints and coordinates, sites in
-area, file sizes and footprints, units, altitudes `NaN`
-(no sentinel value), transparent pixels, grid transformation,
-presence of each site on a valid mesh, slopes between 0° and 90° on the same
-grid as their altitudes, 24 hours MEDA by ground with a value only
-where valid measurements exist, position of the rover in the sector, and
-status/capacity consistency.
-Research notes are in [`docs/`](docs/) and control samples
-in [`data/research/`](data/research/).
+`data:check` verifies: required fields, valid checksums and coordinates, sites
+inside the sector, file sizes and checksums, units, `NaN` elevations (no
+sentinel value), transparent pixels, grid transforms, each site lying on a valid
+cell, slopes between 0° and 90° on the same grid as their elevations, 24 MEDA
+hours per sol with a value only where valid measurements exist, the rover
+position inside the sector, and consistency between statuses and capabilities.
+Research notes are in [`docs/`](docs/) and reference samples in
+[`data/research/`](data/research/).
 
-## Variables and deployment
+## Environment variables and deployment
 
-No environment variables are required. Future variables `VITE_*`
-will be public and integrated into the bundle: never place any secrets there.
-Document each new variable and provide a `.env.example` if necessary.
-Local `.env*` files are ignored. The deployment must serve the content of
-`apps/web/dist`. The root configuration is in `vercel.json`; see the
-[deployment guide](docs/deploiement-vercel.md) for previews, recipe
-and reverting to a previous version.
+No environment variable is required. Any future `VITE_*` variable will be public
+and embedded in the bundle, so never put a secret there. Document each new
+variable and provide a `.env.example` when needed. Local `.env*` files are
+ignored by Git. The deployment serves the content of `apps/web/dist`. The root
+configuration is in `vercel.json`; see the
+[deployment guide](docs/deploiement-vercel.md) for previews, staging and
+rollback.
 
 ## Continuous integration
 
-The workflow [CI](.github/workflows/ci.yml) runs on each pull request and
-each push on `main`. It reads Node in `.node-version` and pnpm in
-`package.json`, install with `--frozen-lockfile`, then run from root
-`pnpm lint`, `pnpm typecheck`, `pnpm test` and `pnpm build`.
-The pnpm store cache depends on `pnpm-lock.yaml`; installation remains mandatory.
-An error stops the job. Only reading of the deposit is authorized.
+The [CI workflow](.github/workflows/ci.yml) runs on every pull request and every
+push to `main`. It reads the Node version from `.node-version` and the pnpm
+version from `package.json`, installs with `--frozen-lockfile`, then runs
+`pnpm lint`, `pnpm typecheck`, `pnpm test` and `pnpm build` from the root. The
+pnpm store cache is keyed on `pnpm-lock.yaml`; installation still always runs.
+Any error stops the job. The workflow only has read access to the repository.
 
-After success, the artifact `web-dist` contains `apps/web/dist` and remains available
-seven days in the GitHub Actions run page. Tests use inputs
-local, without secrecy or NASA calls. The base is currently testing the units of
-duration ; return tests, distances and missing data will accompany the
-mission engine in its dedicated exits.
+On success, the `web-dist` artifact contains `apps/web/dist` and stays available
+for seven days on the GitHub Actions run page. Tests use local inputs, with no
+secrets and no NASA requests.
 
-To reproduce the controls, from a clean clone, follow the installation
-above then run the four commands in that order. To check the
-regression detection, temporarily add TypeScript assignment
-incompatible in `mission-core`: `pnpm typecheck` must fail. Replace
-temporarily the factor `60` of `minutesToSeconds` by `59` must fail
-`pnpm test`. Cancel these changes before rerunning the checks.
+To reproduce the checks from a clean clone, follow the installation steps above,
+then run the four commands in that order. To confirm that regressions are
+caught, temporarily add an incompatible TypeScript assignment in
+`mission-core`: `pnpm typecheck` must fail. Temporarily changing the `60` factor
+of `minutesToSeconds` to `59` must make `pnpm test` fail. Revert these changes
+before running the checks again.
 
-References: [workspaces pnpm](https://pnpm.io/workspaces),
-[Vite](https://vite.dev/guide/) guide.
+References: [pnpm workspaces](https://pnpm.io/workspaces),
+[Vite guide](https://vite.dev/guide/).
 
 ## Global Mars map and offline use (#7)
 
-The map is mounted in #5's `MapStage`, uses `PlannerProvider` view state, and
-consumes #6's dataset descriptors. The existing planner, design system, French
-interface, theme and panels are preserved. The app opens on the interactive global Mars
-view; drag to pan and use the wheel or lower-right zoom controls to explore.
-“Entire Mars” restores the full-planet extent; the Jezero marker or “Open Jezero” returns to
-the detailed sector. Detailed planning remains unavailable outside Jezero.
+The map is mounted in the `MapStage` from #5, uses the `PlannerProvider` view
+state and consumes the dataset descriptors from #6. The app opens on the
+interactive global view of Mars: drag to pan, and use the mouse wheel or the
+zoom controls at the bottom right to explore. "Mars whole" restores the full
+planet. The Jezero marker or "Open Jezero" returns to the detailed sector.
+Detailed planning is unavailable outside Jezero.
 
-MOLA uses the manifest's NASA Trek URL and attribution, with a planetocentric
-geographic grid registered as `MARS:104905` (NASA identifier
-`urn:ogc:def:crs:EPSG::104905`). Origin: −180°, 90°; 256-pixel tiles;
-2 × 1 tiles at level 0; source levels 0–7. No Earth Web Mercator or Earth distance
-calculation is used. Two bundled NASA level-0 JPEGs under `public/data/mola`
-provide a coarse global overview without NASA connectivity. The nominal
-463 m/pixel source sampling does not describe that overview's resolution.
+MOLA uses the NASA Trek URL and attribution from the manifest, with a
+planetocentric geographic grid registered as `MARS:104905` (NASA identifier
+`urn:ogc:def:crs:EPSG::104905`). Origin −180°, 90°; 256-pixel tiles; 2 × 1 tiles
+at level 0; source levels 0–7. No Earth Web Mercator projection or Earth
+distance calculation is used. Two NASA level-0 JPEGs bundled under
+`public/data/mola` give a coarse global overview without any NASA connection.
+The nominal 463 m/pixel sampling of the source does not describe the resolution
+of that overview.
 
-Jezero entry displays the prepared local HiRISE tiles using the manifest's
-extent, zoom ranges, URLs, and credit. It never requests a local tile outside
-the frozen ranges. Further detailed-map tools and site overlays belong to #8/#9.
-The approximate global Jezero marker is not used as a scientific site coordinate.
+Entering Jezero shows the prepared local HiRISE tiles using the extent, zoom
+ranges, URLs and credit from the manifest. It never requests a local tile
+outside the frozen ranges. The approximate global Jezero marker is not used as a
+scientific site coordinate.
 
-Production builds precache all final assets, fonts, lazy-loaded design-system
-code, the manifest, and prepared local datasets. After the French offline-ready
-message appears, reload works with internet disconnected. First installation
-requires a connection or distribution of the static build over a local server;
-HTTPS or localhost is required for service workers. Development mode does not
-install a worker. Browser storage clearing/eviction requires preparing again.
-Successfully fetched additional global MOLA tiles are cached with a 180-tile
-limit; unvisited detail falls back to the bundled overview. This is not a complete
-high-resolution planetary download or a guarantee of mission suitability.
+Production builds precache all final assets, fonts, the lazy-loaded design
+system code, the manifest and the prepared local datasets. Once the
+"offline-ready" message appears, reloading works without internet. The first
+installation needs a connection, or the static build served from a local
+server; service workers require HTTPS or localhost. Development mode does not
+install a worker. Clearing or evicting browser storage requires preparing again.
+Additional global MOLA tiles that loaded successfully are cached up to 180
+tiles; unvisited detail falls back to the bundled overview. This is neither a
+complete high-resolution download of the planet nor a guarantee of mission
+suitability.
 
-Installation failure shows an error and retry action; has stalled installation
-times out after 30 seconds. Waiting updates ask users to close all app tabs and
-reopen. Cache versions hash worker logic and every final file, including HTML and
-public data. Regular CI tests cover failure/timeout/update states, public-data
-and HTML invalidation, and cached navigation/assets without network access.
+An installation failure shows an error and a retry action; a stalled
+installation times out after 30 seconds. A pending update asks users to close
+every app tab and reopen it. Cache versions hash the worker logic and every
+final file, including HTML and public data. CI tests cover failure, timeout and
+update states, invalidation of public data and HTML, and cached navigation and
+assets without network access.
 
-Source of the bundled overview, verified 2026-11-14: NASA / JPL-Caltech / GSFC,
-MGS MOLA, distributed by NASA Trek:
+Source of the bundled overview, checked on 2026-11-14: NASA / JPL-Caltech /
+GSFC, MGS MOLA, distributed by NASA Trek:
 https://trek.nasa.gov/tiles/Mars/EQ/Mars_MGS_MOLA_ClrShade_merge_global_463m/1.0.0/WMTSCapabilities.xml
 
-Local validation: lint, typecheck, 148 JavaScript tests, production build, the
-frozen-data integrity check, and 19 Python tests pass. Headless Chromium verified
-the planner shell, global/Jezero navigation, rendered local imagery, all 108
-precached resources, reload without internet, mobile width, and no page errors
-or local 404s with NASA blocked. Live NASA JPEGs returned HTTP 200; retry
-recovered after restoring the blocked service, and keyboard navigation emitted
-only in-range global tile URLs. A deployed check of this feature branch remains
-pending publication; earlier `dev` deployments do not contain this implementation.
+Local validation at the time of this feature: lint, typecheck, 148 JavaScript
+tests, the production build, the frozen-data integrity check and 19 Python tests
+passed. Headless Chromium verified the planner shell, global and Jezero
+navigation, rendered local imagery, all 108 precached resources, reload without
+internet, mobile width, and no page errors or local 404s with NASA blocked. Live
+NASA JPEGs returned HTTP 200, retry recovered once the blocked service was
+restored, and keyboard navigation only requested in-range global tile URLs.
 
 ## Tablet and wrist layouts
 
-Below 1280 CSS pixels, or on screens at most 600 pixels high, use the Map /
-Navigation mission. Map keeps the map within the viewport; Mission exposes the
-existing panels in a separate scrollable area. On very small wrist displays,
-settings and theme controls remain accessible in Mission. Map options and source
-information open from “Map and sources”; zoom stays above attribution.
+Below 1280 CSS pixels, or on screens at most 600 pixels high, a Map / Mission
+navigation appears. Map keeps the map inside the viewport; Mission shows the
+panels in a separate scrollable area. On very small wrist displays, settings
+remain accessible in Mission. Map options and source information open from "Map
+and sources"; zoom stays above the attribution.
 
-Map controls and compact navigation/view selectors have targets at least 44 × 44
-CSS pixels. Coarse-pointer devices also receive larger shared controls. The map
-viewport owns pan/pinch gestures; mission panels and options scroll independently.
-No viewport setting disables browser zoom.
+Map controls and the compact navigation and view selectors have targets of at
+least 44 × 44 CSS pixels. Coarse-pointer devices also get larger shared
+controls. The map viewport owns pan and pinch gestures; mission panels and
+options scroll independently. No viewport setting disables browser zoom.
 
 Browser viewport checks covered 240×240, 320×320, 390×844, 768×1024, 1024×768,
-844×390, and 1280×800. Compact map controls remain visible without horizontal
-scroll or control overlap. Mission panels and map options remain accessible;
-map dragging and zooming were exercised. The production worker hid the 108 built
-resources, including responsive styles and the prepared datasets. These checks
-use browser simulation; physical tablet/wrist hardware and glove input remain
-unverified.
+844×390 and 1280×800. Compact map controls stay visible without horizontal
+scrolling or overlapping controls. Mission panels and map options stay
+accessible, and map dragging and zooming were exercised. The production worker
+precached the 108 built resources, including responsive styles and the prepared
+datasets. These checks use browser simulation; physical tablet or wrist
+hardware and glove input remain unverified.
 
 ## Jezero mosaic exploration (#8)
 
-The Jezero view starts at the prepared mission sector and allows exploration of
-NASA's full declared HiRISE footprint (77.2229331–77.583964° E,
-18.3067994–18.669315° N), at WMTS levels 0–17. The pinned capabilities supply
-product bounds and matrix dimensions through optional manifest `wmts` metadata.
-Existing schema-2 readers remain compatible. The 91 prepared tiles at levels
-12–16 retain their original local paths and integrity hashes; other valid tiles
-use the NASA template, with at most eight simultaneous map tile loads and a
-15-second request timeout. Retry and return-to-prepared-sector actions remain
-available after failures. The Mars/Jezero switch preserves planner state.
+The Jezero view opens on the prepared mission sector and lets users explore the
+full HiRISE footprint declared by NASA (77.2229331–77.583964° E,
+18.3067994–18.669315° N), at WMTS levels 0–17. The pinned capabilities document
+provides product bounds and matrix dimensions through optional `wmts` metadata
+in the manifest. Existing schema-2 readers remain compatible. The 91 prepared
+tiles at levels 12–16 keep their original local paths and integrity checksums.
+Other valid tiles use the NASA URL template, with at most eight map tiles
+loading at once and a 15-second request timeout. Retry and "return to prepared
+sector" actions remain available after failures. Switching between Mars and
+Jezero preserves the planner state.
 
-Yellow outlines mark product bounds, blue dashes the mission sector, and white
-point outlines the prepared tile envelope at the current integer zoom. Patterned
-background means no displayed image; a transparent pixel or a failed request is
-not evidence of navigable terrain. Scientific capabilities remain scoped to the
-original mission sector. The three manifest sites select their existing sheets;
-overlapping touch hits offer a named choice.
+Yellow outlines mark the product bounds, blue dashes the mission sector, and a
+white dotted outline the prepared tile envelope at the current integer zoom. A
+patterned background means no image is displayed; a transparent pixel or a
+failed request is not evidence of navigable terrain. Scientific capabilities
+stay limited to the original mission sector. The three manifest sites open their
+site sheets; when touch targets overlap, a named choice is offered.
 
-The 100 CSS-pixel scale uses the manifest Mars radius (3,396,190 m), angular
-resolution and cosine of the center latitude. Coordinates are planetocentric,
-east-positive longitude/latitude. Nominal 0.25 m/pixel source sampling is distinct
-from displayed sampling and does not establish positioning accuracy.
+The 100 CSS-pixel scale bar uses the Mars radius from the manifest
+(3,396,190 m), the angular resolution and the cosine of the center latitude.
+Coordinates are planetocentric, with longitude positive to the east. The nominal
+0.25 m/pixel source sampling differs from the displayed sampling and does not
+establish positioning accuracy.
 
-Production installation includes prepared resources. Extra streamed HiRISE tiles
-are not promised after offline reload: their bounded persistence belongs to #24.
-NASA connectivity is optional for the prepared-sector workflow. Validate browser
-rendering, disconnected reload, and physical tablet/glove interaction before
-operational use; these have not been exercised for this implementation.
+The production installation includes the prepared resources. Extra HiRISE tiles
+streamed from NASA are not guaranteed after an offline reload; their bounded
+persistence belongs to #24. A NASA connection is optional for the
+prepared-sector workflow. Browser rendering, disconnected reload and physical
+tablet or glove interaction have not been tested for this feature and must be
+validated before operational use.
 
 ### Perseverance historical context (#20)
 
-The Jezero sector panel includes an optional Perseverance history toggle. It
-shows NASA-published positions and separate drive segments, not a validated
-human route or current telemetry. Select a feature on the map or use the
-keyboard-accessible list to inspect its sol/RMC. Overlapping rover hits narrow
-the list; science sites keep selection priority. Mission steps are unaffected.
+The Jezero sector panel has an optional Perseverance history toggle. It shows
+NASA-published positions and separate drive segments, not a validated human
+route or live telemetry. Select a feature on the map, or use the
+keyboard-accessible list, to inspect its sol and RMC (rover motion counter).
+Overlapping rover hits narrow down the list; science sites keep selection
+priority. Mission steps are not affected.
 
-The prepared extract includes complete segments intersecting the mission sector
-and their available endpoint waypoints. Outside it, missing history means no
-prepared data, not evidence that the rover never visited. Original source
-coordinates are preserved; five endpoint discrepancies are listed in the
-snapshot quality details. No snapping, gap filling, site substitution or vertical
-alignment is performed. CRS84 in the upstream metadata is interpreted explicitly
-as Mars planetocentric east-positive longitude/latitude, not Earth coordinates.
+The prepared extract includes the complete segments that intersect the mission
+sector and their available endpoint waypoints. Outside the sector, missing
+history means no prepared data, not proof that the rover never went there.
+Source coordinates are kept as published; five endpoint discrepancies are listed
+in the snapshot quality details. No snapping, gap filling, site substitution or
+vertical alignment is applied. The `CRS84` in the upstream metadata is
+interpreted explicitly as Mars planetocentric longitude and latitude, positive
+to the east, not as Earth coordinates.
 
-History files ship with the production PWA and are included in its versioned
-precache. After a successful online/local installation and offline-ready status,
-the layer needs no NASA connection. Failed history loads offer retry without
-blocking imagery or the mission. Production offline/tablet interaction still
-requires acceptance testing; the automatic checks do not establish it.
+History files ship with the production PWA and are part of its versioned
+precache. After a successful installation and the offline-ready status, the
+layer needs no NASA connection. A failed history load offers a retry without
+blocking imagery or the mission. Offline and tablet interaction in production
+still need acceptance testing; automated checks do not establish them.
 
 ## Missions, camps and activities (#11)
 
-Navigation at base/on mission separates preparation and monitoring. The theme,
-the map and the Panel, Button and StepList components are preserved.
+An "At base" / "On mission" navigation separates preparation from tracking.
 
-### At the base: missions, models and camps
+### At base: missions, templates and camps
 
-A single **Mission** panel has three tabs: **Prepare** (the wizard, for
-a mission or a model), **Camps** (the camp catalog) and **Missions**
-(recorded missions, models and history). A recorded mission is
-starts directly from the Missions tab. A new mission can
-always start from an existing model.
-Creation follows three steps:
+A single **Mission** panel has three tabs: **Prepare** (the wizard, for a
+mission or a template), **Camps** (the camp catalog) and **Missions** (saved
+missions, templates and history). A saved mission starts directly from the
+Missions tab. A new mission can always start from an existing template.
+Creation has three steps:
 
 1. Objective and name: choose reconnaissance, observation, photography or
-levy. A name is proposed automatically and remains modifiable. A
-new mission can take over a saved model without modifying this model.
-2. Camp and route: select a camp already registered, add stages
-from the catalog or by contact details, reorder the visits and define their
-activities (photo, observation, sampling) and durations in minutes. A mission
-requires a camp and at least one stage; a template can leave them to complete.
-3. Verification: consult the summary, set available time, speed and
-reserve, then save. Startup is suggested after recording.
+   sampling. A name is suggested automatically and can be edited. A new mission
+   can reuse a saved template without changing that template.
+2. Camp and route: select a saved camp, add stops from the catalog or by
+   coordinates, reorder the visits and define their activities (photo,
+   observation, sampling) and durations in minutes. A mission requires a camp
+   and at least one stop; a template can leave them for later.
+3. Review: check the summary, set the available time, speed and reserve, then
+   save. Starting the outing is offered after saving.
 
-The **Camps** tab allows you to search among existing camps or to
-save a new one, then edit or delete them. In step 2,
-the “Create camp” button opens this tab. Save a camp does not select
-nor does it modify the camp of a mission in preparation. The missions keep a copy of the chosen camp,
-including if the catalog is subsequently modified.
+The **Camps** tab lets users search existing camps or save a new one, then edit
+or delete them. In step 2, the "Create a camp" button opens this tab. Saving a
+camp neither selects nor changes the camp of a mission being prepared. Missions
+keep a copy of the chosen camp, even if the catalog changes later.
 
-Destructive actions require confirmation. A message indicates errors
-storage. Readiness checks are only available in Jezero.
-The camp catalog remains viewable regardless of the map view.
+Destructive actions ask for confirmation. A message reports storage errors.
+Readiness checks are only available at Jezero. The camp catalog stays available
+whatever the map view.
 
 ### On a mission
 
-Start creates an independent copy of the plan and resets the checkmarks.
-Modifying a model or mission at the base does not modify the current output.
-The reducer prohibits configuration changes in tracking. The route,
-checkable activities and site sheets remain accessible; the settings
-and allocations are read-only. The tasks of the cards remain distinct
-activities of the visits and are not automatically added to them.
+Starting creates an independent copy of the plan and clears the checkmarks.
+Editing a template or a mission at base does not change the outing in progress.
+The reducer forbids configuration changes during tracking. The route, the
+activities to check off and the site sheets remain accessible; settings and
+time allocations are read-only. Tasks from the site sheets stay separate from
+the visit activities and are not added to them automatically.
 
-The tracking is automatically saved on this device and restored to the
-reloading. Each output has an updated history entry with
-its checkmarks; starting another exit keeps the previous ones. History
-indicates the last save date and does not claim that an output is
-finished. The camp–stages–camp geometry connects direct segments: it does not
-constitute a validated practicable path. The Budget panel shows the complete
+Tracking is saved automatically on the device and restored on reload. Each
+outing has a history entry updated with its checkmarks; starting another outing
+keeps the previous ones. History shows the last save date and does not claim
+that an outing is finished. The camp–stops–camp geometry joins straight
+segments; it is not a validated traversable path. The Budget panel shows the complete
 planned mission budget, independently of tracking checkmarks.
 
 ### Mission time budget (#14)
@@ -472,96 +493,95 @@ after adapting the first stop.
 
 ### Storage and simulation data
 
-IndexedDB `marps-missions` version 3 separates `camps`, `missions`, `templates`,
-`tracking` and `history`. Migrations retain old data. THE
-existing preparations remain in missions; they are not reclassified
-automatically as templates. The missions carry `schemaVersion: 1`, their
-identity, type (optional for old saves), name, region, camp,
-ordered steps, activities and checkmarks, parameters, assumptions and work of
-files. General times are in seconds, speed in m/s and times
-of activities in minutes. Negative/non-finite values, zero velocity and
-a reserve greater than the available duration are refused.
+IndexedDB `marps-missions` version 3 separates `camps`, `missions`,
+`templates`, `tracking` and `history`. Migrations keep existing data. Existing
+preparations stay in missions and are not automatically reclassified as
+templates. Missions carry `schemaVersion: 1`, their identity, type (optional for
+older saves), name, region, camp, ordered stops, activities and checkmarks,
+settings, assumptions and site-sheet work. General durations are in seconds,
+speed in m/s and activity durations in minutes. Negative or non-finite values, a
+zero speed and a reserve longer than the available time are rejected.
 
-The `apps/web/src/storage/missionDatabase.ts` repository constitutes the point to
-expand for a future shared catalog. There is currently no server,
-neither multi-crew synchronization nor telemetry. Clear data from
-browser deletes this database.
+The repository `apps/web/src/storage/missionDatabase.ts` is the extension point
+for a future shared catalog. There is currently no server, no multi-crew
+synchronization and no telemetry. Clearing browser data deletes this database.
 
-### Local backup and restore (#18)
+### Local save and restore (#18)
 
-The current preparation is also automatically saved in
-`localStorage`, under the key `marps-mission-draft`, with the mission diagram
-versioned. She finds her name, her camp, her route, her activities, her
-Valid settings and files work after reloading. The assistant
-resumes at the first step; a still invalid form entry is not
-not recorded. The **Save Mission** button keeps a copy in
-the existing IndexedDB catalog; models, outputs and histories remain there
-separated from the draft. Modifying a preparation does not overwrite this copy before
-a new explicit recording.
+The current preparation is also saved automatically in `localStorage`, under the
+key `marps-mission-draft`, with the versioned mission schema. Its name, camp,
+route, activities, valid settings and site-sheet work are restored after a
+reload. The wizard resumes at the first step; a form entry that is still invalid
+is not saved. The **Save mission** button stores a copy in the existing
+IndexedDB catalog, where templates, outings and history stay separate from the
+draft. Editing a preparation does not overwrite that copy until it is saved
+again explicitly.
 
-New backups keep the identifiers in `dataReferences`,
-versions and SHA-256 fingerprints of sources in the region. The old missions
-v1 without this field remain readable; the references already registered are
-retained upon reopening. No rasters or tile caches are serialized
-in `localStorage`: map resources remain in caches
-of the application.
+New saves keep the identifiers, versions and SHA-256 checksums of the region's
+sources in `dataReferences`. Older v1 missions without this field stay readable,
+and references already stored are kept when a mission is reopened. No raster or
+tile cache is serialized in `localStorage`; map resources stay in the
+application caches.
 
-A corrupt preparation, an unknown schema version, or a missing site in the
-catalog produces an explicit message. The original backup is preserved
-until its confirmed replacement. Monitoring is also controlled in relation to
-in the catalog before restoration, without replacing a missing site. A refusal of
-storage or quota exceeded displays an error; a later modification
-try writing again. The absence of IndexedDB does not crash the interface and
-tracking loading can be restarted.
+A corrupted preparation, an unknown schema version or a site missing from the
+catalog produces an explicit message. The original save is kept until its
+replacement is confirmed. Tracking is also checked against the catalog before it
+is restored, without substituting a missing site. A storage refusal or exceeded
+quota shows an error, and the next edit tries to write again. Missing IndexedDB
+does not crash the interface, and loading the tracking can be retried.
 
-**Edit mission** allows you to rename it before saving it again;
-**Delete** removes its copy from the catalog after confirmation.
-**Reset preparation** creates an empty draft after confirmation and
-maintains saved missions, templates, tracking and history.
-Testing covers serialization, reloading, corruption, versions
-unknowns, missing sites, storage refusals and quotas.
+**Edit mission** renames a mission before saving it again. **Delete** removes
+its copy from the catalog after confirmation. **Reset preparation** creates an
+empty draft after confirmation and keeps saved missions, templates, tracking and
+history. Tests cover serialization, reload, corruption, unknown versions,
+missing sites, storage refusals and quotas.
 
-The `packages/data/src/camps.ts` example camps are fictitious and initialized
-only once. Their positions in the prepared sector neither confirm nor
-habitability, neither presence of equipment, nor NASA selection. The research has not
-identified from NASA catalog of recorded Martian human camps. The report
-[NASA on science and planetary protection before human missions](https://ntrs.nasa.gov/citations/20250009522)
-is studying a scenario in Jezero without validating these camps. THE
-[data Perseverance](https://science.nasa.gov/mission/mars-2020-perseverance/)
-concern real robotic exploration and remain separate from simulations.
+The example camps in `packages/data/src/camps.ts` are fictional and seeded only
+once. Their positions in the prepared sector do not confirm habitability,
+equipment or any NASA selection. Our research found no NASA catalog of
+registered human camps on Mars. The NASA report on
+[science and planetary protection before human missions](https://ntrs.nasa.gov/citations/20250009522)
+studies a Jezero scenario without validating these camps.
+[Perseverance data](https://science.nasa.gov/mission/mars-2020-perseverance/)
+describes real robotic exploration and stays separate from the simulations.
 
-## World Atlas of Mars
+## Global Mars atlas
 
-In the **Entire Mars → Layers** view, the atlas adds an HRSC color background,
-USGS geology and TES thermal inertia. Click on Mars, or move it
-card on the keyboard then choose **Read in the center of the card**, to read
-coordinates, geological unit if the layer is activated, solar time
-average/true and the season `Ls`. The UTC date is adjustable (2000–2026, range
-time conversion verified). These calculations are independent of the monitoring of
-mission and times of MEDA measurements.
+In the **Mars whole → Layers** view, the atlas adds an HRSC color background,
+USGS geology and TES thermal inertia. Click on Mars, or move the map with the
+keyboard then choose **Read in the center of the map**, to read the
+coordinates, the geologic unit when that layer is on, the mean and true solar
+time, and the season `Ls`. The UTC date is adjustable (2000–2026, the range in
+which the time conversion was verified). These calculations are independent of
+mission tracking and of MEDA measurement times.
 
-The color background delivered is the HRSC preview at approximately **16.7 km/pixel**, distinct from the
-original product at 2 km/pixel. The 1,311 polygons of SIM 3292 come from the
-Esri StoryMaps copy, simplified to 0.08°; their descriptions remain in English.
-TES is a qualitative layer at 8 pixels/degree, limited to 60°S–60°N: none
-temperature or inertia value is not deduced from its colors when clicked.
-The Jezero marker remains accessible above the layers.
+The color background is the HRSC preview at about **16.7 km/pixel**, distinct
+from the original 2 km/pixel product. The 1,311 polygons of SIM 3292 come from
+the Esri StoryMaps copy, simplified to 0.08°. TES is a qualitative layer at 8
+pixels/degree, limited to 60°S–60°N; clicking never derives a temperature or
+inertia value from its colors. The Jezero marker stays accessible above the
+layers.
 
-The files are frozen separately in `apps/web/public/atlas` (~7.2 MB), with
-their own manifest (sources, transformations, imprints), so that
-`data:prepare` does not delete them. The offline build and installation
-include automatically. The sources can also be consulted on the page
-**Sources**. The Mars Climate Database is offered by link to its interface
-external ; no MCD climate field is integrated. Detailed planning
-remains limited to Jezero.
+The files are frozen separately in `apps/web/public/atlas` (about 7.2 MB), with
+their own manifest (sources, transformations, checksums), so that
+`data:prepare` does not delete them. The build and the offline installation
+include them automatically. Sources are also listed on the **Sources** page.
+The Mars Climate Database is offered as a link to its external interface; no MCD
+climate field is integrated. Detailed planning remains limited to Jezero.
 
 Preparation and acquisition limits: [atlas note](docs/atlas-mondial.md).
 
 ## Languages
 
-Use the header selector to switch between French and English. The initial language follows the browser, with French as the fallback. The preference is saved on the device. Both translation catalogues ship with the application and work offline. Dates, numbers and coordinates follow the selected language.
+Use the header selector to switch between French and English. The initial
+language follows the browser, with French as the fallback. The preference is
+saved on the device. Both translation catalogs ship with the application and
+work offline. Dates, numbers and coordinates follow the selected language.
 
-Translations live in `apps/web/src/locales/fr.json` and `apps/web/src/locales/en.json`. Keep their keys and interpolation variables aligned. The localization tests check catalogue parity and French source text coverage, including prepared scientific data and site sheets.
+Translations live in `apps/web/src/locales/fr.json` and
+`apps/web/src/locales/en.json`. Keep their keys and interpolation variables
+aligned. The localization tests check catalog parity and French source text
+coverage, including prepared scientific data and site sheets.
 
 ## Hypothetical mission route (#12)
 

@@ -102,7 +102,7 @@ def prepare_annotations(staging: Path, retrieved_at: str, imagery: dict) -> dict
         'id': 'jezero-terrain-annotations', 'regionId': 'jezero', 'title': 'Terrain inspection annotations',
         'kind': 'terrain-annotations', 'instrument': 'Visual interpretation of HiRISE imagery', 'delivery': 'local',
         'source': {'url': 'https://github.com/ManuelR-T/martian-map/blob/dev/data/research/jezero-terrain-annotations.geojson',
-                   'retrievedAt': retrieved_at, 'credit': 'Marps curators; imagery NASA/JPL-Caltech/University of Arizona',
+                   'retrievedAt': retrieved_at, 'credit': 'Marps team, texts drafted with AI assistance (Claude Code, Codex, Antigravity); imagery NASA/JPL-Caltech/University of Arizona',
                    'terms': imagery['source']['terms'], 'fingerprint': fingerprint(source.name, contents)},
         'acquisition': {**imagery['acquisition'], 'note': 'Image acquisition dates unknown; curation dates are separate.'},
         'units': {}, 'crs': imagery['crs'], 'extent': spec.SECTOR, 'resolution': None,

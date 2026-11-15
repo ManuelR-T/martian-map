@@ -45,7 +45,7 @@ original; the view retains the usual Martian boundaries.
 accessible by Esri StoryMaps (`dasbury_storymaps`), not download
 direct USGS (403 in this environment). All 1,311 objects were
 recovered in two pages, with units, original descriptions, geometries
-and distribution palette. Native Repository WKID 104971, March 2000
+and distribution palette. Native Repository WKID 104971, Mars 2000
 spherical in degrees; no terrestrial conversion. Server simplification
 to 0.08°, rounding coordinates to four decimal places. These borders
 generalized are used for regional reading; colors do not code
