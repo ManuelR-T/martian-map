@@ -85,9 +85,12 @@ def cached(name: str, expected_sha256: str, download: Callable[[], bytes]) -> by
     return data
 
 
-def prepare_mola(retrieved_at: str) -> dict:
-    """Global basemap: orientation only, streamed from Trek, never frozen."""
+def prepare_mola(staging: Path, retrieved_at: str) -> dict:
+    """Global basemap: orientation only, streamed from Trek. Only its two level-0 tiles are frozen, as the offline fallback."""
     capabilities = fetch(spec.MOLA_CAPABILITIES_URL)
+    for name, tile in spec.MOLA_FALLBACK_TILES.items():
+        _, data, _ = fetch_tile(spec.MOLA_TILE_TEMPLATE, tile)
+        write_file(staging, f"{check.MOLA_FALLBACK_DIR}/{name}.jpg", data, "image/jpeg")
     return {
         "id": "mola-colorized-relief",
         "regionId": "global",
@@ -783,7 +786,7 @@ def main() -> None:
     sites_dataset, sites = prepare_sites(staging, retrieved_at)
     hirise = prepare_hirise(staging, retrieved_at)
     datasets = [
-        prepare_mola(retrieved_at),
+        prepare_mola(staging, retrieved_at),
         hirise,
         prepare_themis(staging, retrieved_at, hirise["wmts"]["extent"]),
         *(d for product in spec.ELEVATION_PRODUCTS for d in prepare_terrain(staging, retrieved_at, product)),

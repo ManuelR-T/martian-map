@@ -289,3 +289,8 @@ def test_a_geologic_map_must_stay_interpretive_and_declare_its_offset(data_copy)
 def test_a_drawn_unit_must_be_in_the_legend(data_copy):
     edit_geology(data_copy, lambda info: info["units"].pop(0))
     assert any("drawn but missing from the legend" in e for e in check.validate(data_copy))
+
+@pytest.mark.parametrize("name", list(spec.MOLA_FALLBACK_TILES))
+def test_the_offline_global_map_tiles_are_required(data_copy, name):
+    (data_copy / "mola" / f"{name}.jpg").unlink()
+    assert any(f"mola/{name}.jpg" in e for e in check.validate(data_copy))
