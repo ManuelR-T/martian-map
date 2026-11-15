@@ -46,5 +46,7 @@ propre facteur de visibilité, à la différence du retour radiatif direct propo
 
 L’alerte radiative est également déclenchable dans « Événements simulés ».
 À la base, elle sert de prévisualisation indépendante de la sortie active.
-En mission, elle partage son état avec le suivi et la vue casque. « Annuler tous
+En mission, elle partage son état avec la vue casque. Le panneau « Suivi de
+mission » conserve uniquement le suivi des activités, sans afficher l’alerte
+ni son bouton de déclenchement. « Annuler tous
 les événements » retire aussi l’alerte de l’espace courant, sans altérer l’autre.

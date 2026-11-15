@@ -10,6 +10,7 @@ import type { Catalog } from '@marps/data';
 import { PlannerProvider, usePlannerDispatch } from '../state/PlannerProvider';
 import { MissionDatabase } from '../storage/missionDatabase';
 import { StepsPanel } from './StepsPanel';
+import { MissionEvents } from './MissionEvents';
 import { useTranslation } from 'react-i18next';
 import { setLanguage } from '../i18n';
 
@@ -24,7 +25,7 @@ const Screen = () => {
   useEffect(() => { send = dispatch; }, [dispatch]);
   return <><button onClick={() => dispatch({ type: 'viewChanged', view: 'region' })}>Jezero</button>
     <button onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'base' })}>À la base</button>
-    <button onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'mission' })}>En mission</button><StepsPanel /></>;
+    <button onClick={() => dispatch({ type: 'workspaceChanged', workspace: 'mission' })}>En mission</button><StepsPanel /><MissionEvents /></>;
 };
 // Like `App`, remount the screen when the language changes.
 const Localized = () => <Screen key={useTranslation().i18n.language} />;
@@ -85,6 +86,17 @@ it('affiche l’ordre de retour simulé depuis l’étape en cours, puis l’ann
   // Wildcat Ridge → Jezero Beta camp is 102 m: at 0,5 m/s, 3,4 min rounded up to 4.
   expect(alert.textContent).toContain('102 m · 4 min');
   expect(alert.textContent).toContain('Wildcat Ridge (1 activité)');
+  const tracking = container.querySelector('ol[aria-label="Parcours de la sortie en cours"]')!.parentElement!;
+  expect(tracking.textContent).not.toContain('Simuler une alerte radiation');
+  expect(tracking.textContent).not.toContain('Rentrer au camp maintenant');
+  expect(tracking.querySelector('[role="alert"]')).toBeNull();
+  const context = alert.querySelector('details')!;
+  expect(context.textContent).toContain('Curiosity');
+  expect(context.textContent).toContain('Gale');
+  expect(context.textContent).toContain('MEDA RDS');
+  expect(context.textContent).toContain('Il ne mesure pas les radiations ionisantes');
+  expect(context.querySelector('a[href="https://science.nasa.gov/resource/radiation-measurements-on-mars/"]')).not.toBeNull();
+  expect(context.querySelector('a[href="https://science.nasa.gov/resource/medas-radiation-and-dust-sensor/"]')).not.toBeNull();
   // Ticket: no personal dose or survival figure. The collapsed context only cites RAD's measurement at Gale.
   const visible = alert.textContent!.replace(alert.querySelector('details')!.textContent!, '');
   expect(visible).not.toMatch(/dose|survie|gray|sievert/i);

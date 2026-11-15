@@ -38,7 +38,7 @@ export function MissionEvents() {
     {(events.length > 0 || hasRadiation) && <Button type="button" variant="outline" onClick={() => { dispatch({ type: 'eventsCleared' }); onRadiationChange(null); }}>{localize('Annuler tous les événements')}</Button>}
     <div className="grid gap-2 border p-3">
       <h4 className="font-semibold">{localize('Alerte radiative simulée')}</h4>
-      <p className="text-xs text-muted-foreground">{localize('Retour direct proposé ; le budget du plan complet reste inchangé. À la base : prévisualisation indépendante. En sortie : alerte partagée avec le suivi et la vue casque.')}</p>
+      <p className="text-xs text-muted-foreground">{localize('Retour direct proposé ; le budget du plan complet reste inchangé. À la base : prévisualisation indépendante. En sortie : alerte partagée avec la vue casque.')}</p>
       <RadiationAlert mission={mission} state={radiation} onChange={onRadiationChange} />
     </div>
     <details><summary className="min-h-11 cursor-pointer font-semibold">{localize('Simuler un événement')}</summary>

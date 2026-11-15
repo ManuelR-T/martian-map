@@ -22,7 +22,7 @@ const WhySimulated = () => <details className="text-xs">
 </details>;
 
 /**
- * Simulated radiation alert, in the « En mission » view: the teammate in the habitat reads the order
+ * Simulated radiation alert in the events panel: the teammate in the habitat reads the order
  * and relays it by radio. The origin is frozen; scenario speed changes still update the return.
  * The planner state shares the alert with the base and helmet views.
  */

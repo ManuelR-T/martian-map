@@ -114,13 +114,16 @@ it('reprend la marge du budget principal et signale son dépassement', async () 
   expect(readout('Marge du plan')).toBe(margin);
 });
 
-it('partage l’alerte radiation simulée avec le suivi', async () => {
+it('partage l’alerte radiation avec les événements sans l’afficher dans le suivi', async () => {
   await mount();
   expect(hud().textContent).toContain('Aucune alerte.');
   await click('Simuler une alerte radiation');
   expect(hud().querySelector('[role=alert]')?.textContent).toContain('Simulation · Alerte radiation');
   expect(hud().querySelector('[role=alert]')?.textContent).toContain('Rentrer au camp maintenant');
-  expect(container.querySelectorAll('[role=alert]')).toHaveLength(3);
+  expect(container.querySelectorAll('[role=alert]')).toHaveLength(2);
+  const tracking = container.querySelector('section[data-slot="panel"] ol[aria-label="Parcours de la sortie en cours"]')!.parentElement!;
+  expect(tracking.querySelector('[role=alert]')).toBeNull();
+  expect(tracking.textContent).not.toContain('Simuler une alerte radiation');
   await click('Annuler la simulation', container);
   expect(hud().querySelector('[role=alert]')?.textContent).toBe('');
 });

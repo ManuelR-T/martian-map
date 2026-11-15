@@ -6,11 +6,10 @@ import { activityLabels } from './MissionEditor';
 import { formatCoordinate } from '../format';
 import { confirmAction } from '../confirm';
 import { ScanEye } from 'lucide-react';
-import { RadiationAlert } from './RadiationAlert';
 import { HELMET_HASH } from '../helmet/helmetRoute';
 
 export function MissionTracking() {
-  const { runningMission: mission, trackingStatus, trackingReady, trackingError, radiationAlert } = usePlannerState();
+  const { runningMission: mission, trackingStatus, trackingReady, trackingError } = usePlannerState();
   const dispatch = usePlannerDispatch();
   if (trackingError) return <DataState kind="error" title={localize("Suivi local indisponible")} description={localize(trackingError)} action={<Button onClick={() => dispatch({ type: 'trackingRequested' })}>{localize("Réessayer le chargement du suivi")}</Button>} />;
   if (!trackingReady) return <DataState kind="loading" title={localize("Chargement du suivi")} />;
@@ -22,7 +21,6 @@ export function MissionTracking() {
     <p role="status" className="text-xs">{localize(trackingStatus)}</p>
     <p className="text-sm">{localize(activities.filter(a => a.completed).length)} {localize("/")} {localize(activities.length)} {localize("activités terminées")}</p>
     <Button asChild variant="outline"><a href={HELMET_HASH}><ScanEye aria-hidden="true" />{localize("Vue casque")}</a></Button>
-    <RadiationAlert mission={mission} state={radiationAlert} onChange={alert => dispatch({ type: 'radiationAlertChanged', alert })} />
     <StepList label={localize("Parcours de la sortie en cours")}>
       {mission.camp && <StepListItem kind="camp" title={mission.camp.name} description={formatCoordinate(mission.camp.position)} />}
       {mission.steps.map((step, index) => <StepListItem key={step.id} position={index + 1} title={step.name}

@@ -276,6 +276,12 @@ it('simule une alerte radiative depuis les événements, isole la préparation e
   expect(events().querySelector('[role="alert"]')).not.toBeNull();
   await clickEvent('Simuler un retard');
   expect(events().textContent).toContain('Retard d’activité');
+  const delayedMargin = value('Marge après réserve');
+  await clickEvent('Annuler la simulation');
+  expect(events().querySelector('[role="alert"]')).toBeNull();
+  expect(events().querySelectorAll('li')).toHaveLength(1);
+  expect(value('Marge après réserve')).toBe(delayedMargin);
+  await clickEvent('Simuler une alerte radiation');
   await clickEvent('Annuler tous les événements');
   expect(events().querySelector('[role="alert"]')).toBeNull();
   expect(events().querySelectorAll('li')).toHaveLength(0);
