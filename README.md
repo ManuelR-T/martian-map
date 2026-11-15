@@ -360,6 +360,34 @@ precached the 108 built resources, including responsive styles and the prepared
 datasets. These checks use browser simulation; physical tablet or wrist
 hardware and glove input remain unverified.
 
+## Helmet view (#30)
+
+During a walk, “Helmet view” in the mission tracking panel opens `#/casque`: a
+full-screen, high-contrast view of the current stop. It reads the running
+mission that the tracking panel and the time budget use, so ticking in either
+place updates both, and the margin is the budget panel's own figure.
+
+- **Route strip:** camp, stops and camp in plan order with the planned length of
+  each leg. It is a schematic of the sequence, never a position.
+- **Stop checklist:** every activity of the stop is a large button; the current
+  one carries a timer that counts on this screen only and is not saved.
+- **Site sheet:** for a NASA site, the photo to spot, what to bring back, the
+  rover's earlier work and the sheet tasks, which tick the same site progress as
+  the site panel.
+- **Time and route:** planned time remaining, plan margin, a bar of the available
+  time, the next leg and the straight-line return to camp.
+- **Alerts:** budget overrun, steep sections ahead for the slope threshold chosen
+  in the route profile (an assumption) and the simulated radiation alert. When no
+  relief is loaded the view says that slopes are not checked.
+
+Progress is manual: “Activity done” (or Space) ticks the current activity and
+“Undo last” (or Backspace) unticks the latest one. The current stop is the first
+stop with an unticked activity; the app knows no real position on Mars. The
+remaining time is a plan figure (unticked activities plus the planned walk from
+the current stop back to camp), not a measured elapsed time. This is an
+interface view only: no augmented reality hardware and no operational
+navigation. It was not checked on a headset or with gloves.
+
 ## Jezero mosaic exploration (#8)
 
 The Jezero view opens on the prepared mission sector and lets users explore the

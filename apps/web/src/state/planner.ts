@@ -1,7 +1,7 @@
 import { localize } from '@marps/ui';
 import '../i18n';
 import { scienceSources, siteSheets, type Catalog, type DatasetDescriptor, type RegionDefinition } from '@marps/data';
-import { createEmptyMission, missionReducer, isMission, type MissionAction, type Mission } from '@marps/mission-core';
+import { createEmptyMission, missionReducer, isMission, type MissionAction, type Mission, type RadiationReturn } from '@marps/mission-core';
 import { siteWorkOf, siteWorkReducer, type SiteWorkAction } from '../sites/siteWork';
 import { withDataReferences } from '../storage/missionDraft';
 
@@ -15,6 +15,9 @@ export type Resource<Data> =
   | { readonly status: 'error'; readonly message: string }
   | { readonly status: 'ready'; readonly data: Data };
 
+/** Simulated radiation alert: figures frozen when it starts, tied to the walk it was raised on. */
+export interface RadiationAlertState { readonly missionId: string; readonly alert: RadiationReturn }
+
 /** État unique de l'écran de planification, partagé par tous les panneaux. */
 export interface PlannerState {
   readonly workspace: 'base' | 'mission';
@@ -23,6 +26,8 @@ export interface PlannerState {
   readonly trackingRequest: number;
   readonly trackingError: string | null;
   readonly trackingStatus: string;
+  /** Shared by the tracking panel and the helmet view; never saved. */
+  readonly radiationAlert: RadiationAlertState | null;
   readonly draftStatus: string;
   readonly draftError: string | null;
   /** Transient validity of the parameter form; invalid text is never persisted as mission data. */
@@ -49,6 +54,7 @@ export type PlannerAction =
   | { readonly type: 'draftStatusChanged'; readonly message: string }
   | { readonly type: 'parameterDraftValidityChanged'; readonly valid: boolean }
   | { readonly type: 'activityToggled'; readonly stepId: string; readonly activityId: string }
+  | { readonly type: 'radiationAlertChanged'; readonly alert: RadiationAlertState | null }
 
   | { readonly type: 'viewChanged'; readonly view: MapView }
   | { readonly type: 'regionOpened'; readonly regionId: string }
@@ -67,6 +73,7 @@ export const initialPlannerState: PlannerState = {
   trackingRequest: 0,
   trackingError: null,
   trackingStatus: 'Chargement du suivi…',
+  radiationAlert: null,
   draftStatus: '',
   draftError: null,
   parameterDraftValid: true,
@@ -119,6 +126,8 @@ export function plannerReducer(state: PlannerState, action: PlannerAction): Plan
       if (!activity) return state;
       return { ...state, runningMission: missionReducer(state.runningMission, { type: 'activityChanged', stepId: action.stepId, activity: { ...activity, completed: !activity.completed } }) };
     }
+    case 'radiationAlertChanged':
+      return { ...state, radiationAlert: action.alert };
     case 'viewChanged':
       return state.view === action.view ? state : { ...state, view: action.view };
     case 'regionOpened':

@@ -16,6 +16,7 @@ export * from './mission';
 export * from './distance';
 export * from './budget';
 export * from './radiation';
+export * from './progress';
 export {
   MARS_RADIUS_METRES,
   groundDistanceMetres,

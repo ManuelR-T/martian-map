@@ -1,6 +1,7 @@
 import { marsDistanceMetres } from './distance';
 export { MARS_RADIUS_METRES, marsDistanceMetres } from './distance';
 import type { Mission, MissionStep } from './mission';
+import { currentStepIndex } from './progress';
 
 export interface RadiationReturn {
   readonly fromStep: MissionStep;
@@ -18,8 +19,7 @@ export interface RadiationReturn {
  */
 export function radiationReturn(mission: Mission): RadiationReturn | null {
   if (!mission.camp || mission.steps.length === 0) return null;
-  const pending = mission.steps.findIndex(step => step.activities.some(activity => !activity.completed));
-  const fromIndex = pending === -1 ? mission.steps.length - 1 : pending;
+  const fromIndex = currentStepIndex(mission);
   const fromStep = mission.steps[fromIndex]!;
   const distanceMetres = marsDistanceMetres(fromStep.position, mission.camp.position);
   const abandoned = mission.steps.slice(fromIndex)

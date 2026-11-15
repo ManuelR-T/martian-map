@@ -1,13 +1,12 @@
-import { locale } from '../i18n';
 import { localize } from '@marps/ui';
 import '../i18n';
 import { useEffect, useRef } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Alert, Button } from '@marps/ui';
 import { radiationReturn, type Mission, type RadiationReturn } from '@marps/mission-core';
+import { formatGroundDistance as distance } from '../format';
+import type { RadiationAlertState } from '../state/planner';
 
-// Jezero returns are a few hundred metres: kilometres rounded to 0,1 would hide them.
-const distance = (metres: number) => metres < 1000 ? `${Math.round(metres)} m` : `${(metres / 1000).toLocaleString(locale(), { maximumFractionDigits: 1 })} km`;
 const minutes = (seconds: number) => `${Math.ceil(seconds / 60)} min`;
 const plural = (n: number) => localize("{{v0}} activité{{v1}}", { v0: n, v1: n > 1 ? 's' : '' });
 const link = (href: string, label: string) => <a className="underline" href={href} target="_blank" rel="noreferrer">{localize(label)}</a>;
@@ -22,12 +21,10 @@ const WhySimulated = () => <details className="text-xs">
   </ul>
 </details>;
 
-export interface RadiationAlertState { readonly missionId: string; readonly alert: RadiationReturn }
-
 /**
  * Simulated radiation alert, in the « En mission » view: the teammate in the habitat reads the order
  * and relays it by radio. The figures are frozen when the alert starts, as a real order would be.
- * The state lives in `StepsPanel`, which stays mounted, so switching to « À la base » keeps the alert.
+ * The state lives in the planner state, so « À la base » and the helmet view keep the alert.
  */
 export function RadiationAlert({ mission, state, onChange }: { mission: Mission; state: RadiationAlertState | null; onChange: (next: RadiationAlertState | null) => void }) {
   const alert = state?.missionId === mission.id ? state.alert : null;
