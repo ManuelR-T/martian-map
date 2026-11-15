@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useState, useSyncExternalStore } from 'react';
-import { Route, Timer, MapPin, Layers, ChartNoAxesCombined, CloudSun } from 'lucide-react';
+import { Route, Timer, MapPin, Layers, ChartNoAxesCombined, CloudSun, BookOpen } from 'lucide-react';
 import { MapDrawer } from './panels/MapDrawer';
 import { BrandMark, DataState } from '@marps/ui';
 import { BudgetPanel } from './panels/BudgetPanel';
@@ -80,14 +80,22 @@ export function App() {
           <div className="planning-navigation">
             <a href="#/" className={headerLink} aria-current={!showsPage ? 'page' : undefined}>Planification</a>
             {!showsPage && <MapViewSelector />}
+            {!showsPage && <div role="group" aria-label="Espaces de travail" className="workspace-navigation planning-workspace-selector flex items-center">
+              <button type="button" aria-pressed={workspace === 'base'} className={headerLink} onClick={() => { dispatch({ type: 'workspaceChanged', workspace: 'base' }); setOpenDrawers((current) => ({ ...current, steps: true })); }}>À la base</button>
+              <button type="button" aria-pressed={workspace === 'mission'} className={headerLink} onClick={() => { dispatch({ type: 'workspaceChanged', workspace: 'mission' }); setOpenDrawers((current) => ({ ...current, steps: true })); }}>En mission</button>
+            </div>}
           </div>
-          <a href={SOURCES_HASH} className={headerLink} aria-current={showsSources ? 'page' : undefined}>Sources et limites</a>
-          <a href={DESIGN_SYSTEM_HASH} className={headerLink} aria-current={showsDesignSystem ? 'page' : undefined}>Système de design</a>
+          <details key={hash} className="resource-menu relative">
+            <summary className={`${headerLink} cursor-pointer list-none gap-2 [&::-webkit-details-marker]:hidden`} aria-label="Ressources" title="Ressources">
+              <BookOpen aria-hidden="true" className="size-4" />
+              <span className="max-sm:sr-only">Ressources</span>
+            </summary>
+            <div className="absolute right-0 top-full z-50 grid w-64 max-w-[calc(100vw-2rem)] border bg-header p-2 shadow-lg">
+              <a href={SOURCES_HASH} className={headerLink} aria-current={showsSources ? 'page' : undefined}>Sources et limites</a>
+              <a href={DESIGN_SYSTEM_HASH} className={headerLink} aria-current={showsDesignSystem ? 'page' : undefined}>Système de design</a>
+            </div>
+          </details>
         </nav>
-        {!showsPage && <nav aria-label="Espaces de travail" className="workspace-navigation flex flex-wrap items-center">
-          <button type="button" aria-pressed={workspace === 'base'} className={headerLink} onClick={() => { dispatch({ type: 'workspaceChanged', workspace: 'base' }); setOpenDrawers((current) => ({ ...current, steps: true })); }}>À la base</button>
-          <button type="button" aria-pressed={workspace === 'mission'} className={headerLink} onClick={() => { dispatch({ type: 'workspaceChanged', workspace: 'mission' }); setOpenDrawers((current) => ({ ...current, steps: true })); }}>En mission</button>
-        </nav>}
         <OfflineStatus />
         {/* Filet d'horizon : il se trace du bleu à la braise à l'ouverture. */}
         <span aria-hidden="true" className="horizon-draw absolute inset-x-0 -bottom-0.5 h-0.5 bg-[image:var(--horizon)]" />
