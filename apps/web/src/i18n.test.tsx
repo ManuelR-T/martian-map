@@ -9,6 +9,7 @@ import ts from 'typescript';
 import { localize, ProvenanceBadge } from '@marps/ui';
 import { findSiteSheet } from '@marps/data';
 import { missionTypes } from '@marps/mission-core';
+import { roverMessages } from './features/map/RoverHistoryControl';
 import i18n, { detectLanguage, LANGUAGE_KEY, setLanguage } from './i18n';
 import { LanguageSelector } from './LanguageSelector';
 import { formatCoordinate, formatLmst, formatMonthYear } from './format';
@@ -74,7 +75,7 @@ it('pluralizes counts, reads time ranges and names objectives and tasks in both 
   expect(many).toBe('2 saved camps');
   expect(localize('Mesuré de {{v0}} à {{v1}}.', { v0: formatLmst('12:00:04'), v1: formatLmst('12:20:31') })).toBe('Measured from 12:00 to 12:20.');
   expect(localize(missionTypes.observation)).toBe('Scientific observation');
-  expect(localize(missionTypes.reconnaissance)).toBe('Terrain reconnaissance');
+  expect(localize(missionTypes.reconnaissance)).toBe('Field reconnaissance');
   expect(localize(findSiteSheet('amalik')!.tasks.map(task => task.label))).toEqual(['Describe the rock', 'Context photo', 'Close-up photos', 'Sampling']);
   expect(localize('capteur ATS1, sur le mât à 1,45 m du sol')).toBe('ATS1 sensor, on the mast 1.45 m above the ground');
   setLanguage('fr');
@@ -84,6 +85,16 @@ it('pluralizes counts, reads time ranges and names objectives and tasks in both 
   expect(localize(many)).toBe('2 camps enregistrés');
   expect(localize('Mesuré de {{v0}} à {{v1}}.', { v0: '12:00', v1: '12:20' })).toBe('Mesuré de 12:00 à 12:20.');
   expect(localize(missionTypes.observation)).toBe('Observation scientifique');
+});
+
+it('translates French labels without accents, which the coverage scan misses', () => {
+  setLanguage('en');
+  expect(localize('Suivi')).toBe('Tracking');
+  expect(localize(roverMessages.fr.toggle)).toBe('Perseverance history');
+  expect(localize('Suivi invalide.')).toBe('Invalid tracking.');
+  setLanguage('fr');
+  expect(localize('Suivi')).toBe('Suivi');
+  expect(localize(roverMessages.fr.toggle)).toBe('Historique de Perseverance');
 });
 
 it('requires matching, nonempty bilingual entries with identical interpolation variables', () => {
