@@ -1,6 +1,6 @@
-import type { Catalog, RegionDefinition } from '@marps/data';
+import { scienceSources, siteSheets, type Catalog, type DatasetDescriptor, type RegionDefinition } from '@marps/data';
 import { createEmptyMission, type Mission } from '@marps/mission-core';
-import { siteWorkReducer, type SiteWorkAction, type SiteWorkState } from '../sites/siteWork';
+import { siteWorkOf, siteWorkReducer, type SiteWorkAction, type SiteWorkState } from '../sites/siteWork';
 
 /** Région détaillée du MVP ; la carte globale ne sert qu'à s'orienter. */
 export const DETAILED_REGION_ID = 'jezero';
@@ -65,6 +65,56 @@ export function plannerReducer(state: PlannerState, action: PlannerAction): Plan
 export function selectDetailedRegion(state: PlannerState): RegionDefinition | null {
   if (state.catalog.status !== 'ready') return null;
   return state.catalog.data.regions.find((region) => region.id === DETAILED_REGION_ID) ?? null;
+}
+
+/** Shared by the map and its provenance; switching views never changes the catalog. */
+export function selectMapDataset(state: PlannerState): DatasetDescriptor | null {
+  if (state.catalog.status !== 'ready') return null;
+  const global = state.view === 'global';
+  return state.catalog.data.datasets.find((dataset) =>
+    dataset.regionId === (global ? 'global' : state.mission.regionId)
+    && dataset.kind === (global ? 'basemap' : 'imagery')
+    && dataset.status !== 'unavailable'
+    && (global || (dataset.delivery === 'local' && dataset.tileset))) ?? null;
+}
+
+/** No speed, outing, reserve or slope threshold has been supplied in this version. */
+export function selectMissionAssumptions(state: PlannerState) {
+  const sites = state.catalog.status === 'ready' ? state.catalog.data.manifest.sites : [];
+  return {
+    speedKilometresPerHour: null,
+    outingMinutes: null,
+    reserveMinutes: null,
+    slopeLimitDegrees: null,
+    stops: sites.flatMap((site) => {
+      const sheet = siteSheets.find((candidate) => candidate.siteId === site.id);
+      if (!sheet) return [];
+      return [{
+        siteId: site.id,
+        name: site.name,
+        allottedMinutes: siteWorkOf(state.siteWork, sheet).allottedMinutes,
+        tasks: sheet.tasks,
+        procedureSourceId: sheet.tasksSourceId,
+      }];
+    }),
+  };
+}
+
+/**
+ * Serializable provenance to accompany a future mission save. Keep the full frozen
+ * manifest (including versions and fingerprints) and sheet sources, not just URLs
+ * or the currently visible dataset. No persistence is installed here.
+ */
+export function selectProvenanceSnapshot(state: PlannerState) {
+  if (state.catalog.status !== 'ready') return null;
+  return {
+    manifest: state.catalog.data.manifest,
+    mapDatasetId: selectMapDataset(state)?.id ?? null,
+    selectedSiteId: state.selectedSiteId,
+    siteSheets,
+    scienceSources,
+    assumptions: selectMissionAssumptions(state),
+  };
 }
 
 /** Ce qu'un emplacement de l'interface doit afficher avant son contenu. */
