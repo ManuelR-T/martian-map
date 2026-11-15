@@ -1,7 +1,7 @@
 import { useId, useRef } from 'react';
 import { CircleAlert, Maximize2, X } from 'lucide-react';
 import { STOP_MINUTES_CHOICES, type SiteDescriptor, type SiteSheet } from '@marps/data';
-import { Button, ProvenanceBadge } from '@marps/ui';
+import { Button } from '@marps/ui';
 import { summarizeStop, type SiteWork } from './siteWork';
 
 export interface SitePickerProps {
@@ -34,6 +34,7 @@ export function SitePicker({ sites, selectedSiteId, onSelect }: SitePickerProps)
 }
 
 export interface SiteSheetViewProps {
+  tracking?: boolean;
   sheet: SiteSheet;
   work: SiteWork;
   onTaskToggle: (taskId: string) => void;
@@ -45,7 +46,7 @@ export interface SiteSheetViewProps {
  * Ordre de l'arrêt : reconnaître la cible, connaître l'objectif, puis dérouler les tâches.
  * Le détail (grande photo, crédits, façon de faire) s'ouvre à la demande.
  */
-export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange }: SiteSheetViewProps) {
+export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange, tracking = true }: SiteSheetViewProps) {
   const selectId = useId();
   const dialogTitleId = useId();
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -53,44 +54,46 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange }: S
   const photoUrl = `${import.meta.env.BASE_URL}${sheet.photo.path}`;
 
   return (
-    <div className="grid gap-1.5">
+    <div className="grid gap-1">
       <div className="flex gap-3">
-        <figure className="m-0 w-28 shrink-0">
-          <button
-            type="button"
-            onClick={() => dialogRef.current?.showModal()}
-            className="relative w-full border"
-            aria-label={`Agrandir la photo à repérer : ${sheet.photo.caption}`}
-          >
-            <img src={photoUrl} alt="" width={sheet.photo.width} height={sheet.photo.height} className="block h-auto w-full" />
-            <Maximize2 aria-hidden="true" className="absolute right-1 bottom-1 size-5 bg-card/90 p-0.5" />
-          </button>
-          <figcaption className="mt-1 text-xs"><ProvenanceBadge status="measured" /> Photo, sol {sheet.photo.sol}</figcaption>
-        </figure>
+        <button
+          type="button"
+          onClick={() => dialogRef.current?.showModal()}
+          className="relative w-24 shrink-0 border"
+          aria-label={`Agrandir la photo à repérer : ${sheet.photo.caption}`}
+        >
+          <img src={photoUrl} alt="" width={sheet.photo.width} height={sheet.photo.height} className="block h-auto w-full" />
+          <Maximize2 aria-hidden="true" className="absolute right-1 bottom-1 size-5 bg-card/90 p-0.5" />
+        </button>
         <div className="grid min-w-0 content-start gap-0.5">
-          <p className="label-caps text-muted-foreground">Objectif proposé <ProvenanceBadge status="simulated" /></p>
+          <p className="label-caps text-muted-foreground">À rapporter</p>
           <p className="text-sm leading-snug">{sheet.objective}</p>
         </div>
       </div>
-      <details className="text-xs text-muted-foreground">
-        <summary className="min-h-11 cursor-pointer py-3 font-semibold">Contexte scientifique et méthode</summary>
-        <p><ProvenanceBadge status="measured" /> Déjà fait par le rover : {sheet.roverWork.text}</p>
-        <p className="mt-2"><ProvenanceBadge status="simulated" /> Activités et durées choisies par l’équipe, d’après les procédures Apollo.</p>
-      </details>
+      <p className="text-xs text-muted-foreground">
+        <span className="font-semibold text-foreground">Pourquoi : </span>
+        {sheet.question}
+      </p>
+      <p className="text-xs text-muted-foreground">
+        <span className="font-semibold text-foreground">Déjà fait par le rover : </span>
+        {sheet.roverWork.text}
+      </p>
+
       <ul aria-label="Tâches" className="m-0 grid list-none p-0">
         {sheet.tasks.map((task) => {
           const done = work.doneTaskIds.includes(task.id);
           return (
             <li key={task.id} className="-mt-px first:mt-0">
               {/* Cible tactile de 44 px : le coéquipier dans l'habitat coche en direct, sans viser. */}
-              <label className="flex min-h-11 cursor-pointer items-center gap-3 border px-3 hover:bg-accent">
+              <label className="flex h-11 cursor-pointer items-center gap-3 border px-3 hover:bg-accent">
                 <input
                   type="checkbox"
                   checked={done}
+                  disabled={!tracking}
                   onChange={() => onTaskToggle(task.id)}
-                  className="size-5 shrink-0 accent-mars"
+                  className="size-5 shrink-0 accent-primary"
                 />
-                <span className={done ? 'min-w-0 flex-1 py-2 text-muted-foreground line-through' : 'min-w-0 flex-1 py-2'}>
+                <span className={done ? 'flex-1 truncate text-muted-foreground line-through' : 'flex-1 truncate'}>
                   {task.label}
                 </span>
                 <span className="text-sm text-muted-foreground tabular-nums">{task.minutes} min</span>
@@ -100,10 +103,11 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange }: S
         })}
       </ul>
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <label htmlFor={selectId} className="flex flex-wrap items-center gap-2 text-sm">
-          Alloué (scénario)
+      <div className="flex items-center justify-between gap-2">
+        <label htmlFor={selectId} className="flex items-center gap-2 text-sm">
+          Alloué
           <select
+            disabled={tracking}
             id={selectId}
             value={work.allottedMinutes}
             onChange={(event) => onAllottedChange(Number(event.target.value))}
@@ -117,7 +121,6 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange }: S
           </select>
         </label>
         <p aria-live="polite" className="text-right text-sm tabular-nums">
-          <ProvenanceBadge status="calculated" />{' '}
           {shortfallMinutes > 0 ? (
             <span className="inline-flex items-center gap-1 font-semibold text-warning">
               <CircleAlert aria-hidden="true" className="size-4 shrink-0" />
@@ -152,7 +155,7 @@ export function SiteSheetView({ sheet, work, onTaskToggle, onAllottedChange }: S
             <figcaption className="grid gap-0.5">
               <span>{sheet.photo.caption}</span>
               <span className="text-xs text-muted-foreground">
-                <ProvenanceBadge status="measured" /> Photo du rover, sol {sheet.photo.sol}. Crédit : {sheet.photo.credit}.
+                Photo du rover, sol {sheet.photo.sol}. Crédit : {sheet.photo.credit}.
               </span>
             </figcaption>
           </figure>

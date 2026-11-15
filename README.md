@@ -102,7 +102,7 @@ apparence, appliquée dès le premier rendu, sans préférence locale.
   (`label-caps`) et les relevés chiffrés (`numeral-display`), servis depuis le
   bundle, sans appel externe.
 - **Formes et lumière.** Esprit instrument de bord : angles droits, filet
-  d'horizon braise vers bleu (`--horizon`) sur l'arête haute des panneaux et
+  d'horizon bleu vers braise (`--horizon`) sur l'arête haute des panneaux et
   sous le bandeau, équerres de viseur aux angles bas (`panel-frame`). Une
   surface posée sur la carte est un verre presque opaque (`glass`, activé par
   la propriété `floating` de `Panel` et `DataState`). La lumière a un sens :
@@ -150,7 +150,7 @@ global, et exporter le composant depuis `src/index.ts`.
 ## Données
 
 Les données du MVP sont **figées dans le dépôt** sous `apps/web/public/data`
-(environ 5,4 Mo) et servies en statique à l'adresse `/data/`. `pnpm build`,
+(environ 6,0 Mo) et servies en statique à l'adresse `/data/`. `pnpm build`,
 `pnpm test` et l'application ne contactent jamais NASA ni USGS.
 
 | Jeu de données | Livraison | Contenu |
@@ -160,6 +160,9 @@ Les données du MVP sont **figées dans le dépôt** sous `apps/web/public/data`
 | `jezero-hirise-dem`, `-slope`, `-hillshade` | figée | Altitudes, pentes et relief ombré HiRISE, agrégés à 4 m |
 | `jezero-ctx-dem`, `-slope`, `-hillshade` | figée | Les mêmes grilles à 20 m (CTX), en repli |
 | `jezero-sampling-sites` | figée | Skinner Ridge, Wildcat Ridge et Amalik (GeoJSON NASA) |
+| `jezero-themis-night-ir` | figée | Infrarouge de nuit THEMIS (Mars Odyssey), 4 tuiles du niveau 9 couvrant toute la mosaïque HiRISE ; contraste qualitatif, pas une température |
+
+| `jezero-meda-temperature`, `-pressure` | figée | Température et pression MEDA du sol 500, une valeur par heure martienne |
 
 Le manifeste sépare l'**orientation globale** (région `global`) du **détail de
 Jezero** (région `jezero`). Chaque capacité (`imagery-hirise`, `terrain-dem`,
@@ -181,29 +184,28 @@ manifeste donne l'origine, le pas, la projection et le datum vertical.
 est préféré, CTX prend le relais s'il manque. La taille de maille n'est pas une
 précision de navigation. Détails et limites : [`docs/relief-jezero.md`](docs/relief-jezero.md).
 
-### Sources, hypothèses et couverture (#16)
+Les conditions MEDA sont des **mesures passées au rover**, jamais une prévision
+sur le parcours. La préparation lit le CSV complet de chaque sol et son label
+PDS4 : l'empreinte MD5 et l'unité de la colonne doivent correspondre, sinon elle
+s'arrête. Une seule colonne est gardée par mesure : `ATS_LOCAL_TEMP1` (capteur du
+mât à 1,45 m, le moins chauffé par le rover) pour la température, `PRESSURE` du
+produit dérivé pour la pression. Les cinq capteurs ne sont jamais moyennés.
+Chaque heure garde la médiane des valeurs valides, leur nombre et la fenêtre
+mesurée (MEDA ne mesure qu'une partie de l'heure). Une valeur vide, non numérique,
+égale à la sentinelle `9999999999` ou physiquement impossible (hors 120–330 K ou
+100–1 300 Pa) est comptée et écartée ; une heure sans valeur valide reste `null`
+et s'affiche « indisponible ». Les valeurs restent en kelvins et en pascals ;
+`kelvinToCelsius` (K − 273,15) les convertit à l'affichage. L'incertitude de
+pression n'est pas utilisée : la colonne est vide et son label la déclare en
+kelvins. Le lieu est le dernier arrêt NASA (`M20_waypoints.json`) avant le sol ;
+un sol où le rover a roulé est refusé, car ses mesures viendraient de plusieurs
+endroits. `loadMedaConditions`, `conditionsAt` et `availableHours` de
+`@marps/data` les lisent.
 
-« Carte et sources » affiche la provenance de la couche active : instrument,
-date/sol, unités, résolution de la source et échantillonnage local, emprise,
-version et limites. Les badges distinguent les observations mesurées, les
-produits calculés, les scénarios simulés (dont l'éclairage du relief ombré) et
-les données inconnues. La disponibilité reste limitée à la région et à l'emprise
-déclarées ; le fond mondial ne fournit pas le détail de Jezero ailleurs sur Mars.
-
-Chaque fiche conserve les sources propres à son objectif, aux observations du
-rover, à la photo et à la procédure. Les activités et leurs durées sont des choix
-du scénario, visibles à côté des tâches ; le temps restant est un calcul à partir
-de ces hypothèses. Le budget et la page « Sources et limites » exposent les durées
-allouées actuelles ainsi que la vitesse, la durée de sortie, la réserve et le
-seuil de pente encore inconnus. Aucun paramètre absent n'est remplacé par zéro.
-La météo historique au rover, la résolution du relief, le tracé hypothétique et
-l'absence de validation opérationnelle sont explicités dans l'interface.
-
-La sélection d'un site et le passage entre Mars et Jezero conservent le manifeste.
-`selectProvenanceSnapshot` prépare un objet sérialisable pour accompagner une
-future sauvegarde de mission : manifeste complet avec versions et empreintes,
-couche active, site sélectionné, fiches, références scientifiques et hypothèses.
-La sauvegarde elle-même n'est pas encore implémentée.
+Le vent n'est plus publié après le sol 315 (capteur endommagé) : la capacité
+`weather-wind` est déclarée indisponible, avec sa raison et sa source, et
+`windStatus` la lit. La préparation s'arrête si un fichier de vent apparaît pour
+un sol préparé. Inventaire : [`docs/meteo-et-dangers.md`](docs/meteo-et-dangers.md).
 
 ### Préparer et vérifier
 
@@ -219,8 +221,8 @@ pnpm data:test      # tests des scripts
 
 `data:prepare` écrit dans un dossier temporaire, valide, puis remplace
 `apps/web/public/data` ; un échec réseau ou de validation laisse les données
-actuelles intactes. Le DEM CTX et le bloc de lignes lu dans le DEM HiRISE (103 Mo
-sur 1,8 Go, par requête `Range`) sont mis en cache dans `tools/data/.cache` (ignoré
+actuelles intactes. Le DEM CTX, le bloc de lignes lu dans le DEM HiRISE (103 Mo
+sur 1,8 Go, par requête `Range`) et les CSV MEDA sont mis en cache dans `tools/data/.cache` (ignoré
 par Git) et leur empreinte est vérifiée : si une source amont change, la préparation
 s'arrête pour revue. Le secteur, les URL et les crédits sont dans
 `tools/data/marps_data/spec.py`.
@@ -229,7 +231,9 @@ s'arrête pour revue. Le secteur, les URL et les crédits sont dans
 le secteur, tailles et empreintes des fichiers, unités, `NaN` des altitudes
 (aucune valeur sentinelle), pixels transparents, transformation des grilles,
 présence de chaque site sur une maille valide, pentes entre 0° et 90° sur la même
-grille que leurs altitudes, et cohérence statut/capacités.
+grille que leurs altitudes, 24 heures MEDA par sol avec une valeur seulement
+là où des mesures valides existent, position du rover dans le secteur, et
+cohérence statut/capacités.
 Les notes de recherche sont dans [`docs/`](docs/) et les échantillons de contrôle
 dans [`data/research/`](data/research/).
 
@@ -339,3 +343,131 @@ map dragging and zoom were exercised. The production worker cached the 108 built
 resources, including responsive styles and the prepared datasets. These checks
 use browser simulation; physical tablet/wrist hardware and glove input remain
 unverified.
+
+## Jezero mosaic exploration (#8)
+
+The Jezero view starts at the prepared mission sector and allows exploration of
+NASA's full declared HiRISE footprint (77.2229331–77.583964° E,
+18.3067994–18.669315° N), at WMTS levels 0–17. The pinned capabilities supply
+product bounds and matrix dimensions through optional manifest `wmts` metadata.
+Existing schema-2 readers remain compatible. The 91 prepared tiles at levels
+12–16 retain their original local paths and integrity hashes; other valid tiles
+use the NASA template, with at most eight simultaneous map tile loads and a
+15-second request timeout. Retry and return-to-prepared-sector actions remain
+available after failures. The Mars/Jezero switch preserves planner state.
+
+Yellow outlines mark product bounds, blue dashes the mission sector, and white
+point outlines the prepared tile envelope at the current integer zoom. Patterned
+background means no displayed image; a transparent pixel or a failed request is
+not evidence of navigable terrain. Scientific capabilities remain scoped to the
+original mission sector. The three manifest sites select their existing sheets;
+overlapping touch hits offer a named choice.
+
+The 100 CSS-pixel scale uses the manifest Mars radius (3,396,190 m), angular
+resolution and cosine of the center latitude. Coordinates are planetocentric,
+east-positive longitude/latitude. Nominal 0.25 m/pixel source sampling is distinct
+from displayed sampling and does not establish positioning accuracy.
+
+Production installation includes prepared resources. Extra streamed HiRISE tiles
+are not promised after offline reload: their bounded persistence belongs to #24.
+NASA connectivity is optional for the prepared-sector workflow. Validate browser
+rendering, disconnected reload, and physical tablet/glove interaction before
+operational use; these have not been exercised for this implementation.
+
+### Perseverance historical context (#20)
+
+The Jezero sector panel includes an optional Perseverance history toggle. It
+shows NASA-published positions and separate drive segments, not a validated
+human route or current telemetry. Select a feature on the map or use the
+keyboard-accessible list to inspect its sol/RMC. Overlapping rover hits narrow
+the list; science sites keep selection priority. Mission steps are unaffected.
+
+The prepared extract includes complete segments intersecting the mission sector
+and their available endpoint waypoints. Outside it, missing history means no
+prepared data, not evidence that the rover never visited. Original source
+coordinates are preserved; five endpoint discrepancies are listed in the
+snapshot quality details. No snapping, gap filling, site substitution or vertical
+alignment is performed. CRS84 in the upstream metadata is interpreted explicitly
+as Mars planetocentric east-positive longitude/latitude, not Earth coordinates.
+
+History files ship with the production PWA and are included in its versioned
+precache. After a successful online/local installation and offline-ready status,
+the layer needs no NASA connection. Failed history loads offer retry without
+blocking imagery or the mission. Production offline/tablet interaction still
+requires acceptance testing; the automatic checks do not establish it.
+
+## Missions, camps et activités (#11)
+
+La navigation À la base / En mission sépare la préparation et le suivi. Le thème,
+la carte et les composants Panel, Button et StepList sont conservés.
+
+### À la base : missions, modèles et camps
+
+Un seul panneau **Mission** a trois onglets : **Préparer** (l’assistant, pour
+une mission ou un modèle), **Camps** (le catalogue des camps) et **Missions**
+(missions enregistrées, modèles et historique). Une mission enregistrée se
+démarre directement depuis l’onglet Missions. Une nouvelle mission peut
+toujours partir d’un modèle existant.
+La création suit trois étapes :
+
+1. Objectif et nom : choisir reconnaissance, observation, photographie ou
+   prélèvement. Un nom est proposé automatiquement et reste modifiable. Une
+   nouvelle mission peut reprendre un modèle enregistré sans modifier ce modèle.
+2. Camp et parcours : sélectionner un camp déjà enregistré, ajouter des étapes
+   du catalogue ou par coordonnées, réordonner les visites et définir leurs
+   activités (photo, observation, prélèvement) et durées en minutes. Une mission
+   exige un camp et au moins une étape ; un modèle peut les laisser à compléter.
+3. Vérification : consulter le récapitulatif, régler durée disponible, vitesse et
+   réserve, puis enregistrer. Le démarrage est proposé après enregistrement.
+
+L’onglet **Camps** permet de rechercher parmi les camps existants ou d’en
+enregistrer un nouveau, puis de les modifier ou de les supprimer. À l’étape 2,
+le bouton « Créer un camp » ouvre cet onglet. Enregistrer un camp ne sélectionne
+ni ne modifie le camp d’une mission en préparation. Les missions conservent une copie du camp choisi,
+y compris si le catalogue est modifié par la suite.
+
+Les actions destructrices demandent confirmation. Un message signale les erreurs
+de stockage. Les contrôles de préparation ne sont disponibles qu’à Jezero.
+Le catalogue des camps reste consultable indépendamment de la vue de la carte.
+
+### En mission
+
+Démarrer crée une copie indépendante du plan et remet les coches à zéro.
+Modifier un modèle ou une mission à la base ne modifie pas la sortie en cours.
+Le reducer interdit les modifications de configuration dans le suivi. Le parcours,
+les activités à cocher et les fiches de site restent accessibles ; les paramètres
+et les allocations sont en lecture seule. Les tâches des fiches restent distinctes
+des activités des visites et ne sont pas additionnées automatiquement à celles-ci.
+
+Le suivi est enregistré automatiquement sur cet appareil et restauré au
+rechargement. Chaque sortie dispose d’une entrée d’historique mise à jour avec
+ses coches ; démarrer une autre sortie conserve les précédentes. L’historique
+indique la date de dernière sauvegarde et ne prétend pas qu’une sortie est
+terminée. La géométrie camp–étapes–camp relie des segments directs : elle ne
+constitue pas un chemin praticable validé. Le calcul complet du budget reste #14.
+
+### Stockage et données de simulation
+
+IndexedDB `marps-missions` version 3 sépare `camps`, `missions`, `templates`,
+`tracking` et `history`. Les migrations conservent les anciennes données. Les
+préparations existantes restent dans missions ; elles ne sont pas reclassées
+automatiquement comme modèles. Les missions portent `schemaVersion: 1`, leur
+identité, type (facultatif pour les anciennes sauvegardes), nom, région, camp,
+étapes ordonnées, activités et coches, paramètres, hypothèses et travail des
+fiches. Les durées générales sont en secondes, la vitesse en m/s et les durées
+d’activités en minutes. Les valeurs négatives/non finies, la vitesse nulle et
+une réserve supérieure à la durée disponible sont refusées.
+
+Le repository `apps/web/src/storage/missionDatabase.ts` constitue le point à
+étendre pour un futur catalogue partagé. Il n’existe actuellement ni serveur,
+ni synchronisation multi-équipage, ni télémétrie. Effacer les données du
+navigateur efface cette base.
+
+Les camps d’exemple de `packages/data/src/camps.ts` sont fictifs et initialisés
+une seule fois. Leurs positions dans le secteur préparé ne confirment ni
+habitabilité, ni présence d’équipements, ni sélection NASA. La recherche n’a pas
+identifié de catalogue NASA de camps humains martiens enregistrés. Le rapport
+[NASA sur la science et la protection planétaire avant les missions humaines](https://ntrs.nasa.gov/citations/20250009522)
+étudie un scénario à Jezero sans valider ces camps. Les
+[données Perseverance](https://science.nasa.gov/mission/mars-2020-perseverance/)
+concernent l’exploration robotique réelle et restent séparées des simulations.

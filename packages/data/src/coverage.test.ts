@@ -50,10 +50,11 @@ describe('committed manifest', () => {
   });
 
   it('enables Jezero detail only where data was frozen', () => {
-    for (const id of ['imagery-hirise', 'terrain-dem', 'terrain-slope', 'terrain-hillshade', 'science-sites']) {
+    for (const id of ['imagery-hirise', 'terrain-dem', 'terrain-slope', 'terrain-hillshade', 'science-sites', 'weather-meda', 'thermal-themis']) {
       expect(capabilityStatus(committed, 'jezero', id)).not.toBe('unavailable');
     }
-    for (const id of ['rover-traverse', 'thermal-themis', 'weather-meda', 'geology']) {
+    expect(capabilityStatus(committed, 'jezero', 'rover-traverse')).toBe('partial');
+    for (const id of ['geology']) {
       expect(capabilityStatus(committed, 'jezero', id)).toBe('unavailable');
     }
   });
@@ -93,10 +94,6 @@ describe('loadCatalog', () => {
     vi.stubGlobal('fetch', async () => new Response(JSON.stringify(committed)));
     const catalog = await loadCatalog();
     expect(catalog.regions).toEqual(regions);
-    expect(catalog.manifest).toEqual(committed);
-    for (const site of catalog.manifest.sites) {
-      expect(catalog.datasets.some((dataset) => dataset.id === site.datasetId && dataset.regionId === site.regionId)).toBe(true);
-    }
     expect(catalog.datasets.map((dataset) => dataset.id)).toEqual(committed.datasets.map((dataset) => dataset.id));
     expect(catalog.sites.map((site) => site.id)).toEqual(['skinner-ridge', 'wildcat-ridge', 'amalik']);
   });

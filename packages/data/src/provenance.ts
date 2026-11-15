@@ -4,6 +4,10 @@ export type ScientificStatus = 'measured' | 'calculated' | 'simulated' | 'unknow
 
 const statuses: Record<DatasetKind, ScientificStatus> = {
   imagery: 'measured',
+  'rover-waypoints': 'measured',
+  'rover-traverse': 'calculated',
+  thermal: 'measured',
+  weather: 'measured',
   sites: 'measured',
   basemap: 'calculated',
   elevation: 'calculated',

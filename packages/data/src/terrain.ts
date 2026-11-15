@@ -22,7 +22,7 @@ const usable: Record<DataStatus, number> = { unavailable: 0, partial: 1, availab
  * Null when the region has no usable grid of that kind: a global basemap never qualifies.
  */
 export function terrainDataset(
-  manifest: DataManifest,
+  manifest: Pick<DataManifest, 'datasets'>,
   regionId: string,
   kind: 'elevation' | 'slope',
 ): DatasetDescriptor | null {
@@ -33,6 +33,18 @@ export function terrainDataset(
     (a, b) => usable[b.status] - usable[a.status] || a.raster!.pixelSizeMetres - b.raster!.pixelSizeMetres,
   );
   return candidates[0] ?? null;
+}
+
+/** Shaded relief computed from this elevation grid, so the map shows the relief the profile reads. */
+export function hillshadeFor(
+  manifest: Pick<DataManifest, 'datasets'>,
+  elevation: DatasetDescriptor,
+): DatasetDescriptor | null {
+  return (
+    manifest.datasets.find(
+      (dataset) => dataset.kind === 'hillshade' && dataset.derivedFrom === elevation.id && dataset.status !== 'unavailable',
+    ) ?? null
+  );
 }
 
 /** Cell containing the coordinate, or null outside the grid. */

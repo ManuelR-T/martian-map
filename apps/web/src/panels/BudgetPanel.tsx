@@ -1,7 +1,7 @@
-import { BudgetBreakdown, DataState, Panel, ProvenanceBadge, type BudgetBreakdownProps } from '@marps/ui';
+import { CircleDashed } from 'lucide-react';
+import { BudgetBreakdown, Panel, type BudgetBreakdownProps } from '@marps/ui';
 import { usePlannerState } from '../state/PlannerProvider';
-import { selectMissionAssumptions } from '../state/planner';
-import { MissionAssumptions } from './MissionAssumptions';
+import { selectCurrentMission } from '../state/planner';
 import { PlanningGate } from './PlanningGate';
 
 export type BudgetView = Pick<
@@ -11,7 +11,6 @@ export type BudgetView = Pick<
 
 export interface BudgetPanelProps {
   className?: string;
-  collapsible?: boolean;
   /**
    * Budget calculé par le moteur de mission (#14) et mis en forme pour
    * l'affichage. `null` tant qu'une entrée manque : le panneau ne calcule rien.
@@ -19,29 +18,33 @@ export interface BudgetPanelProps {
   budget: BudgetView | null;
 }
 
-export function BudgetPanel({ className, budget, collapsible = true }: BudgetPanelProps) {
+export function BudgetPanel({ className, budget }: BudgetPanelProps) {
   const state = usePlannerState();
+  const mission = selectCurrentMission(state);
   return (
     <Panel
       title="Budget de temps"
-      collapsible={collapsible}
-      defaultOpen={Boolean(budget)}
+      description="Marche, observations, retour et réserve"
+      collapsible
       floating
       className={className}
       contentClassName="overflow-y-auto"
     >
-      {budget && <p className="mb-3 text-sm"><ProvenanceBadge status="calculated" /> Estimation selon les hypothèses de mission.</p>}
       <PlanningGate loadingTitle="Chargement du budget" coverageTitle="Pas de budget hors du secteur détaillé">
+        {(state.workspace === 'base' || state.runningMission) && <dl className="mb-3 grid gap-1 text-sm">
+          <div><dt className="inline">Durée disponible : </dt><dd className="inline">{mission.parameters.availableSeconds / 60} min</dd></div>
+          <div><dt className="inline">Vitesse prévue : </dt><dd className="inline">{mission.parameters.speedMetresPerSecond} m/s</dd></div>
+          <div><dt className="inline">Réserve : </dt><dd className="inline">{mission.parameters.reserveSeconds / 60} min</dd></div>
+        </dl>}
         {budget ? (
           <BudgetBreakdown {...budget} />
         ) : (
-          <DataState
-            kind="empty"
-            title="Budget non calculé"
-            description="Le budget s'affichera quand la mission aura un camp, au moins une étape et ses paramètres de durée."
-          />
+          // One line only: the empty budget must not push the site sheet below the fold on a 1280 × 800 screen.
+          <p className="flex items-center gap-2 text-sm text-muted-foreground">
+            <CircleDashed aria-hidden="true" className="size-4 shrink-0" />
+            Budget non calculé : ajoutez un camp et une étape.
+          </p>
         )}
-        <MissionAssumptions assumptions={selectMissionAssumptions(state)} />
       </PlanningGate>
     </Panel>
   );

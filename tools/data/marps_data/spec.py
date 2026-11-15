@@ -13,7 +13,7 @@ REPO_ROOT = TOOL_DIR.parents[1]
 DATA_DIR = REPO_ROOT / "apps" / "web" / "public" / "data"
 CACHE_DIR = TOOL_DIR / ".cache"
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 USER_AGENT = "marps-data-prepare/1.0"
 
 # Radius provided by the NASA Mars location-map configuration (docs/verification-sites-jezero.md).
@@ -33,6 +33,11 @@ MOLA_TILE_TEMPLATE = f"{TREK}/{MOLA_LAYER}/1.0.0/default/default028mm/{{z}}/{{y}
 HIRISE_CAPABILITIES_URL = f"{TREK}/{HIRISE_LAYER}/1.0.0/WMTSCapabilities.xml"
 HIRISE_TILE_TEMPLATE = f"{TREK}/{HIRISE_LAYER}/1.0.0/default/default028mm/{{z}}/{{y}}/{{x}}.png"
 HIRISE_ZOOMS = range(12, 17)  # z16 is about 0.64 m/pixel; native product is 0.25 m/pixel
+THEMIS_LAYER = "THEMIS_NightIR_ControlledMosaics_100m_v2_oct2018"
+THEMIS_CAPABILITIES_URL = f"{TREK}/{THEMIS_LAYER}/1.0.0/WMTSCapabilities.xml"
+# The capabilities template has "1.0.0//{Style}"; the single-slash form serves the same bytes.
+THEMIS_TILE_TEMPLATE = f"{TREK}/{THEMIS_LAYER}/1.0.0/default/default028mm/{{z}}/{{y}}/{{x}}.png"
+THEMIS_ZOOM = 9  # finest WMTS level, about 81 m/pixel at the equator; the product samples 100 m/pixel
 
 USGS_MOSAICS = "https://planetarymaps.usgs.gov/mosaic/mars2020_trn"
 # Constraints read on the USGS Astropedia record of each product.
@@ -120,6 +125,87 @@ TERRAIN_LIMITATIONS = (
 
 SITES_URL = "https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_SAMPLE_v3.json"
 
+# End-of-drive positions of Perseverance: tell where the rover stood during a MEDA sol.
+WAYPOINTS_URL = "https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json"
+
+MEDA_BUNDLE = "https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda"
+MEDA_PORTAL = "https://pds-atmospheres.nmsu.edu/data_and_services/atmospheres_data/PERSEVERANCE/meda.html"
+MEDA_CREDIT = "NASA/JPL-Caltech, CAB (CSIC-INTA), instrument MEDA de Perseverance ; archive PDS Atmospheres Node"
+
+
+@dataclass(frozen=True)
+class MedaProduct:
+    """One MEDA CSV of one sol and the single column kept from it."""
+
+    measure: str  # temperature | pressure; dataset id is jezero-meda-<measure>
+    title: str
+    sol: int
+    collection: str  # data_calibrated_env or data_derived_env
+    product: str  # file name without extension
+    column: str
+    unit: str  # as declared by the PDS4 label; the preparation stops if the label says otherwise
+    # Physically possible values; anything outside is an invalid sample, never a measurement.
+    valid_range: tuple[float, float]
+    sensor: str
+    sha256: str  # of the CSV; a changed source must be reviewed
+    limitations: tuple[str, ...]
+
+    @property
+    def base_url(self) -> str:
+        return f"{MEDA_BUNDLE}/{self.collection}/sol_0420_0539/sol_{self.sol:04d}/{self.product}"
+
+
+MEDA_PRODUCTS = (
+    MedaProduct(
+        measure="temperature",
+        title="Température de l'air au rover (MEDA, sol 500)",
+        sol=500,
+        # No derived ATS product exists: the readme says to use the calibrated level then.
+        collection="data_calibrated_env",
+        product="WE__0500___________CAL_ATS_________________P01",
+        # ATS1, on the mast at 1.45 m: on sol 500 it is the coldest of the five sensors in
+        # 18 hours out of 24 (20 out of 24 among the three mast sensors), so the least
+        # heated by the rover (Munguira et al., 2023).
+        column="ATS_LOCAL_TEMP1",
+        unit="kelvin",
+        valid_range=(120.0, 330.0),
+        sensor="Capteur ATS1, sur le mât à 1,45 m du sol",
+        sha256="14cb6fec22daed2ceaef66355629a0fe12c41999bae4c9694a35be62e9a05280",
+        limitations=(
+            "Un seul capteur retenu, jamais une moyenne des cinq : les autres lisent jusqu'à 25 °C de plus en journée, chauffés par le rover.",
+            "Médiane des mesures de chaque heure ; MEDA ne mesure qu'une partie de l'heure.",
+        ),
+    ),
+    MedaProduct(
+        measure="pressure",
+        title="Pression de l'air au rover (MEDA, sol 500)",
+        sol=500,
+        # The readme recommends the derived level when it exists.
+        collection="data_derived_env",
+        product="WE__0500___________DER_PS__________________P01",
+        column="PRESSURE",
+        unit="pascal",
+        valid_range=(100.0, 1300.0),
+        sensor="Capteur de pression, dans le boîtier du rover",
+        sha256="988eaf6b84a5a88094b9b350275c1bc2d14637f60a93c56eabd6e7ae5c3e4a22",
+        limitations=(
+            "Incertitude non utilisée : colonne vide, et le label lui donne l'unité kelvin au lieu du pascal.",
+            "Transducteur 1 sur tout le sol ; les notes de version MEDA signalent des sauts possibles de ce capteur.",
+        ),
+    ),
+)
+
+# Wind (#27): no CAL_WS or DER_WS file exists after sol 315. The release notes say the
+# sensor was damaged by harsh weather and recalibration is ongoing; the preparation
+# stops if a wind file appears for a prepared sol, so this never hides a new release.
+MEDA_RELEASE_NOTES_URL = f"{MEDA_BUNDLE}/document/meda_release_notes.txt"
+MEDA_WIND_REASON = "Vent non publié après le sol 315 : capteur de vent endommagé."
+
+MEDA_LIMITATIONS = (
+    "Mesure passée au rover, pas une prévision ni une mesure le long du parcours.",
+    "Aucune limite pour l'astronaute n'en est déduite.",
+)
+
 NASA_TERMS = {
     "summary": (
         "Contenu NASA réutilisable sans autorisation préalable pour un usage factuel "
@@ -138,3 +224,5 @@ UNVERIFIED_TERMS = {
 }
 
 CAPABILITY_NOT_INTEGRATED = "Non intégré à cette version du manifeste."
+
+ROVER_HASHES = {'waypoints': 'bd143ee69241229926abd373e6305b8bbb326d6b5a7b4a8d6935262696f93dc4', 'traverse': '6ddd0ece913d75b45d105946082f95ed84e68f4718b68d32a4421dc30877e7e6'}

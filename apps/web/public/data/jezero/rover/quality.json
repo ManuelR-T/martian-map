@@ -1,0 +1,11 @@
+{
+  "missingReferences": [],
+  "discrepancies": [
+    "sol 413 22_0: endpoint mismatch",
+    "sol 415 23_0: endpoint mismatch",
+    "sol 455 26_0: endpoint mismatch",
+    "sol 668 32_482: endpoint mismatch",
+    "sol 668 32_580: endpoint mismatch"
+  ],
+  "coordinates": "Mars planetocentric degrees, east-positive; upstream CRS84 is not an Earth datum."
+}

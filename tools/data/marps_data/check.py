@@ -12,12 +12,12 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from . import geo, spec
+from . import geo, meda, spec
 
 STATUSES = {"available", "partial", "unavailable"}
-KINDS = {"basemap", "imagery", "elevation", "slope", "hillshade", "sites"}
+KINDS = {"basemap", "imagery", "elevation", "slope", "hillshade", "sites", "rover-waypoints", "rover-traverse", "weather", "thermal"}
 DELIVERIES = {"local", "remote"}
-NODATA_KINDS = {"not-applicable", "alpha-channel", "nan"}
+NODATA_KINDS = {"not-applicable", "alpha-channel", "nan", "invalid-samples"}
 # Mars spans about -8.2 km (Hellas) to +21.2 km (Olympus Mons) around the MOLA datum.
 ELEVATION_RANGE_M = (-9000.0, 22000.0)
 SLOPE_RANGE_DEG = (0.0, 90.0)
@@ -63,7 +63,51 @@ def check_dataset_fields(d: dict) -> list[str]:
         errors.append(f"{label}: noData.kind must be one of {sorted(NODATA_KINDS)}")
     if not d.get("limitations"):
         errors.append(f"{label}: limitations must not be empty")
+    if d.get("kind") == "weather":
+        return errors  # a point: its extent is checked against the measurement position
     return errors + check_extent(d.get("extent"), label)
+
+
+def check_weather(root: Path, region: dict | None, d: dict) -> list[str]:
+    """Hourly MEDA series: 24 hours, a value only where valid samples exist, the rover inside the sector."""
+    label = f"dataset {d.get('id')}"
+    units = d.get("units") or {}
+    ranges = {p.unit: p.valid_range for p in spec.MEDA_PRODUCTS}
+    errors, invalid, empty = [], 0, 0
+    for f in d["files"]:
+        series = json.loads((root / f["path"]).read_text("utf-8"))
+        where = f"{label} {f['path']}"
+        if units != {series.get("measure"): series.get("unit")} or series.get("unit") not in ranges:
+            errors.append(f"{where}: unit differs from the dataset units")
+            continue
+        low, high = ranges[series["unit"]]
+        hours = series.get("hours", [])
+        if [h.get("hour") for h in hours] != list(meda.HOURS):
+            errors.append(f"{where}: hours must be 0 to 23, in order")
+        for h in hours:
+            has_value = h.get("median") is not None
+            if has_value != (h.get("samples", 0) > 0) or has_value != (h.get("firstLmst") is not None):
+                errors.append(f"{where}: hour {h.get('hour')} has a value exactly when it has valid samples")
+            elif has_value and not low <= h["median"] <= high:
+                errors.append(f"{where}: hour {h['hour']} outside the physical range (invalid value leaked?)")
+            invalid += h.get("invalid", 0)
+            empty += 0 if has_value else 1
+        location = series.get("location") or {}
+        point = {k: location.get(k) for k in ("longitude", "latitude")}
+        extent = d.get("extent") or {}
+        if (extent.get("west"), extent.get("east")) != (point["longitude"],) * 2 or (
+            extent.get("south"),
+            extent.get("north"),
+        ) != (point["latitude"],) * 2:
+            errors.append(f"{where}: extent must be the measurement position")
+        elif region and not geo.contains_point(region["extent"], point["longitude"], point["latitude"]):
+            errors.append(f"{where}: rover position is outside the {region['id']} sector")
+    no_data = d.get("noData") or {}
+    if (invalid, empty) != (no_data.get("invalidSampleCount"), no_data.get("emptyHourCount")):
+        errors.append(f"{label}: invalid samples or empty hours differ from noData")
+    if (empty > 0) != (d.get("status") != "available"):
+        errors.append(f"{label}: status must be 'partial' exactly when an hour has no value")
+    return errors
 
 
 def check_files(root: Path, d: dict) -> list[str]:
@@ -241,6 +285,36 @@ def check_imagery(root: Path, d: dict) -> list[str]:
     return errors
 
 
+def check_thermal_footprint(datasets: dict[str, dict], d: dict) -> list[str]:
+    """The night layer is drawn over HiRISE: its frozen tiles must cover every place the HiRISE product can show.
+
+    The app draws `tileset.ranges` only, so coverage is judged on those tiles, not on the declared extent.
+    """
+    label = f"dataset {d.get('id')}"
+    tileset = d.get("tileset") or {}
+    ranges = tileset.get("ranges") or []
+    if not ranges or not tileset.get("urlTemplate") or check_extent(d.get("extent"), ""):
+        return [f"{label}: thermal dataset needs tileset ranges and a valid extent"]
+    frozen = {f["path"] for f in d.get("files", [])}
+    errors = []
+    for r in ranges:
+        for row in range(r["rowMin"], r["rowMax"] + 1):
+            for col in range(r["colMin"], r["colMax"] + 1):
+                path = tileset["urlTemplate"].replace("{z}", str(r["z"])).replace("{y}", str(row)).replace("{x}", str(col))
+                if path not in frozen:
+                    errors.append(f"{label}: tile {path} is in tileset.ranges but not frozen")
+    finest = max(ranges, key=lambda r: r["z"])
+    drawn = geo.union(geo.tile_extent(finest["z"], finest["colMin"], finest["rowMin"]),
+                      geo.tile_extent(finest["z"], finest["colMax"], finest["rowMax"]))
+    if not (geo.contains(drawn, d["extent"]) and geo.contains(d["extent"], drawn)):
+        errors.append(f"{label}: extent differs from the tiles of tileset.ranges")
+    products = [i["wmts"]["extent"] for i in datasets.values()
+                if i.get("kind") == "imagery" and i.get("regionId") == d.get("regionId") and i.get("wmts")]
+    if any(not geo.contains(drawn, product) for product in products):
+        errors.append(f"{label}: thermal tiles do not cover the imagery product extent")
+    return errors
+
+
 def check_sites(root: Path, manifest: dict, d: dict) -> list[str]:
     label = f"dataset {d.get('id')}"
     region = next((r for r in manifest["regions"] if r["id"] == d["regionId"]), None)
@@ -285,6 +359,8 @@ def check_capabilities(manifest: dict, datasets: dict[str, dict]) -> list[str]:
                 errors.append(f"{where}: an available capability must reference datasets")
             if cap.get("status") == "unavailable" and not cap.get("reason"):
                 errors.append(f"{where}: an unavailable capability needs a reason")
+            if "reasonUrl" in cap and not str(cap["reasonUrl"]).startswith("https://"):
+                errors.append(f"{where}: reasonUrl must be an https link")
             for dataset_id in cap.get("datasetIds", []):
                 dataset = datasets.get(dataset_id)
                 if dataset is None:
@@ -315,7 +391,7 @@ def validate(root: Path) -> list[str]:
         region = regions.get(d.get("regionId"))
         if region is None:
             errors.append(f"dataset {d.get('id')}: unknown region {d.get('regionId')}")
-        elif not check_extent(d.get("extent"), "") and d["status"] == "available" and d["kind"] != "sites":
+        elif d["status"] == "available" and d["kind"] not in {"sites", "rover-waypoints", "rover-traverse", "weather"} and not check_extent(d.get("extent"), ""):
             if not geo.contains(d["extent"], region["extent"]):
                 errors.append(f"dataset {d['id']}: extent does not cover the {region['id']} region")
         if file_errors:
@@ -328,8 +404,28 @@ def validate(root: Path) -> list[str]:
             errors += check_hillshade(root, datasets, d)
         elif d.get("kind") == "imagery":
             errors += check_imagery(root, d)
+            if d.get("wmts") is not None:
+                from .wmts import imagery_wmts
+                try:
+                    expected = imagery_wmts((root / "jezero/hirise/WMTSCapabilities.xml").read_bytes())
+                    if d["wmts"] != expected:
+                        errors.append("imagery: WMTS metadata differs from frozen capabilities")
+                except (OSError, ValueError, AttributeError, TypeError) as error:
+                    errors.append(f"imagery: invalid WMTS metadata: {error}")
+        elif d.get("kind") in {"rover-waypoints", "rover-traverse"}:
+            from .rover import validate_feature
+            try:
+                collection = json.loads((root / d["files"][0]["path"]).read_text())
+                for feature in collection["features"]:
+                    validate_feature(feature, "Point" if d["kind"] == "rover-waypoints" else "LineString")
+            except (ValueError, KeyError, TypeError) as error:
+                errors.append(f"rover: {error}")
+        elif d.get("kind") == "thermal":
+            errors += check_imagery(root, d) + check_thermal_footprint(datasets, d)
         elif d.get("kind") == "sites":
             errors += check_sites(root, manifest, d)
+        elif d.get("kind") == "weather":
+            errors += check_weather(root, region, d)
     return errors + check_capabilities(manifest, datasets)
 
 

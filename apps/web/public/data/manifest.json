@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 2,
-  "generatedAt": "2026-11-14T12:39:18Z",
+  "schemaVersion": 3,
+  "generatedAt": "2026-11-14T22:03:52Z",
   "planet": {
     "name": "Mars",
     "radiusMeters": 3396190.0,
@@ -86,23 +86,36 @@
         {
           "id": "rover-traverse",
           "label": "Trace historique de Perseverance",
-          "status": "unavailable",
-          "datasetIds": [],
-          "reason": "Non intégré à cette version du manifeste."
+          "status": "partial",
+          "datasetIds": [
+            "jezero-perseverance-waypoints",
+            "jezero-perseverance-traverse"
+          ]
         },
         {
           "id": "thermal-themis",
           "label": "Infrarouge nocturne THEMIS",
-          "status": "unavailable",
-          "datasetIds": [],
-          "reason": "Non intégré à cette version du manifeste."
+          "status": "available",
+          "datasetIds": [
+            "jezero-themis-night-ir"
+          ]
         },
         {
           "id": "weather-meda",
           "label": "Température et pression MEDA",
+          "status": "available",
+          "datasetIds": [
+            "jezero-meda-temperature",
+            "jezero-meda-pressure"
+          ]
+        },
+        {
+          "id": "weather-wind",
+          "label": "Vent MEDA",
           "status": "unavailable",
           "datasetIds": [],
-          "reason": "Non intégré à cette version du manifeste."
+          "reason": "Vent non publié après le sol 315 : capteur de vent endommagé.",
+          "reasonUrl": "https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/document/meda_release_notes.txt"
         },
         {
           "id": "geology",
@@ -814,6 +827,300 @@
           "sha256": "491acc228a2831a22ac4b19370305b95eb1f210d2aff7425ab0a347173d56e8e",
           "mediaType": "image/png"
         }
+      ],
+      "wmts": {
+        "layer": "JEZ_hirise_soc_006_orthoMosaic_25cm_Eqc_latTs0_lon0_first_dd",
+        "style": "default",
+        "matrixSet": "default028mm",
+        "crs": "urn:ogc:def:crs:EPSG::104905",
+        "format": "image/png",
+        "extent": {
+          "west": 77.2229331,
+          "south": 18.3067994,
+          "east": 77.583964,
+          "north": 18.669315
+        },
+        "matrices": [
+          {
+            "id": "0",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 2,
+            "height": 1
+          },
+          {
+            "id": "1",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 4,
+            "height": 2
+          },
+          {
+            "id": "2",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 8,
+            "height": 4
+          },
+          {
+            "id": "3",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 16,
+            "height": 8
+          },
+          {
+            "id": "4",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 32,
+            "height": 16
+          },
+          {
+            "id": "5",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 64,
+            "height": 32
+          },
+          {
+            "id": "6",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 128,
+            "height": 64
+          },
+          {
+            "id": "7",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 256,
+            "height": 128
+          },
+          {
+            "id": "8",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 512,
+            "height": 256
+          },
+          {
+            "id": "9",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 1024,
+            "height": 512
+          },
+          {
+            "id": "10",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 2048,
+            "height": 1024
+          },
+          {
+            "id": "11",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 4096,
+            "height": 2048
+          },
+          {
+            "id": "12",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 8192,
+            "height": 4096
+          },
+          {
+            "id": "13",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 16384,
+            "height": 8192
+          },
+          {
+            "id": "14",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 32768,
+            "height": 16384
+          },
+          {
+            "id": "15",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 65536,
+            "height": 32768
+          },
+          {
+            "id": "16",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 131072,
+            "height": 65536
+          },
+          {
+            "id": "17",
+            "origin": [
+              -180.0,
+              90.0
+            ],
+            "tileSize": 256,
+            "width": 262144,
+            "height": 131072
+          }
+        ]
+      }
+    },
+    {
+      "id": "jezero-themis-night-ir",
+      "regionId": "jezero",
+      "title": "Infrarouge de nuit THEMIS (contexte thermique)",
+      "kind": "thermal",
+      "instrument": "Mars Odyssey, caméra THEMIS (mosaïque contrôlée de l'infrarouge de nuit)",
+      "delivery": "local",
+      "source": {
+        "url": "https://trek.nasa.gov/tiles/Mars/EQ/THEMIS_NightIR_ControlledMosaics_100m_v2_oct2018/1.0.0/WMTSCapabilities.xml",
+        "tileUrlTemplate": "https://trek.nasa.gov/tiles/Mars/EQ/THEMIS_NightIR_ControlledMosaics_100m_v2_oct2018/1.0.0/default/default028mm/{z}/{y}/{x}.png",
+        "retrievedAt": "2026-11-14T16:38:59Z",
+        "credit": "NASA/JPL-Caltech/Arizona State University ; mosaïque USGS ; distribué par NASA Mars Trek",
+        "terms": {
+          "summary": "Conditions propres à ce produit non vérifiées ; appliquer au minimum la citation de la source et confirmer avant toute redistribution.",
+          "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+          "verified": false
+        },
+        "fingerprint": {
+          "target": "WMTSCapabilities.xml",
+          "sha256": "33ca1797dbd3a6b05b729ff29aaf484e14be7bcac4f8e1243f0f294eb4b6e504",
+          "bytes": 7681
+        }
+      },
+      "acquisition": {
+        "date": null,
+        "sol": null,
+        "note": "Mosaïque historique publiée en octobre 2018, assemblée à partir de nombreuses nuits ; dates non relevées par tuile."
+      },
+      "units": {},
+      "crs": "urn:ogc:def:crs:EPSG::104905",
+      "extent": {
+        "west": 76.9921875,
+        "south": 18.28125,
+        "east": 77.6953125,
+        "north": 18.984375
+      },
+      "resolution": {
+        "value": 100.0,
+        "unit": "m/pixel"
+      },
+      "noData": {
+        "kind": "alpha-channel",
+        "transparentPixelCount": 0
+      },
+      "status": "available",
+      "version": "v2_oct2018",
+      "limitations": [
+        "Niveaux de gris étirés pour l'affichage (USGS : produit qualitatif) : ni température, ni inertie thermique chiffrée.",
+        "Sombre : matériaux fins (poussière, sable) ; clair : roche ou sol induré. Lecture qualitative.",
+        "Seul le niveau 9 (environ 81 m/pixel) est figé, sur l'emprise du produit HiRISE ; aucune tuile au-delà."
+      ],
+      "tileset": {
+        "matrixSet": "default028mm",
+        "tileSize": 256,
+        "urlTemplate": "jezero/themis/{z}/{y}/{x}.png",
+        "ranges": [
+          {
+            "z": 9,
+            "colMin": 731,
+            "colMax": 732,
+            "rowMin": 202,
+            "rowMax": 203
+          }
+        ],
+        "finestMetresPerPixel": 81.40140956264587
+      },
+      "files": [
+        {
+          "path": "jezero/themis/WMTSCapabilities.xml",
+          "bytes": 7681,
+          "sha256": "33ca1797dbd3a6b05b729ff29aaf484e14be7bcac4f8e1243f0f294eb4b6e504",
+          "mediaType": "application/xml"
+        },
+        {
+          "path": "jezero/themis/9/202/731.png",
+          "bytes": 55221,
+          "sha256": "57eae601ec46ba64a4159a4d4ed177c23653a9057afeb0f4f29e35219c5cb9db",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/themis/9/202/732.png",
+          "bytes": 56407,
+          "sha256": "d78d424b970ea474ccb8fb63541e83d6da2d7ace63abc19e7fc291ca022340a6",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/themis/9/203/731.png",
+          "bytes": 55527,
+          "sha256": "f0983499660aca5c0a28c19373ea97bdc868f944fe571acd18465324055ea8ce",
+          "mediaType": "image/png"
+        },
+        {
+          "path": "jezero/themis/9/203/732.png",
+          "bytes": 52393,
+          "sha256": "442e0972bfa7812223c71bf170210c7215334da31832e5570174a147e2e42720",
+          "mediaType": "image/png"
+        }
       ]
     },
     {
@@ -1343,6 +1650,250 @@
           "bytes": 2278,
           "sha256": "f5ff324cbbef5562cbf733bbab599049984ee99c7b49bc56358f4d041b19b391",
           "mediaType": "application/geo+json"
+        }
+      ]
+    },
+    {
+      "id": "jezero-perseverance-waypoints",
+      "regionId": "jezero",
+      "title": "Perseverance waypoints",
+      "kind": "rover-waypoints",
+      "instrument": "Mars 2020 Perseverance",
+      "delivery": "local",
+      "source": {
+        "url": "https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json",
+        "retrievedAt": "2026-11-14T16:26:51Z",
+        "credit": "NASA/JPL-Caltech",
+        "terms": {
+          "summary": "Contenu NASA réutilisable sans autorisation préalable pour un usage factuel sans suggestion de soutien ; NASA doit être citée comme source.",
+          "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+          "verified": true
+        },
+        "fingerprint": {
+          "target": "Upstream GeoJSON",
+          "sha256": "bd143ee69241229926abd373e6305b8bbb326d6b5a7b4a8d6935262696f93dc4",
+          "bytes": 603126
+        }
+      },
+      "acquisition": {
+        "date": null,
+        "sol": null,
+        "note": "M20_waypoints_sol2022_all"
+      },
+      "units": {
+        "longitude": "degree",
+        "latitude": "degree"
+      },
+      "crs": "MARS:104905",
+      "extent": {
+        "west": 77.39914701,
+        "east": 77.41413552,
+        "south": 18.44830598,
+        "north": 18.46551938
+      },
+      "resolution": null,
+      "noData": {
+        "kind": "not-applicable"
+      },
+      "status": "partial",
+      "version": "M20_waypoints_sol2022_all",
+      "limitations": [
+        "Historical extract; not a validated human route.",
+        "Mars planetocentric degrees, east-positive; upstream CRS84 is not an Earth datum.",
+        "Original vertices and elevations preserved; no vertical alignment performed."
+      ],
+      "files": [
+        {
+          "path": "jezero/rover/waypoints.geojson",
+          "bytes": 107991,
+          "sha256": "5a3ce4f97b75d90f9f6b5917464c7d7d789e0929a5353ba57f355d7bec1e0413",
+          "mediaType": "application/geo+json"
+        },
+        {
+          "path": "jezero/rover/quality.json",
+          "bytes": 355,
+          "sha256": "6fa3d8ccb156308165aa88233d28d9829d3fdee124e6950e336d52e9d6ef977b",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "id": "jezero-perseverance-traverse",
+      "regionId": "jezero",
+      "title": "Perseverance traverse",
+      "kind": "rover-traverse",
+      "instrument": "Mars 2020 Perseverance",
+      "delivery": "local",
+      "source": {
+        "url": "https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_traverse.json",
+        "retrievedAt": "2026-11-14T16:26:51Z",
+        "credit": "NASA/JPL-Caltech",
+        "terms": {
+          "summary": "Contenu NASA réutilisable sans autorisation préalable pour un usage factuel sans suggestion de soutien ; NASA doit être citée comme source.",
+          "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+          "verified": true
+        },
+        "fingerprint": {
+          "target": "Upstream GeoJSON",
+          "sha256": "6ddd0ece913d75b45d105946082f95ed84e68f4718b68d32a4421dc30877e7e6",
+          "bytes": 1723218
+        }
+      },
+      "acquisition": {
+        "date": null,
+        "sol": null,
+        "note": "M20_Traverse_Path_tosol2022"
+      },
+      "units": {
+        "longitude": "degree",
+        "latitude": "degree"
+      },
+      "crs": "MARS:104905",
+      "extent": {
+        "west": 77.39912853,
+        "east": 77.41413552,
+        "south": 18.44826861,
+        "north": 18.46551938
+      },
+      "resolution": null,
+      "noData": {
+        "kind": "not-applicable"
+      },
+      "status": "partial",
+      "version": "M20_Traverse_Path_tosol2022",
+      "limitations": [
+        "Historical extract; not a validated human route.",
+        "Mars planetocentric degrees, east-positive; upstream CRS84 is not an Earth datum.",
+        "Original vertices and elevations preserved; no vertical alignment performed."
+      ],
+      "files": [
+        {
+          "path": "jezero/rover/traverse.geojson",
+          "bytes": 189343,
+          "sha256": "05b8f76b0f47f6eafd6b22fa30564a0f7ad952bc650a4fe8fea796adf88628af",
+          "mediaType": "application/geo+json"
+        }
+      ]
+    },
+    {
+      "id": "jezero-meda-temperature",
+      "regionId": "jezero",
+      "title": "Température de l'air au rover (MEDA, sol 500)",
+      "kind": "weather",
+      "instrument": "Rover Perseverance, station météo MEDA (Capteur ATS1, sur le mât à 1,45 m du sol)",
+      "delivery": "local",
+      "source": {
+        "url": "https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_calibrated_env/sol_0420_0539/sol_0500/WE__0500___________CAL_ATS_________________P01.CSV",
+        "labelUrl": "https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_calibrated_env/sol_0420_0539/sol_0500/WE__0500___________CAL_ATS_________________P01.xml",
+        "retrievedAt": "2026-11-14T22:03:52Z",
+        "credit": "NASA/JPL-Caltech, CAB (CSIC-INTA), instrument MEDA de Perseverance ; archive PDS Atmospheres Node",
+        "terms": {
+          "summary": "Conditions propres à ce produit non vérifiées ; appliquer au minimum la citation de la source et confirmer avant toute redistribution.",
+          "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+          "verified": false
+        },
+        "fingerprint": {
+          "target": "CSV",
+          "sha256": "14cb6fec22daed2ceaef66355629a0fe12c41999bae4c9694a35be62e9a05280",
+          "bytes": 2518142
+        }
+      },
+      "acquisition": {
+        "date": "2022-07-16",
+        "sol": "500",
+        "note": "Sol 500, du 2022-07-16T22:18:01.706Z au 2022-07-17T22:17:02.386Z (UTC)."
+      },
+      "units": {
+        "temperature": "kelvin"
+      },
+      "crs": "urn:ogc:def:crs:OGC:1.3:CRS84",
+      "extent": {
+        "west": 77.40616768,
+        "east": 77.40616768,
+        "south": 18.45889532,
+        "north": 18.45889532
+      },
+      "resolution": null,
+      "noData": {
+        "kind": "invalid-samples",
+        "invalidSampleCount": 0,
+        "emptyHourCount": 0
+      },
+      "status": "available",
+      "version": "P01",
+      "limitations": [
+        "Un seul capteur retenu, jamais une moyenne des cinq : les autres lisent jusqu'à 25 °C de plus en journée, chauffés par le rover.",
+        "Médiane des mesures de chaque heure ; MEDA ne mesure qu'une partie de l'heure.",
+        "Mesure passée au rover, pas une prévision ni une mesure le long du parcours.",
+        "Aucune limite pour l'astronaute n'en est déduite."
+      ],
+      "files": [
+        {
+          "path": "jezero/meda/temperature-sol0500.json",
+          "bytes": 4346,
+          "sha256": "78f4c6302a20d1ffcdaa6a7505bd51865a15c04ab95c5bebde1d2959ba85a871",
+          "mediaType": "application/json"
+        }
+      ]
+    },
+    {
+      "id": "jezero-meda-pressure",
+      "regionId": "jezero",
+      "title": "Pression de l'air au rover (MEDA, sol 500)",
+      "kind": "weather",
+      "instrument": "Rover Perseverance, station météo MEDA (Capteur de pression, dans le boîtier du rover)",
+      "delivery": "local",
+      "source": {
+        "url": "https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_derived_env/sol_0420_0539/sol_0500/WE__0500___________DER_PS__________________P01.CSV",
+        "labelUrl": "https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/data_derived_env/sol_0420_0539/sol_0500/WE__0500___________DER_PS__________________P01.xml",
+        "retrievedAt": "2026-11-14T22:03:52Z",
+        "credit": "NASA/JPL-Caltech, CAB (CSIC-INTA), instrument MEDA de Perseverance ; archive PDS Atmospheres Node",
+        "terms": {
+          "summary": "Conditions propres à ce produit non vérifiées ; appliquer au minimum la citation de la source et confirmer avant toute redistribution.",
+          "url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+          "verified": false
+        },
+        "fingerprint": {
+          "target": "CSV",
+          "sha256": "988eaf6b84a5a88094b9b350275c1bc2d14637f60a93c56eabd6e7ae5c3e4a22",
+          "bytes": 1687719
+        }
+      },
+      "acquisition": {
+        "date": "2022-07-16",
+        "sol": "500",
+        "note": "Sol 500, du 2022-07-16T22:18:04.706Z au 2022-07-17T22:16:38.386Z (UTC)."
+      },
+      "units": {
+        "pressure": "pascal"
+      },
+      "crs": "urn:ogc:def:crs:OGC:1.3:CRS84",
+      "extent": {
+        "west": 77.40616768,
+        "east": 77.40616768,
+        "south": 18.45889532,
+        "north": 18.45889532
+      },
+      "resolution": null,
+      "noData": {
+        "kind": "invalid-samples",
+        "invalidSampleCount": 0,
+        "emptyHourCount": 0
+      },
+      "status": "available",
+      "version": "P01",
+      "limitations": [
+        "Incertitude non utilisée : colonne vide, et le label lui donne l'unité kelvin au lieu du pascal.",
+        "Transducteur 1 sur tout le sol ; les notes de version MEDA signalent des sauts possibles de ce capteur.",
+        "Mesure passée au rover, pas une prévision ni une mesure le long du parcours.",
+        "Aucune limite pour l'astronaute n'en est déduite."
+      ],
+      "files": [
+        {
+          "path": "jezero/meda/pressure-sol0500.json",
+          "bytes": 4338,
+          "sha256": "83b20c65aef4dd19cb0f2652e0a50079976a33f089581d27b24fedafc9a0b38f",
+          "mediaType": "application/json"
         }
       ]
     }

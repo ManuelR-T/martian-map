@@ -3,22 +3,26 @@ import { DataState, Panel } from '@marps/ui';
 import { SitePicker, SiteSheetView } from '../sites/SiteSheetView';
 import { siteWorkOf } from '../sites/siteWork';
 import { usePlannerDispatch, usePlannerState } from '../state/PlannerProvider';
-import { SiteProvenance } from './Provenance';
+import { selectCurrentMission } from '../state/planner';
 import { PlanningGate } from './PlanningGate';
 
-export function SiteDetailsPanel({ className, collapsible = true }: { className?: string; collapsible?: boolean }) {
-  const { catalog, selectedSiteId, siteWork } = usePlannerState();
+export function SiteDetailsPanel({ className }: { className?: string }) {
+  const state = usePlannerState();
+  const { catalog, selectedSiteId, workspace, runningMission } = state;
+  const mission = selectCurrentMission(state);
   const dispatch = usePlannerDispatch();
   const sites = catalog.status === 'ready' ? catalog.data.sites : [];
   const sheet = selectedSiteId ? findSiteSheet(selectedSiteId) : undefined;
 
+  if (workspace === 'mission' && !runningMission) return null;
+
   return (
     <Panel
       title="Fiche de site"
-      collapsible={collapsible}
+      collapsible
       floating
       className={className}
-      contentClassName="overflow-y-auto p-3"
+      contentClassName="overflow-y-auto px-3 py-2"
     >
       <PlanningGate loadingTitle="Chargement des fiches" coverageTitle="Pas de fiche hors du secteur détaillé">
         <div className="grid gap-1.5">
@@ -32,7 +36,8 @@ export function SiteDetailsPanel({ className, collapsible = true }: { className?
           {sheet ? (
             <SiteSheetView
               sheet={sheet}
-              work={siteWorkOf(siteWork, sheet)}
+              tracking={workspace === 'mission' && runningMission !== null}
+              work={siteWorkOf(mission.siteWork, sheet)}
               onTaskToggle={(taskId) => dispatch({ type: 'siteTaskToggled', sheet, taskId })}
               onAllottedChange={(minutes) => dispatch({ type: 'siteAllottedChanged', sheet, minutes })}
             />
@@ -46,7 +51,6 @@ export function SiteDetailsPanel({ className, collapsible = true }: { className?
             <DataState kind="empty" title="Aucun site sélectionné" description="Choisissez un site pour voir sa fiche." />
           )}
         </div>
-        {selectedSiteId ? <SiteProvenance siteId={selectedSiteId} /> : null}
       </PlanningGate>
     </Panel>
   );

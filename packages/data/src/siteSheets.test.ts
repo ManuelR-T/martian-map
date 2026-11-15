@@ -29,7 +29,7 @@ describe('site sheets', () => {
 
   it('never presents organic molecules as proof of life', () => {
     for (const sheet of siteSheets) {
-      const text = [sheet.objective, sheet.roverWork.text, sheet.photo.caption, ...sheet.tasks.map((task) => task.label)]
+      const text = [sheet.question, sheet.objective, sheet.roverWork.text, sheet.photo.caption, ...sheet.tasks.map((task) => task.label)]
         .join(' ')
         .toLowerCase();
       expect(text).not.toMatch(/preuve|prouv|démontr|confirm|certain|\bvie\b/);
@@ -48,6 +48,13 @@ describe('site sheets', () => {
     for (const sheet of siteSheets) {
       expect(STOP_MINUTES_CHOICES).toContain(plannedTaskMinutes(sheet));
     }
+  });
+
+  it('lets the crew allot the demo stops: 75 min planned, 125 min with a second sample, 30 min cut down', () => {
+    // A real geology stop lasts about an hour (Apollo 17 planned 30 to 66 min); the demo needs more than 60 min.
+    const amalik = siteSheets.find((sheet) => sheet.siteId === 'amalik');
+    expect(amalik && plannedTaskMinutes(amalik)).toBe(75);
+    for (const minutes of [30, 75, 125]) expect(STOP_MINUTES_CHOICES).toContain(minutes);
   });
 
   it('gives every task a unique id within its stop, so ticking one never ticks another', () => {

@@ -8,7 +8,7 @@ const rank: Record<DataStatus, number> = { unavailable: 0, partial: 1, available
  * Status of a capability, limited by its weakest dataset. Anything not declared for
  * that exact region is unavailable: a basemap never enables detailed data.
  */
-export function capabilityStatus(manifest: DataManifest, regionId: string, capabilityId: string): DataStatus {
+export function capabilityStatus(manifest: Pick<DataManifest, 'regions' | 'datasets'>, regionId: string, capabilityId: string): DataStatus {
   const capability = manifest.regions
     .find((region) => region.id === regionId)
     ?.capabilities.find((candidate) => candidate.id === capabilityId);

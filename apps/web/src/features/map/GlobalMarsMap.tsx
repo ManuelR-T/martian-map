@@ -1,6 +1,7 @@
-import { Info } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import Map from 'ol/Map';
+import { defaults as defaultControls } from 'ol/control';
+import { MapInformation } from './MapInformation';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import ImageLayer from 'ol/layer/Image';
@@ -10,27 +11,24 @@ import ImageStatic from 'ol/source/ImageStatic';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import { Circle, Fill, Stroke, Style, Text } from 'ol/style';
-import { datasetScientificStatus, regions, type DataManifest, type DatasetDescriptor } from '@marps/data';
-import { Button, ProvenanceBadge } from '@marps/ui';
-import { DatasetProvenance, RegionCapabilities } from '../../panels/Provenance';
+import { regions, type DatasetDescriptor } from '@marps/data';
+import { Button } from '@marps/ui';
 import { createGlobalMarsSource, createRegionSource, marsProjection, resolutions } from './marsWmts';
 import './global-mars-map.css';
 
 interface Props {
   dataset: DatasetDescriptor;
-  manifest: DataManifest;
   global: boolean;
   onSelectRegion: () => void;
 }
 
-export function GlobalMarsMap({ dataset, manifest, global, onSelectRegion }: Props) {
+export function GlobalMarsMap({ dataset, global, onSelectRegion }: Props) {
   const target = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
   const sourceRef = useRef<ReturnType<typeof createGlobalMarsSource> | ReturnType<typeof createRegionSource> | null>(null);
   const [offline, setOffline] = useState(!navigator.onLine);
   const [failed, setFailed] = useState(false);
   const [resolution, setResolution] = useState<number | null>(null);
-  const region = manifest.regions.find((candidate) => candidate.id === dataset.regionId);
   useEffect(() => {
     const source = global ? createGlobalMarsSource(dataset) : createRegionSource(dataset);
     sourceRef.current = source;
@@ -49,7 +47,7 @@ export function GlobalMarsMap({ dataset, manifest, global, onSelectRegion }: Pro
     const view = new View({ projection: marsProjection, center: [0, 0],
       resolutions: global ? resolutions : Array.from({ length: Math.max(...levels) + 1 }, (_, z) => 360 / (512 * 2 ** z)),
       extent: global ? [-180, -90, 180, 90] : bounds, minZoom: Math.min(...levels), maxZoom: Math.max(...levels), showFullExtent: true });
-    const map = new Map({ target: target.current!, layers: [
+    const map = new Map({ controls: defaultControls({ attribution: false }), target: target.current!, layers: [
       ...(global ? [fallback('west', [-180, -90, 0, 90]), fallback('east', [0, -90, 180, 90])] : []),
       new TileLayer({ source }),
       ...(global ? [new VectorLayer({ source: new VectorSource({ features: [marker], wrapX: false }) })] : []),
@@ -68,13 +66,7 @@ export function GlobalMarsMap({ dataset, manifest, global, onSelectRegion }: Pro
   }, [dataset, global, onSelectRegion]);
   return <div className="mars-map-container">
     <div ref={target} className="mars-map" tabIndex={0} aria-label={global ? 'Carte globale de Mars. Flèches pour déplacer, plus et moins pour zoomer.' : 'Carte du secteur Jezero'} />
-    {(failed || offline) && <div role="status" className="map-alert border bg-card p-3 text-sm text-foreground">
-      <p>{failed ? 'Certaines tuiles sont indisponibles.' : 'Hors ligne : seules les données téléchargées sont accessibles.'}</p>
-      {failed && <Button variant="outline" size="sm" onClick={() => { setFailed(false); sourceRef.current?.refresh(); }}>Réessayer les tuiles</Button>}
-    </div>}
-    <details className="map-information border bg-card/95 p-2 text-xs text-foreground backdrop-blur-sm">
-      <summary className="map-info-toggle cursor-pointer font-semibold" aria-label="Légende et informations" title="Légende et informations"><Info aria-hidden="true" className="size-5 shrink-0" /><span className="map-info-label">Légende et informations</span></summary>
-      <p><ProvenanceBadge status={datasetScientificStatus(dataset)} /></p>
+    <MapInformation>
       <div className="flex flex-wrap items-center gap-2">
       {global && <>
         <Button size="sm" className="px-2" onClick={onSelectRegion}>Ouvrir Jezero</Button>
@@ -83,20 +75,12 @@ export function GlobalMarsMap({ dataset, manifest, global, onSelectRegion }: Pro
       </div>
       <p role="status">{failed ? 'Certaines tuiles sont indisponibles.' : offline ? 'Hors ligne : données locales et tuiles déjà téléchargées.' : global ? 'Carte disponible. Les détails globaux se chargent en ligne.' : 'Imagerie locale chargée.'} {global ? 'Glissez pour explorer Mars ; utilisez la molette ou + / − pour zoomer.' : 'Imagerie locale figée ; hors secteur, aucune couverture.'}</p>
       {failed && <Button variant="outline" size="sm" onClick={() => { setFailed(false); sourceRef.current?.refresh(); }}>Réessayer les tuiles</Button>}
-      {global && <p className="mt-2"><span aria-hidden="true" className="mr-2 inline-block size-3 rounded-full border-2 border-[#151b25] bg-[#ffcc66]" />Jezero : sélectionnez le repère pour ouvrir le secteur détaillé.</p>}
       <div className="map-metadata">
-      <p className="mt-2">{dataset.title}. {resolution !== null && `Vue : ${resolution.toFixed(6)}°/pixel.`}</p>
-      {global
-        ? <p>Orientation mondiale uniquement. Les détails de Jezero ne sont pas disponibles partout sur Mars. Le fond de secours est moins détaillé que la source nominale ; la planification est limitée à Jezero. Repère Jezero approximatif : 77,58° E, 18,44° N.</p>
-        : <p>Imagerie du secteur préparé uniquement. Aucune validation opérationnelle : les images ne garantissent pas la praticabilité du terrain.</p>}
-      <DatasetProvenance dataset={dataset} datasets={manifest.datasets} />
-      {region && <details className="border-t py-2">
-        <summary className="min-h-11 cursor-pointer py-2 font-semibold">Disponibilité des données de {region.name}</summary>
-        <RegionCapabilities region={region} manifest={manifest} />
-        {!global && <p>La météo historique au rover n’est ni une prévision ni une mesure sur tout le secteur. Le relief ne résout pas les obstacles plus petits que sa maille.</p>}
-      </details>}
-      <a className="inline-flex min-h-11 items-center underline" href="#/sources">Toutes les sources, hypothèses et limites</a>
+      <p className="mt-2">{dataset.title} · Échantillonnage nominal : {dataset.resolution?.value ?? 'inconnu'} m/pixel. {resolution !== null && `Vue : ${resolution.toFixed(6)}°/pixel.`} {global && 'Le fond de secours est moins détaillé. La planification est limitée à Jezero.'}</p>
+      <p>Couverture : {dataset.extent.west.toFixed(6)}° à {dataset.extent.east.toFixed(6)}° E ; {dataset.extent.south.toFixed(6)}° à {dataset.extent.north.toFixed(6)}° N.</p>
+      {global && <p>Repère Jezero approximatif : 77,58° E, 18,44° N. Le fond global est destiné à l’orientation.</p>}
+      <a className="underline" href={dataset.source.url}>Source : {dataset.source.credit}</a>
       </div>
-    </details>
+    </MapInformation>
   </div>;
 }

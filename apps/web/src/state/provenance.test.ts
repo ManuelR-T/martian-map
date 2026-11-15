@@ -32,23 +32,23 @@ describe('planner provenance', () => {
 
   it('can serialize a self-contained manifest, scientific references and actual timing assumptions for future saves', () => {
     const sheet = siteSheets.find((candidate) => candidate.siteId === 'amalik')!;
-    const changed = plannerReducer(loaded, { type: 'siteAllottedChanged', sheet, minutes: 45 });
+    const changed = plannerReducer({ ...loaded, view: 'region' }, { type: 'siteAllottedChanged', sheet, minutes: 45 });
     const snapshot = selectProvenanceSnapshot(changed)!;
     const restored = JSON.parse(JSON.stringify(snapshot)) as typeof snapshot;
     expect(restored).toEqual(snapshot);
     expect(restored.manifest).toEqual(manifest);
     expect(restored.manifest.datasets.every((dataset) => dataset.version && dataset.source.fingerprint.sha256)).toBe(true);
     expect(restored.assumptions.stops.find((stop) => stop.siteId === 'amalik')?.allottedMinutes).toBe(45);
-    expect(restored.assumptions.stops.find((stop) => stop.siteId === 'wildcat-ridge')?.allottedMinutes).toBe(30);
+    expect(restored.assumptions.stops.find((stop) => stop.siteId === 'wildcat-ridge')?.allottedMinutes).toBe(75);
     expect(restored.scienceSources).toEqual(scienceSources);
     expect(restored.siteSheets).toEqual(siteSheets);
   });
 
-  it('retains missing inputs as null, with no invented speed, duration, reserve or slope threshold', () => {
+  it('uses the mission scenario parameters while retaining unavailable terrain thresholds as null', () => {
     expect(selectMissionAssumptions(loaded)).toMatchObject({
-      speedKilometresPerHour: null,
-      outingMinutes: null,
-      reserveMinutes: null,
+      speedKilometresPerHour: 1.8,
+      outingMinutes: 240,
+      reserveMinutes: 30,
       slopeLimitDegrees: null,
     });
     expect(selectMissionAssumptions(initialPlannerState).stops).toEqual([]);
