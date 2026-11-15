@@ -13,7 +13,7 @@ REPO_ROOT = TOOL_DIR.parents[1]
 DATA_DIR = REPO_ROOT / "apps" / "web" / "public" / "data"
 CACHE_DIR = TOOL_DIR / ".cache"
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 USER_AGENT = "marps-data-prepare/1.0"
 
 # Radius provided by the NASA Mars location-map configuration (docs/verification-sites-jezero.md).
@@ -27,6 +27,8 @@ SITE_NAMES = ("Skinner Ridge", "Wildcat Ridge", "Amalik")
 
 TREK = "https://trek.nasa.gov/tiles/Mars/EQ"
 MOLA_LAYER = "Mars_MGS_MOLA_ClrShade_merge_global_463m"
+# Offline fallback of the global map: the two level-0 tiles (west and east halves) of the MOLA basemap.
+MOLA_FALLBACK_TILES = {"west": (0, 0, 0), "east": (0, 1, 0)}  # name: zoom, column, row
 HIRISE_LAYER = "JEZ_hirise_soc_006_orthoMosaic_25cm_Eqc_latTs0_lon0_first_dd"
 MOLA_CAPABILITIES_URL = f"{TREK}/{MOLA_LAYER}/1.0.0/WMTSCapabilities.xml"
 MOLA_TILE_TEMPLATE = f"{TREK}/{MOLA_LAYER}/1.0.0/default/default028mm/{{z}}/{{y}}/{{x}}.jpg"
@@ -224,5 +226,45 @@ UNVERIFIED_TERMS = {
 }
 
 CAPABILITY_NOT_INTEGRATED = "Non intégré à cette version du manifeste."
+
+# Geologic map USGS SIM 3464 (#28): only the file geodatabase entries of the zip are read.
+GEOLOGY_RECORD_URL = "https://pubs.usgs.gov/publication/sim3464"
+GEOLOGY_README_URL = "https://pubs.usgs.gov/sim/3464/sim3464_readme.txt"
+GEOLOGY_ZIP_URL = "https://pubs.usgs.gov/sim/3464/sim3464_database.zip"
+GEOLOGY_ZIP_BYTES = 349_336_873  # a different size means a new release: review it
+GEOLOGY_GDB_FOLDER = "sim3464_JezeroNili_FINAL/Geodatabase/Nili.gdb/"
+GEOLOGY_LAYER = "GeoUnits_v1"
+# Of the byte block holding the geodatabase entries (first read on 2026-11-15).
+GEOLOGY_GDB_SHA256 = "5002532a38dfc06dd9daf3068d0c43de86cc42e1eb1dcb9b0918ec1f2c1b81ba"
+GEOLOGY_AUTHORS = "Vivian Sun, Kathryn Stack"
+GEOLOGY_PUBLISHED = "2020"
+GEOLOGY_SCALE = 75_000
+GEOLOGY_CREDIT = (
+    "Sun, V., et Stack, K., 2020, Geologic map of Jezero crater and the Nili Planum region, Mars : "
+    "U.S. Geological Survey Scientific Investigations Map 3464, échelle 1:75 000"
+)
+GEOLOGY_TERMS = {
+    "summary": "Métadonnées USGS : aucune contrainte d'accès ni d'usage ; citer Sun et Stack (2020).",
+    "url": "https://pubs.usgs.gov/sim/3464/sim3464_metadata.txt",
+    "verified": True,
+}
+# README: the map was drawn on a semi-controlled CTX mosaic and is randomly offset by about
+# 100 to 200 m from the controlled mosaic used by Mars 2020. Random means no single shift
+# corrects it, so none is applied and the upper bound is kept as the uncertainty.
+GEOLOGY_OFFSET_M = (100.0, 200.0)
+# Display colours chosen by the app; the map sheet colours live in ArcMap files not read here.
+# A unit of the sector missing from this list stops the preparation, so it gets reviewed.
+GEOLOGY_UNITS = {
+    "NHjf2": {"colour": "#d99a3d"},
+    "Njf": {"colour": "#5f9ec4"},
+    "Nue": {"colour": "#b072b8"},
+    "Aeb": {"colour": "#e6d7a3"},
+}
+GEOLOGY_LIMITATIONS = (
+    "Carte interprétative à l'échelle 1:75 000 : unités et contacts sont une lecture des auteurs, pas une mesure.",
+    "Décalage aléatoire de 100 à 200 m par rapport à la mosaïque CTX contrôlée de Mars 2020 (README USGS) ; aucun recalage appliqué.",
+    "Un site n'est rattaché à une unité que si aucune autre unité n'est à moins de 200 m de lui.",
+    "Couleurs choisies par l'application, pas celles de la feuille USGS.",
+)
 
 ROVER_HASHES = {'waypoints': 'bd143ee69241229926abd373e6305b8bbb326d6b5a7b4a8d6935262696f93dc4', 'traverse': '6ddd0ece913d75b45d105946082f95ed84e68f4718b68d32a4421dc30877e7e6'}

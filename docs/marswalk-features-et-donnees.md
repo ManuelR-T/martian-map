@@ -71,11 +71,11 @@ Integrated by #22: `pnpm data:prepare` freezes the WMTS capacities and the 4 til
 
 These gray levels are not temperatures. The USGS describes these mosaics as qualitative 8-bit products, stretched and melted for display: no degrees, no encrypted thermal inertia. At night, dust and fine sand cool quickly and appear dark; rock and hardened soils remain clear ([USGS](https://stac.astrogeology.usgs.gov/docs/data/mars/themis_controlled_mosaics/)).
 
-### Detailed geology: product identified, additional preparation
+### Detailed geology: integrated as an interpretive layer
 
 [USGS SIM 3464](https://pubs.usgs.gov/publication/sim3464) · [README](https://pubs.usgs.gov/sim/3464/sim3464_readme.txt) · [Archive SIG](https://pubs.usgs.gov/sim/3464/sim3464_database.zip).
 
-README retrieved (HTTP 200); central directory of the ZIP inspected by partial request (HTTP 206). The 349,336,873 byte archive contains a geodatabase and rasters; complete download and conversion not completed. The README indicates random offsets of approximately 100–200 m from the controlled operational mosaic. To be kept in extension: do not assume precise alignment with each sample.
+Integrated by #28: `pnpm data:prepare` reads only the geodatabase bytes of the 349 MB archive, clips the units to the sector and freezes them as `jezero/geology/units.geojson` (dataset `jezero-geology-units`, about 12 KB). The README's random 100–200 m offset is not corrected; no stop is given a unit while another lies within 200 m. Details in [geologie-jezero.md](geologie-jezero.md).
 
 ## Minimum duration model
 

@@ -1,11 +1,11 @@
 import { localize } from '../localize';
 import type { ComponentProps } from 'react';
-import { Calculator, CircleHelp, FlaskConical, Ruler, type LucideIcon } from 'lucide-react';
+import { Calculator, CircleHelp, FlaskConical, PenLine, Ruler, type LucideIcon } from 'lucide-react';
 
 import { cn } from '../lib/utils';
 import { Badge } from './ui/badge';
 
-export type ProvenanceStatus = 'measured' | 'calculated' | 'simulated' | 'unknown';
+export type ProvenanceStatus = 'measured' | 'calculated' | 'simulated' | 'interpreted' | 'unknown';
 
 interface ProvenanceDefinition {
   readonly label: string;
@@ -21,6 +21,11 @@ const definitions: Record<ProvenanceStatus, ProvenanceDefinition> = {
     icon: FlaskConical,
     className: 'border-dashed border-warning-border bg-warning-surface text-warning',
   },
+  interpreted: {
+    label: 'Interprété',
+    icon: PenLine,
+    className: 'border-dashed border-info-border bg-info-surface text-info',
+  },
   unknown: { label: 'Inconnu', icon: CircleHelp, className: 'border-dashed border-input bg-transparent text-foreground' },
 };
 
@@ -28,7 +33,7 @@ export interface ProvenanceBadgeProps extends Omit<ComponentProps<'span'>, 'chil
   status: ProvenanceStatus;
 }
 
-/** Indique si une valeur est mesurée, calculée, simulée ou inconnue : mot, icône et bordure. */
+/** Indique si une valeur est mesurée, calculée, simulée, interprétée ou inconnue : mot, icône et bordure. */
 export function ProvenanceBadge({ status, className, ...props }: ProvenanceBadgeProps) {
   const definition = definitions[status];
   const Icon = definition.icon;

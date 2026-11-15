@@ -8,6 +8,7 @@ import hashlib
 import json
 import shutil
 import urllib.request
+import zipfile
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
@@ -17,11 +18,13 @@ from io import BytesIO
 from pathlib import Path
 
 import numpy as np
+import pyogrio
+import shapely
 import tifffile
 from PIL import Image
 
 from .wmts import imagery_wmts
-from . import check, geo, meda, spec, terrain
+from . import check, geo, geology, meda, spec, terrain
 from .rover import prepare_rover
 
 # Covers the TIFF tags and the row offsets of the largest source (HiRISE: 172 609 bytes).
@@ -82,9 +85,12 @@ def cached(name: str, expected_sha256: str, download: Callable[[], bytes]) -> by
     return data
 
 
-def prepare_mola(retrieved_at: str) -> dict:
-    """Global basemap: orientation only, streamed from Trek, never frozen."""
+def prepare_mola(staging: Path, retrieved_at: str) -> dict:
+    """Global basemap: orientation only, streamed from Trek. Only its two level-0 tiles are frozen, as the offline fallback."""
     capabilities = fetch(spec.MOLA_CAPABILITIES_URL)
+    for name, tile in spec.MOLA_FALLBACK_TILES.items():
+        _, data, _ = fetch_tile(spec.MOLA_TILE_TEMPLATE, tile)
+        write_file(staging, f"{check.MOLA_FALLBACK_DIR}/{name}.jpg", data, "image/jpeg")
     return {
         "id": "mola-colorized-relief",
         "regionId": "global",
@@ -603,6 +609,104 @@ def prepare_meda(staging: Path, retrieved_at: str, sites: list[dict]) -> list[di
     return datasets
 
 
+def prepare_geology(staging: Path, retrieved_at: str, sites: list[dict]) -> dict:
+    """Interpretive geologic units around the sector (#28), from the geodatabase entries of the SIM 3464 zip."""
+    size = spec.GEOLOGY_ZIP_BYTES
+    tail_start = size - 65_536  # holds the central directory (about 23 KB) and its end record
+    tail = fetch_range(spec.GEOLOGY_ZIP_URL, tail_start, size)
+    start, end = geology.entry_span(zipfile.ZipFile(geology.SparseFile(size, {tail_start: tail})), spec.GEOLOGY_GDB_FOLDER)
+    block = cached("sim3464-gdb.bin", spec.GEOLOGY_GDB_SHA256, lambda: fetch_range(spec.GEOLOGY_ZIP_URL, start, end))
+    folder = spec.CACHE_DIR / "sim3464" / "Nili.gdb"
+    shutil.rmtree(folder, ignore_errors=True)
+    archive = zipfile.ZipFile(geology.SparseFile(size, {tail_start: tail, start: block}))
+    geology.extract(archive, spec.GEOLOGY_GDB_FOLDER, folder)
+
+    offset = spec.GEOLOGY_OFFSET_M[1]
+    meta, _, wkb, fields = pyogrio.raw.read(folder, layer=spec.GEOLOGY_LAYER, bbox=geology.mtm_bounds(spec.SECTOR, 2 * offset))
+    crs = meta["crs"].replace(" ", "")
+    if '"central_meridian",77.5' not in crs or "3396190" not in crs:
+        raise RuntimeError(f"{spec.GEOLOGY_LAYER}: projection differs from MTM 77.5° E on the Mars 2000 sphere; review geology.py.")
+    columns = list(meta["fields"])
+    symbols, names = fields[columns.index("symbol")], fields[columns.index("name")]
+    units = [(str(symbols[i]), shapely.from_wkb(geometry)) for i, geometry in enumerate(wkb)]
+    unit_names = {str(symbols[i]): str(names[i]) for i in range(len(units))}
+
+    clipped = geology.clip_units(units, spec.SECTOR)
+    site_units = geology.site_candidates(units, sites, offset)
+    shown = sorted(set(clipped) | {c["symbol"] for s in site_units for c in s["candidates"]})
+    unknown = [symbol for symbol in shown if symbol not in spec.GEOLOGY_UNITS]
+    if unknown:
+        raise RuntimeError(f"units {unknown} are new in the sector: give them a colour in spec.GEOLOGY_UNITS.")
+    sector_area = shapely.box(spec.SECTOR["west"], spec.SECTOR["south"], spec.SECTOR["east"], spec.SECTOR["north"]).area
+    covered = sum(geometry.area for geometry in clipped.values()) / sector_area
+
+    collection = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {"symbol": symbol, "name": unit_names[symbol]},
+                "geometry": {"type": "MultiPolygon", "coordinates": geology.polygon_rings(geometry)},
+            }
+            for symbol, geometry in clipped.items()
+        ],
+    }
+    body = (json.dumps(collection, ensure_ascii=False, separators=(",", ":")) + "\n").encode("utf-8")
+    entry = write_file(staging, "jezero/geology/units.geojson", body, "application/geo+json")
+    return {
+        "id": "jezero-geology-units",
+        "regionId": "jezero",
+        "title": "Unités géologiques de Jezero (carte USGS SIM 3464, secteur du front du delta)",
+        "kind": "geology",
+        "instrument": "Cartographie géologique interprétative sur mosaïque CTX semi-contrôlée (Mars Reconnaissance Orbiter)",
+        "delivery": "local",
+        "source": {
+            "url": spec.GEOLOGY_ZIP_URL,
+            "retrievedAt": retrieved_at,
+            "credit": spec.GEOLOGY_CREDIT,
+            "terms": spec.GEOLOGY_TERMS,
+            "fingerprint": fingerprint("Octets de la géodatabase Nili.gdb dans l'archive", block),
+        },
+        "acquisition": {
+            "date": None,
+            "sol": None,
+            "note": f"Carte publiée en {spec.GEOLOGY_PUBLISHED}, dessinée avant la mosaïque CTX contrôlée de juillet 2020.",
+        },
+        "units": {},
+        "crs": "urn:ogc:def:crs:EPSG::104905",
+        "extent": spec.SECTOR,
+        "resolution": None,
+        "noData": {"kind": "not-applicable"},
+        "status": "available" if covered > 0.999 else "partial",
+        "version": f"SIM 3464, couche {spec.GEOLOGY_LAYER}",
+        "limitations": list(spec.GEOLOGY_LIMITATIONS),
+        "files": [entry],
+        "geology": {
+            "authors": spec.GEOLOGY_AUTHORS,
+            "published": spec.GEOLOGY_PUBLISHED,
+            "scale": spec.GEOLOGY_SCALE,
+            "interpretive": True,
+            "recordUrl": spec.GEOLOGY_RECORD_URL,
+            "registration": {
+                "method": "none",
+                "offsetMetres": {"min": spec.GEOLOGY_OFFSET_M[0], "max": offset},
+                "sourceUrl": spec.GEOLOGY_README_URL,
+            },
+            "units": [
+                {
+                    "symbol": symbol,
+                    "name": unit_names[symbol],
+                    "period": geology.period(symbol),
+                    "colour": spec.GEOLOGY_UNITS[symbol]["colour"],
+                    "sectorShare": round(clipped[symbol].area / sector_area, 3) if symbol in clipped else 0.0,
+                }
+                for symbol in shown
+            ],
+            "sites": site_units,
+        },
+    }
+
+
 def not_integrated(capability_id: str, label: str) -> dict:
     return {
         "id": capability_id,
@@ -664,7 +768,7 @@ def build_manifest(datasets: list[dict], sites: list[dict], generated_at: str) -
                     available("thermal-themis", "Infrarouge nocturne THEMIS", "jezero-themis-night-ir"),
                     available("weather-meda", "Température et pression MEDA", "jezero-meda-temperature", "jezero-meda-pressure"),
                     unpublished("weather-wind", "Vent MEDA", spec.MEDA_WIND_REASON, spec.MEDA_RELEASE_NOTES_URL),
-                    not_integrated("geology", "Carte géologique"),
+                    available("geology", "Carte géologique (interprétative)", "jezero-geology-units"),
                 ],
             },
         ],
@@ -682,13 +786,14 @@ def main() -> None:
     sites_dataset, sites = prepare_sites(staging, retrieved_at)
     hirise = prepare_hirise(staging, retrieved_at)
     datasets = [
-        prepare_mola(retrieved_at),
+        prepare_mola(staging, retrieved_at),
         hirise,
         prepare_themis(staging, retrieved_at, hirise["wmts"]["extent"]),
         *(d for product in spec.ELEVATION_PRODUCTS for d in prepare_terrain(staging, retrieved_at, product)),
         sites_dataset,
         *prepare_rover(staging, retrieved_at),
         *prepare_meda(staging, retrieved_at, sites),
+        prepare_geology(staging, retrieved_at, sites),
     ]
     manifest = build_manifest(datasets, sites, retrieved_at)
     (staging / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", "utf-8")

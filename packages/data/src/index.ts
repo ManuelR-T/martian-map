@@ -35,6 +35,7 @@ export * from './conditions';
 export * from './siteSheets';
 export * from './terrain';
 export * from './rover';
+export * from './geology';
 export * from './profileSampler';
 
 export * from './camps';

@@ -33,6 +33,9 @@ import { RoverHistoryControl, roverMessages } from './RoverHistoryControl';
 import { jezeroMessages } from './jezeroMessages';
 import { ThemisNightControl } from './ThemisNightControl';
 import { useThemisNightLayer } from './useThemisNightLayer';
+import type { GeologyDataset } from '@marps/data';
+import { GeologyControl } from './GeologyControl';
+import { useGeologyLayer } from './useGeologyLayer';
 const messages = new Proxy(jezeroMessages.fr, { get: (target, key: string) => localize(target[key as keyof typeof target]) });
 
 interface Props {
@@ -47,14 +50,17 @@ interface Props {
   selected: string | null;
   onSelect: (id: string) => void;
   themisDataset?: DatasetDescriptor;
+  geologyDataset?: GeologyDataset;
   /** Extra layers and controls given the map instance, e.g. the relief and route of #15. */
   overlay?: (map: Map | null) => ReactNode;
 }
 const bounds = (extent: Extent) => [extent.west, extent.south, extent.east, extent.north];
-export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected, onSelect, datasets, roverEnabled, onRoverToggle, overlay, themisDataset }: Props) {
+export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected, onSelect, datasets, roverEnabled, onRoverToggle, overlay, themisDataset, geologyDataset }: Props) {
   const mission = selectCurrentMission(usePlannerState());
   const themis = useThemisNightLayer(themisDataset);
   const themisLayer = themis.layer;
+  const geology = useGeologyLayer(geologyDataset);
+  const geologyLayer = geology.layer;
   const [history, setHistory] = useState<RoverHistory | null>(null);
   const [historyFailed, setHistoryFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -123,7 +129,7 @@ export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected,
     });
     const map = new Map({ controls: defaultControls({ attribution: false }), target: target.current!, maxTilesLoading: 8, layers: [
       new TileLayer({ source: createRegionSource(dataset) }), new TileLayer({ source }),
-      // Order: imagery < night infrared < rover traverse (zIndex 2) < outlines and sites (zIndex 3).
+      // Order: imagery < night infrared < geology (zIndex 1) < rover traverse (zIndex 2) < outlines and sites (zIndex 3).
       ...(themisLayer ? [themisLayer] : []),
       new VectorLayer({ zIndex: 3, source: new VectorSource({ features: [boundary(product.extent, '#ffcc66', []), boundary(sector, SECTOR_COLOUR, [10, 5])], wrapX: false }) }),
       new VectorLayer({ zIndex: 3, source: new VectorSource({ features: prepared, wrapX: false }), style: feature => {
@@ -177,6 +183,13 @@ export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected,
   }, [history, roverSelected, roverEnabled, dataset, sector, radius, sites, onSelect, themisLayer]);
   useEffect(() => {
     const map = mapRef.current;
+    if (!map || !geologyLayer) return;
+    // Loaded on demand, so added to the built map instead of rebuilding it (which would reset the view).
+    map.addLayer(geologyLayer);
+    return () => { map.removeLayer(geologyLayer); };
+  }, [geologyLayer, dataset, sector, radius, sites, onSelect, themisLayer]);
+  useEffect(() => {
+    const map = mapRef.current;
     if (!map) return;
     const layer = createMissionLayer(mission);
     map.addLayer(layer);
@@ -202,6 +215,7 @@ export function JezeroMap({ panelHost, dataset, sector, radius, sites, selected,
       <div className="mt-2 border-t pt-2" role="group" aria-label={localize(messages.layersTitle)}>
         <p className="text-xs font-semibold">{localize(messages.layersTitle)}</p>
         {localize(overlay?.(overlayMap))}
+        {geologyDataset && <GeologyControl dataset={geologyDataset} sites={sites} settings={geology.settings} onChange={geology.setSettings} loading={geology.loading} failed={geology.failed} onRetry={geology.retry} className="border-0 bg-transparent p-0" />}
         {themisDataset && <ThemisNightControl dataset={themisDataset} settings={themis.settings} onChange={themis.setSettings} className="border-0 bg-transparent p-0" />}
         <RoverHistoryControl enabled={roverEnabled} onToggle={onRoverToggle} history={history} candidates={roverCandidates} failed={historyFailed} retry={() => { setHistoryFailed(false); setAttempt(value => value + 1); }} selected={roverSelected} onSelect={index => { setRoverSelected(index); if (index === null) setRoverCandidates(null); }} />
       </div>
